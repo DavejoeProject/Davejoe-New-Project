@@ -77,14 +77,6 @@ export const LoginForm: React.FC = () => {
     setPassword('');
   };
 
-  // Quick fill helper for review/testing
-  const handleQuickFill = (demoRole: string, demoEmail: string) => {
-    setRole(demoRole);
-    setEmail(demoEmail);
-    setPassword('management2026');
-    setErrors({});
-  };
-
   return (
     <>
       <div className="w-full max-w-[430px] bg-white rounded-2xl border border-slate-200/75 shadow-[0_12px_36px_-10px_rgba(15,23,42,0.07)] p-7 sm:p-9 relative z-10 transition-card">
@@ -248,34 +240,6 @@ export const LoginForm: React.FC = () => {
                 </button>
               </div>
             </form>
-
-            {/* Quick Demo Pre-fill Bar (Subtle, helpful for demonstration without altering layout) */}
-            <div className="mt-6 pt-5 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
-              <span className="font-medium text-slate-400">Quick fill demo:</span>
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => handleQuickFill('Management / CEO', 'ceo@davejoe.com')}
-                  className="px-2 py-0.5 rounded text-[11px] font-medium text-slate-600 bg-slate-50 hover:bg-[#18B892]/10 hover:text-[#18B892] transition-colors cursor-pointer"
-                >
-                  CEO
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleQuickFill('Site Supervisor', 'supervisor@davejoe.com')}
-                  className="px-2 py-0.5 rounded text-[11px] font-medium text-slate-600 bg-slate-50 hover:bg-[#18B892]/10 hover:text-[#18B892] transition-colors cursor-pointer"
-                >
-                  Supervisor
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleQuickFill('Technical Inspection & QC Officer', 'qc@davejoe.com')}
-                  className="px-2 py-0.5 rounded text-[11px] font-medium text-slate-600 bg-slate-50 hover:bg-[#18B892]/10 hover:text-[#18B892] transition-colors cursor-pointer"
-                >
-                  QC Officer
-                </button>
-              </div>
-            </div>
           </div>
         ) : (
           /* SUCCESS STATE AFTER SIGN IN */
