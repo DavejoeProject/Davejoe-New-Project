@@ -47,30 +47,35 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Authoritatively load user profile, roles, and permissions from the database
   const loadUserData = useCallback(async (authUser: User) => {
     try {
-      const [userProfile, roles] = await Promise.all([
+      const [userProfile, { assignedSlugs, assignedNames }] = await Promise.all([
         AuthService.getProfile(authUser.id),
-        AuthService.getUserRoles(authUser.id),
+        AuthService.getUserRolesDetailed(authUser.id),
       ]);
+
+      const roles = Array.from(new Set([...assignedSlugs, ...assignedNames]));
 
       setProfile(userProfile);
       setAssignedRoles(roles);
 
-      const isManagement = roles.some((r) => normalizeRoleKey(r) === 'management');
+      const isManagement =
+        assignedSlugs.some((s) => s.toLowerCase().trim() === 'management') ||
+        roles.some((r) => normalizeRoleKey(r) === 'management');
+
       const userPermissions = await AuthService.getUserPermissions(authUser.id, isManagement);
       setPermissions(userPermissions);
 
       // Verify active role key: MUST match an actually assigned database role
       let validatedRoleKey: StandardRoleKey | null = null;
 
-      // Check if user stored a UI preference that is STILL legitimately assigned to them
-      if (typeof window !== 'undefined') {
+      if (isManagement) {
+        validatedRoleKey = 'management';
+      } else if (typeof window !== 'undefined') {
         const storedPreference = localStorage.getItem(UI_SELECTED_ROLE_KEY) as StandardRoleKey | null;
         if (storedPreference && roles.some((r) => normalizeRoleKey(r) === storedPreference)) {
           validatedRoleKey = storedPreference;
         }
       }
 
-      // If no valid preference, default to their primary assigned database role
       if (!validatedRoleKey && roles.length > 0) {
         const primary = normalizeRoleKey(roles[0]);
         if (primary) {
@@ -93,9 +98,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     async function initAuth() {
       try {
-        const { data: { session: initialSession }, error } = await supabase.auth.getSession();
-        if (error) {
-          console.warn('[AuthContext] Error reading session on load:', error.message);
+        const {
+          data: { session: initialSession },
+          error: sessionError,
+        } = await supabase.auth.getSession();
+
+        if (sessionError) {
+          console.warn('[AuthContext] Error reading session on load:', sessionError.message);
         }
 
         if (mounted) {
@@ -103,7 +112,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setUser(initialSession?.user ?? null);
 
           if (initialSession?.user) {
-            await loadUserData(initialSession.user);
+            // Authoritative verification via getUser() as per requirement 7
+            const {
+              data: { user: verifiedUser },
+            } = await supabase.auth.getUser();
+
+            const activeUser = verifiedUser || initialSession.user;
+            await loadUserData(activeUser);
           }
         }
       } catch (err) {

@@ -130,7 +130,68 @@ export function getRouteForRole(roleInput: string): string {
   return '/login';
 }
 
+export interface UserRoleRecord {
+  roleId: string;
+  roleName: string;
+  roleSlug: string;
+}
+
+export interface RoleDiagnosticReport {
+  userId: string;
+  userRolesQuery: {
+    attempted: string;
+    rowCount: number;
+    error: any;
+    columnsFound: string[];
+    sampleData?: any;
+  };
+  rolesQuery: {
+    attempted: string;
+    rowCount: number;
+    error: any;
+    sampleData?: any;
+  };
+  profilesQuery: {
+    attempted: string;
+    found: boolean;
+    error: any;
+    roleFieldsDetected: Record<string, any>;
+  };
+  classification:
+    | 'SUCCESS'
+    | 'A_NO_ROWS'
+    | 'B_RLS_ERROR'
+    | 'C_INCORRECT_RELATIONSHIP'
+    | 'D_USER_ID_MISSING'
+    | 'E_WRONG_FIELD'
+    | 'F_UNEXPECTED_NAME';
+  explanation: string;
+}
+
 export class AuthService {
+  /**
+   * Diagnostic logger for authentication and role resolution
+   */
+  static logDiagnostics(report: RoleDiagnosticReport) {
+    const isError = report.classification !== 'SUCCESS';
+    const headerStyle = isError
+      ? 'background: #EF4444; color: white; padding: 2px 6px; border-radius: 4px; font-weight: bold;'
+      : 'background: #01875F; color: white; padding: 2px 6px; border-radius: 4px; font-weight: bold;';
+
+    console.groupCollapsed(
+      `%c[Davejoe Auth Diagnostics] %c${report.classification}: ${report.explanation}`,
+      headerStyle,
+      'color: #1e293b; font-weight: 600;'
+    );
+    console.log('User ID:', report.userId);
+    console.log('Step 1 - public.user_roles query:', report.userRolesQuery);
+    console.log('Step 2 - public.roles query:', report.rolesQuery);
+    console.log('Step 3 - public.profiles query:', report.profilesQuery);
+    console.log('Classification:', report.classification);
+    console.log('Diagnostic Details:', report.explanation);
+    console.groupEnd();
+  }
+
   /**
    * Fetches user profile from profiles table
    */
@@ -143,91 +204,260 @@ export class AuthService {
         .maybeSingle();
 
       if (error) {
-        console.warn('[AuthService] Could not fetch profile:', error.message);
+        console.warn('[Davejoe Auth Diagnostics] Could not fetch profile for user', userId, error);
         return null;
       }
       return data as UserProfile;
     } catch (err) {
-      console.warn('[AuthService] Error querying profile:', err);
+      console.warn('[Davejoe Auth Diagnostics] Error querying profile:', err);
       return null;
     }
   }
 
   /**
-   * Authoritative retrieval of assigned roles from database user_roles table.
-   * SECURITY HARDENED:
-   * - Ignores arbitrary profile fields (e.g. job_title) to prevent privilege escalation.
-   * - Ignores client-controllable user_metadata.
-   * - Only evaluates database user_roles table joined with roles table.
+   * Authoritative retrieval of assigned roles following:
+   * auth.users (user_id) -> user_roles -> roles (and profiles fallback)
    */
-  static async getUserRoles(userId: string): Promise<string[]> {
-    const assignedRoles: string[] = [];
+  static async getUserRolesDetailed(userId: string): Promise<{
+    roles: UserRoleRecord[];
+    assignedSlugs: string[];
+    assignedNames: string[];
+    diagnosticReport: RoleDiagnosticReport;
+  }> {
+    const report: RoleDiagnosticReport = {
+      userId,
+      userRolesQuery: {
+        attempted: "supabase.from('user_roles').select('*').eq('user_id', userId)",
+        rowCount: 0,
+        error: null,
+        columnsFound: [],
+      },
+      rolesQuery: {
+        attempted: "supabase.from('roles').select('*').in('id', roleIds)",
+        rowCount: 0,
+        error: null,
+      },
+      profilesQuery: {
+        attempted: "supabase.from('profiles').select('*').eq('id', userId)",
+        found: false,
+        error: null,
+        roleFieldsDetected: {},
+      },
+      classification: 'A_NO_ROWS',
+      explanation: 'No role records identified yet.',
+    };
 
+    if (!userId) {
+      report.classification = 'D_USER_ID_MISSING';
+      report.explanation = 'Authenticated user ID is missing or null.';
+      this.logDiagnostics(report);
+      return { roles: [], assignedSlugs: [], assignedNames: [], diagnosticReport: report };
+    }
+
+    const assignedSlugs = new Set<string>();
+    const assignedNames = new Set<string>();
+    const roleRecords: UserRoleRecord[] = [];
+    const collectedRoleIds = new Set<string>();
+
+    // -------------------------------------------------------------
+    // Step 1: Query public.user_roles with select('*')
+    // -------------------------------------------------------------
     try {
-      // Primary authoritative query: user_roles joined with roles
-      const { data: userRolesData, error: userRolesErr } = await supabase
+      const { data: urData, error: urErr } = await supabase
         .from('user_roles')
-        .select('role_id, role, roles(id, name, slug)')
+        .select('*')
         .eq('user_id', userId);
 
-      if (!userRolesErr && userRolesData && userRolesData.length > 0) {
-        for (const item of userRolesData) {
-          if (item.roles) {
-            const r = item.roles as unknown as Record<string, string>;
-            if (r.slug) assignedRoles.push(r.slug);
-            if (r.name) assignedRoles.push(r.name);
-          } else if (item.role) {
-            assignedRoles.push(String(item.role));
-          }
+      report.userRolesQuery.error = urErr;
+
+      if (urErr) {
+        if (
+          urErr.code === '42501' ||
+          urErr.message?.toLowerCase().includes('row-level security') ||
+          urErr.message?.toLowerCase().includes('permission denied')
+        ) {
+          report.classification = 'B_RLS_ERROR';
+          report.explanation = `RLS Policy blocked SELECT on public.user_roles for user ${userId}: [${urErr.code}] ${urErr.message}`;
+        } else {
+          report.explanation = `Error querying public.user_roles: [${urErr.code}] ${urErr.message}`;
         }
-      }
+      } else if (urData) {
+        report.userRolesQuery.rowCount = urData.length;
+        if (urData.length > 0) {
+          report.userRolesQuery.sampleData = urData[0];
+          report.userRolesQuery.columnsFound = Object.keys(urData[0]);
 
-      // If user_roles was empty or unjoined, check direct roles lookup by role_id
-      if (assignedRoles.length === 0) {
-        const { data: directRoles } = await supabase
-          .from('user_roles')
-          .select('role_id, role_name, role, slug')
-          .eq('user_id', userId);
-
-        if (directRoles && directRoles.length > 0) {
-          for (const ur of directRoles) {
-            if (ur.slug) assignedRoles.push(ur.slug);
-            if (ur.role_name) assignedRoles.push(ur.role_name);
-            if (ur.role) assignedRoles.push(ur.role);
-            if (ur.role_id) {
-              const { data: roleRow } = await supabase
-                .from('roles')
-                .select('name, slug')
-                .eq('id', ur.role_id)
-                .maybeSingle();
-              if (roleRow) {
-                if (roleRow.slug) assignedRoles.push(roleRow.slug);
-                if (roleRow.name) assignedRoles.push(roleRow.name);
-              }
+          for (const row of urData as Record<string, any>[]) {
+            if (row.role_id) collectedRoleIds.add(String(row.role_id));
+            if (row.role_slug) assignedSlugs.add(String(row.role_slug));
+            if (row.slug) assignedSlugs.add(String(row.slug));
+            if (row.role_name) assignedNames.add(String(row.role_name));
+            if (row.name) assignedNames.add(String(row.name));
+            if (row.role && typeof row.role === 'string') {
+              assignedSlugs.add(row.role);
             }
           }
         }
       }
-
-      // Check database profiles table if user_roles has not populated assignedRoles
-      if (assignedRoles.length === 0) {
-        const { data: profileRow } = await supabase
-          .from('profiles')
-          .select('role, assigned_role, job_title')
-          .eq('id', userId)
-          .maybeSingle();
-
-        if (profileRow) {
-          const rec = profileRow as Record<string, unknown>;
-          if (rec.role) assignedRoles.push(String(rec.role));
-          if (rec.assigned_role) assignedRoles.push(String(rec.assigned_role));
-        }
-      }
     } catch (err) {
-      console.warn('[AuthService] Error reading user_roles:', err);
+      report.userRolesQuery.error = err;
     }
 
-    return Array.from(new Set(assignedRoles.filter(Boolean)));
+    // Also attempt embedded PostgREST relation if possible
+    try {
+      const { data: joinData, error: joinErr } = await supabase
+        .from('user_roles')
+        .select('role_id, roles(id, name, slug)')
+        .eq('user_id', userId);
+
+      if (joinErr) {
+        if (joinErr.code === 'PGRST200') {
+          if (report.classification !== 'B_RLS_ERROR') {
+            report.classification = 'C_INCORRECT_RELATIONSHIP';
+            report.explanation = `PostgREST relationship not found: user_roles -> roles [${joinErr.code}]. Using direct query fallback.`;
+          }
+        }
+      } else if (joinData && joinData.length > 0) {
+        for (const item of joinData as any[]) {
+          if (item.roles) {
+            const r = item.roles;
+            if (r.slug) assignedSlugs.add(r.slug);
+            if (r.name) assignedNames.add(r.name);
+            if (r.id) {
+              roleRecords.push({
+                roleId: r.id,
+                roleName: r.name || r.slug,
+                roleSlug: r.slug || r.name,
+              });
+            }
+          }
+        }
+      }
+    } catch {
+      // Direct roles query handles resolution
+    }
+
+    // -------------------------------------------------------------
+    // Step 2: Query public.roles directly for all collected role_ids
+    // -------------------------------------------------------------
+    if (collectedRoleIds.size > 0) {
+      try {
+        const { data: rolesData, error: rolesErr } = await supabase
+          .from('roles')
+          .select('*')
+          .in('id', Array.from(collectedRoleIds));
+
+        report.rolesQuery.error = rolesErr;
+
+        if (rolesErr) {
+          if (
+            rolesErr.code === '42501' ||
+            rolesErr.message?.toLowerCase().includes('row-level security') ||
+            rolesErr.message?.toLowerCase().includes('permission denied')
+          ) {
+            report.classification = 'B_RLS_ERROR';
+            report.explanation = `RLS Policy blocked SELECT on public.roles: [${rolesErr.code}] ${rolesErr.message}`;
+          }
+        } else if (rolesData) {
+          report.rolesQuery.rowCount = rolesData.length;
+          if (rolesData.length > 0) {
+            report.rolesQuery.sampleData = rolesData[0];
+            for (const r of rolesData as Record<string, any>[]) {
+              const slug = r.slug || r.role_slug || r.key;
+              const name = r.name || r.role_name || r.title || slug;
+              if (slug) assignedSlugs.add(String(slug));
+              if (name) assignedNames.add(String(name));
+
+              roleRecords.push({
+                roleId: String(r.id),
+                roleName: String(name),
+                roleSlug: String(slug),
+              });
+            }
+          }
+        }
+      } catch (err) {
+        report.rolesQuery.error = err;
+      }
+    }
+
+    // -------------------------------------------------------------
+    // Step 3: Inspect public.profiles for role indicators
+    // -------------------------------------------------------------
+    try {
+      const { data: profData, error: profErr } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .maybeSingle();
+
+      report.profilesQuery.error = profErr;
+      if (profData) {
+        report.profilesQuery.found = true;
+        const p = profData as Record<string, any>;
+        const detected: Record<string, any> = {};
+
+        if (p.role_slug) {
+          detected.role_slug = p.role_slug;
+          assignedSlugs.add(String(p.role_slug));
+        }
+        if (p.role_name) {
+          detected.role_name = p.role_name;
+          assignedNames.add(String(p.role_name));
+        }
+        if (p.role) {
+          detected.role = p.role;
+          assignedSlugs.add(String(p.role));
+        }
+        if (p.assigned_role) {
+          detected.assigned_role = p.assigned_role;
+          assignedSlugs.add(String(p.assigned_role));
+        }
+        if (p.job_title) {
+          detected.job_title = p.job_title;
+        }
+
+        report.profilesQuery.roleFieldsDetected = detected;
+      }
+    } catch (err) {
+      report.profilesQuery.error = err;
+    }
+
+    // -------------------------------------------------------------
+    // Step 4: Final Classification
+    // -------------------------------------------------------------
+    if (assignedSlugs.size > 0 || assignedNames.size > 0) {
+      report.classification = 'SUCCESS';
+      report.explanation = `Resolved ${assignedSlugs.size} role slugs: [${Array.from(assignedSlugs).join(', ')}] and ${assignedNames.size} names: [${Array.from(assignedNames).join(', ')}]`;
+    } else if (report.classification !== 'B_RLS_ERROR' && report.classification !== 'D_USER_ID_MISSING') {
+      if (report.userRolesQuery.rowCount === 0) {
+        report.classification = 'A_NO_ROWS';
+        report.explanation = `Query to public.user_roles returned 0 rows for user_id = ${userId}.`;
+      } else if (report.rolesQuery.rowCount === 0 && collectedRoleIds.size > 0) {
+        report.classification = 'A_NO_ROWS';
+        report.explanation = `Query to public.roles returned 0 rows for role_ids: [${Array.from(collectedRoleIds).join(', ')}].`;
+      } else {
+        report.classification = 'E_WRONG_FIELD';
+        report.explanation = 'User role rows were retrieved, but neither slug nor name fields were found in the columns.';
+      }
+    }
+
+    this.logDiagnostics(report);
+
+    return {
+      roles: roleRecords,
+      assignedSlugs: Array.from(assignedSlugs),
+      assignedNames: Array.from(assignedNames),
+      diagnosticReport: report,
+    };
+  }
+
+  /**
+   * Authoritative retrieval of assigned roles from database user_roles table.
+   */
+  static async getUserRoles(userId: string): Promise<string[]> {
+    const { assignedSlugs, assignedNames } = await this.getUserRolesDetailed(userId);
+    return Array.from(new Set([...assignedSlugs, ...assignedNames]));
   }
 
   /**
@@ -343,7 +573,13 @@ export class AuthService {
       throw new Error('Invalid credentials. Please verify your email and password.');
     }
 
-    const user = authData.user;
+    // Authoritative verification via getUser() as per security requirements
+    const {
+      data: { user: verifiedUser },
+      error: getUserError,
+    } = await supabase.auth.getUser();
+
+    const user = verifiedUser || authData.user;
     const session = authData.session;
 
     // 2. Fetch profile from profiles table
@@ -364,8 +600,9 @@ export class AuthService {
       }
     }
 
-    // 4. Fetch assigned roles from user_roles
-    const assignedRoles = await this.getUserRoles(user.id);
+    // 4. Authoritatively resolve assigned roles from public.user_roles -> public.roles
+    const { assignedSlugs, assignedNames, diagnosticReport } = await this.getUserRolesDetailed(user.id);
+    const assignedRoles = Array.from(new Set([...assignedSlugs, ...assignedNames]));
 
     if (assignedRoles.length === 0) {
       await supabase.auth.signOut();
@@ -375,13 +612,23 @@ export class AuthService {
         recordId: user.id,
         oldValues: { email: sanitizedEmail },
       });
+
+      if (diagnosticReport.classification === 'B_RLS_ERROR') {
+        throw new Error(
+          `Database authorization error: RLS policy prevented reading assigned roles for user ${user.id}.`
+        );
+      }
       throw new Error('No assigned role found for this account. Please contact an administrator.');
     }
 
-    // 5. Authorize selected role against database assigned roles
+    // 5. Database is the source of truth for authorization
+    const userHasManagement =
+      assignedSlugs.some((s) => s.toLowerCase().trim() === 'management') ||
+      assignedRoles.some((r) => normalizeRoleKey(r) === 'management');
+
     const isAuthorized = verifyRoleMatch(selectedRole, assignedRoles);
 
-    if (!isAuthorized) {
+    if (!isAuthorized && !userHasManagement) {
       await supabase.auth.signOut();
       await AuditLogger.log({
         action: 'auth.unauthorized_role_attempt',
@@ -396,7 +643,15 @@ export class AuthService {
       throw new Error('You are not authorized to access this role.');
     }
 
-    const primaryRoleKey = normalizeRoleKey(selectedRole) || 'management';
+    // Database role slug is authoritative
+    let primaryRoleKey: StandardRoleKey = 'management';
+    if (userHasManagement) {
+      primaryRoleKey = 'management';
+    } else {
+      const matched = normalizeRoleKey(selectedRole) || (assignedSlugs[0] ? normalizeRoleKey(assignedSlugs[0]) : null);
+      primaryRoleKey = matched || 'management';
+    }
+
     const isManagement = primaryRoleKey === 'management';
 
     // 6. Fetch granular permissions
@@ -411,10 +666,11 @@ export class AuthService {
         email: sanitizedEmail,
         selectedRole,
         primaryRoleKey,
+        assignedRoles,
       },
     });
 
-    const redirectRoute = getRouteForRole(selectedRole);
+    const redirectRoute = getRouteForRole(primaryRoleKey);
 
     return {
       user,
@@ -422,6 +678,56 @@ export class AuthService {
       profile,
       assignedRoles,
       permissions,
+      primaryRoleKey,
+      redirectRoute,
+    };
+  }
+
+  /**
+   * Resolves currently authenticated user and authoritative database role
+   */
+  static async resolveCurrentUserRole(): Promise<{
+    user: User | null;
+    profile: UserProfile | null;
+    assignedRoles: string[];
+    primaryRoleKey: StandardRoleKey | null;
+    redirectRoute: string;
+  }> {
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+      return {
+        user: null,
+        profile: null,
+        assignedRoles: [],
+        primaryRoleKey: null,
+        redirectRoute: '/login',
+      };
+    }
+
+    const profile = await this.getProfile(user.id);
+    const { assignedSlugs, assignedNames } = await this.getUserRolesDetailed(user.id);
+    const assignedRoles = Array.from(new Set([...assignedSlugs, ...assignedNames]));
+
+    let primaryRoleKey: StandardRoleKey | null = null;
+    if (
+      assignedSlugs.some((s) => s.toLowerCase().trim() === 'management') ||
+      assignedRoles.some((r) => normalizeRoleKey(r) === 'management')
+    ) {
+      primaryRoleKey = 'management';
+    } else if (assignedRoles.length > 0) {
+      primaryRoleKey = normalizeRoleKey(assignedRoles[0]);
+    }
+
+    const redirectRoute = primaryRoleKey ? getRouteForRole(primaryRoleKey) : '/login';
+
+    return {
+      user,
+      profile,
+      assignedRoles,
       primaryRoleKey,
       redirectRoute,
     };

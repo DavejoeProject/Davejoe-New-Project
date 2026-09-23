@@ -92,7 +92,11 @@ export const LoginForm: React.FC = () => {
     } catch (err: unknown) {
       const errorMsg = err instanceof Error ? err.message : 'An error occurred during authentication.';
 
-      if (errorMsg.includes('not authorized to access this role')) {
+      if (errorMsg.includes('Database authorization error')) {
+        setErrors({
+          general: errorMsg,
+        });
+      } else if (errorMsg.includes('not authorized to access this role')) {
         setErrors({
           role: 'You are not authorized to access this role.',
           general: 'You are not authorized to access this role.',
