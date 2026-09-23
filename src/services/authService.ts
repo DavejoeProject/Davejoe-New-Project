@@ -1,5 +1,7 @@
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import type { User, Session } from '@supabase/supabase-js';
+import { validateEmail, validatePassword, sanitizeString } from '../lib/validation';
+import { AuditLogger } from '../lib/audit';
 
 export interface UserProfile {
   id: string;
@@ -11,14 +13,6 @@ export interface UserProfile {
   job_title?: string;
   avatar_url?: string;
   created_at?: string;
-}
-
-export interface UserRoleRecord {
-  id?: string;
-  name?: string;
-  slug?: string;
-  code?: string;
-  description?: string;
 }
 
 export type StandardRoleKey =
@@ -113,7 +107,7 @@ export function normalizeRoleKey(roleInput: string | null | undefined): Standard
 }
 
 /**
- * Check if the selected dropdown role matches any of the assigned roles
+ * Compares selected UI role against authoritative database-assigned roles
  */
 export function verifyRoleMatch(selectedRole: string, assignedRoles: string[]): boolean {
   const selectedKey = normalizeRoleKey(selectedRole);
@@ -149,102 +143,132 @@ export class AuthService {
         .maybeSingle();
 
       if (error) {
-        console.warn('Could not fetch from profiles table:', error.message);
+        console.warn('[AuthService] Could not fetch profile:', error.message);
         return null;
       }
       return data as UserProfile;
     } catch (err) {
-      console.warn('Error querying profile:', err);
+      console.warn('[AuthService] Error querying profile:', err);
       return null;
     }
   }
 
   /**
-   * Fetches assigned roles from user_roles and roles tables
+   * Authoritative retrieval of assigned roles from database user_roles table.
+   * SECURITY HARDENED:
+   * - Ignores arbitrary profile fields (e.g. job_title) to prevent privilege escalation.
+   * - Ignores client-controllable user_metadata.
+   * - Only evaluates database user_roles table joined with roles table.
    */
   static async getUserRoles(userId: string): Promise<string[]> {
     const assignedRoles: string[] = [];
 
     try {
-      // 1. Check user_roles table with join on roles table
+      // Primary authoritative query: user_roles joined with roles
       const { data: userRolesData, error: userRolesErr } = await supabase
         .from('user_roles')
-        .select('role_id, role, roles(id, name, slug, code)')
+        .select('role_id, role, roles(id, name, slug)')
         .eq('user_id', userId);
 
       if (!userRolesErr && userRolesData && userRolesData.length > 0) {
         for (const item of userRolesData) {
           if (item.roles) {
-            // joined roles record
             const r = item.roles as unknown as Record<string, string>;
-            if (r.name) assignedRoles.push(r.name);
             if (r.slug) assignedRoles.push(r.slug);
-            if (r.code) assignedRoles.push(r.code);
-          }
-          if (item.role) {
+            if (r.name) assignedRoles.push(r.name);
+          } else if (item.role) {
             assignedRoles.push(String(item.role));
-          }
-          if (item.role_id) {
-            assignedRoles.push(String(item.role_id));
           }
         }
       }
 
-      // 2. If user_roles was empty or missing join, try querying roles table by user_id or direct lookup
+      // If user_roles was empty or unjoined, check direct roles lookup by role_id
       if (assignedRoles.length === 0) {
         const { data: directRoles } = await supabase
           .from('user_roles')
-          .select('*')
+          .select('role_id, role_name, role, slug')
           .eq('user_id', userId);
 
         if (directRoles && directRoles.length > 0) {
           for (const ur of directRoles) {
+            if (ur.slug) assignedRoles.push(ur.slug);
             if (ur.role_name) assignedRoles.push(ur.role_name);
             if (ur.role) assignedRoles.push(ur.role);
-            if (ur.name) assignedRoles.push(ur.name);
-            if (ur.slug) assignedRoles.push(ur.slug);
             if (ur.role_id) {
-              // Fetch role name from roles table
               const { data: roleRow } = await supabase
                 .from('roles')
-                .select('name, slug, code')
+                .select('name, slug')
                 .eq('id', ur.role_id)
                 .maybeSingle();
               if (roleRow) {
-                if (roleRow.name) assignedRoles.push(roleRow.name);
                 if (roleRow.slug) assignedRoles.push(roleRow.slug);
-                if (roleRow.code) assignedRoles.push(roleRow.code);
+                if (roleRow.name) assignedRoles.push(roleRow.name);
               }
             }
           }
         }
       }
-
-      // 3. Also check if profiles table has a role column directly
-      const { data: profileData } = await supabase
-        .from('profiles')
-        .select('role, job_title')
-        .eq('id', userId)
-        .maybeSingle();
-
-      if (profileData) {
-        if (profileData.role) assignedRoles.push(String(profileData.role));
-        if (profileData.job_title) assignedRoles.push(String(profileData.job_title));
-      }
     } catch (err) {
-      console.warn('Error reading user_roles/roles:', err);
+      console.warn('[AuthService] Error reading user_roles:', err);
     }
 
     return Array.from(new Set(assignedRoles.filter(Boolean)));
   }
 
   /**
-   * Complete login sequence:
-   * 1. Validate inputs
-   * 2. Sign in with Supabase Auth
-   * 3. Fetch profile & check active status
-   * 4. Fetch assigned roles
-   * 5. Verify selected role against assigned roles
+   * Retrieves granular permissions (module.action) assigned to the user
+   * via user_roles -> role_permissions -> permissions.
+   */
+  static async getUserPermissions(userId: string, isManagement: boolean = false): Promise<string[]> {
+    const permissions: Set<string> = new Set();
+
+    if (isManagement) {
+      // Management role has wildcard access across all modules
+      permissions.add('*');
+    }
+
+    try {
+      // Query user's roles first
+      const { data: userRoles } = await supabase
+        .from('user_roles')
+        .select('role_id')
+        .eq('user_id', userId);
+
+      if (userRoles && userRoles.length > 0) {
+        const roleIds = userRoles.map((ur) => ur.role_id).filter(Boolean);
+
+        if (roleIds.length > 0) {
+          const { data: rolePerms } = await supabase
+            .from('role_permissions')
+            .select('permission_id, permissions(name)')
+            .in('role_id', roleIds);
+
+          if (rolePerms) {
+            for (const rp of rolePerms) {
+              const p = rp.permissions as unknown as { name?: string };
+              if (p?.name) {
+                permissions.add(p.name);
+              }
+            }
+          }
+        }
+      }
+    } catch (err) {
+      console.warn('[AuthService] Error loading user permissions:', err);
+    }
+
+    return Array.from(permissions);
+  }
+
+  /**
+   * Complete hardened login sequence:
+   * 1. Validate inputs (ReDoS and length limits)
+   * 2. Authenticate against Supabase Auth
+   * 3. Fetch profile & verify active status (suspend/inactive check)
+   * 4. Authoritatively fetch assigned roles from user_roles
+   * 5. Verify selected role against assigned roles (deny unauthorized selection)
+   * 6. Fetch granular permissions
+   * 7. Record security audit log
    */
   static async signIn(params: {
     email: string;
@@ -255,6 +279,7 @@ export class AuthService {
     session: Session;
     profile: UserProfile | null;
     assignedRoles: string[];
+    permissions: string[];
     primaryRoleKey: StandardRoleKey;
     redirectRoute: string;
   }> {
@@ -262,78 +287,118 @@ export class AuthService {
 
     if (!isSupabaseConfigured) {
       throw new Error(
-        'Supabase is not configured yet. Please configure VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your environment.'
+        'Supabase is not configured yet. Please configure VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY in your environment.'
       );
     }
 
-    if (!email || !email.trim()) {
-      throw new Error('Please enter your email address.');
+    // Input validation
+    const emailValidation = validateEmail(email);
+    if (!emailValidation.valid) {
+      throw new Error(emailValidation.error || 'Please enter a valid email address.');
     }
-    if (!password) {
-      throw new Error('Please enter your password.');
+
+    const passwordValidation = validatePassword(password);
+    if (!passwordValidation.valid) {
+      throw new Error(passwordValidation.error || 'Password does not meet security requirements.');
     }
-    if (!selectedRole) {
-      throw new Error('Please select your assigned role.');
+
+    if (!selectedRole || !selectedRole.trim()) {
+      throw new Error('Please select your assigned role from the list.');
     }
+
+    const sanitizedEmail = sanitizeString(email).toLowerCase();
 
     // 1. Authenticate with Supabase Auth
     const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-      email: email.trim(),
+      email: sanitizedEmail,
       password,
     });
 
     if (authError || !authData.user || !authData.session) {
+      // Audit log failed sign-in attempt
+      await AuditLogger.log({
+        action: 'auth.login_failed',
+        module: 'authentication',
+        oldValues: { email: sanitizedEmail },
+      });
+
       if (authError?.message?.toLowerCase().includes('network')) {
         throw new Error('Network error: Unable to connect to Supabase. Please check your internet connection.');
       }
-      throw new Error('Invalid credentials');
+      throw new Error('Invalid credentials. Please verify your email and password.');
     }
 
     const user = authData.user;
     const session = authData.session;
 
     // 2. Fetch profile from profiles table
-    let profile: UserProfile | null = null;
-    try {
-      profile = await this.getProfile(user.id);
-    } catch (err) {
-      console.error('Error fetching profile during login:', err);
-    }
+    const profile = await this.getProfile(user.id);
 
-    // Check account status if present
+    // 3. Verify account status
     if (profile?.status) {
       const statusLower = profile.status.toLowerCase().trim();
       if (['inactive', 'suspended', 'disabled', 'blocked', 'banned'].includes(statusLower)) {
         await supabase.auth.signOut();
-        throw new Error('Inactive account: Your account is currently inactive. Please contact your administrator.');
+        await AuditLogger.log({
+          action: 'auth.inactive_login_blocked',
+          module: 'authentication',
+          recordId: user.id,
+          oldValues: { email: sanitizedEmail, status: profile.status },
+        });
+        throw new Error('Your account is inactive. Please contact an administrator.');
       }
     }
 
-    // 3. Fetch user's assigned roles from user_roles & roles
+    // 4. Fetch assigned roles from user_roles
     const assignedRoles = await this.getUserRoles(user.id);
-
-    // If no roles returned from tables, check app_metadata / user_metadata as fallback
-    if (assignedRoles.length === 0) {
-      const metaRole = (user.app_metadata?.role || user.user_metadata?.role) as string | undefined;
-      if (metaRole) {
-        assignedRoles.push(metaRole);
-      }
-    }
 
     if (assignedRoles.length === 0) {
       await supabase.auth.signOut();
-      throw new Error('No assigned role: No role is assigned to your account. Please contact an administrator.');
+      await AuditLogger.log({
+        action: 'auth.no_role_assigned',
+        module: 'authentication',
+        recordId: user.id,
+        oldValues: { email: sanitizedEmail },
+      });
+      throw new Error('No assigned role found for this account. Please contact an administrator.');
     }
 
-    // 4. Compare selected role with assigned roles
+    // 5. Authorize selected role against database assigned roles
     const isAuthorized = verifyRoleMatch(selectedRole, assignedRoles);
 
     if (!isAuthorized) {
       await supabase.auth.signOut();
+      await AuditLogger.log({
+        action: 'auth.unauthorized_role_attempt',
+        module: 'authorization',
+        recordId: user.id,
+        oldValues: {
+          email: sanitizedEmail,
+          selectedRole,
+          assignedRoles,
+        },
+      });
       throw new Error('You are not authorized to access this role.');
     }
 
     const primaryRoleKey = normalizeRoleKey(selectedRole) || 'management';
+    const isManagement = primaryRoleKey === 'management';
+
+    // 6. Fetch granular permissions
+    const permissions = await this.getUserPermissions(user.id, isManagement);
+
+    // 7. Audit successful sign-in
+    await AuditLogger.log({
+      action: 'auth.login_success',
+      module: 'authentication',
+      recordId: user.id,
+      newValues: {
+        email: sanitizedEmail,
+        selectedRole,
+        primaryRoleKey,
+      },
+    });
+
     const redirectRoute = getRouteForRole(selectedRole);
 
     return {
@@ -341,19 +406,24 @@ export class AuthService {
       session,
       profile,
       assignedRoles,
+      permissions,
       primaryRoleKey,
       redirectRoute,
     };
   }
 
   /**
-   * Signs out from Supabase Auth
+   * Hardened sign out
    */
   static async signOut(): Promise<void> {
     try {
+      await AuditLogger.log({
+        action: 'auth.logout',
+        module: 'authentication',
+      });
       await supabase.auth.signOut();
     } catch (err) {
-      console.error('Error signing out:', err);
+      console.warn('[AuthService] Error during sign out:', err);
     }
   }
 
@@ -364,7 +434,7 @@ export class AuthService {
     try {
       const { data, error } = await supabase.auth.getSession();
       if (error) {
-        console.warn('Error reading session:', error.message);
+        console.warn('[AuthService] Error reading session:', error.message);
         return null;
       }
       return data.session;

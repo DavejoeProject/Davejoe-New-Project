@@ -15,6 +15,7 @@ export interface AuthContextType {
   session: Session | null;
   profile: UserProfile | null;
   assignedRoles: string[];
+  permissions: string[];
   currentRoleKey: StandardRoleKey | null;
   isLoading: boolean;
   isInitialized: boolean;
@@ -22,29 +23,28 @@ export interface AuthContextType {
   logout: () => Promise<void>;
   refreshProfile: () => Promise<void>;
   hasRole: (roleInput: string) => boolean;
+  hasPermission: (permission: string) => boolean;
+  hasAnyPermission: (permissions: string[]) => boolean;
+  hasAllPermissions: (permissions: string[]) => boolean;
   canAccessRoute: (pathname: string) => boolean;
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const CURRENT_ROLE_STORAGE_KEY = 'davejoe_active_role_key';
+// UI preference key only — NEVER treated as an authorization boundary
+const UI_SELECTED_ROLE_KEY = 'davejoe_ui_role_preference';
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [assignedRoles, setAssignedRoles] = useState<string[]>([]);
-  const [currentRoleKey, setCurrentRoleKey] = useState<StandardRoleKey | null>(() => {
-    if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem(CURRENT_ROLE_STORAGE_KEY) as StandardRoleKey | null;
-      return stored || null;
-    }
-    return null;
-  });
+  const [permissions, setPermissions] = useState<string[]>([]);
+  const [currentRoleKey, setCurrentRoleKey] = useState<StandardRoleKey | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isInitialized, setIsInitialized] = useState<boolean>(false);
 
-  // Load user profile & roles whenever user changes
+  // Authoritatively load user profile, roles, and permissions from the database
   const loadUserData = useCallback(async (authUser: User) => {
     try {
       const [userProfile, roles] = await Promise.all([
@@ -55,22 +55,35 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setProfile(userProfile);
       setAssignedRoles(roles);
 
-      // Verify active role key still valid or fallback to first available
-      setCurrentRoleKey((prevKey) => {
-        if (prevKey && roles.some((r) => normalizeRoleKey(r) === prevKey)) {
-          return prevKey;
+      const isManagement = roles.some((r) => normalizeRoleKey(r) === 'management');
+      const userPermissions = await AuthService.getUserPermissions(authUser.id, isManagement);
+      setPermissions(userPermissions);
+
+      // Verify active role key: MUST match an actually assigned database role
+      let validatedRoleKey: StandardRoleKey | null = null;
+
+      // Check if user stored a UI preference that is STILL legitimately assigned to them
+      if (typeof window !== 'undefined') {
+        const storedPreference = localStorage.getItem(UI_SELECTED_ROLE_KEY) as StandardRoleKey | null;
+        if (storedPreference && roles.some((r) => normalizeRoleKey(r) === storedPreference)) {
+          validatedRoleKey = storedPreference;
         }
-        if (roles.length > 0) {
-          const firstKey = normalizeRoleKey(roles[0]);
-          if (firstKey) {
-            localStorage.setItem(CURRENT_ROLE_STORAGE_KEY, firstKey);
-            return firstKey;
-          }
+      }
+
+      // If no valid preference, default to their primary assigned database role
+      if (!validatedRoleKey && roles.length > 0) {
+        const primary = normalizeRoleKey(roles[0]);
+        if (primary) {
+          validatedRoleKey = primary;
         }
-        return prevKey;
-      });
+      }
+
+      setCurrentRoleKey(validatedRoleKey);
+      if (typeof window !== 'undefined' && validatedRoleKey) {
+        localStorage.setItem(UI_SELECTED_ROLE_KEY, validatedRoleKey);
+      }
     } catch (err) {
-      console.warn('Error loading user data:', err);
+      console.warn('[AuthContext] Error loading user authorization data:', err);
     }
   }, []);
 
@@ -82,7 +95,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       try {
         const { data: { session: initialSession }, error } = await supabase.auth.getSession();
         if (error) {
-          console.warn('Error reading session on load:', error);
+          console.warn('[AuthContext] Error reading session on load:', error.message);
         }
 
         if (mounted) {
@@ -94,7 +107,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           }
         }
       } catch (err) {
-        console.warn('Auth initialization error:', err);
+        console.warn('[AuthContext] Auth initialization error:', err);
       } finally {
         if (mounted) {
           setIsLoading(false);
@@ -117,9 +130,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } else if (event === 'SIGNED_OUT') {
         setProfile(null);
         setAssignedRoles([]);
+        setPermissions([]);
         setCurrentRoleKey(null);
         if (typeof window !== 'undefined') {
-          localStorage.removeItem(CURRENT_ROLE_STORAGE_KEY);
+          localStorage.removeItem(UI_SELECTED_ROLE_KEY);
         }
       }
       setIsLoading(false);
@@ -146,10 +160,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setSession(result.session);
         setProfile(result.profile);
         setAssignedRoles(result.assignedRoles);
+        setPermissions(result.permissions);
         setCurrentRoleKey(result.primaryRoleKey);
 
         if (typeof window !== 'undefined') {
-          localStorage.setItem(CURRENT_ROLE_STORAGE_KEY, result.primaryRoleKey);
+          localStorage.setItem(UI_SELECTED_ROLE_KEY, result.primaryRoleKey);
         }
 
         return { redirectRoute: result.redirectRoute };
@@ -168,9 +183,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setSession(null);
       setProfile(null);
       setAssignedRoles([]);
+      setPermissions([]);
       setCurrentRoleKey(null);
       if (typeof window !== 'undefined') {
-        localStorage.removeItem(CURRENT_ROLE_STORAGE_KEY);
+        localStorage.removeItem(UI_SELECTED_ROLE_KEY);
       }
     } finally {
       setIsLoading(false);
@@ -181,10 +197,35 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     (roleInput: string): boolean => {
       const targetKey = normalizeRoleKey(roleInput);
       if (!targetKey) return false;
+      // Management role grants global module oversight
       if (currentRoleKey === 'management') return true;
       return assignedRoles.some((r) => normalizeRoleKey(r) === targetKey);
     },
     [currentRoleKey, assignedRoles]
+  );
+
+  const hasPermission = useCallback(
+    (permission: string): boolean => {
+      if (currentRoleKey === 'management' || permissions.includes('*')) return true;
+      return permissions.includes(permission);
+    },
+    [currentRoleKey, permissions]
+  );
+
+  const hasAnyPermission = useCallback(
+    (perms: string[]): boolean => {
+      if (currentRoleKey === 'management' || permissions.includes('*')) return true;
+      return perms.some((p) => permissions.includes(p));
+    },
+    [currentRoleKey, permissions]
+  );
+
+  const hasAllPermissions = useCallback(
+    (perms: string[]): boolean => {
+      if (currentRoleKey === 'management' || permissions.includes('*')) return true;
+      return perms.every((p) => permissions.includes(p));
+    },
+    [currentRoleKey, permissions]
   );
 
   const canAccessRoute = useCallback(
@@ -199,11 +240,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
 
       if (!matchedConfig) {
-        // Not a strictly defined role route
         return true;
       }
 
-      // Must match current active role or assigned roles
+      // Must match verified current active role or assigned roles
       if (currentRoleKey === matchedConfig.key) return true;
       return assignedRoles.some((r) => normalizeRoleKey(r) === matchedConfig.key);
     },
@@ -216,6 +256,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       session,
       profile,
       assignedRoles,
+      permissions,
       currentRoleKey,
       isLoading,
       isInitialized,
@@ -223,6 +264,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       logout,
       refreshProfile,
       hasRole,
+      hasPermission,
+      hasAnyPermission,
+      hasAllPermissions,
       canAccessRoute,
     }),
     [
@@ -230,6 +274,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       session,
       profile,
       assignedRoles,
+      permissions,
       currentRoleKey,
       isLoading,
       isInitialized,
@@ -237,6 +282,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       logout,
       refreshProfile,
       hasRole,
+      hasPermission,
+      hasAnyPermission,
+      hasAllPermissions,
       canAccessRoute,
     ]
   );

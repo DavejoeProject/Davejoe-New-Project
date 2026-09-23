@@ -1,13 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff, ArrowRight, CheckCircle2, LogOut, AlertCircle } from 'lucide-react';
 import { RoleSelect } from './RoleSelect';
 import { ForgotPasswordModal } from './ForgotPasswordModal';
 import { useAuth } from '../hooks/useAuth';
+import { validateEmail, validatePassword, sanitizeString, ClientRateLimiter } from '../lib/validation';
 
 export const LoginForm: React.FC = () => {
   const navigate = useNavigate();
-  const { login, logout, user, profile, currentRoleKey } = useAuth();
+  const { login, logout } = useAuth();
+  const rateLimiterRef = useRef<ClientRateLimiter>(new ClientRateLimiter(6, 60000));
 
   const [email, setEmail] = useState('');
   const [role, setRole] = useState('');
@@ -35,23 +37,18 @@ export const LoginForm: React.FC = () => {
   const validateForm = () => {
     const newErrors: { email?: string; role?: string; password?: string } = {};
 
-    if (!email.trim()) {
-      newErrors.email = 'Please enter your email address.';
-    } else {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(email.trim())) {
-        newErrors.email = 'Please enter a valid email address.';
-      }
+    const emailRes = validateEmail(email);
+    if (!emailRes.valid) {
+      newErrors.email = emailRes.error || 'Please enter a valid email address.';
     }
 
     if (!role) {
       newErrors.role = 'Please select your role from the list.';
     }
 
-    if (!password) {
-      newErrors.password = 'Please enter your password.';
-    } else if (password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters.';
+    const passwordRes = validatePassword(password);
+    if (!passwordRes.valid) {
+      newErrors.password = passwordRes.error || 'Password must be at least 6 characters.';
     }
 
     setErrors(newErrors);
@@ -62,19 +59,31 @@ export const LoginForm: React.FC = () => {
     e.preventDefault();
     if (!validateForm()) return;
 
+    // Check rate limiter
+    const rateCheck = rateLimiterRef.current.check();
+    if (!rateCheck.allowed) {
+      setErrors({
+        general: `Too many sign-in attempts. Please wait ${rateCheck.retryAfterSec} seconds before retrying.`,
+      });
+      return;
+    }
+
     setIsLoading(true);
     setErrors({});
 
     try {
+      const sanitizedEmail = sanitizeString(email).trim();
+
       const { redirectRoute } = await login({
-        email: email.trim(),
+        email: sanitizedEmail,
         password,
         selectedRole: role,
       });
 
+      rateLimiterRef.current.reset();
       setIsSuccess(true);
       setAuthenticatedUser({
-        email: email.trim(),
+        email: sanitizedEmail,
         role: role,
       });
 
@@ -92,9 +101,9 @@ export const LoginForm: React.FC = () => {
         setErrors({
           general: 'Invalid credentials. Please verify your email and password.',
         });
-      } else if (errorMsg.includes('Inactive account')) {
+      } else if (errorMsg.includes('inactive') || errorMsg.includes('suspended')) {
         setErrors({
-          general: 'Your account is inactive. Please contact an administrator.',
+          general: 'Your account is currently inactive. Please contact an administrator.',
         });
       } else if (errorMsg.includes('No assigned role')) {
         setErrors({
