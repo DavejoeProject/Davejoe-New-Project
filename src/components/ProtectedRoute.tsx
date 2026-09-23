@@ -24,7 +24,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   if (isLoading || !isInitialized) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-[#f8faf9]">
-        <div className="w-10 h-10 border-3 border-[#18B892]/20 border-t-[#18B892] rounded-full animate-spin mb-3" />
+        <div className="w-10 h-10 border-3 border-[#01875F]/20 border-t-[#01875F] rounded-full animate-spin mb-3" />
         <p className="text-xs font-medium text-slate-500 tracking-wide">
           Verifying Davejoe authorization...
         </p>
@@ -79,7 +79,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
           <div className="flex flex-col sm:flex-row gap-3">
             <a
               href={authorizedRoute}
-              className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[#18B892] hover:bg-[#159e7d] text-white text-sm font-semibold rounded-lg shadow-sm transition-colors"
+              className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[#01875F] hover:bg-[#016f4e] text-white text-sm font-semibold rounded-lg shadow-sm transition-colors"
             >
               <ArrowLeft className="w-4 h-4" />
               Go to Dashboard
@@ -123,7 +123,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
             <div className="flex flex-col sm:flex-row gap-3">
               <a
                 href={authorizedRoute}
-                className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[#18B892] hover:bg-[#159e7d] text-white text-sm font-semibold rounded-lg shadow-sm transition-colors"
+                className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[#01875F] hover:bg-[#016f4e] text-white text-sm font-semibold rounded-lg shadow-sm transition-colors"
               >
                 <ArrowLeft className="w-4 h-4" />
                 Go to My Dashboard

@@ -208,6 +208,21 @@ export class AuthService {
           }
         }
       }
+
+      // Check database profiles table if user_roles has not populated assignedRoles
+      if (assignedRoles.length === 0) {
+        const { data: profileRow } = await supabase
+          .from('profiles')
+          .select('role, assigned_role, job_title')
+          .eq('id', userId)
+          .maybeSingle();
+
+        if (profileRow) {
+          const rec = profileRow as Record<string, unknown>;
+          if (rec.role) assignedRoles.push(String(rec.role));
+          if (rec.assigned_role) assignedRoles.push(String(rec.assigned_role));
+        }
+      }
     } catch (err) {
       console.warn('[AuthService] Error reading user_roles:', err);
     }

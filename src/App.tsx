@@ -4,6 +4,7 @@ import { AuthProvider } from './context/AuthContext';
 import { LoginPage } from './components/LoginPage';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { RoleDashboardPlaceholder } from './components/RoleDashboardPlaceholder';
+import { CeoDashboard } from './components/dashboard/CeoDashboard';
 import { useAuth } from './hooks/useAuth';
 import { getRouteForRole } from './services/authService';
 
@@ -13,7 +14,7 @@ const RootRedirect: React.FC = () => {
   if (isLoading || !isInitialized) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#f8faf9]">
-        <div className="w-10 h-10 border-3 border-[#18B892]/20 border-t-[#18B892] rounded-full animate-spin" />
+        <div className="w-10 h-10 border-3 border-[#01875F]/20 border-t-[#01875F] rounded-full animate-spin" />
       </div>
     );
   }
@@ -33,12 +34,12 @@ export default function App() {
           <Route path="/" element={<RootRedirect />} />
           <Route path="/login" element={<LoginPage />} />
 
-          {/* Protected Dashboard Routes */}
+          {/* Protected CEO / Management Command Centre */}
           <Route
             path="/management"
             element={
               <ProtectedRoute allowedRoles={['management']}>
-                <RoleDashboardPlaceholder roleKey="management" />
+                <CeoDashboard />
               </ProtectedRoute>
             }
           />
