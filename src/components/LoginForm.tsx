@@ -1,9 +1,14 @@
 import React, { useState } from 'react';
-import { Mail, Lock, Eye, EyeOff, ArrowRight, CheckCircle2, LogOut } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Mail, Lock, Eye, EyeOff, ArrowRight, CheckCircle2, LogOut, AlertCircle } from 'lucide-react';
 import { RoleSelect } from './RoleSelect';
 import { ForgotPasswordModal } from './ForgotPasswordModal';
+import { useAuth } from '../hooks/useAuth';
 
 export const LoginForm: React.FC = () => {
+  const navigate = useNavigate();
+  const { login, logout, user, profile, currentRoleKey } = useAuth();
+
   const [email, setEmail] = useState('');
   const [role, setRole] = useState('');
   const [password, setPassword] = useState('');
@@ -53,25 +58,64 @@ export const LoginForm: React.FC = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateForm()) return;
 
     setIsLoading(true);
     setErrors({});
 
-    // Simulate authentication processing
-    setTimeout(() => {
-      setIsLoading(false);
+    try {
+      const { redirectRoute } = await login({
+        email: email.trim(),
+        password,
+        selectedRole: role,
+      });
+
       setIsSuccess(true);
       setAuthenticatedUser({
         email: email.trim(),
         role: role,
       });
-    }, 850);
+
+      // Redirect user to their assigned role dashboard
+      navigate(redirectRoute, { replace: true });
+    } catch (err: unknown) {
+      const errorMsg = err instanceof Error ? err.message : 'An error occurred during authentication.';
+
+      if (errorMsg.includes('not authorized to access this role')) {
+        setErrors({
+          role: 'You are not authorized to access this role.',
+          general: 'You are not authorized to access this role.',
+        });
+      } else if (errorMsg.includes('Invalid credentials')) {
+        setErrors({
+          general: 'Invalid credentials. Please verify your email and password.',
+        });
+      } else if (errorMsg.includes('Inactive account')) {
+        setErrors({
+          general: 'Your account is inactive. Please contact an administrator.',
+        });
+      } else if (errorMsg.includes('No assigned role')) {
+        setErrors({
+          general: 'No assigned role found for this account. Please contact an administrator.',
+        });
+      } else if (errorMsg.includes('Network error')) {
+        setErrors({
+          general: 'Network error: Unable to connect to Supabase. Check your connection.',
+        });
+      } else {
+        setErrors({
+          general: errorMsg,
+        });
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleSignOut = () => {
+  const handleSignOut = async () => {
+    await logout();
     setIsSuccess(false);
     setAuthenticatedUser(null);
     setPassword('');
@@ -91,6 +135,14 @@ export const LoginForm: React.FC = () => {
                 Sign in to access your workspace.
               </p>
             </div>
+
+            {/* General Error Banner */}
+            {errors.general && (
+              <div className="mb-5 p-3 rounded-lg bg-red-50/90 border border-red-200/80 text-xs text-red-600 font-medium flex items-start gap-2.5 animate-in fade-in duration-150">
+                <AlertCircle className="w-4 h-4 shrink-0 text-red-500 mt-0.5" />
+                <span className="leading-snug">{errors.general}</span>
+              </div>
+            )}
 
             {/* Login Form */}
             <form onSubmit={handleSubmit} noValidate className="space-y-4">
@@ -113,11 +165,13 @@ export const LoginForm: React.FC = () => {
                     value={email}
                     onChange={(e) => {
                       setEmail(e.target.value);
-                      if (errors.email) setErrors((prev) => ({ ...prev, email: undefined }));
+                      if (errors.email || errors.general) {
+                        setErrors((prev) => ({ ...prev, email: undefined, general: undefined }));
+                      }
                     }}
                     placeholder="Enter your email address"
                     className={`w-full h-11 px-3.5 pl-10 bg-white border rounded-lg text-sm text-slate-800 placeholder:text-slate-400 transition-all outline-none ${
-                      errors.email
+                      errors.email || errors.general?.includes('credentials')
                         ? 'border-red-400 focus:border-red-500 focus:ring-2 focus:ring-red-100'
                         : 'border-slate-200 hover:border-slate-300 focus:border-[#18B892] focus:ring-2 focus:ring-[#18B892]/20'
                     }`}
@@ -135,7 +189,9 @@ export const LoginForm: React.FC = () => {
                 value={role}
                 onChange={(selectedRole) => {
                   setRole(selectedRole);
-                  if (errors.role) setErrors((prev) => ({ ...prev, role: undefined }));
+                  if (errors.role || errors.general) {
+                    setErrors((prev) => ({ ...prev, role: undefined, general: undefined }));
+                  }
                 }}
                 error={errors.role}
               />
@@ -159,12 +215,13 @@ export const LoginForm: React.FC = () => {
                     value={password}
                     onChange={(e) => {
                       setPassword(e.target.value);
-                      if (errors.password)
-                        setErrors((prev) => ({ ...prev, password: undefined }));
+                      if (errors.password || errors.general) {
+                        setErrors((prev) => ({ ...prev, password: undefined, general: undefined }));
+                      }
                     }}
                     placeholder="Enter your password"
                     className={`w-full h-11 px-3.5 pl-10 pr-10 bg-white border rounded-lg text-sm text-slate-800 placeholder:text-slate-400 transition-all outline-none ${
-                      errors.password
+                      errors.password || errors.general?.includes('credentials')
                         ? 'border-red-400 focus:border-red-500 focus:ring-2 focus:ring-red-100'
                         : 'border-slate-200 hover:border-slate-300 focus:border-[#18B892] focus:ring-2 focus:ring-[#18B892]/20'
                     }`}
@@ -242,7 +299,7 @@ export const LoginForm: React.FC = () => {
             </form>
           </div>
         ) : (
-          /* SUCCESS STATE AFTER SIGN IN */
+          /* SUCCESS STATE AFTER SIGN IN (Fallback) */
           <div className="text-center py-4 animate-in fade-in-50 zoom-in-95 duration-200">
             <div className="w-14 h-14 bg-emerald-50 text-[#18B892] rounded-full flex items-center justify-center mx-auto mb-4">
               <CheckCircle2 className="w-8 h-8" strokeWidth={2.2} />
@@ -268,9 +325,6 @@ export const LoginForm: React.FC = () => {
             </div>
 
             <div className="space-y-2">
-              <div className="p-3 text-xs text-slate-500 bg-slate-50/80 rounded-lg border border-slate-100">
-                Workspace dashboard is currently under preparation for the next build phase.
-              </div>
               <button
                 type="button"
                 onClick={handleSignOut}

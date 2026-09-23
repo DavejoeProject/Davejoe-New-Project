@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Mail, ArrowRight, X, CheckCircle2 } from 'lucide-react';
+import { supabase, isSupabaseConfigured } from '../lib/supabase';
 
 interface ForgotPasswordModalProps {
   isOpen: boolean;
@@ -19,7 +20,7 @@ export const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email.trim()) {
       setError('Please enter your email address.');
@@ -34,11 +35,23 @@ export const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({
     setError('');
     setIsSubmitting(true);
 
-    // Simulate recovery request
-    setTimeout(() => {
+    try {
+      if (isSupabaseConfigured) {
+        const { error: resetErr } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+          redirectTo: typeof window !== 'undefined' ? `${window.location.origin}/login` : undefined,
+        });
+        if (resetErr) {
+          setError(resetErr.message);
+          setIsSubmitting(false);
+          return;
+        }
+      }
       setIsSubmitting(false);
       setIsSent(true);
-    }, 700);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Unable to send reset instructions.');
+      setIsSubmitting(false);
+    }
   };
 
   const handleReset = () => {
