@@ -1,0 +1,6 @@
+{
+  "name": "Davejoe Management Tool",
+  "description": "One centralized system for managing people, projects, operations and performance.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
