@@ -12,7 +12,8 @@ export const LoginForm: React.FC = () => {
   const rateLimiterRef = useRef<ClientRateLimiter>(new ClientRateLimiter(6, 60000));
 
   const [email, setEmail] = useState('');
-  const [role, setRole] = useState('Management / CEO');
+  const [roleSlug, setRoleSlug] = useState('management');
+  const [roleName, setRoleName] = useState('Management / CEO');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
@@ -23,6 +24,7 @@ export const LoginForm: React.FC = () => {
     role?: string;
     password?: string;
     general?: string;
+    secondary?: string;
   }>({});
   const [isSuccess, setIsSuccess] = useState(false);
   const [authenticatedUser, setAuthenticatedUser] = useState<{
@@ -42,7 +44,7 @@ export const LoginForm: React.FC = () => {
       newErrors.email = emailRes.error || 'Please enter a valid email address.';
     }
 
-    if (!role || !role.trim()) {
+    if (!roleSlug || !roleSlug.trim()) {
       newErrors.role = 'Please select your role.';
     }
 
@@ -77,25 +79,34 @@ export const LoginForm: React.FC = () => {
       const { redirectRoute } = await login({
         email: sanitizedEmail,
         password,
-        selectedRole: role,
+        selectedRole: roleSlug,
       });
 
       rateLimiterRef.current.reset();
       setIsSuccess(true);
       setAuthenticatedUser({
         email: sanitizedEmail,
-        role,
+        role: roleName,
       });
 
       // Redirect user to their authoritative route
       navigate(redirectRoute, { replace: true });
     } catch (err: unknown) {
+      const errorObj = err as any;
       const errorMsg = err instanceof Error ? err.message : 'An error occurred during authentication.';
+      const secondaryMsg = errorObj?.secondaryText || '';
 
-      if (errorMsg.includes('not authorized for the role')) {
+      if (errorMsg.includes('not assigned to the selected role') || errorObj?.isRoleMismatch) {
         setErrors({
-          role: errorMsg,
+          general: 'These login details are not assigned to the selected role.',
+          secondary: secondaryMsg || 'Please select the role assigned to this account.',
+          role: 'Role mismatch with authenticated account.',
+        });
+      } else if (errorMsg.includes('not yet available') || errorObj?.isNotYetActive) {
+        setErrors({
           general: errorMsg,
+          secondary: secondaryMsg || 'Accounts for this role and its dashboard have not been activated yet.',
+          role: `${roleName} access is not yet available.`,
         });
       } else if (errorMsg.includes('Database authorization error')) {
         setErrors({
@@ -120,6 +131,7 @@ export const LoginForm: React.FC = () => {
       } else {
         setErrors({
           general: errorMsg,
+          secondary: secondaryMsg,
         });
       }
 
@@ -152,15 +164,22 @@ export const LoginForm: React.FC = () => {
               </p>
             </div>
 
-            {/* General Error Banner */}
+            {/* General Error Banner with Primary & Secondary Text */}
             {errors.general && (
-              <div className="mb-5 p-3 rounded-lg bg-red-50/90 border border-red-200/80 text-xs text-red-600 font-medium flex items-start gap-2.5 animate-in fade-in duration-150">
-                <AlertCircle className="w-4 h-4 shrink-0 text-red-500 mt-0.5" />
-                <span className="leading-snug">{errors.general}</span>
+              <div className="mb-5 p-3.5 rounded-xl bg-red-50 border border-red-200/90 text-xs text-red-700 font-medium flex items-start gap-2.5 animate-in fade-in duration-150">
+                <AlertCircle className="w-4 h-4 shrink-0 text-red-600 mt-0.5" />
+                <div className="flex flex-col">
+                  <span className="font-semibold text-red-900 leading-snug">{errors.general}</span>
+                  {errors.secondary && (
+                    <span className="text-[11.5px] text-red-700 mt-1 leading-relaxed font-normal">
+                      {errors.secondary}
+                    </span>
+                  )}
+                </div>
               </div>
             )}
 
-            {/* Login Form: Email, Role Select from Supabase, Password, Sign In */}
+            {/* Login Form: Email, Role Select ("Sign in as"), Password, Sign In */}
             <form onSubmit={handleSubmit} noValidate className="space-y-4">
               {/* FIELD 1: Email Address */}
               <div>
@@ -182,7 +201,12 @@ export const LoginForm: React.FC = () => {
                     onChange={(e) => {
                       setEmail(e.target.value);
                       if (errors.email || errors.general) {
-                        setErrors((prev) => ({ ...prev, email: undefined, general: undefined }));
+                        setErrors((prev) => ({
+                          ...prev,
+                          email: undefined,
+                          general: undefined,
+                          secondary: undefined,
+                        }));
                       }
                     }}
                     placeholder="Enter your email address"
@@ -200,14 +224,20 @@ export const LoginForm: React.FC = () => {
                 )}
               </div>
 
-              {/* FIELD 2: Role Selection (Restored & Dynamic from Supabase) */}
+              {/* FIELD 2: Role Selection ("Sign in as" custom dropdown) */}
               <div>
                 <RoleSelect
-                  value={role}
-                  onChange={(selected) => {
-                    setRole(selected);
+                  value={roleSlug}
+                  onChange={(selectedSlug, selectedLabel) => {
+                    setRoleSlug(selectedSlug);
+                    setRoleName(selectedLabel);
                     if (errors.role || errors.general) {
-                      setErrors((prev) => ({ ...prev, role: undefined, general: undefined }));
+                      setErrors((prev) => ({
+                        ...prev,
+                        role: undefined,
+                        general: undefined,
+                        secondary: undefined,
+                      }));
                     }
                   }}
                   error={errors.role}
@@ -235,7 +265,12 @@ export const LoginForm: React.FC = () => {
                     onChange={(e) => {
                       setPassword(e.target.value);
                       if (errors.password || errors.general) {
-                        setErrors((prev) => ({ ...prev, password: undefined, general: undefined }));
+                        setErrors((prev) => ({
+                          ...prev,
+                          password: undefined,
+                          general: undefined,
+                          secondary: undefined,
+                        }));
                       }
                     }}
                     placeholder="Enter your password"
