@@ -1,17 +1,22 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { User, ChevronDown, Check } from 'lucide-react';
+import { AuthService } from '../services/authService';
 
-export const ROLES = [
-  'Management / CEO',
-  'Admin / Client & Workforce Coordinator',
-  'Technical Inspection & QC Officer',
-  'Site Supervisor',
-  'Procurement & Logistics',
-  'Accounts',
-  'Artisan / Workforce',
-] as const;
+export interface DatabaseRoleOption {
+  id: string;
+  name: string;
+  slug: string;
+}
 
-export type RoleType = (typeof ROLES)[number];
+export const DEFAULT_ROLES: DatabaseRoleOption[] = [
+  { id: '1', name: 'Management / CEO', slug: 'management' },
+  { id: '2', name: 'Admin / Client & Workforce Coordinator', slug: 'admin' },
+  { id: '3', name: 'Technical Inspection & QC Officer', slug: 'technical' },
+  { id: '4', name: 'Site Supervisor', slug: 'supervisor' },
+  { id: '5', name: 'Procurement & Logistics', slug: 'procurement' },
+  { id: '6', name: 'Accounts', slug: 'accounts' },
+  { id: '7', name: 'Artisan / Workforce', slug: 'artisan' },
+];
 
 interface RoleSelectProps {
   value: string;
@@ -28,8 +33,32 @@ export const RoleSelect: React.FC<RoleSelectProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [focusedIndex, setFocusedIndex] = useState<number>(-1);
+  const [roles, setRoles] = useState<DatabaseRoleOption[]>(DEFAULT_ROLES);
+  const [isLoadingRoles, setIsLoadingRoles] = useState<boolean>(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
+
+  // Load available roles from Supabase public.roles table
+  useEffect(() => {
+    let isMounted = true;
+    async function loadSupabaseRoles() {
+      setIsLoadingRoles(true);
+      try {
+        const fetched = await AuthService.getAvailableRoles();
+        if (isMounted && fetched && fetched.length > 0) {
+          setRoles(fetched);
+        }
+      } catch (err) {
+        console.warn('[RoleSelect] Using default role list:', err);
+      } finally {
+        if (isMounted) setIsLoadingRoles(false);
+      }
+    }
+    loadSupabaseRoles();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   // Close dropdown on click outside
   useEffect(() => {
@@ -58,7 +87,7 @@ export const RoleSelect: React.FC<RoleSelectProps> = ({
       if (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
         setIsOpen(true);
-        const currentIndex = ROLES.indexOf(value as RoleType);
+        const currentIndex = roles.findIndex((r) => r.name === value || r.slug === value);
         setFocusedIndex(currentIndex >= 0 ? currentIndex : 0);
       }
       return;
@@ -70,14 +99,14 @@ export const RoleSelect: React.FC<RoleSelectProps> = ({
       buttonRef.current?.focus();
     } else if (e.key === 'ArrowDown') {
       e.preventDefault();
-      setFocusedIndex((prev) => (prev < ROLES.length - 1 ? prev + 1 : 0));
+      setFocusedIndex((prev) => (prev < roles.length - 1 ? prev + 1 : 0));
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
-      setFocusedIndex((prev) => (prev > 0 ? prev - 1 : ROLES.length - 1));
+      setFocusedIndex((prev) => (prev > 0 ? prev - 1 : roles.length - 1));
     } else if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
-      if (focusedIndex >= 0 && focusedIndex < ROLES.length) {
-        onChange(ROLES[focusedIndex]);
+      if (focusedIndex >= 0 && focusedIndex < roles.length) {
+        onChange(roles[focusedIndex].name);
         setIsOpen(false);
         buttonRef.current?.focus();
       }
@@ -86,8 +115,8 @@ export const RoleSelect: React.FC<RoleSelectProps> = ({
     }
   };
 
-  const selectRole = (role: string) => {
-    onChange(role);
+  const selectRole = (role: DatabaseRoleOption) => {
+    onChange(role.name);
     setIsOpen(false);
     buttonRef.current?.focus();
   };
@@ -115,7 +144,7 @@ export const RoleSelect: React.FC<RoleSelectProps> = ({
         onClick={() => {
           if (!disabled) {
             setIsOpen((prev) => !prev);
-            const idx = ROLES.indexOf(value as RoleType);
+            const idx = roles.findIndex((r) => r.name === value || r.slug === value);
             setFocusedIndex(idx >= 0 ? idx : 0);
           }
         }}
@@ -124,8 +153,8 @@ export const RoleSelect: React.FC<RoleSelectProps> = ({
           error
             ? 'border-red-400 focus:border-red-500 focus:ring-2 focus:ring-red-100'
             : isOpen
-              ? 'border-[#18B892] ring-2 ring-[#18B892]/20'
-              : 'border-slate-200 hover:border-slate-300 focus:border-[#18B892] focus:ring-2 focus:ring-[#18B892]/20'
+              ? 'border-[#01875F] ring-2 ring-[#01875F]/20'
+              : 'border-slate-200 hover:border-slate-300 focus:border-[#01875F] focus:ring-2 focus:ring-[#01875F]/20'
         } ${disabled ? 'bg-slate-50 cursor-not-allowed opacity-75' : 'cursor-pointer'}`}
       >
         {/* Left User Icon */}
@@ -139,14 +168,14 @@ export const RoleSelect: React.FC<RoleSelectProps> = ({
             value ? 'text-slate-800 font-medium' : 'text-slate-400 font-normal'
           }`}
         >
-          {value || 'Select your role'}
+          {value || (isLoadingRoles ? 'Loading roles...' : 'Select your role')}
         </span>
 
         {/* Right Chevron Icon */}
         <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none flex items-center justify-center transition-transform duration-200">
           <ChevronDown
             className={`w-4 h-4 transition-transform duration-200 ${
-              isOpen ? 'rotate-180 text-[#18B892]' : ''
+              isOpen ? 'rotate-180 text-[#01875F]' : ''
             }`}
             strokeWidth={2}
           />
@@ -160,29 +189,36 @@ export const RoleSelect: React.FC<RoleSelectProps> = ({
           aria-labelledby="role-label"
           className="absolute left-0 right-0 top-[calc(100%+6px)] z-50 bg-white border border-slate-200/90 rounded-xl shadow-lg shadow-slate-900/8 py-1.5 max-h-60 overflow-y-auto animate-in fade-in-50 zoom-in-95 duration-150"
         >
-          {ROLES.map((role, idx) => {
-            const isSelected = value === role;
+          <div className="px-3 py-1.5 border-b border-slate-100 text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
+            Supabase Roles
+          </div>
+
+          {roles.map((role, idx) => {
+            const isSelected = value === role.name || value === role.slug;
             const isFocused = focusedIndex === idx;
 
             return (
               <div
-                key={role}
+                key={role.id || role.slug}
                 role="option"
                 aria-selected={isSelected}
                 onClick={() => selectRole(role)}
                 onMouseEnter={() => setFocusedIndex(idx)}
                 className={`px-3.5 py-2.5 text-xs sm:text-sm cursor-pointer flex items-center justify-between transition-colors ${
                   isSelected
-                    ? 'bg-[#18B892]/10 text-[#18B892] font-semibold'
+                    ? 'bg-[#01875F]/10 text-[#01875F] font-semibold'
                     : isFocused
                       ? 'bg-slate-50 text-slate-900'
                       : 'text-slate-700 hover:bg-slate-50'
                 }`}
               >
-                <span className="truncate">{role}</span>
+                <div className="flex flex-col truncate">
+                  <span className="truncate">{role.name}</span>
+                  <span className="text-[10px] text-slate-400 font-mono">slug: {role.slug}</span>
+                </div>
                 {isSelected && (
                   <Check
-                    className="w-4 h-4 text-[#18B892] shrink-0 ml-2"
+                    className="w-4 h-4 text-[#01875F] shrink-0 ml-2"
                     strokeWidth={2.5}
                   />
                 )}

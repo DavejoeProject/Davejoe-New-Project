@@ -3,10 +3,9 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { LoginPage } from './components/LoginPage';
 import { ProtectedRoute } from './components/ProtectedRoute';
-import { RoleDashboardPlaceholder } from './components/RoleDashboardPlaceholder';
+import { AccessDenied } from './components/AccessDenied';
 import { CeoDashboard } from './components/dashboard/CeoDashboard';
 import { useAuth } from './hooks/useAuth';
-import { getRouteForRole } from './services/authService';
 
 const RootRedirect: React.FC = () => {
   const { user, currentRoleKey, isInitialized, isLoading } = useAuth();
@@ -19,8 +18,11 @@ const RootRedirect: React.FC = () => {
     );
   }
 
-  if (user && currentRoleKey) {
-    return <Navigate to={getRouteForRole(currentRoleKey)} replace />;
+  if (user) {
+    if (currentRoleKey === 'management') {
+      return <Navigate to="/management" replace />;
+    }
+    return <Navigate to="/access-denied" replace />;
   }
 
   return <Navigate to="/login" replace />;
@@ -33,8 +35,9 @@ export default function App() {
         <Routes>
           <Route path="/" element={<RootRedirect />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/access-denied" element={<AccessDenied />} />
 
-          {/* Protected CEO / Management Command Centre */}
+          {/* Protected CEO / Management Command Centre: ONLY database role 'management' */}
           <Route
             path="/management"
             element={
@@ -43,51 +46,53 @@ export default function App() {
               </ProtectedRoute>
             }
           />
+
+          {/* Non-management dashboards are currently inactive */}
           <Route
             path="/admin"
             element={
-              <ProtectedRoute allowedRoles={['admin']}>
-                <RoleDashboardPlaceholder roleKey="admin" />
+              <ProtectedRoute allowedRoles={[]}>
+                <AccessDenied />
               </ProtectedRoute>
             }
           />
           <Route
             path="/technical"
             element={
-              <ProtectedRoute allowedRoles={['technical']}>
-                <RoleDashboardPlaceholder roleKey="technical" />
+              <ProtectedRoute allowedRoles={[]}>
+                <AccessDenied />
               </ProtectedRoute>
             }
           />
           <Route
             path="/supervisor"
             element={
-              <ProtectedRoute allowedRoles={['supervisor']}>
-                <RoleDashboardPlaceholder roleKey="supervisor" />
+              <ProtectedRoute allowedRoles={[]}>
+                <AccessDenied />
               </ProtectedRoute>
             }
           />
           <Route
             path="/procurement"
             element={
-              <ProtectedRoute allowedRoles={['procurement']}>
-                <RoleDashboardPlaceholder roleKey="procurement" />
+              <ProtectedRoute allowedRoles={[]}>
+                <AccessDenied />
               </ProtectedRoute>
             }
           />
           <Route
             path="/accounts"
             element={
-              <ProtectedRoute allowedRoles={['accounts']}>
-                <RoleDashboardPlaceholder roleKey="accounts" />
+              <ProtectedRoute allowedRoles={[]}>
+                <AccessDenied />
               </ProtectedRoute>
             }
           />
           <Route
             path="/artisan"
             element={
-              <ProtectedRoute allowedRoles={['artisan']}>
-                <RoleDashboardPlaceholder roleKey="artisan" />
+              <ProtectedRoute allowedRoles={[]}>
+                <AccessDenied />
               </ProtectedRoute>
             }
           />

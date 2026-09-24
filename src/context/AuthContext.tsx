@@ -9,6 +9,7 @@ import {
   normalizeRoleKey,
   getRouteForRole,
 } from '../services/authService';
+import { traceAuthDatabaseFetch } from '../hooks/useAuth';
 
 export interface AuthContextType {
   user: User | null;
@@ -19,7 +20,7 @@ export interface AuthContextType {
   currentRoleKey: StandardRoleKey | null;
   isLoading: boolean;
   isInitialized: boolean;
-  login: (params: { email: string; password: string; selectedRole: string }) => Promise<{ redirectRoute: string }>;
+  login: (params: { email: string; password: string; selectedRole?: string }) => Promise<{ redirectRoute: string }>;
   logout: () => Promise<void>;
   refreshProfile: () => Promise<void>;
   hasRole: (roleInput: string) => boolean;
@@ -30,9 +31,6 @@ export interface AuthContextType {
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-// UI preference key only — NEVER treated as an authorization boundary
-const UI_SELECTED_ROLE_KEY = 'davejoe_ui_role_preference';
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -47,6 +45,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Authoritatively load user profile, roles, and permissions from the database
   const loadUserData = useCallback(async (authUser: User) => {
     try {
+      // Trigger explicit diagnostic trace on auth resolution
+      traceAuthDatabaseFetch(authUser.id).catch((err) => {
+        console.warn('[AuthContext] Diagnostic trace warning:', err);
+      });
+
       const [userProfile, { assignedSlugs, assignedNames }] = await Promise.all([
         AuthService.getProfile(authUser.id),
         AuthService.getUserRolesDetailed(authUser.id),
@@ -57,36 +60,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setProfile(userProfile);
       setAssignedRoles(roles);
 
-      const isManagement =
-        assignedSlugs.some((s) => s.toLowerCase().trim() === 'management') ||
-        roles.some((r) => normalizeRoleKey(r) === 'management');
+      // Check authoritative database role slug strictly by the 'slug' column
+      const isManagement = assignedSlugs.some(
+        (s) => s.toLowerCase().trim() === 'management'
+      );
 
       const userPermissions = await AuthService.getUserPermissions(authUser.id, isManagement);
       setPermissions(userPermissions);
 
-      // Verify active role key: MUST match an actually assigned database role
+      // Active role key is derived strictly from public.user_roles -> public.roles (slug column)
       let validatedRoleKey: StandardRoleKey | null = null;
-
       if (isManagement) {
         validatedRoleKey = 'management';
-      } else if (typeof window !== 'undefined') {
-        const storedPreference = localStorage.getItem(UI_SELECTED_ROLE_KEY) as StandardRoleKey | null;
-        if (storedPreference && roles.some((r) => normalizeRoleKey(r) === storedPreference)) {
-          validatedRoleKey = storedPreference;
-        }
-      }
-
-      if (!validatedRoleKey && roles.length > 0) {
+      } else if (assignedSlugs.length > 0) {
+        const primarySlug = normalizeRoleKey(assignedSlugs[0]);
+        validatedRoleKey = primarySlug || 'artisan';
+      } else if (roles.length > 0) {
         const primary = normalizeRoleKey(roles[0]);
-        if (primary) {
-          validatedRoleKey = primary;
-        }
+        validatedRoleKey = primary || 'artisan';
       }
 
       setCurrentRoleKey(validatedRoleKey);
-      if (typeof window !== 'undefined' && validatedRoleKey) {
-        localStorage.setItem(UI_SELECTED_ROLE_KEY, validatedRoleKey);
-      }
     } catch (err) {
       console.warn('[AuthContext] Error loading user authorization data:', err);
     }
@@ -134,7 +128,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     initAuth();
 
     // Listen to Supabase auth state changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, newSession) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event, newSession) => {
       if (!mounted) return;
 
       setSession(newSession);
@@ -147,9 +143,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setAssignedRoles([]);
         setPermissions([]);
         setCurrentRoleKey(null);
-        if (typeof window !== 'undefined') {
-          localStorage.removeItem(UI_SELECTED_ROLE_KEY);
-        }
       }
       setIsLoading(false);
     });
@@ -167,7 +160,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [user, loadUserData]);
 
   const login = useCallback(
-    async (params: { email: string; password: string; selectedRole: string }) => {
+    async (params: { email: string; password: string; selectedRole?: string }) => {
       setIsLoading(true);
       try {
         const result = await AuthService.signIn(params);
@@ -177,10 +170,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setAssignedRoles(result.assignedRoles);
         setPermissions(result.permissions);
         setCurrentRoleKey(result.primaryRoleKey);
-
-        if (typeof window !== 'undefined') {
-          localStorage.setItem(UI_SELECTED_ROLE_KEY, result.primaryRoleKey);
-        }
 
         return { redirectRoute: result.redirectRoute };
       } finally {
@@ -200,9 +189,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setAssignedRoles([]);
       setPermissions([]);
       setCurrentRoleKey(null);
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem(UI_SELECTED_ROLE_KEY);
-      }
     } finally {
       setIsLoading(false);
     }
@@ -212,11 +198,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     (roleInput: string): boolean => {
       const targetKey = normalizeRoleKey(roleInput);
       if (!targetKey) return false;
-      // Management role grants global module oversight
-      if (currentRoleKey === 'management') return true;
-      return assignedRoles.some((r) => normalizeRoleKey(r) === targetKey);
+      return currentRoleKey === targetKey;
     },
-    [currentRoleKey, assignedRoles]
+    [currentRoleKey]
   );
 
   const hasPermission = useCallback(
@@ -246,23 +230,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const canAccessRoute = useCallback(
     (pathname: string): boolean => {
       if (!user) return false;
-      // Management has access to all modules
-      if (currentRoleKey === 'management') return true;
-
-      // Find which role this route belongs to
-      const matchedConfig = Object.values(ROLE_CONFIGS).find((cfg) => {
-        return pathname.startsWith(cfg.route);
-      });
-
-      if (!matchedConfig) {
-        return true;
+      // For now, only users whose database role is 'management' may access /management
+      if (pathname.startsWith('/management')) {
+        return currentRoleKey === 'management';
       }
-
-      // Must match verified current active role or assigned roles
-      if (currentRoleKey === matchedConfig.key) return true;
-      return assignedRoles.some((r) => normalizeRoleKey(r) === matchedConfig.key);
+      // All other dashboards are currently inactive
+      return false;
     },
-    [user, currentRoleKey, assignedRoles]
+    [user, currentRoleKey]
   );
 
   const value = useMemo(

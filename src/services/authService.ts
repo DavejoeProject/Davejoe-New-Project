@@ -215,6 +215,40 @@ export class AuthService {
   }
 
   /**
+   * Fetches available roles directly from Supabase public.roles table,
+   * falling back to standard configured roles if RLS restricts unauthenticated read.
+   */
+  static async getAvailableRoles(): Promise<{ id: string; name: string; slug: string }[]> {
+    try {
+      const { data, error } = await supabase
+        .from('roles')
+        .select('id, name, slug')
+        .order('name');
+
+      if (!error && data && data.length > 0) {
+        return data.map((r: any) => ({
+          id: String(r.id),
+          name: String(r.name || r.slug),
+          slug: String(r.slug || r.name).toLowerCase(),
+        }));
+      }
+    } catch (err) {
+      console.warn('[AuthService] Could not fetch public.roles from Supabase, using defaults:', err);
+    }
+
+    // Default canonical Supabase roles fallback
+    return [
+      { id: '1', name: 'Management / CEO', slug: 'management' },
+      { id: '2', name: 'Admin / Client & Workforce Coordinator', slug: 'admin' },
+      { id: '3', name: 'Technical Inspection & QC Officer', slug: 'technical' },
+      { id: '4', name: 'Site Supervisor', slug: 'supervisor' },
+      { id: '5', name: 'Procurement & Logistics', slug: 'procurement' },
+      { id: '6', name: 'Accounts', slug: 'accounts' },
+      { id: '7', name: 'Artisan / Workforce', slug: 'artisan' },
+    ];
+  }
+
+  /**
    * Authoritative retrieval of assigned roles following:
    * auth.users (user_id) -> user_roles -> roles (and profiles fallback)
    */
@@ -509,16 +543,16 @@ export class AuthService {
    * Complete hardened login sequence:
    * 1. Validate inputs (ReDoS and length limits)
    * 2. Authenticate against Supabase Auth
-   * 3. Fetch profile & verify active status (suspend/inactive check)
-   * 4. Authoritatively fetch assigned roles from user_roles
-   * 5. Verify selected role against assigned roles (deny unauthorized selection)
-   * 6. Fetch granular permissions
-   * 7. Record security audit log
+   * 3. Authoritatively verify authenticated user with supabase.auth.getUser()
+   * 4. Fetch profile & verify active status (suspend/inactive check)
+   * 5. Authoritatively fetch assigned roles from public.user_roles -> public.roles
+   * 6. Enforce that only roles.slug === 'management' is granted active dashboard access
+   * 7. Fetch granular permissions & record security audit log
    */
   static async signIn(params: {
     email: string;
     password: string;
-    selectedRole: string;
+    selectedRole?: string;
   }): Promise<{
     user: User;
     session: Session;
@@ -547,11 +581,7 @@ export class AuthService {
       throw new Error(passwordValidation.error || 'Password does not meet security requirements.');
     }
 
-    if (!selectedRole || !selectedRole.trim()) {
-      throw new Error('Please select your assigned role from the list.');
-    }
-
-    const sanitizedEmail = sanitizeString(email).toLowerCase();
+    const sanitizedEmail = sanitizeString(email).trim().toLowerCase();
 
     // 1. Authenticate with Supabase Auth
     const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
@@ -576,7 +606,6 @@ export class AuthService {
     // Authoritative verification via getUser() as per security requirements
     const {
       data: { user: verifiedUser },
-      error: getUserError,
     } = await supabase.auth.getUser();
 
     const user = verifiedUser || authData.user;
@@ -621,38 +650,47 @@ export class AuthService {
       throw new Error('No assigned role found for this account. Please contact an administrator.');
     }
 
-    // 5. Database is the source of truth for authorization
-    const userHasManagement =
-      assignedSlugs.some((s) => s.toLowerCase().trim() === 'management') ||
-      assignedRoles.some((r) => normalizeRoleKey(r) === 'management');
-
-    const isAuthorized = verifyRoleMatch(selectedRole, assignedRoles);
-
-    if (!isAuthorized && !userHasManagement) {
-      await supabase.auth.signOut();
-      await AuditLogger.log({
-        action: 'auth.unauthorized_role_attempt',
-        module: 'authorization',
-        recordId: user.id,
-        oldValues: {
-          email: sanitizedEmail,
-          selectedRole,
-          assignedRoles,
-        },
-      });
-      throw new Error('You are not authorized to access this role.');
+    // 5. Database role is the SOLE source of truth
+    if (selectedRole && selectedRole.trim()) {
+      const isAuthorized = verifyRoleMatch(selectedRole, assignedRoles);
+      if (!isAuthorized) {
+        await supabase.auth.signOut();
+        await AuditLogger.log({
+          action: 'auth.unauthorized_role_attempt',
+          module: 'authorization',
+          recordId: user.id,
+          oldValues: {
+            email: sanitizedEmail,
+            selectedRole,
+            assignedRoles,
+          },
+        });
+        const roleDisplay = assignedNames.length > 0 ? assignedNames.join(', ') : assignedSlugs.join(', ');
+        throw new Error(
+          `You are not authorized for the role "${selectedRole}". Your assigned role in Supabase is: ${roleDisplay}.`
+        );
+      }
     }
 
-    // Database role slug is authoritative
-    let primaryRoleKey: StandardRoleKey = 'management';
-    if (userHasManagement) {
+    // Strictly identify the role by its 'slug' column rather than display name
+    const isManagement = assignedSlugs.some(
+      (s) => s.toLowerCase().trim() === 'management'
+    );
+
+    let primaryRoleKey: StandardRoleKey;
+    let redirectRoute: string;
+
+    if (isManagement) {
       primaryRoleKey = 'management';
+      redirectRoute = '/management';
     } else {
-      const matched = normalizeRoleKey(selectedRole) || (assignedSlugs[0] ? normalizeRoleKey(assignedSlugs[0]) : null);
-      primaryRoleKey = matched || 'management';
+      // Non-management roles are active in DB but have NO dashboard access assigned yet
+      const firstRole =
+        (assignedSlugs[0] ? normalizeRoleKey(assignedSlugs[0]) : null) ||
+        normalizeRoleKey(assignedRoles[0]);
+      primaryRoleKey = firstRole || 'artisan';
+      redirectRoute = '/access-denied';
     }
-
-    const isManagement = primaryRoleKey === 'management';
 
     // 6. Fetch granular permissions
     const permissions = await this.getUserPermissions(user.id, isManagement);
@@ -664,13 +702,12 @@ export class AuthService {
       recordId: user.id,
       newValues: {
         email: sanitizedEmail,
-        selectedRole,
+        selectedRole: selectedRole || null,
         primaryRoleKey,
         assignedRoles,
+        redirectRoute,
       },
     });
-
-    const redirectRoute = getRouteForRole(primaryRoleKey);
 
     return {
       user,
@@ -712,24 +749,30 @@ export class AuthService {
     const { assignedSlugs, assignedNames } = await this.getUserRolesDetailed(user.id);
     const assignedRoles = Array.from(new Set([...assignedSlugs, ...assignedNames]));
 
-    let primaryRoleKey: StandardRoleKey | null = null;
-    if (
+    const isManagement =
       assignedSlugs.some((s) => s.toLowerCase().trim() === 'management') ||
-      assignedRoles.some((r) => normalizeRoleKey(r) === 'management')
-    ) {
-      primaryRoleKey = 'management';
-    } else if (assignedRoles.length > 0) {
-      primaryRoleKey = normalizeRoleKey(assignedRoles[0]);
+      assignedRoles.some((r) => normalizeRoleKey(r) === 'management');
+
+    if (isManagement) {
+      return {
+        user,
+        profile,
+        assignedRoles,
+        primaryRoleKey: 'management',
+        redirectRoute: '/management',
+      };
     }
 
-    const redirectRoute = primaryRoleKey ? getRouteForRole(primaryRoleKey) : '/login';
+    const firstRole =
+      (assignedSlugs[0] ? normalizeRoleKey(assignedSlugs[0]) : null) ||
+      (assignedRoles[0] ? normalizeRoleKey(assignedRoles[0]) : null);
 
     return {
       user,
       profile,
       assignedRoles,
-      primaryRoleKey,
-      redirectRoute,
+      primaryRoleKey: firstRole,
+      redirectRoute: '/access-denied',
     };
   }
 

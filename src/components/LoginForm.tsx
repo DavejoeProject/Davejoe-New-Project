@@ -8,11 +8,11 @@ import { validateEmail, validatePassword, sanitizeString, ClientRateLimiter } fr
 
 export const LoginForm: React.FC = () => {
   const navigate = useNavigate();
-  const { login, logout } = useAuth();
+  const { login, logout, runAuthDiagnostics } = useAuth();
   const rateLimiterRef = useRef<ClientRateLimiter>(new ClientRateLimiter(6, 60000));
 
   const [email, setEmail] = useState('');
-  const [role, setRole] = useState('');
+  const [role, setRole] = useState('Management / CEO');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
@@ -33,7 +33,7 @@ export const LoginForm: React.FC = () => {
   // Forgot password modal
   const [isForgotModalOpen, setIsForgotModalOpen] = useState(false);
 
-  // Validation function
+  // Validation function: checks email, role, and password
   const validateForm = () => {
     const newErrors: { email?: string; role?: string; password?: string } = {};
 
@@ -42,8 +42,8 @@ export const LoginForm: React.FC = () => {
       newErrors.email = emailRes.error || 'Please enter a valid email address.';
     }
 
-    if (!role) {
-      newErrors.role = 'Please select your role from the list.';
+    if (!role || !role.trim()) {
+      newErrors.role = 'Please select your role.';
     }
 
     const passwordRes = validatePassword(password);
@@ -84,22 +84,22 @@ export const LoginForm: React.FC = () => {
       setIsSuccess(true);
       setAuthenticatedUser({
         email: sanitizedEmail,
-        role: role,
+        role,
       });
 
-      // Redirect user to their assigned role dashboard
+      // Redirect user to their authoritative route
       navigate(redirectRoute, { replace: true });
     } catch (err: unknown) {
       const errorMsg = err instanceof Error ? err.message : 'An error occurred during authentication.';
 
-      if (errorMsg.includes('Database authorization error')) {
+      if (errorMsg.includes('not authorized for the role')) {
         setErrors({
+          role: errorMsg,
           general: errorMsg,
         });
-      } else if (errorMsg.includes('not authorized to access this role')) {
+      } else if (errorMsg.includes('Database authorization error')) {
         setErrors({
-          role: 'You are not authorized to access this role.',
-          general: 'You are not authorized to access this role.',
+          general: errorMsg,
         });
       } else if (errorMsg.includes('Invalid credentials')) {
         setErrors({
@@ -111,7 +111,7 @@ export const LoginForm: React.FC = () => {
         });
       } else if (errorMsg.includes('No assigned role')) {
         setErrors({
-          general: 'No assigned role found for this account. Please contact an administrator.',
+          general: 'No assigned role found for this account in Supabase. Please contact an administrator.',
         });
       } else if (errorMsg.includes('Network error')) {
         setErrors({
@@ -122,6 +122,9 @@ export const LoginForm: React.FC = () => {
           general: errorMsg,
         });
       }
+
+      // Run diagnostics on error to trace RLS or data mismatch in console
+      runAuthDiagnostics().catch(() => {});
     } finally {
       setIsLoading(false);
     }
@@ -145,7 +148,7 @@ export const LoginForm: React.FC = () => {
                 Welcome back
               </h2>
               <p className="text-sm text-slate-500 font-normal mt-1.5">
-                Sign in to access your workspace.
+                Sign in with your Supabase credentials to access your workspace.
               </p>
             </div>
 
@@ -157,7 +160,7 @@ export const LoginForm: React.FC = () => {
               </div>
             )}
 
-            {/* Login Form */}
+            {/* Login Form: Email, Role Select from Supabase, Password, Sign In */}
             <form onSubmit={handleSubmit} noValidate className="space-y-4">
               {/* FIELD 1: Email Address */}
               <div>
@@ -186,7 +189,7 @@ export const LoginForm: React.FC = () => {
                     className={`w-full h-11 px-3.5 pl-10 bg-white border rounded-lg text-sm text-slate-800 placeholder:text-slate-400 transition-all outline-none ${
                       errors.email || errors.general?.includes('credentials')
                         ? 'border-red-400 focus:border-red-500 focus:ring-2 focus:ring-red-100'
-                        : 'border-slate-200 hover:border-slate-300 focus:border-[#18B892] focus:ring-2 focus:ring-[#18B892]/20'
+                        : 'border-slate-200 hover:border-slate-300 focus:border-[#01875F] focus:ring-2 focus:ring-[#01875F]/20'
                     }`}
                   />
                 </div>
@@ -197,17 +200,20 @@ export const LoginForm: React.FC = () => {
                 )}
               </div>
 
-              {/* FIELD 2: Role */}
-              <RoleSelect
-                value={role}
-                onChange={(selectedRole) => {
-                  setRole(selectedRole);
-                  if (errors.role || errors.general) {
-                    setErrors((prev) => ({ ...prev, role: undefined, general: undefined }));
-                  }
-                }}
-                error={errors.role}
-              />
+              {/* FIELD 2: Role Selection (Restored & Dynamic from Supabase) */}
+              <div>
+                <RoleSelect
+                  value={role}
+                  onChange={(selected) => {
+                    setRole(selected);
+                    if (errors.role || errors.general) {
+                      setErrors((prev) => ({ ...prev, role: undefined, general: undefined }));
+                    }
+                  }}
+                  error={errors.role}
+                  disabled={isLoading}
+                />
+              </div>
 
               {/* FIELD 3: Password */}
               <div>
@@ -236,13 +242,13 @@ export const LoginForm: React.FC = () => {
                     className={`w-full h-11 px-3.5 pl-10 pr-10 bg-white border rounded-lg text-sm text-slate-800 placeholder:text-slate-400 transition-all outline-none ${
                       errors.password || errors.general?.includes('credentials')
                         ? 'border-red-400 focus:border-red-500 focus:ring-2 focus:ring-red-100'
-                        : 'border-slate-200 hover:border-slate-300 focus:border-[#18B892] focus:ring-2 focus:ring-[#18B892]/20'
+                        : 'border-slate-200 hover:border-slate-300 focus:border-[#01875F] focus:ring-2 focus:ring-[#01875F]/20'
                     }`}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword((prev) => !prev)}
-                    className="absolute right-3 text-slate-400 hover:text-slate-600 p-1 rounded transition-colors focus:outline-none focus:text-[#18B892]"
+                    className="absolute right-3 text-slate-400 hover:text-slate-600 p-1 rounded transition-colors focus:outline-none focus:text-[#01875F]"
                     aria-label={showPassword ? 'Hide password' : 'Show password'}
                   >
                     {showPassword ? (
@@ -264,7 +270,7 @@ export const LoginForm: React.FC = () => {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full h-11 bg-[#18B892] hover:bg-[#159e7d] active:bg-[#128a6d] text-white text-sm font-semibold rounded-lg shadow-sm hover:shadow transition-all duration-150 flex items-center justify-center gap-2 disabled:opacity-75 cursor-pointer"
+                  className="w-full h-11 bg-[#01875F] hover:bg-[#016f4e] active:bg-[#01583e] text-white text-sm font-semibold rounded-lg shadow-sm hover:shadow transition-all duration-150 flex items-center justify-center gap-2 disabled:opacity-75 cursor-pointer"
                 >
                   {isLoading ? (
                     <span className="inline-flex items-center gap-2">
@@ -304,7 +310,7 @@ export const LoginForm: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setIsForgotModalOpen(true)}
-                  className="text-xs sm:text-sm font-medium text-[#18B892] hover:text-[#149e7d] transition-colors focus:outline-none focus:underline cursor-pointer"
+                  className="text-xs sm:text-sm font-medium text-[#01875F] hover:text-[#016f4e] transition-colors focus:outline-none focus:underline cursor-pointer"
                 >
                   Forgot password?
                 </button>
@@ -314,7 +320,7 @@ export const LoginForm: React.FC = () => {
         ) : (
           /* SUCCESS STATE AFTER SIGN IN (Fallback) */
           <div className="text-center py-4 animate-in fade-in-50 zoom-in-95 duration-200">
-            <div className="w-14 h-14 bg-emerald-50 text-[#18B892] rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="w-14 h-14 bg-emerald-50 text-[#01875F] rounded-full flex items-center justify-center mx-auto mb-4">
               <CheckCircle2 className="w-8 h-8" strokeWidth={2.2} />
             </div>
             <h2 className="text-xl font-bold text-slate-900 mb-1">
@@ -331,9 +337,8 @@ export const LoginForm: React.FC = () => {
               <div className="text-sm font-semibold text-slate-800 truncate">
                 {authenticatedUser?.email}
               </div>
-              <div className="inline-flex items-center gap-1.5 mt-1 text-xs font-medium text-[#18B892]">
-                <span className="w-2 h-2 rounded-full bg-[#18B892]" />
-                {authenticatedUser?.role}
+              <div className="text-xs font-semibold text-[#01875F] mt-1">
+                Role: {authenticatedUser?.role}
               </div>
             </div>
 
