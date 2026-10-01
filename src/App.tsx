@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { LoginPage } from './components/LoginPage';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import { ManagementRouteGuard } from './components/ManagementRouteGuard';
 import { AccessDenied } from './components/AccessDenied';
 import { CeoDashboard } from './components/dashboard/CeoDashboard';
 import { useAuth } from './hooks/useAuth';
@@ -41,9 +42,25 @@ export default function App() {
           <Route
             path="/management"
             element={
-              <ProtectedRoute allowedRoles={['management']}>
-                <CeoDashboard />
-              </ProtectedRoute>
+              <ManagementRouteGuard>
+                <CeoDashboard initialModule="overview" />
+              </ManagementRouteGuard>
+            }
+          />
+          <Route
+            path="/management/projects"
+            element={
+              <ManagementRouteGuard>
+                <CeoDashboard initialModule="all-projects" />
+              </ManagementRouteGuard>
+            }
+          />
+          <Route
+            path="/management/projects/:projectId"
+            element={
+              <ManagementRouteGuard>
+                <CeoDashboard initialModule="all-projects" />
+              </ManagementRouteGuard>
             }
           />
 

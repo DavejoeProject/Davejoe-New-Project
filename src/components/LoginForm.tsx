@@ -12,8 +12,8 @@ export const LoginForm: React.FC = () => {
   const rateLimiterRef = useRef<ClientRateLimiter>(new ClientRateLimiter(6, 60000));
 
   const [email, setEmail] = useState('');
-  const [roleSlug, setRoleSlug] = useState('management');
-  const [roleName, setRoleName] = useState('Management / CEO');
+  const [roleSlug, setRoleSlug] = useState('');
+  const [roleName, setRoleName] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 

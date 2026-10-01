@@ -660,37 +660,36 @@ export class AuthService {
     const selectedRoleSlug: StandardRoleKey | null = normalizeRoleKey(selectedRole);
 
     // Core Authorization Rule:
-    // If a role was selected, selectedRoleSlug MUST match authenticatedUserRoleSlug.
-    // Selecting another role (e.g. Artisan, Accounts, Admin, etc.) with Management credentials MUST be denied.
-    if (selectedRole && selectedRole.trim()) {
-      const isRoleMatch = Boolean(
-        selectedRoleSlug &&
-        authenticatedUserRoleSlug &&
-        selectedRoleSlug === authenticatedUserRoleSlug
-      );
+    // The selected role MUST match the user's actual database-assigned role.
+    // Selecting another role (e.g. Artisan, Accounts, Admin, Supervisor, Procurement, Technical)
+    // with Management credentials MUST be denied.
+    const isRoleMatch = Boolean(
+      selectedRoleSlug &&
+      authenticatedUserRoleSlug &&
+      selectedRoleSlug === authenticatedUserRoleSlug
+    );
 
-      if (!isRoleMatch) {
-        // Immediate sign out so NO session or credentials linger
-        await supabase.auth.signOut();
-        await AuditLogger.log({
-          action: 'auth.role_mismatch_denied',
-          module: 'authorization',
-          recordId: user.id,
-          oldValues: {
-            email: sanitizedEmail,
-            selectedRole,
-            selectedRoleSlug,
-            authenticatedUserRoleSlug,
-            assignedRoles,
-          },
-        });
+    if (!isRoleMatch) {
+      // Immediate sign out so NO session or credentials linger
+      await supabase.auth.signOut();
+      await AuditLogger.log({
+        action: 'auth.role_mismatch_denied',
+        module: 'authorization',
+        recordId: user.id,
+        oldValues: {
+          email: sanitizedEmail,
+          selectedRole: selectedRole || null,
+          selectedRoleSlug,
+          authenticatedUserRoleSlug,
+          assignedRoles,
+        },
+      });
 
-        const error = new Error('These login details are not assigned to the selected role.');
-        (error as any).secondaryText = 'Please select the role assigned to this account.';
-        (error as any).selectedRole = selectedRole;
-        (error as any).isRoleMismatch = true;
-        throw error;
-      }
+      const error = new Error('These login details are not assigned to the selected role.');
+      (error as any).secondaryText = 'Please select the role assigned to this account.';
+      (error as any).selectedRole = selectedRole;
+      (error as any).isRoleMismatch = true;
+      throw error;
     }
 
     // Role Activation Rule:
