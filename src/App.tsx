@@ -63,6 +63,144 @@ export default function App() {
               </ManagementRouteGuard>
             }
           />
+          <Route
+            path="/management/workforce"
+            element={
+              <ManagementRouteGuard>
+                <CeoDashboard initialModule="workforce" />
+              </ManagementRouteGuard>
+            }
+          />
+          <Route
+            path="/management/workforce/performance"
+            element={
+              <ManagementRouteGuard>
+                <CeoDashboard initialModule="workforce-performance" />
+              </ManagementRouteGuard>
+            }
+          />
+          <Route
+            path="/management/workforce/attendance"
+            element={
+              <ManagementRouteGuard>
+                <CeoDashboard initialModule="attendance" />
+              </ManagementRouteGuard>
+            }
+          />
+          <Route
+            path="/management/workforce/productivity"
+            element={
+              <ManagementRouteGuard>
+                <CeoDashboard initialModule="productivity" />
+              </ManagementRouteGuard>
+            }
+          />
+          <Route
+            path="/management/workforce/overtime"
+            element={
+              <ManagementRouteGuard>
+                <CeoDashboard initialModule="overtime" />
+              </ManagementRouteGuard>
+            }
+          />
+          <Route
+            path="/management/workforce/conduct"
+            element={
+              <ManagementRouteGuard>
+                <CeoDashboard initialModule="conduct" />
+              </ManagementRouteGuard>
+            }
+          />
+          <Route
+            path="/management/workforce/:workforceId"
+            element={
+              <ManagementRouteGuard>
+                <CeoDashboard initialModule="workforce" />
+              </ManagementRouteGuard>
+            }
+          />
+
+          {/* Materials Module Foundation Routes */}
+          <Route
+            path="/management/materials"
+            element={
+              <ManagementRouteGuard>
+                <CeoDashboard initialModule="materials" />
+              </ManagementRouteGuard>
+            }
+          />
+          <Route
+            path="/management/materials/directory"
+            element={
+              <ManagementRouteGuard>
+                <CeoDashboard initialModule="materials-directory" />
+              </ManagementRouteGuard>
+            }
+          />
+          <Route
+            path="/management/materials/requests"
+            element={
+              <ManagementRouteGuard>
+                <CeoDashboard initialModule="material-requests" />
+              </ManagementRouteGuard>
+            }
+          />
+          <Route
+            path="/management/materials/requests/:requestId"
+            element={
+              <ManagementRouteGuard>
+                <CeoDashboard initialModule="material-requests" />
+              </ManagementRouteGuard>
+            }
+          />
+          <Route
+            path="/management/materials/procurement"
+            element={
+              <ManagementRouteGuard>
+                <CeoDashboard initialModule="procurement" />
+              </ManagementRouteGuard>
+            }
+          />
+          <Route
+            path="/management/materials/procurement/:purchaseOrderId"
+            element={
+              <ManagementRouteGuard>
+                <CeoDashboard initialModule="procurement" />
+              </ManagementRouteGuard>
+            }
+          />
+          <Route
+            path="/management/materials/deliveries"
+            element={
+              <ManagementRouteGuard>
+                <CeoDashboard initialModule="deliveries" />
+              </ManagementRouteGuard>
+            }
+          />
+          <Route
+            path="/management/materials/stock"
+            element={
+              <ManagementRouteGuard>
+                <CeoDashboard initialModule="stock" />
+              </ManagementRouteGuard>
+            }
+          />
+          <Route
+            path="/management/materials/losses-returns"
+            element={
+              <ManagementRouteGuard>
+                <CeoDashboard initialModule="losses-returns" />
+              </ManagementRouteGuard>
+            }
+          />
+          <Route
+            path="/management/materials/reconciliation"
+            element={
+              <ManagementRouteGuard>
+                <CeoDashboard initialModule="reconciliation" />
+              </ManagementRouteGuard>
+            }
+          />
 
           {/* Non-management dashboards are currently inactive */}
           <Route

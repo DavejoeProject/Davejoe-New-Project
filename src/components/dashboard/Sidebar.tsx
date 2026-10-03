@@ -47,12 +47,14 @@ export type DashboardNavKey =
   | 'inspections'
   // WORKFORCE
   | 'workforce'
+  | 'workforce-performance'
   | 'attendance'
   | 'productivity'
   | 'overtime'
   | 'conduct'
   // MATERIALS
   | 'materials'
+  | 'materials-directory'
   | 'material-requests'
   | 'procurement'
   | 'deliveries'
@@ -108,6 +110,7 @@ export const SIDEBAR_SECTIONS: NavSectionConfig[] = [
     title: 'WORKFORCE',
     items: [
       { key: 'workforce', label: 'Workforce', icon: Users },
+      { key: 'workforce-performance', label: 'Performance', icon: TrendingUp },
       { key: 'attendance', label: 'Attendance', icon: CalendarCheck },
       { key: 'productivity', label: 'Productivity', icon: Activity },
       { key: 'overtime', label: 'Overtime', icon: Clock },
@@ -247,7 +250,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <div className="space-y-0.5">
               {section.items.map((item) => {
                 const Icon = item.icon;
-                const isActive = currentModule === item.key;
+                const isActive =
+                  currentModule === item.key ||
+                  (item.key === 'materials' && currentModule === 'materials-directory');
 
                 return (
                   <button

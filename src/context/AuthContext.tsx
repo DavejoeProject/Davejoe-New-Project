@@ -10,6 +10,7 @@ import {
   getRouteForRole,
 } from '../services/authService';
 import { traceAuthDatabaseFetch } from '../hooks/useAuth';
+import { ensureValidSession, isJwtExpiredError } from '../lib/authSession';
 
 export interface AuthContextType {
   user: User | null;
@@ -45,6 +46,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Authoritatively load user profile, roles, and permissions from the database
   const loadUserData = useCallback(async (authUser: User) => {
     try {
+      // Ensure we have a valid session token before querying database
+      const { session: currentSession } = await ensureValidSession();
+      if (!currentSession) {
+        console.warn('[AuthContext] Cannot load user data without a valid session.');
+        setProfile(null);
+        setAssignedRoles([]);
+        setPermissions([]);
+        setCurrentRoleKey(null);
+        return;
+      }
+
       // Trigger explicit diagnostic trace on auth resolution
       traceAuthDatabaseFetch(authUser.id).catch((err) => {
         console.warn('[AuthContext] Diagnostic trace warning:', err);
@@ -92,27 +104,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     async function initAuth() {
       try {
-        const {
-          data: { session: initialSession },
-          error: sessionError,
-        } = await supabase.auth.getSession();
+        const { session: validSession, user: validUser, error: sessionErr } = await ensureValidSession();
 
-        if (sessionError) {
-          console.warn('[AuthContext] Error reading session on load:', sessionError.message);
+        if (sessionErr) {
+          console.warn('[AuthContext] Session verification warning:', sessionErr.message || sessionErr);
         }
 
         if (mounted) {
-          setSession(initialSession);
-          setUser(initialSession?.user ?? null);
+          setSession(validSession);
+          setUser(validUser);
 
-          if (initialSession?.user) {
-            // Authoritative verification via getUser() as per requirement 7
-            const {
-              data: { user: verifiedUser },
-            } = await supabase.auth.getUser();
-
-            const activeUser = verifiedUser || initialSession.user;
-            await loadUserData(activeUser);
+          if (validUser) {
+            await loadUserData(validUser);
+          } else {
+            // Clean unauthenticated state
+            setProfile(null);
+            setAssignedRoles([]);
+            setPermissions([]);
+            setCurrentRoleKey(null);
           }
         }
       } catch (err) {
@@ -133,12 +142,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } = supabase.auth.onAuthStateChange(async (event, newSession) => {
       if (!mounted) return;
 
-      setSession(newSession);
-      setUser(newSession?.user ?? null);
-
-      if (event === 'SIGNED_IN' && newSession?.user) {
+      if (event === 'TOKEN_REFRESHED' && newSession) {
+        setSession(newSession);
+        setUser(newSession.user);
+      } else if (event === 'SIGNED_IN' && newSession?.user) {
+        setSession(newSession);
+        setUser(newSession.user);
         await loadUserData(newSession.user);
       } else if (event === 'SIGNED_OUT') {
+        setSession(null);
+        setUser(null);
         setProfile(null);
         setAssignedRoles([]);
         setPermissions([]);

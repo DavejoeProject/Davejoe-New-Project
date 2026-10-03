@@ -1,6 +1,7 @@
 import { useContext } from 'react';
 import { AuthContext, AuthContextType } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
+import { ensureValidSession, isJwtExpiredError } from '../lib/authSession';
 
 export interface AuthDiagnosticTrace {
   userId: string | null;
@@ -9,28 +10,28 @@ export interface AuthDiagnosticTrace {
     rowCount: number;
     data: any;
     error: any;
-    status: 'FOUND' | 'EMPTY_SET' | 'RLS_BLOCKED' | 'ERROR';
+    status: 'FOUND' | 'EMPTY_SET' | 'RLS_BLOCKED' | 'JWT_EXPIRED' | 'ERROR';
   };
   userRoles: {
     attempted: string;
     rowCount: number;
     data: any[];
     error: any;
-    status: 'FOUND' | 'EMPTY_SET' | 'RLS_BLOCKED' | 'ERROR';
+    status: 'FOUND' | 'EMPTY_SET' | 'RLS_BLOCKED' | 'JWT_EXPIRED' | 'ERROR';
   };
   joinQuery: {
     attempted: string;
     rowCount: number;
     data: any[];
     error: any;
-    status: 'FOUND' | 'EMPTY_SET' | 'RLS_BLOCKED' | 'RELATION_NOT_FOUND' | 'ERROR';
+    status: 'FOUND' | 'EMPTY_SET' | 'RLS_BLOCKED' | 'RELATION_NOT_FOUND' | 'JWT_EXPIRED' | 'ERROR';
   };
   roles: {
     attempted: string;
     rowCount: number;
     data: any[];
     error: any;
-    status: 'FOUND' | 'EMPTY_SET' | 'RLS_BLOCKED' | 'ERROR';
+    status: 'FOUND' | 'EMPTY_SET' | 'RLS_BLOCKED' | 'JWT_EXPIRED' | 'ERROR';
   };
   hasManagementSlug: boolean;
   resolvedSlugs: string[];
@@ -48,13 +49,12 @@ export interface AuthDiagnosticTrace {
  * Outputs the full diagnostic trace and JOIN query results directly to the browser console.
  */
 export async function traceAuthDatabaseFetch(explicitUserId?: string): Promise<AuthDiagnosticTrace> {
-  let targetUserId: string | null = explicitUserId || null;
+  // First ensure session is valid and access token has not expired
+  const { session: currentSession, user: currentUser } = await ensureValidSession();
+  let targetUserId: string | null = explicitUserId || currentUser?.id || null;
 
-  if (!targetUserId) {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    targetUserId = user?.id || null;
+  if (!targetUserId && currentSession?.user) {
+    targetUserId = currentSession.user.id;
   }
 
   const result: AuthDiagnosticTrace = {
@@ -122,7 +122,10 @@ export async function traceAuthDatabaseFetch(explicitUserId?: string): Promise<A
     result.profiles.error = profError;
 
     if (profError) {
-      if (profError.code === '42501' || profError.message?.toLowerCase().includes('row-level security')) {
+      if (isJwtExpiredError(profError)) {
+        result.profiles.status = 'JWT_EXPIRED';
+        console.warn('⚠️ public.profiles: Session JWT expired (PGRST303).');
+      } else if (profError.code === '42501' || profError.message?.toLowerCase().includes('row-level security')) {
         result.profiles.status = 'RLS_BLOCKED';
         console.error('❌ public.profiles: RLS POLICY BLOCKED READ', profError);
       } else {
@@ -162,7 +165,10 @@ export async function traceAuthDatabaseFetch(explicitUserId?: string): Promise<A
     result.userRoles.error = urError;
 
     if (urError) {
-      if (urError.code === '42501' || urError.message?.toLowerCase().includes('row-level security')) {
+      if (isJwtExpiredError(urError)) {
+        result.userRoles.status = 'JWT_EXPIRED';
+        console.warn('⚠️ public.user_roles: Session JWT expired (PGRST303).');
+      } else if (urError.code === '42501' || urError.message?.toLowerCase().includes('row-level security')) {
         result.userRoles.status = 'RLS_BLOCKED';
         console.error('❌ public.user_roles: RLS POLICY BLOCKED READ (Code 42501)', urError);
       } else {
@@ -214,7 +220,10 @@ export async function traceAuthDatabaseFetch(explicitUserId?: string): Promise<A
     result.joinQuery.error = joinError;
 
     if (joinError) {
-      if (joinError.code === '42501' || joinError.message?.toLowerCase().includes('row-level security')) {
+      if (isJwtExpiredError(joinError)) {
+        result.joinQuery.status = 'JWT_EXPIRED';
+        console.warn('⚠️ JOIN Query: Session JWT expired (PGRST303).');
+      } else if (joinError.code === '42501' || joinError.message?.toLowerCase().includes('row-level security')) {
         result.joinQuery.status = 'RLS_BLOCKED';
         console.error('❌ JOIN Query RLS BLOCKED:', joinError.message);
       } else if (joinError.code === 'PGRST200') {
@@ -271,7 +280,10 @@ export async function traceAuthDatabaseFetch(explicitUserId?: string): Promise<A
     result.roles.error = rolesError;
 
     if (rolesError) {
-      if (rolesError.code === '42501' || rolesError.message?.toLowerCase().includes('row-level security')) {
+      if (isJwtExpiredError(rolesError)) {
+        result.roles.status = 'JWT_EXPIRED';
+        console.warn('⚠️ public.roles: Session JWT expired (PGRST303).');
+      } else if (rolesError.code === '42501' || rolesError.message?.toLowerCase().includes('row-level security')) {
         result.roles.status = 'RLS_BLOCKED';
         console.error('❌ public.roles: RLS POLICY BLOCKED READ (Code 42501)', rolesError);
       } else {
@@ -311,7 +323,21 @@ export async function traceAuthDatabaseFetch(explicitUserId?: string): Promise<A
 
   result.hasManagementSlug = uniqueSlugs.includes('management');
 
-  if (result.hasManagementSlug) {
+  const hasExpiredToken = [
+    result.profiles.status,
+    result.userRoles.status,
+    result.joinQuery.status,
+    result.roles.status,
+  ].some((s) => s === 'JWT_EXPIRED');
+
+  if (hasExpiredToken) {
+    result.diagnosis = 'AUTHENTICATION EXPIRED: The active session token (JWT) has expired (PGRST303). Automatic session refresh or re-login required.';
+    console.warn(
+      '%c⚠️ DIAGNOSTIC VERDICT: SESSION EXPIRED%c\nSession JWT expired during query execution. Re-login or token refresh required.',
+      'background: #FEF3C7; color: #D97706; font-weight: bold; padding: 4px 8px; border-radius: 4px;',
+      'color: inherit;'
+    );
+  } else if (result.hasManagementSlug) {
     result.diagnosis = `CONFIRMED: Role slug 'management' is correctly retrieved for user ID ${targetUserId}. Authorizes CEO/Management dashboard.`;
     console.log(
       '%c✓ DIAGNOSTIC VERDICT: SUCCESS%c\nRole slug %c"management"%c was successfully resolved from the database!\nAssigned Slugs: ' +

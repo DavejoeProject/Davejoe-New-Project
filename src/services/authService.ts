@@ -2,6 +2,7 @@ import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import type { User, Session } from '@supabase/supabase-js';
 import { validateEmail, validatePassword, sanitizeString } from '../lib/validation';
 import { AuditLogger } from '../lib/audit';
+import { ensureValidSession, isJwtExpiredError } from '../lib/authSession';
 
 export interface UserProfile {
   id: string;
@@ -197,11 +198,25 @@ export class AuthService {
    */
   static async getProfile(userId: string): Promise<UserProfile | null> {
     try {
-      const { data, error } = await supabase
+      let { data, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', userId)
         .maybeSingle();
+
+      if (error && isJwtExpiredError(error)) {
+        console.warn('[AuthService] getProfile detected expired JWT. Attempting session refresh...');
+        const { session: refreshedSession } = await ensureValidSession();
+        if (refreshedSession) {
+          const retry = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', userId)
+            .maybeSingle();
+          data = retry.data;
+          error = retry.error;
+        }
+      }
 
       if (error) {
         console.warn('[Davejoe Auth Diagnostics] Could not fetch profile for user', userId, error);
@@ -297,10 +312,23 @@ export class AuthService {
     // Step 1: Query public.user_roles with select('*')
     // -------------------------------------------------------------
     try {
-      const { data: urData, error: urErr } = await supabase
+      let { data: urData, error: urErr } = await supabase
         .from('user_roles')
         .select('*')
         .eq('user_id', userId);
+
+      if (urErr && isJwtExpiredError(urErr)) {
+        console.warn('[AuthService] user_roles query detected expired JWT. Attempting session refresh...');
+        const { session: refreshedSession } = await ensureValidSession();
+        if (refreshedSession) {
+          const retry = await supabase
+            .from('user_roles')
+            .select('*')
+            .eq('user_id', userId);
+          urData = retry.data;
+          urErr = retry.error;
+        }
+      }
 
       report.userRolesQuery.error = urErr;
 
