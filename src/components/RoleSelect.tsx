@@ -32,7 +32,7 @@ export const ROLE_DEFINITIONS: RoleDefinition[] = [
     slug: 'admin',
     name: 'Admin',
     description: 'Administrative operations',
-    isActive: false,
+    isActive: true,
     icon: SlidersHorizontal,
   },
   {

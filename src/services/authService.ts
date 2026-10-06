@@ -683,10 +683,11 @@ export class AuthService {
     const selectedRoleSlug: StandardRoleKey | null = normalizeRoleKey(selectedRole);
 
     // Active roles supported in this system:
-    // 'management' -> /management
-    // 'supervisor' -> /supervisor
-    // 'artisan'    -> /artisan
-    const activeRoles: StandardRoleKey[] = ['management', 'supervisor', 'artisan'];
+    // 'admin'       -> /admin
+    // 'management'  -> /management
+    // 'supervisor'  -> /supervisor
+    // 'artisan'     -> /artisan
+    const activeRoles: StandardRoleKey[] = ['admin', 'management', 'supervisor', 'artisan'];
 
     if (selectedRoleSlug && !activeRoles.includes(selectedRoleSlug)) {
       await supabase.auth.signOut();
@@ -729,9 +730,17 @@ export class AuthService {
     const primaryRoleKey: StandardRoleKey = selectedRoleSlug!;
     const redirectRoute = getRouteForRole(primaryRoleKey);
 
+    // Development diagnostic logging
+    console.log('[Auth] Authenticated user ID:', user.id);
+    console.log('[Auth] Authenticated email:', sanitizedEmail);
+    console.log('[Auth] Resolved role names:', assignedNames);
+    console.log('[Auth] Resolved role slugs:', assignedSlugs);
+    console.log('[Auth] Selected login role:', selectedRole || '(none)');
+    console.log('[Auth] Final redirect:', redirectRoute);
+
     // 6. Fetch granular permissions
-    const isManagement = primaryRoleKey === 'management';
-    const permissions = await this.getUserPermissions(user.id, isManagement);
+    const isFullAdminOrManagement = primaryRoleKey === 'management' || primaryRoleKey === 'admin';
+    const permissions = await this.getUserPermissions(user.id, isFullAdminOrManagement);
 
     // 7. Audit successful sign-in
     await AuditLogger.log({
@@ -788,6 +797,20 @@ export class AuthService {
     const profile = await this.getProfile(user.id);
     const { assignedSlugs, assignedNames } = await this.getUserRolesDetailed(user.id);
     const assignedRoles = Array.from(new Set([...assignedSlugs, ...assignedNames]));
+
+    const isAdmin =
+      assignedSlugs.some((s) => s.toLowerCase().trim() === 'admin') ||
+      assignedRoles.some((r) => normalizeRoleKey(r) === 'admin');
+
+    if (isAdmin) {
+      return {
+        user,
+        profile,
+        assignedRoles,
+        primaryRoleKey: 'admin',
+        redirectRoute: '/admin',
+      };
+    }
 
     const isManagement =
       assignedSlugs.some((s) => s.toLowerCase().trim() === 'management') ||

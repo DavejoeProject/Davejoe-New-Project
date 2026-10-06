@@ -6,10 +6,12 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import { ManagementRouteGuard } from './components/ManagementRouteGuard';
 import { SupervisorRouteGuard } from './components/SupervisorRouteGuard';
 import { ArtisanRouteGuard } from './components/ArtisanRouteGuard';
+import { AdminRouteGuard } from './components/AdminRouteGuard';
 import { AccessDenied } from './components/AccessDenied';
 import { CeoDashboard } from './components/dashboard/CeoDashboard';
 import { SupervisorDashboard } from './components/supervisor/SupervisorDashboard';
 import { ArtisanDashboard } from './components/artisan/ArtisanDashboard';
+import { AdminDashboard } from './components/admin/AdminDashboard';
 import { AttendanceRegister } from './components/attendance/AttendanceRegister';
 import { useAuth } from './hooks/useAuth';
 import { PWAInstallPrompt } from './components/pwa/PWAInstallPrompt';
@@ -21,13 +23,19 @@ const RootRedirect: React.FC = () => {
 
   if (isLoading || !isInitialized) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#f8faf9]">
+      <div className="min-h-screen flex flex-col items-center justify-center bg-[#f8faf9] gap-3">
         <div className="w-10 h-10 border-3 border-[#01875F]/20 border-t-[#01875F] rounded-full animate-spin" />
+        <p className="text-xs font-semibold text-slate-500 tracking-wide">
+          Loading your workspace...
+        </p>
       </div>
     );
   }
 
   if (user) {
+    if (currentRoleKey === 'admin') {
+      return <Navigate to="/admin" replace />;
+    }
     if (currentRoleKey === 'management') {
       return <Navigate to="/management" replace />;
     }
@@ -51,6 +59,24 @@ export default function App() {
           <Route path="/" element={<RootRedirect />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/access-denied" element={<AccessDenied />} />
+
+          {/* Protected Administration Command Centre: database role 'admin' */}
+          <Route
+            path="/admin"
+            element={
+              <AdminRouteGuard>
+                <AdminDashboard />
+              </AdminRouteGuard>
+            }
+          />
+          <Route
+            path="/admin/*"
+            element={
+              <AdminRouteGuard>
+                <AdminDashboard />
+              </AdminRouteGuard>
+            }
+          />
 
           {/* Protected CEO / Management Command Centre: ONLY database role 'management' */}
           <Route

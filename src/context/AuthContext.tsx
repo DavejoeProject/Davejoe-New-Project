@@ -73,23 +73,42 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setAssignedRoles(roles);
 
       // Check authoritative database role slug strictly by the 'slug' column
-      const isManagement = assignedSlugs.some(
-        (s) => s.toLowerCase().trim() === 'management'
-      );
+      const isAdmin =
+        assignedSlugs.some((s) => s.toLowerCase().trim() === 'admin') ||
+        roles.some((r) => normalizeRoleKey(r) === 'admin');
 
-      const userPermissions = await AuthService.getUserPermissions(authUser.id, isManagement);
+      const isManagement =
+        assignedSlugs.some((s) => s.toLowerCase().trim() === 'management') ||
+        roles.some((r) => normalizeRoleKey(r) === 'management');
+
+      const isSupervisor =
+        assignedSlugs.some((s) => s.toLowerCase().trim() === 'supervisor') ||
+        roles.some((r) => normalizeRoleKey(r) === 'supervisor');
+
+      const isArtisan =
+        assignedSlugs.some((s) => s.toLowerCase().trim() === 'artisan') ||
+        roles.some((r) => normalizeRoleKey(r) === 'artisan');
+
+      const userPermissions = await AuthService.getUserPermissions(
+        authUser.id,
+        isManagement || isAdmin
+      );
       setPermissions(userPermissions);
 
       // Active role key is derived strictly from public.user_roles -> public.roles (slug column)
       let validatedRoleKey: StandardRoleKey | null = null;
-      if (isManagement) {
+      if (isAdmin) {
+        validatedRoleKey = 'admin';
+      } else if (isManagement) {
         validatedRoleKey = 'management';
+      } else if (isSupervisor) {
+        validatedRoleKey = 'supervisor';
+      } else if (isArtisan) {
+        validatedRoleKey = 'artisan';
       } else if (assignedSlugs.length > 0) {
-        const primarySlug = normalizeRoleKey(assignedSlugs[0]);
-        validatedRoleKey = primarySlug || 'artisan';
+        validatedRoleKey = normalizeRoleKey(assignedSlugs[0]);
       } else if (roles.length > 0) {
-        const primary = normalizeRoleKey(roles[0]);
-        validatedRoleKey = primary || 'artisan';
+        validatedRoleKey = normalizeRoleKey(roles[0]);
       }
 
       setCurrentRoleKey(validatedRoleKey);
@@ -218,7 +237,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const hasPermission = useCallback(
     (permission: string): boolean => {
-      if (currentRoleKey === 'management' || permissions.includes('*')) return true;
+      if (currentRoleKey === 'management' || currentRoleKey === 'admin' || permissions.includes('*')) return true;
       return permissions.includes(permission);
     },
     [currentRoleKey, permissions]
@@ -226,7 +245,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const hasAnyPermission = useCallback(
     (perms: string[]): boolean => {
-      if (currentRoleKey === 'management' || permissions.includes('*')) return true;
+      if (currentRoleKey === 'management' || currentRoleKey === 'admin' || permissions.includes('*')) return true;
       return perms.some((p) => permissions.includes(p));
     },
     [currentRoleKey, permissions]
@@ -234,7 +253,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const hasAllPermissions = useCallback(
     (perms: string[]): boolean => {
-      if (currentRoleKey === 'management' || permissions.includes('*')) return true;
+      if (currentRoleKey === 'management' || currentRoleKey === 'admin' || permissions.includes('*')) return true;
       return perms.every((p) => permissions.includes(p));
     },
     [currentRoleKey, permissions]
@@ -243,11 +262,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const canAccessRoute = useCallback(
     (pathname: string): boolean => {
       if (!user) return false;
-      // For now, only users whose database role is 'management' may access /management
+      if (pathname.startsWith('/admin')) {
+        return currentRoleKey === 'admin';
+      }
       if (pathname.startsWith('/management')) {
         return currentRoleKey === 'management';
       }
-      // All other dashboards are currently inactive
+      if (pathname.startsWith('/supervisor')) {
+        return currentRoleKey === 'supervisor';
+      }
+      if (pathname.startsWith('/artisan')) {
+        return currentRoleKey === 'artisan';
+      }
       return false;
     },
     [user, currentRoleKey]

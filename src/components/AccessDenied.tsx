@@ -1,11 +1,30 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Navigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { ShieldAlert, ArrowLeft } from 'lucide-react';
+import { getRouteForRole } from '../services/authService';
 
 export const AccessDenied: React.FC = () => {
   const navigate = useNavigate();
-  const { logout, isLoading } = useAuth();
+  const { user, currentRoleKey, isInitialized, isLoading, logout } = useAuth();
+
+  // If still loading authorization from database, show loading workspace state
+  if (isLoading || !isInitialized) {
+    return (
+      <div className="min-h-screen bg-[#F8FAF9] flex flex-col items-center justify-center p-4">
+        <div className="w-10 h-10 border-3 border-[#01875F]/20 border-t-[#01875F] rounded-full animate-spin mb-3" />
+        <p className="text-xs font-semibold text-slate-500 tracking-wide">
+          Loading your workspace...
+        </p>
+      </div>
+    );
+  }
+
+  // If user actually has an authorized active role, forward them directly to their valid dashboard!
+  if (user && currentRoleKey && ['admin', 'management', 'supervisor', 'artisan'].includes(currentRoleKey)) {
+    const route = getRouteForRole(currentRoleKey);
+    return <Navigate to={route} replace />;
+  }
 
   const handleReturnToLogin = async () => {
     try {
@@ -19,8 +38,8 @@ export const AccessDenied: React.FC = () => {
     <div className="min-h-screen bg-[#F8FAF9] flex flex-col items-center justify-center p-4 sm:p-6 selection:bg-[#01875F] selection:text-white">
       {/* Brand Header */}
       <div className="flex items-center gap-2.5 mb-8">
-        <div className="w-8 h-8 rounded-lg bg-[#01875F] flex items-center justify-center text-white font-extrabold text-sm shadow-xs">
-          D
+        <div className="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center shadow-xs shrink-0 bg-white border border-slate-100">
+          <img src="/favicon.png" alt="Davejoe" className="w-full h-full object-contain" />
         </div>
         <div className="flex flex-col text-left">
           <span className="text-sm font-bold text-slate-900 tracking-tight leading-tight">
@@ -41,10 +60,10 @@ export const AccessDenied: React.FC = () => {
 
         {/* Message Headings */}
         <h1 className="text-xl font-bold text-slate-900 tracking-tight mb-2.5">
-          Access not assigned
+          Access not assigned yet
         </h1>
         <p className="text-sm text-slate-600 leading-relaxed mb-7">
-          Your account has been authenticated, but no dashboard access has been assigned to your current role.
+          Your account has been authenticated, but no dashboard access has been assigned to your current role. Please contact a system administrator to configure your operational role.
         </p>
 
         {/* Return to Login Action */}
