@@ -194,8 +194,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
           title="Davejoe Management Tool"
         >
           {/* Brand Emblem */}
-          <div className="w-8 h-8 rounded-lg bg-[#01875F] flex items-center justify-center text-white font-extrabold text-sm shadow-xs transition-transform group-hover:scale-105 shrink-0">
-            D
+          <div className="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center shadow-xs transition-transform group-hover:scale-105 shrink-0 bg-white border border-slate-100">
+            <img
+              src="/favicon.png"
+              alt="Davejoe"
+              className="w-full h-full object-contain"
+              referrerPolicy="no-referrer"
+            />
           </div>
 
           {!collapsed && (

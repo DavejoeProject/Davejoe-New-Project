@@ -97,8 +97,13 @@ export const PWAInstallButton: React.FC<PWAInstallButtonProps> = ({
             </button>
 
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-xl bg-[#01875F] flex items-center justify-center text-white shrink-0 font-extrabold text-base">
-                D
+              <div className="w-10 h-10 rounded-xl overflow-hidden shrink-0 border border-slate-100 bg-white shadow-2xs">
+                <img
+                  src="/pwa-192x192.png"
+                  alt="Davejoe Logo"
+                  className="w-full h-full object-contain"
+                  referrerPolicy="no-referrer"
+                />
               </div>
               <div>
                 <h3 className="text-sm font-bold text-slate-900">

@@ -1,39 +1,178 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
   <defs>
-    <linearGradient id="bgGradMask" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#01875F" />
-      <stop offset="100%" stop-color="#006C4C" />
+    <linearGradient id="mEmeraldBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00A870" />
+      <stop offset="40%" stop-color="#01875F" />
+      <stop offset="80%" stop-color="#005C40" />
+      <stop offset="100%" stop-color="#003D2A" />
     </linearGradient>
   </defs>
 
-  <!-- Full bleed background for Android masking -->
-  <rect width="512" height="512" fill="url(#bgGradMask)" />
+  <!-- Full-bleed background -->
+  <rect width="512" height="512" fill="url(#mEmeraldBg)" />
 
-  <!-- Content scaled within safe circle (diameter 400px centered at 256, 256) -->
-  <g transform="translate(256, 260) scale(0.82)">
-    <!-- Architectural Chimney -->
-    <rect x="52" y="-178" width="24" height="54" fill="#34D399" rx="4" />
-
-    <!-- Architectural Pitched Gable Roof -->
-    <path d="M -150 -84 L 0 -196 L 150 -84" 
-          stroke="#FFFFFF" 
-          stroke-width="26" 
-          stroke-linecap="round" 
-          stroke-linejoin="round" 
-          fill="none" />
-
-    <!-- 4-Pane Architectural Grid Windows -->
-    <rect x="-30" y="-140" width="24" height="24" fill="#34D399" rx="3" />
-    <rect x="6" y="-140" width="24" height="24" fill="#34D399" rx="3" />
-    <rect x="-30" y="-104" width="24" height="24" fill="#34D399" rx="3" />
-    <rect x="6" y="-104" width="24" height="24" fill="#34D399" rx="3" />
-
-    <!-- Bold Davejoe "D" Monogram Base Structure -->
-    <path d="M -90 -30 L -90 144 L 0 144 C 54 144 94 110 94 57 C 94 4 54 -30 0 -30 Z" 
-          fill="#FFFFFF" />
+  <!-- Entire logo badge scaled to 80% safe zone centered at (256, 256) -->
+  <g transform="translate(51, 51) scale(0.80)">
     
-    <!-- Cutout inside "D" -->
-    <path d="M -54 6 L -54 108 L -4 108 C 28 108 52 88 52 57 C 52 26 28 6 -4 6 Z" 
-          fill="#01875F" />
+  <defs>
+    <!-- Outer Glossy Emerald Border Gradient -->
+    <linearGradient id="emeraldOuter" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00A870" />
+      <stop offset="35%" stop-color="#01875F" />
+      <stop offset="70%" stop-color="#006848" />
+      <stop offset="100%" stop-color="#004A33" />
+    </linearGradient>
+
+    <!-- Bevel Top Highlight -->
+    <linearGradient id="emeraldHighlight" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#3CE5A3" stop-opacity="0.6" />
+      <stop offset="25%" stop-color="#01875F" stop-opacity="0.1" />
+      <stop offset="100%" stop-color="#003D2A" stop-opacity="0.7" />
+    </linearGradient>
+
+    <!-- Inner White Field Radial Glow -->
+    <radialGradient id="innerWhite" cx="45%" cy="40%" r="65%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="85%" stop-color="#F6FAF8" />
+      <stop offset="100%" stop-color="#E8F1EC" />
+    </radialGradient>
+
+    <!-- Rich Emerald Monogram Gradient -->
+    <linearGradient id="djEmerald" x1="15%" y1="10%" x2="85%" y2="90%">
+      <stop offset="0%" stop-color="#00B076" />
+      <stop offset="40%" stop-color="#01875F" />
+      <stop offset="80%" stop-color="#005C40" />
+      <stop offset="100%" stop-color="#003F2C" />
+    </linearGradient>
+
+    <!-- Tower 1 Gradient -->
+    <linearGradient id="tower1Grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00B87B" />
+      <stop offset="100%" stop-color="#006C4B" />
+    </linearGradient>
+
+    <!-- Tower 2 Gradient (Tallest) -->
+    <linearGradient id="tower2Grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#009E69" />
+      <stop offset="50%" stop-color="#007F54" />
+      <stop offset="100%" stop-color="#005036" />
+    </linearGradient>
+
+    <!-- Tower 3 Gradient -->
+    <linearGradient id="tower3Grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00A870" />
+      <stop offset="100%" stop-color="#006142" />
+    </linearGradient>
+
+    <!-- Slope Base Gradient -->
+    <linearGradient id="slopeGrad" x1="0%" y1="50%" x2="100%" y2="50%">
+      <stop offset="0%" stop-color="#00835B" />
+      <stop offset="60%" stop-color="#00B075" />
+      <stop offset="100%" stop-color="#3AE09E" />
+    </linearGradient>
+
+    <!-- Warm Metallic Gold Gradient for J Top Slash -->
+    <linearGradient id="goldSlash" x1="10%" y1="0%" x2="90%" y2="100%">
+      <stop offset="0%" stop-color="#FCD568" />
+      <stop offset="45%" stop-color="#E8A827" />
+      <stop offset="85%" stop-color="#C58010" />
+      <stop offset="100%" stop-color="#9E6206" />
+    </linearGradient>
+
+    <!-- Subtle Drop Shadows -->
+    <filter id="shadowSquircle" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#00291C" flood-opacity="0.25" />
+    </filter>
+
+    <filter id="shadowMark" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="5" stdDeviation="6" flood-color="#002E1F" flood-opacity="0.18" />
+    </filter>
+  </defs>
+
+  <!-- 1. Outer Metallic Squircle Frame -->
+  <rect x="20" y="20" width="472" height="472" rx="112" fill="url(#emeraldOuter)" filter="url(#shadowSquircle)" />
+  <rect x="20" y="20" width="472" height="472" rx="112" fill="url(#emeraldHighlight)" />
+  <rect x="20" y="20" width="472" height="472" rx="112" fill="none" stroke="#60F0B5" stroke-width="2" stroke-opacity="0.35" />
+
+  <!-- 2. Inner White/Pearl Inset Card -->
+  <rect x="48" y="48" width="416" height="416" rx="86" fill="url(#innerWhite)" />
+  <rect x="48" y="48" width="416" height="416" rx="86" fill="none" stroke="#D3E4DB" stroke-width="2" />
+
+  <!-- 3. The Iconic DJ Architecture Monogram -->
+  <g id="djLogoGroup" filter="url(#shadowMark)">
+    <!-- ==================== "D" LETTER & TOWERS ==================== -->
+    <!-- D Main Body: Back spine, top bar, outer curved bowl, and lower angled floor -->
+    <path d="M 86 142 
+             L 214 142 
+             C 272 142 320 184 320 250 
+             C 320 300 286 338 238 350 
+             L 86 350 Z" 
+          fill="url(#djEmerald)" />
+
+    <!-- D Interior White Cutout (Counter) -->
+    <path d="M 136 182 
+             L 204 182 
+             C 242 182 270 210 270 250 
+             C 270 286 242 312 204 312 
+             L 136 312 Z" 
+          fill="#FFFFFF" />
+
+    <!-- Architectural Slope (Ground Plane inside D counter) -->
+    <path d="M 86 350 
+             L 294 286 
+             L 294 316 
+             L 86 376 Z" 
+          fill="url(#djEmerald)" />
+
+    <polygon points="86,350 294,286 294,298 86,360" fill="url(#slopeGrad)" />
+
+    <!-- Tower 1 (Left skyscraper on slope) -->
+    <polygon points="146,242 176,228 176,331 146,340" fill="url(#tower1Grad)" />
+    <!-- White vertical seam between Tower 1 & 2 -->
+    <line x1="179" y1="210" x2="179" y2="335" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" />
+
+    <!-- Tower 2 (Center skyscraper, tallest) -->
+    <polygon points="182,188 218,172 218,318 182,329" fill="url(#tower2Grad)" />
+    <!-- White vertical seam between Tower 2 & 3 -->
+    <line x1="221" y1="180" x2="221" y2="320" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" />
+
+    <!-- Tower 3 (Right skyscraper on slope) -->
+    <polygon points="224,222 250,210 250,308 224,316" fill="url(#tower3Grad)" />
+
+    <!-- Dynamic white contour line separating D slope and inner background -->
+    <path d="M 86 350 L 294 286" stroke="#FFFFFF" stroke-width="7" stroke-linecap="round" />
+
+    <!-- ==================== "J" LETTER ==================== -->
+    <!-- J Top Gold Accent Slash (Parallelogram) -->
+    <polygon points="332,160 416,118 416,168 332,210" fill="url(#goldSlash)" />
+    
+    <!-- Gold Slash Top Subtle Specular Line -->
+    <polygon points="332,160 416,118 416,128 332,170" fill="#FFEBA3" opacity="0.6" />
+
+    <!-- White Angled Cutout Line separating Gold Slash from Green J Stem -->
+    <!-- Height of white diagonal gap is ~14px -->
+
+    <!-- J Green Lower Stem and Sweeping Interlocking Hook -->
+    <path d="M 332,226 
+             L 416,184 
+             L 416,306 
+             C 416,370 366,410 298,410 
+             C 264,410 236,396 220,380 
+             L 242,348 
+             C 255,362 274,370 298,370 
+             C 340,370 370,344 370,300 
+             L 370,250 
+             L 332,269 Z" 
+          fill="url(#djEmerald)" />
+
+    <!-- White Separation Gap between D Bowl and J Hook -->
+    <path d="M 300,284 
+             C 328,298 348,326 348,360" 
+          stroke="#FFFFFF" 
+          stroke-width="8" 
+          stroke-linecap="round" 
+          fill="none" />
+  </g>
+
   </g>
 </svg>

@@ -71,9 +71,13 @@ export const PWAInstallPrompt: React.FC<PWAInstallPromptProps> = ({
       >
         <div className="flex items-start gap-3.5">
           {/* Brand Emblem */}
-          <div className="w-11 h-11 rounded-xl bg-[#01875F] flex items-center justify-center text-white shrink-0 shadow-xs relative overflow-hidden">
-            <span className="font-extrabold text-lg tracking-tight">D</span>
-            <div className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-[#34D399]" />
+          <div className="w-11 h-11 rounded-xl overflow-hidden shrink-0 shadow-xs border border-slate-100 bg-white">
+            <img
+              src="/pwa-192x192.png"
+              alt="Davejoe Logo"
+              className="w-full h-full object-contain"
+              referrerPolicy="no-referrer"
+            />
           </div>
 
           <div className="flex-1 min-w-0 pr-6">
@@ -146,8 +150,13 @@ export const PWAInstallPrompt: React.FC<PWAInstallPromptProps> = ({
             </button>
 
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-xl bg-[#01875F] flex items-center justify-center text-white shrink-0 font-extrabold text-base">
-                D
+              <div className="w-10 h-10 rounded-xl overflow-hidden shrink-0 border border-slate-100 bg-white shadow-2xs">
+                <img
+                  src="/pwa-192x192.png"
+                  alt="Davejoe Logo"
+                  className="w-full h-full object-contain"
+                  referrerPolicy="no-referrer"
+                />
               </div>
               <div>
                 <h3 id="ios-modal-title" className="text-sm font-bold text-slate-900">
