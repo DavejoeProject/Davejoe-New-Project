@@ -679,23 +679,29 @@ export class AuthService {
     }
 
     // 5. Database role is the SOLE source of truth
-    // Authenticated user's authoritative role slug strictly resolved from Supabase
-    const authenticatedUserRoleSlug: string | null =
-      assignedSlugs.find((s) => s.toLowerCase().trim() === 'management') ||
-      (assignedSlugs[0] ? assignedSlugs[0].toLowerCase().trim() : null);
-
     // Selected role slug from the login form
     const selectedRoleSlug: StandardRoleKey | null = normalizeRoleKey(selectedRole);
 
+    // Active roles supported in this system:
+    // 'management' -> /management
+    // 'supervisor' -> /supervisor
+    // 'artisan'    -> /artisan
+    const activeRoles: StandardRoleKey[] = ['management', 'supervisor', 'artisan'];
+
+    if (selectedRoleSlug && !activeRoles.includes(selectedRoleSlug)) {
+      await supabase.auth.signOut();
+      const roleName = selectedRole || 'This role';
+      const error = new Error(`${roleName} access is not yet available.`);
+      (error as any).secondaryText = 'Accounts for this role and its dashboard have not been activated yet.';
+      (error as any).isNotYetActive = true;
+      throw error;
+    }
+
     // Core Authorization Rule:
     // The selected role MUST match the user's actual database-assigned role.
-    // Selecting another role (e.g. Artisan, Accounts, Admin, Supervisor, Procurement, Technical)
-    // with Management credentials MUST be denied.
-    const isRoleMatch = Boolean(
-      selectedRoleSlug &&
-      authenticatedUserRoleSlug &&
-      selectedRoleSlug === authenticatedUserRoleSlug
-    );
+    const matchingSlug = assignedSlugs.find((s) => normalizeRoleKey(s) === selectedRoleSlug);
+    const matchingName = assignedNames.find((n) => normalizeRoleKey(n) === selectedRoleSlug);
+    const isRoleMatch = Boolean(selectedRoleSlug && (matchingSlug || matchingName));
 
     if (!isRoleMatch) {
       // Immediate sign out so NO session or credentials linger
@@ -708,8 +714,8 @@ export class AuthService {
           email: sanitizedEmail,
           selectedRole: selectedRole || null,
           selectedRoleSlug,
-          authenticatedUserRoleSlug,
-          assignedRoles,
+          assignedSlugs,
+          assignedNames,
         },
       });
 
@@ -720,33 +726,11 @@ export class AuthService {
       throw error;
     }
 
-    // Role Activation Rule:
-    // For this development stage:
-    // Management / CEO (slug: 'management') is ACTIVE.
-    // All other roles (Admin, QC, Supervisor, Procurement, Accounts, Artisan) are NOT YET ACTIVE.
-    if (selectedRoleSlug && selectedRoleSlug !== 'management') {
-      await supabase.auth.signOut();
-      const roleName = selectedRole || 'This role';
-      const error = new Error(`${roleName} access is not yet available.`);
-      (error as any).secondaryText = 'Accounts for this role and its dashboard have not been activated yet.';
-      (error as any).isNotYetActive = true;
-      throw error;
-    }
-
-    // Authenticated user's database role must also be 'management'
-    const isManagement = authenticatedUserRoleSlug === 'management';
-    if (!isManagement) {
-      await supabase.auth.signOut();
-      const error = new Error('These login details are not assigned to the selected role.');
-      (error as any).secondaryText = 'Please select the role assigned to this account.';
-      throw error;
-    }
-
-    // Only if selectedRoleSlug === 'management' AND authenticatedUserRoleSlug === 'management':
-    const primaryRoleKey: StandardRoleKey = 'management';
-    const redirectRoute = '/management';
+    const primaryRoleKey: StandardRoleKey = selectedRoleSlug!;
+    const redirectRoute = getRouteForRole(primaryRoleKey);
 
     // 6. Fetch granular permissions
+    const isManagement = primaryRoleKey === 'management';
     const permissions = await this.getUserPermissions(user.id, isManagement);
 
     // 7. Audit successful sign-in
@@ -758,7 +742,7 @@ export class AuthService {
         email: sanitizedEmail,
         selectedRole: selectedRole || null,
         selectedRoleSlug,
-        authenticatedUserRoleSlug,
+        authenticatedUserRoleSlug: primaryRoleKey,
         primaryRoleKey,
         assignedRoles,
         redirectRoute,
@@ -816,6 +800,34 @@ export class AuthService {
         assignedRoles,
         primaryRoleKey: 'management',
         redirectRoute: '/management',
+      };
+    }
+
+    const isSupervisor =
+      assignedSlugs.some((s) => normalizeRoleKey(s) === 'supervisor') ||
+      assignedRoles.some((r) => normalizeRoleKey(r) === 'supervisor');
+
+    if (isSupervisor) {
+      return {
+        user,
+        profile,
+        assignedRoles,
+        primaryRoleKey: 'supervisor',
+        redirectRoute: '/supervisor',
+      };
+    }
+
+    const isArtisan =
+      assignedSlugs.some((s) => normalizeRoleKey(s) === 'artisan') ||
+      assignedRoles.some((r) => normalizeRoleKey(r) === 'artisan');
+
+    if (isArtisan) {
+      return {
+        user,
+        profile,
+        assignedRoles,
+        primaryRoleKey: 'artisan',
+        redirectRoute: '/artisan',
       };
     }
 

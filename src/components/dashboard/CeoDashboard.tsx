@@ -27,6 +27,13 @@ import { MaterialRequestsModule } from './MaterialRequestsModule';
 import { MaterialRequestControlCentre } from './MaterialRequestControlCentre';
 import { ProcurementModule } from './ProcurementModule';
 import { PurchaseOrderControlCentre } from './PurchaseOrderControlCentre';
+import { DeliveriesModule } from './DeliveriesModule';
+import { DeliveryControlCentre } from './DeliveryControlCentre';
+import { StockModule } from './StockModule';
+import { LossesReturnsModule } from './LossesReturnsModule';
+import { ReconciliationModule } from './ReconciliationModule';
+import { FinancialControlModule } from './FinancialControlModule';
+import { ReportsModule } from './ReportsModule';
 import { MaterialsSubmoduleFoundation } from './MaterialsSubmoduleFoundation';
 import {
   FileText,
@@ -48,11 +55,12 @@ export const CeoDashboard: React.FC<CeoDashboardProps> = ({ initialModule = 'ove
   const { user, profile, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const { projectId, workforceId, requestId, purchaseOrderId } = useParams<{
+  const { projectId, workforceId, requestId, purchaseOrderId, deliveryId } = useParams<{
     projectId?: string;
     workforceId?: string;
     requestId?: string;
     purchaseOrderId?: string;
+    deliveryId?: string;
   }>();
 
   const isIndividualWorker = Boolean(
@@ -93,7 +101,7 @@ export const CeoDashboard: React.FC<CeoDashboardProps> = ({ initialModule = 'ove
     if (location.pathname === '/management/materials/procurement' || location.pathname.startsWith('/management/materials/procurement/')) {
       return 'procurement';
     }
-    if (location.pathname === '/management/materials/deliveries') {
+    if (location.pathname === '/management/materials/deliveries' || location.pathname.startsWith('/management/materials/deliveries/')) {
       return 'deliveries';
     }
     if (location.pathname === '/management/materials/stock') {
@@ -107,6 +115,37 @@ export const CeoDashboard: React.FC<CeoDashboardProps> = ({ initialModule = 'ove
     }
     if (location.pathname === '/management/materials' || location.pathname.startsWith('/management/materials/')) {
       return 'materials';
+    }
+    // Financial Control routes
+    if (location.pathname === '/management/financial-control/budget') {
+      return 'budget-vs-actual';
+    }
+    if (location.pathname === '/management/financial-control/procurement') {
+      return 'procurement-costs';
+    }
+    if (
+      location.pathname === '/management/financial-control' ||
+      location.pathname === '/management/financial-control/projects' ||
+      location.pathname.startsWith('/management/financial-control/')
+    ) {
+      return 'project-costs';
+    }
+    // Reports routes
+    if (location.pathname === '/management/reports/projects') {
+      return 'project-reports';
+    }
+    if (location.pathname === '/management/reports/workforce') {
+      return 'workforce-reports';
+    }
+    if (location.pathname === '/management/reports/materials') {
+      return 'material-reports';
+    }
+    if (
+      location.pathname === '/management/reports' ||
+      location.pathname === '/management/reports/management' ||
+      location.pathname.startsWith('/management/reports/')
+    ) {
+      return 'management-reports';
     }
     return initialModule;
   };
@@ -139,7 +178,7 @@ export const CeoDashboard: React.FC<CeoDashboardProps> = ({ initialModule = 'ove
       setCurrentModule('material-requests');
     } else if (location.pathname === '/management/materials/procurement' || location.pathname.startsWith('/management/materials/procurement/')) {
       setCurrentModule('procurement');
-    } else if (location.pathname === '/management/materials/deliveries') {
+    } else if (location.pathname === '/management/materials/deliveries' || location.pathname.startsWith('/management/materials/deliveries/')) {
       setCurrentModule('deliveries');
     } else if (location.pathname === '/management/materials/stock') {
       setCurrentModule('stock');
@@ -149,6 +188,28 @@ export const CeoDashboard: React.FC<CeoDashboardProps> = ({ initialModule = 'ove
       setCurrentModule('reconciliation');
     } else if (location.pathname === '/management/materials' || location.pathname.startsWith('/management/materials/')) {
       setCurrentModule('materials');
+    } else if (location.pathname === '/management/financial-control/budget') {
+      setCurrentModule('budget-vs-actual');
+    } else if (location.pathname === '/management/financial-control/procurement') {
+      setCurrentModule('procurement-costs');
+    } else if (
+      location.pathname === '/management/financial-control' ||
+      location.pathname === '/management/financial-control/projects' ||
+      location.pathname.startsWith('/management/financial-control/')
+    ) {
+      setCurrentModule('project-costs');
+    } else if (location.pathname === '/management/reports/projects') {
+      setCurrentModule('project-reports');
+    } else if (location.pathname === '/management/reports/workforce') {
+      setCurrentModule('workforce-reports');
+    } else if (location.pathname === '/management/reports/materials') {
+      setCurrentModule('material-reports');
+    } else if (
+      location.pathname === '/management/reports' ||
+      location.pathname === '/management/reports/management' ||
+      location.pathname.startsWith('/management/reports/')
+    ) {
+      setCurrentModule('management-reports');
     } else if (location.pathname === '/management' || location.pathname === '/management/') {
       setCurrentModule(initialModule || 'overview');
     }
@@ -222,6 +283,34 @@ export const CeoDashboard: React.FC<CeoDashboardProps> = ({ initialModule = 'ove
     } else if (mod === 'reconciliation') {
       if (location.pathname !== '/management/materials/reconciliation') {
         navigate('/management/materials/reconciliation');
+      }
+    } else if (mod === 'project-costs') {
+      if (location.pathname !== '/management/financial-control/projects') {
+        navigate('/management/financial-control/projects');
+      }
+    } else if (mod === 'budget-vs-actual') {
+      if (location.pathname !== '/management/financial-control/budget') {
+        navigate('/management/financial-control/budget');
+      }
+    } else if (mod === 'procurement-costs') {
+      if (location.pathname !== '/management/financial-control/procurement') {
+        navigate('/management/financial-control/procurement');
+      }
+    } else if (mod === 'management-reports') {
+      if (location.pathname !== '/management/reports/management') {
+        navigate('/management/reports/management');
+      }
+    } else if (mod === 'project-reports') {
+      if (location.pathname !== '/management/reports/projects') {
+        navigate('/management/reports/projects');
+      }
+    } else if (mod === 'workforce-reports') {
+      if (location.pathname !== '/management/reports/workforce') {
+        navigate('/management/reports/workforce');
+      }
+    } else if (mod === 'material-reports') {
+      if (location.pathname !== '/management/reports/materials') {
+        navigate('/management/reports/materials');
       }
     } else if (mod === 'overview') {
       if (location.pathname !== '/management') {
@@ -434,48 +523,65 @@ export const CeoDashboard: React.FC<CeoDashboardProps> = ({ initialModule = 'ove
                   />
                 )
               ) : currentModule === 'deliveries' ? (
-                <MaterialsSubmoduleFoundation
-                  title="Deliveries"
-                  subtitle="Track incoming site material shipments, delivery waybills, and physical receipts."
-                  tabKey="deliveries"
-                  icon={Truck}
-                  targetTable="material_deliveries"
-                  tableLabel="delivery dispatches"
-                  description="Supplier waybill verification, gate pass inspection, and on-site delivery receipt logs will be introduced in subsequent phases."
-                  onBackToOverview={() => handleSelectModule('materials')}
-                />
+                deliveryId ? (
+                  <DeliveryControlCentre
+                    deliveryId={deliveryId}
+                    onBack={() => {
+                      navigate('/management/materials/deliveries');
+                      handleSelectModule('deliveries');
+                    }}
+                  />
+                ) : (
+                  <DeliveriesModule
+                    onBackToDashboard={() => handleSelectModule('overview')}
+                  />
+                )
               ) : currentModule === 'stock' ? (
-                <MaterialsSubmoduleFoundation
-                  title="Stock"
-                  subtitle="Monitor physical stock balances, warehouse storage locations, and site issue movements."
-                  tabKey="stock"
-                  icon={Boxes}
-                  targetTable="material_stock_movements"
-                  tableLabel="stock movement entries"
-                  description="Warehouse storage bin management, stock ledger adjustments, and real-time site issue tickets will be introduced in subsequent phases."
-                  onBackToOverview={() => handleSelectModule('materials')}
+                <StockModule
+                  onBackToDashboard={() => handleSelectModule('overview')}
                 />
               ) : currentModule === 'losses-returns' ? (
-                <MaterialsSubmoduleFoundation
-                  title="Losses & Returns"
-                  subtitle="Track construction site wastage, damaged goods, transit losses, and returns to suppliers."
-                  tabKey="losses-returns"
-                  icon={RotateCcw}
-                  targetTable="material_losses"
-                  tableLabel="loss incident records"
-                  description="Damaged material quarantine, supplier credit return authorizations, and wastage threshold tracking will be introduced in subsequent phases."
-                  onBackToOverview={() => handleSelectModule('materials')}
+                <LossesReturnsModule
+                  onBackToDashboard={() => handleSelectModule('overview')}
                 />
               ) : currentModule === 'reconciliation' ? (
-                <MaterialsSubmoduleFoundation
-                  title="Reconciliation"
-                  subtitle="Compare material movement, usage, physical stock, and billing variances."
-                  tabKey="reconciliation"
-                  icon={Scale}
-                  targetTable="material_reconciliations"
-                  tableLabel="audit reconciliation runs"
-                  description="Periodic physical stocktaking, theoretical vs actual consumption audits, and discrepancy resolution will be introduced in subsequent phases."
-                  onBackToOverview={() => handleSelectModule('materials')}
+                <ReconciliationModule
+                  onBackToDashboard={() => handleSelectModule('overview')}
+                />
+              ) : currentModule === 'project-costs' ? (
+                <FinancialControlModule
+                  initialTab="projects"
+                  onBackToDashboard={() => handleSelectModule('overview')}
+                />
+              ) : currentModule === 'budget-vs-actual' ? (
+                <FinancialControlModule
+                  initialTab="budget_vs_actual"
+                  onBackToDashboard={() => handleSelectModule('overview')}
+                />
+              ) : currentModule === 'procurement-costs' ? (
+                <FinancialControlModule
+                  initialTab="procurement"
+                  onBackToDashboard={() => handleSelectModule('overview')}
+                />
+              ) : currentModule === 'management-reports' ? (
+                <ReportsModule
+                  initialCategory="management"
+                  onBackToDashboard={() => handleSelectModule('overview')}
+                />
+              ) : currentModule === 'project-reports' ? (
+                <ReportsModule
+                  initialCategory="projects"
+                  onBackToDashboard={() => handleSelectModule('overview')}
+                />
+              ) : currentModule === 'workforce-reports' ? (
+                <ReportsModule
+                  initialCategory="workforce"
+                  onBackToDashboard={() => handleSelectModule('overview')}
+                />
+              ) : currentModule === 'material-reports' ? (
+                <ReportsModule
+                  initialCategory="materials"
+                  onBackToDashboard={() => handleSelectModule('overview')}
                 />
               ) : (
                 <ModuleShell

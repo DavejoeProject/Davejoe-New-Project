@@ -46,7 +46,7 @@ export const ROLE_DEFINITIONS: RoleDefinition[] = [
     slug: 'supervisor',
     name: 'Site Supervisor',
     description: 'Site execution and supervision',
-    isActive: false,
+    isActive: true,
     icon: HardHat,
   },
   {
@@ -67,7 +67,7 @@ export const ROLE_DEFINITIONS: RoleDefinition[] = [
     slug: 'artisan',
     name: 'Artisan / Workforce',
     description: 'Workforce and field operations',
-    isActive: false,
+    isActive: true,
     icon: Hammer,
   },
 ];

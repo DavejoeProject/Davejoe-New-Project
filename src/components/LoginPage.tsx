@@ -9,6 +9,7 @@ import { BackgroundDecorations } from './BackgroundDecorations';
 import { useAuth } from '../hooks/useAuth';
 import { Navigate } from 'react-router-dom';
 import { getRouteForRole } from '../services/authService';
+import { PWAInstallButton } from './pwa/PWAInstallButton';
 
 export const LoginPage: React.FC = () => {
   const { user, currentRoleKey, isInitialized } = useAuth();
@@ -44,6 +45,11 @@ export const LoginPage: React.FC = () => {
         {/* Primary Enterprise Login Card */}
         <div className="w-full flex justify-center">
           <LoginForm />
+        </div>
+
+        {/* Optional Quick PWA Install Action */}
+        <div className="mt-4 flex justify-center">
+          <PWAInstallButton variant="outline" size="sm" />
         </div>
       </div>
     </main>

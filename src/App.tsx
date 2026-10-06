@@ -4,9 +4,17 @@ import { AuthProvider } from './context/AuthContext';
 import { LoginPage } from './components/LoginPage';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { ManagementRouteGuard } from './components/ManagementRouteGuard';
+import { SupervisorRouteGuard } from './components/SupervisorRouteGuard';
+import { ArtisanRouteGuard } from './components/ArtisanRouteGuard';
 import { AccessDenied } from './components/AccessDenied';
 import { CeoDashboard } from './components/dashboard/CeoDashboard';
+import { SupervisorDashboard } from './components/supervisor/SupervisorDashboard';
+import { ArtisanDashboard } from './components/artisan/ArtisanDashboard';
+import { AttendanceRegister } from './components/attendance/AttendanceRegister';
 import { useAuth } from './hooks/useAuth';
+import { PWAInstallPrompt } from './components/pwa/PWAInstallPrompt';
+import { PWAUpdateToast } from './components/pwa/PWAUpdateToast';
+import { PWAOfflineIndicator } from './components/pwa/PWAOfflineIndicator';
 
 const RootRedirect: React.FC = () => {
   const { user, currentRoleKey, isInitialized, isLoading } = useAuth();
@@ -22,6 +30,12 @@ const RootRedirect: React.FC = () => {
   if (user) {
     if (currentRoleKey === 'management') {
       return <Navigate to="/management" replace />;
+    }
+    if (currentRoleKey === 'supervisor') {
+      return <Navigate to="/supervisor" replace />;
+    }
+    if (currentRoleKey === 'artisan') {
+      return <Navigate to="/artisan" replace />;
     }
     return <Navigate to="/access-denied" replace />;
   }
@@ -178,6 +192,14 @@ export default function App() {
             }
           />
           <Route
+            path="/management/materials/deliveries/:deliveryId"
+            element={
+              <ManagementRouteGuard>
+                <CeoDashboard initialModule="deliveries" />
+              </ManagementRouteGuard>
+            }
+          />
+          <Route
             path="/management/materials/stock"
             element={
               <ManagementRouteGuard>
@@ -202,6 +224,82 @@ export default function App() {
             }
           />
 
+          {/* Financial Control Routes */}
+          <Route
+            path="/management/financial-control"
+            element={
+              <ManagementRouteGuard>
+                <CeoDashboard initialModule="project-costs" />
+              </ManagementRouteGuard>
+            }
+          />
+          <Route
+            path="/management/financial-control/projects"
+            element={
+              <ManagementRouteGuard>
+                <CeoDashboard initialModule="project-costs" />
+              </ManagementRouteGuard>
+            }
+          />
+          <Route
+            path="/management/financial-control/budget"
+            element={
+              <ManagementRouteGuard>
+                <CeoDashboard initialModule="budget-vs-actual" />
+              </ManagementRouteGuard>
+            }
+          />
+          <Route
+            path="/management/financial-control/procurement"
+            element={
+              <ManagementRouteGuard>
+                <CeoDashboard initialModule="procurement-costs" />
+              </ManagementRouteGuard>
+            }
+          />
+
+          {/* Management Reports Routes */}
+          <Route
+            path="/management/reports"
+            element={
+              <ManagementRouteGuard>
+                <CeoDashboard initialModule="management-reports" />
+              </ManagementRouteGuard>
+            }
+          />
+          <Route
+            path="/management/reports/management"
+            element={
+              <ManagementRouteGuard>
+                <CeoDashboard initialModule="management-reports" />
+              </ManagementRouteGuard>
+            }
+          />
+          <Route
+            path="/management/reports/projects"
+            element={
+              <ManagementRouteGuard>
+                <CeoDashboard initialModule="project-reports" />
+              </ManagementRouteGuard>
+            }
+          />
+          <Route
+            path="/management/reports/workforce"
+            element={
+              <ManagementRouteGuard>
+                <CeoDashboard initialModule="workforce-reports" />
+              </ManagementRouteGuard>
+            }
+          />
+          <Route
+            path="/management/reports/materials"
+            element={
+              <ManagementRouteGuard>
+                <CeoDashboard initialModule="material-reports" />
+              </ManagementRouteGuard>
+            }
+          />
+
           {/* Non-management dashboards are currently inactive */}
           <Route
             path="/admin"
@@ -219,14 +317,52 @@ export default function App() {
               </ProtectedRoute>
             }
           />
+          {/* Phase 9.1: Site Supervisor Operational Workspace */}
           <Route
             path="/supervisor"
             element={
-              <ProtectedRoute allowedRoles={[]}>
-                <AccessDenied />
+              <SupervisorRouteGuard>
+                <SupervisorDashboard />
+              </SupervisorRouteGuard>
+            }
+          />
+          <Route
+            path="/supervisor/project/:projectId"
+            element={
+              <SupervisorRouteGuard>
+                <SupervisorDashboard />
+              </SupervisorRouteGuard>
+            }
+          />
+
+          {/* Phase 9.2: Dedicated Attendance Register (Supervisor & Management) */}
+          <Route
+            path="/attendance"
+            element={
+              <ProtectedRoute allowedRoles={['management', 'supervisor']}>
+                <AttendanceRegister />
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/attendance/today"
+            element={
+              <ProtectedRoute allowedRoles={['management', 'supervisor']}>
+                <AttendanceRegister initialTab="today" />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Phase 9.3: Artisan / Workforce Operational Portal */}
+          <Route
+            path="/artisan"
+            element={
+              <ArtisanRouteGuard>
+                <ArtisanDashboard />
+              </ArtisanRouteGuard>
+            }
+          />
+
           <Route
             path="/procurement"
             element={
@@ -243,18 +379,15 @@ export default function App() {
               </ProtectedRoute>
             }
           />
-          <Route
-            path="/artisan"
-            element={
-              <ProtectedRoute allowedRoles={[]}>
-                <AccessDenied />
-              </ProtectedRoute>
-            }
-          />
 
           {/* Unknown routes redirect */}
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
+
+        {/* Progressive Web App Support: Install Prompt, Service Worker Update Toast, Offline Status */}
+        <PWAInstallPrompt />
+        <PWAUpdateToast />
+        <PWAOfflineIndicator />
       </BrowserRouter>
     </AuthProvider>
   );

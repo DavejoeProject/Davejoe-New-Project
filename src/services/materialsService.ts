@@ -855,5 +855,9 @@ export const materialsService = {
 
 export * from './materialRequestsService';
 export * from './procurementService';
+export { MaterialDeliveriesService } from './materialDeliveriesService';
+export { MaterialStockService } from './materialStockService';
+export { MaterialLossesReturnsService } from './materialLossesReturnsService';
+export { MaterialReconciliationService } from './materialReconciliationService';
 
 export default materialsService;

@@ -34,6 +34,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react';
+import { PWAInstallButton } from '../pwa/PWAInstallButton';
 
 export type DashboardNavKey =
   // COMMAND CENTRE
@@ -314,6 +315,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
             </div>
           </div>
         )}
+
+        {/* PWA Install Button (automatically hidden if already running as installed app) */}
+        <div className={`mb-1.5 ${collapsed ? 'flex justify-center' : ''}`}>
+          <PWAInstallButton
+            variant="minimal"
+            size="sm"
+            className={`w-full text-emerald-700 hover:text-emerald-800 hover:bg-emerald-50/70 ${
+              collapsed ? 'justify-center px-0' : 'justify-start'
+            }`}
+          />
+        </div>
 
         {/* Profile Button */}
         <button

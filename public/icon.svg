@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#01875F" />
+      <stop offset="100%" stop-color="#006C4C" />
+    </linearGradient>
+    <filter id="subtleShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-opacity="0.15" />
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="512" height="512" rx="108" fill="url(#bgGrad)" />
+
+  <!-- Architectural Motif + D Monogram -->
+  <g transform="translate(256, 256)" filter="url(#subtleShadow)">
+    <!-- Architectural Chimney -->
+    <rect x="52" y="-178" width="24" height="54" fill="#34D399" rx="4" />
+
+    <!-- Architectural Pitched Gable Roof -->
+    <path d="M -150 -84 L 0 -196 L 150 -84" 
+          stroke="#FFFFFF" 
+          stroke-width="26" 
+          stroke-linecap="round" 
+          stroke-linejoin="round" 
+          fill="none" />
+
+    <!-- 4-Pane Architectural Grid Windows -->
+    <rect x="-30" y="-140" width="24" height="24" fill="#34D399" rx="3" />
+    <rect x="6" y="-140" width="24" height="24" fill="#34D399" rx="3" />
+    <rect x="-30" y="-104" width="24" height="24" fill="#34D399" rx="3" />
+    <rect x="6" y="-104" width="24" height="24" fill="#34D399" rx="3" />
+
+    <!-- Bold Davejoe "D" Monogram Base Structure -->
+    <path d="M -90 -30 L -90 144 L 0 144 C 54 144 94 110 94 57 C 94 4 54 -30 0 -30 Z" 
+          fill="#FFFFFF" />
+    
+    <!-- Cutout inside "D" with Architectural Inner Arch -->
+    <path d="M -54 6 L -54 108 L -4 108 C 28 108 52 88 52 57 C 52 26 28 6 -4 6 Z" 
+          fill="#01875F" />
+  </g>
+</svg>
