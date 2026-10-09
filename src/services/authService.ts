@@ -18,6 +18,7 @@ export interface UserProfile {
 
 export type StandardRoleKey =
   | 'management'
+  | 'executive_director'
   | 'admin'
   | 'technical'
   | 'supervisor'
@@ -37,7 +38,25 @@ export const ROLE_CONFIGS: Record<StandardRoleKey, RoleConfig> = {
     key: 'management',
     label: 'Management / CEO',
     route: '/management',
-    aliases: ['management', 'ceo', 'management / ceo', 'executive', 'director', 'managing_director'],
+    aliases: ['management', 'ceo', 'management / ceo', 'managing_director'],
+  },
+  executive_director: {
+    key: 'executive_director',
+    label: 'Executive Director — Business Operations & Strategy',
+    route: '/executive',
+    aliases: [
+      'executive_director',
+      'executive director',
+      'executive',
+      'director',
+      'executive director — business operations & strategy',
+      'executive director - business operations & strategy',
+      'executive director, business operations & strategy',
+      'business operations & strategy',
+      'business operations and strategy',
+      'operations & strategy',
+      'executive_director_business_operations_strategy',
+    ],
   },
   admin: {
     key: 'admin',
@@ -82,21 +101,41 @@ export const ROLE_CONFIGS: Record<StandardRoleKey, RoleConfig> = {
  */
 export function normalizeRoleKey(roleInput: string | null | undefined): StandardRoleKey | null {
   if (!roleInput) return null;
-  const cleaned = roleInput.trim().toLowerCase().replace(/[-_]/g, ' ');
+  const rawClean = roleInput.trim().toLowerCase();
+  const cleaned = rawClean.replace(/[-_—–]/g, ' ').replace(/\s+/g, ' ');
+
+  // Direct exact slug checks first
+  const normalizedSlug = rawClean.replace(/[-]/g, '_');
+  if (normalizedSlug === 'executive_director') return 'executive_director';
+  if (normalizedSlug === 'management') return 'management';
+  if (normalizedSlug === 'admin') return 'admin';
+  if (normalizedSlug === 'supervisor') return 'supervisor';
+  if (normalizedSlug === 'artisan') return 'artisan';
+  if (normalizedSlug === 'technical') return 'technical';
+  if (normalizedSlug === 'procurement') return 'procurement';
+  if (normalizedSlug === 'accounts') return 'accounts';
 
   for (const [key, config] of Object.entries(ROLE_CONFIGS) as [StandardRoleKey, RoleConfig][]) {
-    if (cleaned === key || cleaned === config.label.toLowerCase()) {
+    if (cleaned === key.replace(/_/g, ' ') || cleaned === config.label.toLowerCase()) {
       return key;
     }
     for (const alias of config.aliases) {
-      if (cleaned === alias.toLowerCase()) {
+      if (cleaned === alias.toLowerCase().replace(/[-_—–]/g, ' ').replace(/\s+/g, ' ')) {
         return key;
       }
     }
   }
 
-  // Substring checks
-  if (cleaned.includes('ceo') || cleaned.includes('management')) return 'management';
+  // Substring checks: Prioritize executive director before management/ceo to avoid collision
+  if (
+    cleaned.includes('executive director') ||
+    cleaned.includes('business operations') ||
+    (cleaned.includes('operations') && cleaned.includes('strategy')) ||
+    cleaned.includes('executive')
+  ) {
+    return 'executive_director';
+  }
+  if (cleaned.includes('ceo') || cleaned.includes('management') || cleaned.includes('managing director')) return 'management';
   if (cleaned.includes('admin') || cleaned.includes('coordinator')) return 'admin';
   if (cleaned.includes('qc') || cleaned.includes('inspection') || cleaned.includes('technical')) return 'technical';
   if (cleaned.includes('supervisor')) return 'supervisor';
@@ -260,6 +299,7 @@ export class AuthService {
       { id: '5', name: 'Procurement & Logistics', slug: 'procurement' },
       { id: '6', name: 'Accounts', slug: 'accounts' },
       { id: '7', name: 'Artisan / Workforce', slug: 'artisan' },
+      { id: '8', name: 'Executive Director — Business Operations & Strategy', slug: 'executive_director' },
     ];
   }
 
@@ -683,11 +723,12 @@ export class AuthService {
     const selectedRoleSlug: StandardRoleKey | null = normalizeRoleKey(selectedRole);
 
     // Active roles supported in this system:
-    // 'admin'       -> /admin
-    // 'management'  -> /management
-    // 'supervisor'  -> /supervisor
-    // 'artisan'     -> /artisan
-    const activeRoles: StandardRoleKey[] = ['admin', 'management', 'supervisor', 'artisan'];
+    // 'admin'              -> /admin
+    // 'management'         -> /management
+    // 'executive_director' -> /executive
+    // 'supervisor'         -> /supervisor
+    // 'artisan'            -> /artisan
+    const activeRoles: StandardRoleKey[] = ['admin', 'management', 'executive_director', 'supervisor', 'artisan'];
 
     if (selectedRoleSlug && !activeRoles.includes(selectedRoleSlug)) {
       await supabase.auth.signOut();
@@ -729,6 +770,15 @@ export class AuthService {
 
     const primaryRoleKey: StandardRoleKey = selectedRoleSlug!;
     const redirectRoute = getRouteForRole(primaryRoleKey);
+
+    // Save active selected role preference in session storage for multi-role accounts
+    if (typeof window !== 'undefined') {
+      try {
+        sessionStorage.setItem('davejoe_active_role_preference', primaryRoleKey);
+      } catch {
+        // Ignored
+      }
+    }
 
     // Development diagnostic logging
     console.log('[Auth] Authenticated user ID:', user.id);
@@ -797,6 +847,42 @@ export class AuthService {
     const profile = await this.getProfile(user.id);
     const { assignedSlugs, assignedNames } = await this.getUserRolesDetailed(user.id);
     const assignedRoles = Array.from(new Set([...assignedSlugs, ...assignedNames]));
+
+    // Check if user has an active role preference stored in session storage (for multi-role users)
+    const storedPref = typeof window !== 'undefined'
+      ? sessionStorage.getItem('davejoe_active_role_preference')
+      : null;
+    const normalizedPref = normalizeRoleKey(storedPref);
+
+    if (normalizedPref) {
+      const userHasPref =
+        assignedSlugs.some((s) => normalizeRoleKey(s) === normalizedPref) ||
+        assignedRoles.some((r) => normalizeRoleKey(r) === normalizedPref);
+
+      if (userHasPref) {
+        return {
+          user,
+          profile,
+          assignedRoles,
+          primaryRoleKey: normalizedPref,
+          redirectRoute: getRouteForRole(normalizedPref),
+        };
+      }
+    }
+
+    const isExecutiveDirector =
+      assignedSlugs.some((s) => s.toLowerCase().trim() === 'executive_director' || normalizeRoleKey(s) === 'executive_director') ||
+      assignedRoles.some((r) => normalizeRoleKey(r) === 'executive_director');
+
+    if (isExecutiveDirector) {
+      return {
+        user,
+        profile,
+        assignedRoles,
+        primaryRoleKey: 'executive_director',
+        redirectRoute: '/executive',
+      };
+    }
 
     const isAdmin =
       assignedSlugs.some((s) => s.toLowerCase().trim() === 'admin') ||
@@ -872,6 +958,9 @@ export class AuthService {
    */
   static async signOut(): Promise<void> {
     try {
+      if (typeof window !== 'undefined') {
+        sessionStorage.removeItem('davejoe_active_role_preference');
+      }
       await AuditLogger.log({
         action: 'auth.logout',
         module: 'authentication',

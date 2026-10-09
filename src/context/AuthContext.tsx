@@ -72,7 +72,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setProfile(userProfile);
       setAssignedRoles(roles);
 
+      // Read any active role preference from session storage (e.g. from login role dropdown)
+      const storedPreference = typeof window !== 'undefined'
+        ? sessionStorage.getItem('davejoe_active_role_preference')
+        : null;
+      const normalizedPreference = normalizeRoleKey(storedPreference);
+
+      // Check if user has the preferred role in their actual database roles
+      const hasPreferredRole = Boolean(
+        normalizedPreference && (
+          assignedSlugs.some((s) => normalizeRoleKey(s) === normalizedPreference) ||
+          roles.some((r) => normalizeRoleKey(r) === normalizedPreference)
+        )
+      );
+
       // Check authoritative database role slug strictly by the 'slug' column
+      const hasExecutiveDirector =
+        assignedSlugs.some((s) => s.toLowerCase().trim() === 'executive_director' || normalizeRoleKey(s) === 'executive_director') ||
+        roles.some((r) => normalizeRoleKey(r) === 'executive_director');
+
       const isAdmin =
         assignedSlugs.some((s) => s.toLowerCase().trim() === 'admin') ||
         roles.some((r) => normalizeRoleKey(r) === 'admin');
@@ -96,8 +114,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setPermissions(userPermissions);
 
       // Active role key is derived strictly from public.user_roles -> public.roles (slug column)
+      // If user holds multiple roles and selected one of them, respect that database-verified choice!
       let validatedRoleKey: StandardRoleKey | null = null;
-      if (isAdmin) {
+      if (hasPreferredRole && normalizedPreference) {
+        validatedRoleKey = normalizedPreference;
+      } else if (hasExecutiveDirector) {
+        validatedRoleKey = 'executive_director';
+      } else if (isAdmin) {
         validatedRoleKey = 'admin';
       } else if (isManagement) {
         validatedRoleKey = 'management';
@@ -238,6 +261,36 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const hasPermission = useCallback(
     (permission: string): boolean => {
       if (currentRoleKey === 'management' || currentRoleKey === 'admin' || permissions.includes('*')) return true;
+
+      // Executive Director: strategic company-wide read oversight across operational dashboards
+      // Strictly excludes mutating/write actions like finance transactions, user admin, role alterations, procurement approvals
+      if (currentRoleKey === 'executive_director') {
+        const restrictedMutations = [
+          'users.manage',
+          'users.create',
+          'users.delete',
+          'roles.manage',
+          'roles.assign',
+          'finance.transact',
+          'finance.manage',
+          'finance.approve',
+          'procurement.approve',
+          'procurement.create_po',
+          'technical.certify',
+        ];
+        if (restrictedMutations.includes(permission)) {
+          return permissions.includes(permission);
+        }
+        if (
+          permission.endsWith('.view') ||
+          permission.endsWith('.read') ||
+          permission.includes('overview') ||
+          permission.includes('report')
+        ) {
+          return true;
+        }
+      }
+
       return permissions.includes(permission);
     },
     [currentRoleKey, permissions]
@@ -246,17 +299,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const hasAnyPermission = useCallback(
     (perms: string[]): boolean => {
       if (currentRoleKey === 'management' || currentRoleKey === 'admin' || permissions.includes('*')) return true;
-      return perms.some((p) => permissions.includes(p));
+      return perms.some((p) => hasPermission(p));
     },
-    [currentRoleKey, permissions]
+    [currentRoleKey, permissions, hasPermission]
   );
 
   const hasAllPermissions = useCallback(
     (perms: string[]): boolean => {
       if (currentRoleKey === 'management' || currentRoleKey === 'admin' || permissions.includes('*')) return true;
-      return perms.every((p) => permissions.includes(p));
+      return perms.every((p) => hasPermission(p));
     },
-    [currentRoleKey, permissions]
+    [currentRoleKey, permissions, hasPermission]
   );
 
   const canAccessRoute = useCallback(
@@ -267,6 +320,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       if (pathname.startsWith('/management')) {
         return currentRoleKey === 'management';
+      }
+      if (pathname.startsWith('/executive')) {
+        return currentRoleKey === 'executive_director';
       }
       if (pathname.startsWith('/supervisor')) {
         return currentRoleKey === 'supervisor';

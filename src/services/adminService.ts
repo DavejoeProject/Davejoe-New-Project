@@ -521,7 +521,7 @@ export class AdminService {
         }
       }
 
-      const systemRoles = ['admin', 'management', 'supervisor', 'artisan', 'technical', 'procurement', 'accounts'];
+      const systemRoles = ['admin', 'management', 'executive_director', 'supervisor', 'artisan', 'technical', 'procurement', 'accounts'];
 
       return roles.map((r) => ({
         id: r.id,

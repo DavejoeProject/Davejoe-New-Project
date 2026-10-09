@@ -5,32 +5,32 @@ import { AuthService, UserProfile, getRouteForRole, normalizeRoleKey } from '../
 import { AccessDenied } from './AccessDenied';
 import { UserX, LogOut } from 'lucide-react';
 
-interface AdminRouteGuardProps {
+interface ExecutiveRouteGuardProps {
   children: React.ReactNode;
 }
 
 /**
- * Strict Administrator Route Guard for /admin
+ * Strict Executive Director Route Guard for /executive
  *
  * Verifies before rendering:
  * 1. Valid Supabase session exists.
  * 2. Authenticated user exists via getUser().
- * 3. Authoritative database role slug matches 'admin'.
+ * 3. Authoritative database role slug matches 'executive_director'.
  * 4. User account is active (not suspended/inactive).
  */
-export const AdminRouteGuard: React.FC<AdminRouteGuardProps> = ({ children }) => {
+export const ExecutiveRouteGuard: React.FC<ExecutiveRouteGuardProps> = ({ children }) => {
   const location = useLocation();
   const [authState, setAuthState] = useState<{
     isLoading: boolean;
     isAuthenticated: boolean;
-    isAuthorizedAdmin: boolean;
+    isAuthorizedExecutive: boolean;
     userProfile: UserProfile | null;
     isSuspended: boolean;
     alternativeRole: string | null;
   }>({
     isLoading: true,
     isAuthenticated: false,
-    isAuthorizedAdmin: false,
+    isAuthorizedExecutive: false,
     userProfile: null,
     isSuspended: false,
     alternativeRole: null,
@@ -39,7 +39,7 @@ export const AdminRouteGuard: React.FC<AdminRouteGuardProps> = ({ children }) =>
   useEffect(() => {
     let isMounted = true;
 
-    async function verifyAdminAuthorization() {
+    async function verifyExecutiveAuthorization() {
       try {
         const {
           data: { session },
@@ -51,7 +51,7 @@ export const AdminRouteGuard: React.FC<AdminRouteGuardProps> = ({ children }) =>
             setAuthState({
               isLoading: false,
               isAuthenticated: false,
-              isAuthorizedAdmin: false,
+              isAuthorizedExecutive: false,
               userProfile: null,
               isSuspended: false,
               alternativeRole: null,
@@ -70,7 +70,7 @@ export const AdminRouteGuard: React.FC<AdminRouteGuardProps> = ({ children }) =>
             setAuthState({
               isLoading: false,
               isAuthenticated: false,
-              isAuthorizedAdmin: false,
+              isAuthorizedExecutive: false,
               userProfile: null,
               isSuspended: false,
               alternativeRole: null,
@@ -91,23 +91,24 @@ export const AdminRouteGuard: React.FC<AdminRouteGuardProps> = ({ children }) =>
             )
         );
 
-        // Verify authoritative database role slug matches 'admin'
-        const hasAdminSlug = assignedSlugs.some(
-          (slug) => slug.toLowerCase().trim() === 'admin'
+        // Verify authoritative database role slug matches 'executive_director'
+        const hasExecutiveSlug = assignedSlugs.some(
+          (slug) =>
+            slug.toLowerCase().trim() === 'executive_director' ||
+            normalizeRoleKey(slug) === 'executive_director'
         );
 
-        const hasAdminName = assignedNames.some((name) => {
-          const n = name.toLowerCase();
-          return n.includes('admin') || n.includes('administrator') || n.includes('coordinator');
+        const hasExecutiveName = assignedNames.some((name) => {
+          return normalizeRoleKey(name) === 'executive_director';
         });
 
-        const isAuthorized = !isSuspended && (hasAdminSlug || hasAdminName);
+        const isAuthorized = !isSuspended && (hasExecutiveSlug || hasExecutiveName);
 
-        // Check if user has an alternative valid role (e.g. executive_director, management, supervisor, artisan)
+        // Check if user has an alternative valid role (e.g. admin, management, supervisor, artisan)
         let alternativeRole: string | null = null;
         if (!isAuthorized) {
-          if (assignedSlugs.includes('executive_director') || assignedNames.some((n) => normalizeRoleKey(n) === 'executive_director')) {
-            alternativeRole = 'executive_director';
+          if (assignedSlugs.includes('admin') || assignedNames.some((n) => normalizeRoleKey(n) === 'admin')) {
+            alternativeRole = 'admin';
           } else if (assignedSlugs.includes('management') || assignedNames.some((n) => normalizeRoleKey(n) === 'management')) {
             alternativeRole = 'management';
           } else if (assignedSlugs.includes('supervisor') || assignedNames.some((n) => normalizeRoleKey(n) === 'supervisor')) {
@@ -121,19 +122,19 @@ export const AdminRouteGuard: React.FC<AdminRouteGuardProps> = ({ children }) =>
           setAuthState({
             isLoading: false,
             isAuthenticated: true,
-            isAuthorizedAdmin: isAuthorized,
+            isAuthorizedExecutive: isAuthorized,
             userProfile: profile,
             isSuspended,
             alternativeRole,
           });
         }
       } catch (err) {
-        console.error('[AdminRouteGuard] Authorization check failed:', err);
+        console.error('[ExecutiveRouteGuard] Authorization check failed:', err);
         if (isMounted) {
           setAuthState({
             isLoading: false,
             isAuthenticated: false,
-            isAuthorizedAdmin: false,
+            isAuthorizedExecutive: false,
             userProfile: null,
             isSuspended: false,
             alternativeRole: null,
@@ -142,7 +143,7 @@ export const AdminRouteGuard: React.FC<AdminRouteGuardProps> = ({ children }) =>
       }
     }
 
-    verifyAdminAuthorization();
+    verifyExecutiveAuthorization();
 
     const {
       data: { subscription },
@@ -151,7 +152,7 @@ export const AdminRouteGuard: React.FC<AdminRouteGuardProps> = ({ children }) =>
         setAuthState({
           isLoading: false,
           isAuthenticated: false,
-          isAuthorizedAdmin: false,
+          isAuthorizedExecutive: false,
           userProfile: null,
           isSuspended: false,
           alternativeRole: null,
@@ -170,7 +171,7 @@ export const AdminRouteGuard: React.FC<AdminRouteGuardProps> = ({ children }) =>
       <div className="min-h-screen flex flex-col items-center justify-center bg-[#f8faf9]">
         <div className="w-10 h-10 border-3 border-[#01875F]/20 border-t-[#01875F] rounded-full animate-spin mb-3" />
         <p className="text-xs font-semibold text-slate-500 tracking-wide">
-          Loading your workspace...
+          Verifying Executive Director authorization...
         </p>
       </div>
     );
@@ -189,7 +190,7 @@ export const AdminRouteGuard: React.FC<AdminRouteGuardProps> = ({ children }) =>
           </div>
           <h2 className="text-lg font-bold text-slate-900 mb-2">Account Inactive</h2>
           <p className="text-sm text-slate-600 mb-6 leading-relaxed">
-            Your administrator account is currently {authState.userProfile?.status || 'inactive'}. Please contact system support.
+            Your executive account is currently {authState.userProfile?.status || 'inactive'}. Please contact system support.
           </p>
           <button
             type="button"
@@ -207,7 +208,7 @@ export const AdminRouteGuard: React.FC<AdminRouteGuardProps> = ({ children }) =>
     );
   }
 
-  if (!authState.isAuthorizedAdmin) {
+  if (!authState.isAuthorizedExecutive) {
     // If user has another authorized role, safely forward them to their dashboard
     if (authState.alternativeRole) {
       return <Navigate to={getRouteForRole(authState.alternativeRole)} replace />;
@@ -217,3 +218,5 @@ export const AdminRouteGuard: React.FC<AdminRouteGuardProps> = ({ children }) =>
 
   return <>{children}</>;
 };
+
+export default ExecutiveRouteGuard;

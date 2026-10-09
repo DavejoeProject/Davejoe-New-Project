@@ -7,11 +7,13 @@ import { ManagementRouteGuard } from './components/ManagementRouteGuard';
 import { SupervisorRouteGuard } from './components/SupervisorRouteGuard';
 import { ArtisanRouteGuard } from './components/ArtisanRouteGuard';
 import { AdminRouteGuard } from './components/AdminRouteGuard';
+import { ExecutiveRouteGuard } from './components/ExecutiveRouteGuard';
 import { AccessDenied } from './components/AccessDenied';
 import { CeoDashboard } from './components/dashboard/CeoDashboard';
 import { SupervisorDashboard } from './components/supervisor/SupervisorDashboard';
 import { ArtisanDashboard } from './components/artisan/ArtisanDashboard';
 import { AdminDashboard } from './components/admin/AdminDashboard';
+import { ExecutiveDashboard } from './components/executive/ExecutiveDashboard';
 import { AttendanceRegister } from './components/attendance/AttendanceRegister';
 import { useAuth } from './hooks/useAuth';
 import { PWAInstallPrompt } from './components/pwa/PWAInstallPrompt';
@@ -39,6 +41,9 @@ const RootRedirect: React.FC = () => {
     if (currentRoleKey === 'management') {
       return <Navigate to="/management" replace />;
     }
+    if (currentRoleKey === 'executive_director') {
+      return <Navigate to="/executive" replace />;
+    }
     if (currentRoleKey === 'supervisor') {
       return <Navigate to="/supervisor" replace />;
     }
@@ -59,6 +64,24 @@ export default function App() {
           <Route path="/" element={<RootRedirect />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/access-denied" element={<AccessDenied />} />
+
+          {/* Protected Executive Director Command Centre: database role 'executive_director' */}
+          <Route
+            path="/executive"
+            element={
+              <ExecutiveRouteGuard>
+                <ExecutiveDashboard />
+              </ExecutiveRouteGuard>
+            }
+          />
+          <Route
+            path="/executive/*"
+            element={
+              <ExecutiveRouteGuard>
+                <ExecutiveDashboard />
+              </ExecutiveRouteGuard>
+            }
+          />
 
           {/* Protected Administration Command Centre: database role 'admin' */}
           <Route

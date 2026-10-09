@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import { AuthService, UserProfile } from '../services/authService';
+import { AuthService, UserProfile, getRouteForRole, normalizeRoleKey } from '../services/authService';
 import { AccessDenied } from './AccessDenied';
 import { UserX, LogOut } from 'lucide-react';
 
@@ -31,12 +31,14 @@ export const ManagementRouteGuard: React.FC<ManagementRouteGuardProps> = ({ chil
     isAuthorizedManagement: boolean;
     userProfile: UserProfile | null;
     isSuspended: boolean;
+    alternativeRole: string | null;
   }>({
     isLoading: true,
     isAuthenticated: false,
     isAuthorizedManagement: false,
     userProfile: null,
     isSuspended: false,
+    alternativeRole: null,
   });
 
   useEffect(() => {
@@ -58,6 +60,7 @@ export const ManagementRouteGuard: React.FC<ManagementRouteGuardProps> = ({ chil
               isAuthorizedManagement: false,
               userProfile: null,
               isSuspended: false,
+              alternativeRole: null,
             });
           }
           return;
@@ -77,6 +80,7 @@ export const ManagementRouteGuard: React.FC<ManagementRouteGuardProps> = ({ chil
               isAuthorizedManagement: false,
               userProfile: null,
               isSuspended: false,
+              alternativeRole: null,
             });
           }
           return;
@@ -108,6 +112,20 @@ export const ManagementRouteGuard: React.FC<ManagementRouteGuardProps> = ({ chil
 
         const isAuthorized = !isSuspended && (hasManagementSlug || hasManagementName);
 
+        // Check if user has an alternative valid role (e.g. executive_director, admin, supervisor, artisan)
+        let alternativeRole: string | null = null;
+        if (!isAuthorized) {
+          if (assignedSlugs.includes('executive_director') || assignedNames.some((n) => normalizeRoleKey(n) === 'executive_director')) {
+            alternativeRole = 'executive_director';
+          } else if (assignedSlugs.includes('admin') || assignedNames.some((n) => normalizeRoleKey(n) === 'admin')) {
+            alternativeRole = 'admin';
+          } else if (assignedSlugs.includes('supervisor') || assignedNames.some((n) => normalizeRoleKey(n) === 'supervisor')) {
+            alternativeRole = 'supervisor';
+          } else if (assignedSlugs.includes('artisan') || assignedNames.some((n) => normalizeRoleKey(n) === 'artisan')) {
+            alternativeRole = 'artisan';
+          }
+        }
+
         if (isMounted) {
           setAuthState({
             isLoading: false,
@@ -115,6 +133,7 @@ export const ManagementRouteGuard: React.FC<ManagementRouteGuardProps> = ({ chil
             isAuthorizedManagement: isAuthorized,
             userProfile: profile,
             isSuspended,
+            alternativeRole,
           });
         }
       } catch (err) {
@@ -126,6 +145,7 @@ export const ManagementRouteGuard: React.FC<ManagementRouteGuardProps> = ({ chil
             isAuthorizedManagement: false,
             userProfile: null,
             isSuspended: false,
+            alternativeRole: null,
           });
         }
       }
@@ -188,8 +208,11 @@ export const ManagementRouteGuard: React.FC<ManagementRouteGuardProps> = ({ chil
     );
   }
 
-  // 4. Role slug is NOT "management": Access Denied!
+  // 4. Role slug is NOT "management": Access Denied or redirect to alternative role
   if (!authState.isAuthorizedManagement) {
+    if (authState.alternativeRole) {
+      return <Navigate to={getRouteForRole(authState.alternativeRole)} replace />;
+    }
     return <AccessDenied />;
   }
 

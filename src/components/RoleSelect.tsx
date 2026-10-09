@@ -10,6 +10,7 @@ import {
   PackageCheck,
   Receipt,
   Hammer,
+  Briefcase,
 } from 'lucide-react';
 
 export interface RoleDefinition {
@@ -21,6 +22,13 @@ export interface RoleDefinition {
 }
 
 export const ROLE_DEFINITIONS: RoleDefinition[] = [
+  {
+    slug: 'executive_director',
+    name: 'Executive Director — Business Operations & Strategy',
+    description: 'Executive operations & strategy oversight',
+    isActive: true,
+    icon: Briefcase,
+  },
   {
     slug: 'management',
     name: 'Management / CEO',
@@ -95,6 +103,7 @@ export const RoleSelect: React.FC<RoleSelectProps> = ({
     (r) =>
       r.slug === value ||
       r.name.toLowerCase() === value.toLowerCase() ||
+      (value.toLowerCase().includes('executive') && r.slug === 'executive_director') ||
       (value.toLowerCase().includes('ceo') && r.slug === 'management') ||
       (value.toLowerCase().includes('artisan') && r.slug === 'artisan') ||
       (value.toLowerCase().includes('admin') && r.slug === 'admin') ||
