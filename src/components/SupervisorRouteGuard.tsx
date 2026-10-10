@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import { AuthService, UserProfile } from '../services/authService';
+import { AuthService, UserProfile, getRouteForRole, normalizeRoleKey } from '../services/authService';
 import { AccessDenied } from './AccessDenied';
 import { UserX, LogOut } from 'lucide-react';
 
@@ -26,12 +26,14 @@ export const SupervisorRouteGuard: React.FC<SupervisorRouteGuardProps> = ({ chil
     isAuthorizedSupervisor: boolean;
     userProfile: UserProfile | null;
     isSuspended: boolean;
+    alternativeRole: string | null;
   }>({
     isLoading: true,
     isAuthenticated: false,
     isAuthorizedSupervisor: false,
     userProfile: null,
     isSuspended: false,
+    alternativeRole: null,
   });
 
   useEffect(() => {
@@ -99,6 +101,20 @@ export const SupervisorRouteGuard: React.FC<SupervisorRouteGuardProps> = ({ chil
 
         const isAuthorized = !isSuspended && (hasSupervisorSlug || hasSupervisorName);
 
+        // Check if user has an alternative authorized role
+        let alternativeRole: string | null = null;
+        if (!isAuthorized) {
+          if (assignedSlugs.includes('executive_director') || assignedNames.some((n) => normalizeRoleKey(n) === 'executive_director')) {
+            alternativeRole = 'executive_director';
+          } else if (assignedSlugs.includes('management') || assignedNames.some((n) => normalizeRoleKey(n) === 'management')) {
+            alternativeRole = 'management';
+          } else if (assignedSlugs.includes('admin') || assignedNames.some((n) => normalizeRoleKey(n) === 'admin')) {
+            alternativeRole = 'admin';
+          } else if (assignedSlugs.includes('artisan') || assignedNames.some((n) => normalizeRoleKey(n) === 'artisan')) {
+            alternativeRole = 'artisan';
+          }
+        }
+
         if (isMounted) {
           setAuthState({
             isLoading: false,
@@ -106,6 +122,7 @@ export const SupervisorRouteGuard: React.FC<SupervisorRouteGuardProps> = ({ chil
             isAuthorizedSupervisor: isAuthorized,
             userProfile: profile,
             isSuspended,
+            alternativeRole,
           });
         }
       } catch (err) {
@@ -117,6 +134,7 @@ export const SupervisorRouteGuard: React.FC<SupervisorRouteGuardProps> = ({ chil
             isAuthorizedSupervisor: false,
             userProfile: null,
             isSuspended: false,
+            alternativeRole: null,
           });
         }
       }
@@ -134,6 +152,7 @@ export const SupervisorRouteGuard: React.FC<SupervisorRouteGuardProps> = ({ chil
           isAuthorizedSupervisor: false,
           userProfile: null,
           isSuspended: false,
+          alternativeRole: null,
         });
       }
     });
@@ -187,6 +206,10 @@ export const SupervisorRouteGuard: React.FC<SupervisorRouteGuardProps> = ({ chil
   }
 
   if (!authState.isAuthorizedSupervisor) {
+    // If user has another authorized role, safely forward them to their dashboard
+    if (authState.alternativeRole) {
+      return <Navigate to={getRouteForRole(authState.alternativeRole)} replace />;
+    }
     return <AccessDenied />;
   }
 

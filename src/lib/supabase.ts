@@ -2,10 +2,17 @@ import { createClient } from '@supabase/supabase-js';
 
 // Modern Supabase key model prefers VITE_SUPABASE_PUBLISHABLE_KEY
 // with fallback to legacy VITE_SUPABASE_ANON_KEY.
-const supabaseUrl = (import.meta.env.VITE_SUPABASE_URL || '').trim();
+const env: Record<string, string | undefined> =
+  typeof import.meta !== 'undefined' && (import.meta as any).env
+    ? (import.meta as any).env
+    : typeof process !== 'undefined' && process.env
+      ? (process.env as Record<string, string | undefined>)
+      : {};
+
+const supabaseUrl = (env.VITE_SUPABASE_URL || '').trim();
 const supabaseKey = (
-  import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
-  import.meta.env.VITE_SUPABASE_ANON_KEY ||
+  env.VITE_SUPABASE_PUBLISHABLE_KEY ||
+  env.VITE_SUPABASE_ANON_KEY ||
   ''
 ).trim();
 

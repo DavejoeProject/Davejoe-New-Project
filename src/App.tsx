@@ -376,7 +376,79 @@ export default function App() {
             }
           />
           <Route
+            path="/supervisor/projects"
+            element={
+              <SupervisorRouteGuard>
+                <SupervisorDashboard />
+              </SupervisorRouteGuard>
+            }
+          />
+          <Route
+            path="/supervisor/projects/:projectId"
+            element={
+              <SupervisorRouteGuard>
+                <SupervisorDashboard />
+              </SupervisorRouteGuard>
+            }
+          />
+          <Route
             path="/supervisor/project/:projectId"
+            element={
+              <SupervisorRouteGuard>
+                <SupervisorDashboard />
+              </SupervisorRouteGuard>
+            }
+          />
+          <Route
+            path="/supervisor/attendance"
+            element={
+              <SupervisorRouteGuard>
+                <SupervisorDashboard />
+              </SupervisorRouteGuard>
+            }
+          />
+          <Route
+            path="/supervisor/productivity"
+            element={
+              <SupervisorRouteGuard>
+                <SupervisorDashboard />
+              </SupervisorRouteGuard>
+            }
+          />
+          <Route
+            path="/supervisor/materials"
+            element={
+              <SupervisorRouteGuard>
+                <SupervisorDashboard />
+              </SupervisorRouteGuard>
+            }
+          />
+          <Route
+            path="/supervisor/inspections"
+            element={
+              <SupervisorRouteGuard>
+                <SupervisorDashboard />
+              </SupervisorRouteGuard>
+            }
+          />
+          <Route
+            path="/supervisor/reports"
+            element={
+              <SupervisorRouteGuard>
+                <SupervisorDashboard />
+              </SupervisorRouteGuard>
+            }
+          />
+          <Route
+            path="/supervisor/issues"
+            element={
+              <SupervisorRouteGuard>
+                <SupervisorDashboard />
+              </SupervisorRouteGuard>
+            }
+          />
+          <Route
+            path="/supervisor/*"
             element={
               <SupervisorRouteGuard>
                 <SupervisorDashboard />

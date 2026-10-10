@@ -3,6 +3,10 @@ import { useAuth } from '../../hooks/useAuth';
 import { supabase } from '../../lib/supabase';
 import { PWAInstallButton } from '../pwa/PWAInstallButton';
 import {
+  FinancialControlService,
+  FinancialControlExecutiveSummary,
+} from '../../services/financialControlService';
+import {
   DashboardService,
   formatNaira,
   formatCount,
@@ -73,16 +77,29 @@ export const ExecutiveDashboard: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<string>('');
 
   // 8 Top-Level KPI metrics
-  const [kpis, setKpis] = useState({
+  const [kpis, setKpis] = useState<{
+    activeProjects: number;
+    newLeads: number | null; // null represents unsupported / no schema
+    pendingQuotes: number | null; // null represents unsupported / no schema
+    outstandingReceivables: number | null; // null represents unsupported / no schema
+    manpowerShortages: number;
+    qcFailures: number;
+    materialExceptions: number;
+    redIssues: number;
+  }>({
     activeProjects: 0,
-    newLeads: 0,
-    pendingQuotes: 0,
-    outstandingReceivables: 0,
+    newLeads: null,
+    pendingQuotes: null,
+    outstandingReceivables: null,
     manpowerShortages: 0,
     qcFailures: 0,
     materialExceptions: 0,
     redIssues: 0,
   });
+
+  // Corporate Financial Summary
+  const [financialSummary, setFinancialSummary] = useState<FinancialControlExecutiveSummary | null>(null);
+  const [queryErrors, setQueryErrors] = useState<string[]>([]);
 
   // Real Database Records
   const [projectsList, setProjectsList] = useState<any[]>([]);
@@ -109,18 +126,34 @@ export const ExecutiveDashboard: React.FC = () => {
         lossRes,
         clientRes,
         alertsRes,
+        finSummaryRes,
       ] = await Promise.all([
         supabase.from('projects').select('*').order('created_at', { ascending: false }),
         supabase.from('workforce_members').select('*').order('created_at', { ascending: false }),
         supabase.from('materials').select('*').order('name', { ascending: true }),
         supabase.from('purchase_orders').select('*').order('created_at', { ascending: false }),
-        supabase.from('deliveries').select('*').order('created_at', { ascending: false }),
+        supabase.from('material_deliveries').select('*').order('created_at', { ascending: false }),
         supabase.from('technical_inspections').select('*').order('created_at', { ascending: false }),
         supabase.from('workforce_conduct_records').select('*').order('created_at', { ascending: false }),
         supabase.from('material_losses').select('*').order('created_at', { ascending: false }),
         supabase.from('clients').select('*').order('created_at', { ascending: false }),
         DashboardService.getManagementAlerts(),
+        FinancialControlService.getExecutiveSummary(),
       ]);
+
+      const capturedErrors: string[] = [];
+      if (projRes.error) capturedErrors.push(`Projects: ${projRes.error.message}`);
+      if (workforceRes.error) capturedErrors.push(`Workforce: ${workforceRes.error.message}`);
+      if (materialsRes.error) capturedErrors.push(`Materials: ${materialsRes.error.message}`);
+      if (poRes.error) capturedErrors.push(`Purchase Orders: ${poRes.error.message}`);
+      if (delivRes.error) capturedErrors.push(`Deliveries: ${delivRes.error.message}`);
+      if (inspectRes.error) capturedErrors.push(`Technical Inspections: ${inspectRes.error.message}`);
+      if (conductRes.error) capturedErrors.push(`Conduct Records: ${conductRes.error.message}`);
+      if (lossRes.error) capturedErrors.push(`Material Losses: ${lossRes.error.message}`);
+      if (clientRes.error) capturedErrors.push(`Clients: ${clientRes.error.message}`);
+      if (alertsRes.error) capturedErrors.push(`Alerts: ${alertsRes.error}`);
+      if (finSummaryRes.error) capturedErrors.push(`Financials: ${finSummaryRes.error}`);
+      setQueryErrors(capturedErrors);
 
       const projects = projRes.data || [];
       const workforce = workforceRes.data || [];
@@ -143,6 +176,7 @@ export const ExecutiveDashboard: React.FC = () => {
       setMaterialLossesList(losses);
       setClientsList(clients);
       setAlertsList(alerts);
+      setFinancialSummary(finSummaryRes.data);
 
       // Compute Top-Level KPIs from real data:
       // 1. Active Projects
@@ -151,14 +185,14 @@ export const ExecutiveDashboard: React.FC = () => {
         return s === 'active' || s === 'in_progress' || s === 'ongoing';
       }).length;
 
-      // 2. New Leads (Schema table unconfigured -> real count 0)
-      const newLeadsCount = 0;
+      // 2. New Leads (Schema table unconfigured in database -> unsupported null)
+      const newLeadsCount = null;
 
-      // 3. Pending Quotes (Schema table unconfigured -> real count 0)
-      const pendingQuotesCount = 0;
+      // 3. Pending Quotes (Schema table unconfigured in database -> unsupported null)
+      const pendingQuotesCount = null;
 
-      // 4. Outstanding Receivables
-      const outstandingReceivablesVal = 0;
+      // 4. Outstanding Receivables (Invoicing table unconfigured in database -> unsupported null)
+      const outstandingReceivablesVal = null;
 
       // 5. Manpower Shortages
       const shortagesCount = alerts.filter(
@@ -424,6 +458,26 @@ export const ExecutiveDashboard: React.FC = () => {
           </span>
         </div>
 
+        {/* Query Errors / Partial Data Notice Banner */}
+        {queryErrors.length > 0 && (
+          <div className="bg-amber-50 border-b border-amber-200/90 px-6 sm:px-8 py-3 text-xs text-amber-900 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
+              <div>
+                <span className="font-bold">Partial Data Notice:</span>{' '}
+                Some tables returned query warnings ({queryErrors.length}): {queryErrors.join(' • ')}
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={handleRefresh}
+              className="px-2.5 py-1 bg-amber-200/80 hover:bg-amber-300 text-amber-900 rounded font-semibold text-[11px] shrink-0 self-start sm:self-auto cursor-pointer"
+            >
+              Retry Sync
+            </button>
+          </div>
+        )}
+
         {/* Content Body */}
         <div className="p-6 sm:p-8 space-y-6 max-w-7xl w-full">
           {/* ========================================================================= */}
@@ -476,11 +530,11 @@ export const ExecutiveDashboard: React.FC = () => {
                         <Briefcase className="w-4 h-4" />
                       </div>
                     </div>
-                    <div className="text-2xl font-bold text-slate-900">
-                      {kpis.newLeads}
+                    <div className="text-2xl font-bold text-slate-400">
+                      {kpis.newLeads === null ? '—' : kpis.newLeads}
                     </div>
                     <p className="text-[11px] text-amber-600/90 mt-1 flex items-center justify-between font-medium">
-                      <span>Pipeline awaiting CRM table</span>
+                      <span>Unsupported (No CRM table)</span>
                       <ArrowUpRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-[#01875F] transition-colors" />
                     </p>
                   </div>
@@ -498,11 +552,11 @@ export const ExecutiveDashboard: React.FC = () => {
                         <FileText className="w-4 h-4" />
                       </div>
                     </div>
-                    <div className="text-2xl font-bold text-slate-900">
-                      {kpis.pendingQuotes}
+                    <div className="text-2xl font-bold text-slate-400">
+                      {kpis.pendingQuotes === null ? '—' : kpis.pendingQuotes}
                     </div>
-                    <p className="text-[11px] text-slate-400 mt-1 flex items-center justify-between">
-                      <span>No outstanding estimates</span>
+                    <p className="text-[11px] text-purple-600 mt-1 flex items-center justify-between font-medium">
+                      <span>Unsupported (No quotes table)</span>
                       <ArrowUpRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-[#01875F] transition-colors" />
                     </p>
                   </div>
@@ -520,11 +574,11 @@ export const ExecutiveDashboard: React.FC = () => {
                         <DollarSign className="w-4 h-4" />
                       </div>
                     </div>
-                    <div className="text-2xl font-bold text-slate-900">
-                      ₦0.00
+                    <div className="text-2xl font-bold text-slate-400">
+                      {kpis.outstandingReceivables === null ? '—' : formatNaira(kpis.outstandingReceivables)}
                     </div>
-                    <p className="text-[11px] text-slate-400 mt-1 flex items-center justify-between">
-                      <span>No unpaid invoices logged</span>
+                    <p className="text-[11px] text-slate-500 mt-1 flex items-center justify-between font-medium">
+                      <span>Unsupported (No invoices table)</span>
                       <ArrowUpRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-[#01875F] transition-colors" />
                     </p>
                   </div>
@@ -1366,22 +1420,29 @@ export const ExecutiveDashboard: React.FC = () => {
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="p-4 rounded-xl bg-slate-50 border border-slate-100">
                   <span className="text-[11px] text-slate-400 block font-medium">Outstanding Receivables</span>
-                  <span className="text-2xl font-bold text-slate-900">₦0.00</span>
-                  <span className="text-[10px] text-slate-400 block mt-1">No overdue invoices</span>
+                  <span className="text-2xl font-bold text-slate-400">—</span>
+                  <span className="text-[10px] text-amber-700 block mt-1 font-medium">Unsupported: Invoicing table not in schema</span>
                 </div>
                 <div className="p-4 rounded-xl bg-slate-50 border border-slate-100">
-                  <span className="text-[11px] text-slate-400 block font-medium">Commitments Issued</span>
+                  <span className="text-[11px] text-slate-400 block font-medium">Procurement Commitments Issued</span>
                   <span className="text-2xl font-bold text-slate-900">
                     {formatNaira(
-                      purchaseOrdersList.reduce((acc, po) => acc + (Number(po.total_amount || po.amount) || 0), 0)
+                      financialSummary?.totalProcurementCommitted ??
+                      purchaseOrdersList.reduce((acc, po) => acc + (Number(po.total_cost || po.total_amount || po.amount) || 0), 0)
                     )}
                   </span>
-                  <span className="text-[10px] text-slate-400 block mt-1">Total approved purchase orders</span>
+                  <span className="text-[10px] text-slate-400 block mt-1">
+                    {purchaseOrdersList.length} approved purchase orders
+                  </span>
                 </div>
                 <div className="p-4 rounded-xl bg-slate-50 border border-slate-100">
-                  <span className="text-[11px] text-slate-400 block font-medium">Commercial Invoices</span>
-                  <span className="text-2xl font-bold text-slate-900">0</span>
-                  <span className="text-[10px] text-slate-400 block mt-1">Invoice module unconfigured</span>
+                  <span className="text-[11px] text-slate-400 block font-medium">Project Portfolio Contract Value</span>
+                  <span className="text-2xl font-bold text-slate-900">
+                    {formatNaira(financialSummary?.totalContractValue)}
+                  </span>
+                  <span className="text-[10px] text-slate-400 block mt-1">
+                    {financialSummary?.activeProjectsCount ?? projectsList.length} active contracted projects
+                  </span>
                 </div>
               </div>
             </div>
