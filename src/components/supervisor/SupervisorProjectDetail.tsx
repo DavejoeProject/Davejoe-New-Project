@@ -227,9 +227,9 @@ export const SupervisorProjectDetail: React.FC<SupervisorProjectDetailProps> = (
     }
   };
 
-  const statusCfg = project?.status
-    ? PROJECT_STATUS_CONFIG[project.status as any] || PROJECT_STATUS_CONFIG['in_progress']
-    : PROJECT_STATUS_CONFIG['in_progress'];
+  const statusCfg = project
+  ? PROJECT_STATUS_CONFIG[project.status]
+  : PROJECT_STATUS_CONFIG['in_progress'];
 
   return (
     <div className="space-y-6">
@@ -1023,12 +1023,14 @@ export const SupervisorProjectDetail: React.FC<SupervisorProjectDetailProps> = (
         preselectedProjectId={projectId}
       />
       <NewMaterialRequestModal
-        isOpen={isRequestMatOpen}
-        onClose={() => setIsRequestMatOpen(false)}
-        onSuccess={fetchProjectData}
-        projects={supervisorProjects as any}
-        preselectedProjectId={projectId}
-      />
+  isOpen={isRequestMatOpen}
+  onClose={() => setIsRequestMatOpen(false)}
+  onRequestCreated={() => {
+    setIsRequestMatOpen(false);
+    void fetchProjectData();
+  }}
+  preselectedProjectId={projectId}
+/>
     </div>
   );
 };

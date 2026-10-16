@@ -279,7 +279,7 @@ export const SupervisorDashboard: React.FC = () => {
               <AlertTriangle className="w-4 h-4 text-rose-600" />
             </div>
             <div className="text-2xl font-bold font-mono text-rose-700">
-              {data?.kpis.openSiteIssues ?? 0}
+              data?.kpis.unresolvedSiteIssues ?? 0
             </div>
             <p className="text-[11px] text-slate-500 mt-1">Defects &amp; pending tasks</p>
           </div>

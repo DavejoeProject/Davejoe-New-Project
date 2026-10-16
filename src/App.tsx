@@ -14,6 +14,7 @@ import { SupervisorDashboard } from './components/supervisor/SupervisorDashboard
 import { ArtisanDashboard } from './components/artisan/ArtisanDashboard';
 import { AdminDashboard } from './components/admin/AdminDashboard';
 import { ExecutiveDashboard } from './components/executive/ExecutiveDashboard';
+import { SocialMediaDashboard } from './components/social-media/SocialMediaDashboard';
 import { AttendanceRegister } from './components/attendance/AttendanceRegister';
 import { useAuth } from './hooks/useAuth';
 import { PWAInstallPrompt } from './components/pwa/PWAInstallPrompt';
@@ -44,13 +45,18 @@ const RootRedirect: React.FC = () => {
     if (currentRoleKey === 'executive_director') {
       return <Navigate to="/executive" replace />;
     }
-    if (currentRoleKey === 'supervisor') {
-      return <Navigate to="/supervisor" replace />;
-    }
-    if (currentRoleKey === 'artisan') {
-      return <Navigate to="/artisan" replace />;
-    }
-    return <Navigate to="/access-denied" replace />;
+    
+if (currentRoleKey === 'supervisor') {
+  return <Navigate to="/supervisor" replace />;
+}
+if (currentRoleKey === 'artisan') {
+  return <Navigate to="/artisan" replace />;
+}
+if (currentRoleKey === 'social_media_manager') {
+  return <Navigate to="/social-media" replace />;
+}
+return <Navigate to="/access-denied" replace />;
+
   }
 
   return <Navigate to="/login" replace />;
@@ -483,7 +489,14 @@ export default function App() {
               </ArtisanRouteGuard>
             }
           />
-
+<Route
+  path="/social-media"
+  element={
+    <ProtectedRoute allowedRoles={['social_media_manager']}>
+      <SocialMediaDashboard />
+    </ProtectedRoute>
+  }
+/>
           <Route
             path="/procurement"
             element={

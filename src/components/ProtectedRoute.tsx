@@ -39,7 +39,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   }
 
   // Inactive or suspended account guard
-  if (profile?.status && ['inactive', 'suspended', 'disabled', 'blocked'].includes(profile.status.toLowerCase())) {
+  if (!profile?.status || profile.status.toLowerCase() !== 'active') {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#f8faf9] px-4">
         <div className="w-full max-w-md bg-white rounded-2xl border border-slate-200 shadow-sm p-8 text-center">
@@ -48,7 +48,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
           </div>
           <h2 className="text-lg font-bold text-slate-900 mb-2">Account Inactive</h2>
           <p className="text-sm text-slate-600 mb-6 leading-relaxed">
-            Your account is currently {profile.status}. Please contact an administrator or HR to reactivate your workspace access.
+            Your account is currently {profile?.status ?? 'unverified'}. Please contact an administrator or HR to reactivate your workspace access.
           </p>
           <button
             type="button"

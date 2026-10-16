@@ -7,12 +7,14 @@ import { UserManagementView } from './UserManagementView';
 import { RolesPermissionsView } from './RolesPermissionsView';
 import { AuditLogsView } from './AuditLogsView';
 import { SystemSettingsView } from './SystemSettingsView';
+import { JobCompletionPhotoLibrary } from '../photos/JobCompletionPhotoLibrary';
 import {
   LayoutDashboard,
   Users,
   HardHat,
   FolderKanban,
   Building2,
+  Images,
   ShieldCheck,
   FileText,
   Settings,
@@ -35,6 +37,7 @@ type AdminTab =
   | 'clients'
   | 'roles'
   | 'audit-logs'
+  | 'photos'
   | 'settings';
 
 export const AdminDashboard: React.FC = () => {
@@ -147,6 +150,7 @@ export const AdminDashboard: React.FC = () => {
     { key: 'workforce', label: 'Workforce', icon: HardHat },
     { key: 'projects', label: 'Projects', icon: FolderKanban },
     { key: 'clients', label: 'Clients', icon: Building2 },
+{ key: 'photos', label: 'Job Photos', icon: Images },
   ];
 
   const adminDisplayName = profile?.display_name || user?.email?.split('@')[0] || 'Administrator';
@@ -241,6 +245,7 @@ export const AdminDashboard: React.FC = () => {
               {activeTab === 'workforce' && 'Workforce Registry'}
               {activeTab === 'projects' && 'Enterprise Projects'}
               {activeTab === 'clients' && 'Client Management'}
+{activeTab === 'photos' && 'Job Completion Photos'}
             </h1>
             <p className="text-xs text-slate-500 hidden sm:block">
               {activeTab === 'dashboard' && 'Manage users, access, system configuration and administrative operations.'}
@@ -471,6 +476,9 @@ export const AdminDashboard: React.FC = () => {
 
           {/* TAB 4: 9.7C AUDIT LOGS */}
           {activeTab === 'audit-logs' && <AuditLogsView />}
+{activeTab === 'photos' && (
+  <JobCompletionPhotoLibrary canUpload={true} />
+)}
 
           {/* TAB 5: 9.7D SETTINGS */}
           {activeTab === 'settings' && <SystemSettingsView />}

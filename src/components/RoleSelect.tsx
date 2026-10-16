@@ -11,6 +11,7 @@ import {
   Receipt,
   Hammer,
   Briefcase,
+  Share2,
 } from 'lucide-react';
 
 export interface RoleDefinition {
@@ -47,7 +48,7 @@ export const ROLE_DEFINITIONS: RoleDefinition[] = [
     slug: 'technical',
     name: 'Technical Inspection / QC',
     description: 'Inspection and quality control',
-    isActive: false,
+    isActive: true,
     icon: ClipboardCheck,
   },
   {
@@ -61,14 +62,14 @@ export const ROLE_DEFINITIONS: RoleDefinition[] = [
     slug: 'procurement',
     name: 'Procurement & Logistics',
     description: 'Materials and logistics',
-    isActive: false,
+    isActive: true,
     icon: PackageCheck,
   },
   {
     slug: 'accounts',
     name: 'Accounts',
     description: 'Finance and project accounts',
-    isActive: false,
+    isActive: true,
     icon: Receipt,
   },
   {
@@ -78,6 +79,13 @@ export const ROLE_DEFINITIONS: RoleDefinition[] = [
     isActive: true,
     icon: Hammer,
   },
+  {
+  slug: 'social_media_manager',
+  name: 'Social Media Manager',
+  description: 'View and download job completion photos',
+  isActive: true,
+  icon: Share2,
+},
 ];
 
 interface RoleSelectProps {

@@ -54,6 +54,7 @@ export const SupervisorRouteGuard: React.FC<SupervisorRouteGuardProps> = ({ chil
               isAuthorizedSupervisor: false,
               userProfile: null,
               isSuspended: false,
+              alternativeRole: null,
             });
           }
           return;
@@ -72,6 +73,7 @@ export const SupervisorRouteGuard: React.FC<SupervisorRouteGuardProps> = ({ chil
               isAuthorizedSupervisor: false,
               userProfile: null,
               isSuspended: false,
+              alternativeRole: null,
             });
           }
           return;

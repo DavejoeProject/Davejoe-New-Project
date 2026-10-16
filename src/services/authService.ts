@@ -24,7 +24,9 @@ export type StandardRoleKey =
   | 'supervisor'
   | 'procurement'
   | 'accounts'
-  | 'artisan';
+  | 'artisan'
+  | 'social_media_manager';
+
 
 export interface RoleConfig {
   key: StandardRoleKey;
@@ -93,6 +95,17 @@ export const ROLE_CONFIGS: Record<StandardRoleKey, RoleConfig> = {
     label: 'Artisan / Workforce',
     route: '/artisan',
     aliases: ['artisan', 'workforce', 'artisan / workforce', 'worker', 'contractor'],
+
+    },
+  social_media_manager: {
+    key: 'social_media_manager',
+    label: 'Social Media Manager',
+    route: '/social-media',
+    aliases: [
+      'social_media_manager',
+      'social media manager',
+      'social media',
+    ],
   },
 };
 
@@ -682,20 +695,30 @@ export class AuthService {
     // 2. Fetch profile from profiles table
     const profile = await this.getProfile(user.id);
 
-    // 3. Verify account status
-    if (profile?.status) {
-      const statusLower = profile.status.toLowerCase().trim();
-      if (['inactive', 'suspended', 'disabled', 'blocked', 'banned'].includes(statusLower)) {
-        await supabase.auth.signOut();
-        await AuditLogger.log({
-          action: 'auth.inactive_login_blocked',
-          module: 'authentication',
-          recordId: user.id,
-          oldValues: { email: sanitizedEmail, status: profile.status },
-        });
-        throw new Error('Your account is inactive. Please contact an administrator.');
-      }
+    
+    // 3. Verify account status: only active profiles may sign in.
+    const statusLower = profile?.status?.toLowerCase().trim();
+
+    if (statusLower !== 'active') {
+      await supabase.auth.signOut();
+
+      await AuditLogger.log({
+        action: 'auth.inactive_login_blocked',
+        module: 'authentication',
+        recordId: user.id,
+        oldValues: {
+          email: sanitizedEmail,
+          status: profile?.status ?? 'missing',
+        },
+      });
+
+      throw new Error(
+        statusLower === 'pending'
+          ? 'Your account is awaiting activation. Please contact Management.'
+          : 'Your account is not active. Please contact Management.'
+      );
     }
+
 
     // 4. Authoritatively resolve assigned roles from public.user_roles -> public.roles
     const { assignedSlugs, assignedNames, diagnosticReport } = await this.getUserRolesDetailed(user.id);
@@ -728,7 +751,16 @@ export class AuthService {
     // 'executive_director' -> /executive
     // 'supervisor'         -> /supervisor
     // 'artisan'            -> /artisan
-    const activeRoles: StandardRoleKey[] = ['admin', 'management', 'executive_director', 'supervisor', 'artisan'];
+    
+const activeRoles: StandardRoleKey[] = [
+  'admin',
+  'management',
+  'executive_director',
+  'supervisor',
+  'artisan',
+  'social_media_manager',
+];
+
 
     if (selectedRoleSlug && !activeRoles.includes(selectedRoleSlug)) {
       await supabase.auth.signOut();
