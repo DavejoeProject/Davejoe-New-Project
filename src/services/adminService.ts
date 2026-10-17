@@ -2,6 +2,49 @@ import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import { AuditLogger } from '../lib/audit';
 import { UserProfile, StandardRoleKey, normalizeRoleKey } from './authService';
 
+type AdminManageUserAction =
+  | 'invite_user'
+  | 'update_profile'
+  | 'update_status'
+  | 'assign_role'
+  | 'remove_role';
+
+async function callAdminManageUser<T = unknown>(
+  action: AdminManageUserAction,
+  payload: Record<string, unknown>
+): Promise<T> {
+  const { data: sessionData, error: sessionError } =
+    await supabase.auth.getSession();
+
+  if (sessionError) throw sessionError;
+
+  const accessToken = sessionData.session?.access_token;
+
+  if (!accessToken) {
+    throw new Error('Your session has expired. Please sign in again.');
+  }
+
+  const { data, error } = await supabase.functions.invoke(
+    'admin-manage-user',
+    {
+      body: { action, ...payload },
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }
+  );
+
+  if (error) {
+    throw new Error(error.message || 'The secure administration request failed.');
+  }
+
+  if (data && typeof data === 'object' && 'error' in data) {
+    throw new Error(String((data as { error: unknown }).error));
+  }
+
+  return data as T;
+}
+
 export interface AdminUserListItem {
   id: string;
   email: string | null;
@@ -307,41 +350,48 @@ export class AdminService {
     if (!isSupabaseConfigured) return;
 
     try {
-      // Fetch previous values for audit trail
-      const { data: previous } = await supabase
-        .from('profiles')
-        .select('first_name, last_name, display_name, job_title')
-        .eq('id', userId)
-        .single();
-
-      const sanitizedUpdates: Record<string, any> = {
-        updated_at: new Date().toISOString(),
+      const payload: Record<string, unknown> = {
+        user_id: userId,
       };
-      if (updates.first_name !== undefined) sanitizedUpdates.first_name = updates.first_name.trim();
-      if (updates.last_name !== undefined) sanitizedUpdates.last_name = updates.last_name.trim();
-      if (updates.display_name !== undefined) sanitizedUpdates.display_name = updates.display_name.trim();
-      if (updates.job_title !== undefined) sanitizedUpdates.job_title = updates.job_title.trim();
 
-      const { error } = await supabase
-        .from('profiles')
-        .update(sanitizedUpdates)
-        .eq('id', userId);
+      if (updates.first_name !== undefined) {
+        payload.first_name = updates.first_name.trim();
+      }
 
-      if (error) throw error;
+      if (updates.last_name !== undefined) {
+        payload.last_name = updates.last_name.trim();
+      }
+
+      if (updates.job_title !== undefined) {
+        payload.job_title = updates.job_title.trim();
+      }
+
+      const result = await callAdminManageUser<{
+        success: boolean;
+        message: string;
+        oldValues: Record<string, unknown>;
+        newValues: Record<string, unknown>;
+      }>('update_profile', payload);
+
+      if (!result.success) {
+        throw new Error(result.message || 'Profile update failed.');
+      }
 
       await AuditLogger.log({
         action: 'admin.user_profile_updated',
         module: 'administration',
         tableName: 'profiles',
         recordId: userId,
-        oldValues: previous || undefined,
-        newValues: sanitizedUpdates,
+        oldValues: result.oldValues,
+        newValues: result.newValues,
       });
     } catch (err) {
       console.error('[AdminService] Error updating user profile:', err);
       throw err;
     }
   }
+
+
 
   static async updateUserStatus(
     userId: string,
@@ -350,29 +400,27 @@ export class AdminService {
     if (!isSupabaseConfigured) return;
 
     try {
-      const { data: previous } = await supabase
-        .from('profiles')
-        .select('status, email, display_name')
-        .eq('id', userId)
-        .single();
+      const result = await callAdminManageUser<{
+        success: boolean;
+        message: string;
+        oldValues: { status: string };
+        newValues: { status: string };
+      }>('update_status', {
+        user_id: userId,
+        status: newStatus,
+      });
 
-      const { error } = await supabase
-        .from('profiles')
-        .update({
-          status: newStatus,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', userId);
-
-      if (error) throw error;
+      if (!result.success) {
+        throw new Error(result.message || 'Account status update failed.');
+      }
 
       await AuditLogger.log({
         action: 'admin.user_status_changed',
         module: 'administration',
         tableName: 'profiles',
         recordId: userId,
-        oldValues: { status: previous?.status },
-        newValues: { status: newStatus },
+        oldValues: result.oldValues,
+        newValues: result.newValues,
       });
     } catch (err) {
       console.error('[AdminService] Error updating user status:', err);
@@ -380,38 +428,37 @@ export class AdminService {
     }
   }
 
-  static async assignUserRole(userId: string, roleId: string): Promise<void> {
+
+  static async assignUserRole(
+    userId: string,
+    roleId: string
+  ): Promise<void> {
     if (!isSupabaseConfigured) return;
 
     try {
-      // 1. Verify not already assigned
-      const { data: existing } = await supabase
-        .from('user_roles')
-        .select('id')
-        .eq('user_id', userId)
-        .eq('role_id', roleId)
-        .maybeSingle();
-
-      if (existing) {
-        return; // Already assigned idempotently
-      }
-
-      // 2. Fetch role name and slug for audit logging
-      const { data: roleInfo } = await supabase
+      const { data: roleInfo, error: roleError } = await supabase
         .from('roles')
         .select('name, slug')
         .eq('id', roleId)
         .single();
 
-      // 3. Insert assignment
-      const { error } = await supabase
-        .from('user_roles')
-        .insert({
-          user_id: userId,
-          role_id: roleId,
-        });
+      if (roleError) throw roleError;
 
-      if (error) throw error;
+      if (!roleInfo?.slug) {
+        throw new Error('The selected role could not be found.');
+      }
+
+      const result = await callAdminManageUser<{
+        success: boolean;
+        message: string;
+      }>('assign_role', {
+        user_id: userId,
+        role_slug: roleInfo.slug,
+      });
+
+      if (!result.success) {
+        throw new Error(result.message || 'Role assignment failed.');
+      }
 
       await AuditLogger.log({
         action: 'admin.role_assigned',
@@ -421,8 +468,8 @@ export class AdminService {
         newValues: {
           user_id: userId,
           role_id: roleId,
-          role_slug: roleInfo?.slug,
-          role_name: roleInfo?.name,
+          role_slug: roleInfo.slug,
+          role_name: roleInfo.name,
         },
       });
     } catch (err) {
@@ -431,51 +478,44 @@ export class AdminService {
     }
   }
 
-  static async removeUserRole(userId: string, roleId: string, roleSlug?: string): Promise<void> {
+
+
+  static async removeUserRole(
+    userId: string,
+    roleId: string,
+    roleSlug?: string
+  ): Promise<void> {
     if (!isSupabaseConfigured) return;
 
     try {
-      // 1. Determine role slug if not provided
       let targetSlug = roleSlug;
+
       if (!targetSlug) {
-        const { data: roleData } = await supabase
+        const { data: roleData, error: roleError } = await supabase
           .from('roles')
           .select('slug, name')
           .eq('id', roleId)
           .single();
+
+        if (roleError) throw roleError;
         targetSlug = roleData?.slug;
       }
 
-      // 2. CRITICAL PROTECTION: Check if user is the last active Admin in the system
-      if (targetSlug === 'admin') {
-        const { data: adminRole } = await supabase
-          .from('roles')
-          .select('id')
-          .eq('slug', 'admin')
-          .single();
-
-        if (adminRole) {
-          const { count: adminCount } = await supabase
-            .from('user_roles')
-            .select('*', { count: 'exact', head: true })
-            .eq('role_id', adminRole.id);
-
-          if ((adminCount || 0) <= 1) {
-            throw new Error(
-              'Cannot remove Admin role: This account is the last active Administrator in the system. At least one Administrator must remain assigned to preserve system control.'
-            );
-          }
-        }
+      if (!targetSlug) {
+        throw new Error('The selected role could not be found.');
       }
 
-      // 3. Delete assignment
-      const { error } = await supabase
-        .from('user_roles')
-        .delete()
-        .eq('user_id', userId)
-        .eq('role_id', roleId);
+      const result = await callAdminManageUser<{
+        success: boolean;
+        message: string;
+      }>('remove_role', {
+        user_id: userId,
+        role_slug: targetSlug,
+      });
 
-      if (error) throw error;
+      if (!result.success) {
+        throw new Error(result.message || 'Role removal failed.');
+      }
 
       await AuditLogger.log({
         action: 'admin.role_removed',
@@ -493,6 +533,7 @@ export class AdminService {
       throw err;
     }
   }
+
 
   // ============================================================================
   // 3. ROLES & PERMISSIONS
@@ -596,6 +637,7 @@ export class AdminService {
     }
   }
 
+
   static async assignRolePermission(
     roleId: string,
     permissionId: string,
@@ -605,16 +647,18 @@ export class AdminService {
     if (!isSupabaseConfigured) return;
 
     try {
-      const { error } = await supabase
-        .from('role_permissions')
-        .insert({
-          role_id: roleId,
-          permission_id: permissionId,
-        });
+      const result = await callAdminManageUser<{
+        success: boolean;
+        message: string;
+        oldValues?: Record<string, unknown> | null;
+        newValues?: Record<string, unknown> | null;
+      }>('assign_role_permission', {
+        role_id: roleId,
+        permission_id: permissionId,
+      });
 
-      if (error && error.code !== '23505') {
-        // 23505 is unique violation (already assigned), ignore
-        throw error;
+      if (!result.success) {
+        throw new Error(result.message || 'Permission assignment failed.');
       }
 
       await AuditLogger.log({
@@ -622,7 +666,8 @@ export class AdminService {
         module: 'administration',
         tableName: 'role_permissions',
         recordId: `${roleId}_${permissionId}`,
-        newValues: {
+        oldValues: result.oldValues ?? undefined,
+        newValues: result.newValues ?? {
           role_id: roleId,
           permission_id: permissionId,
           role_slug: roleSlug,
@@ -635,6 +680,8 @@ export class AdminService {
     }
   }
 
+
+
   static async removeRolePermission(
     roleId: string,
     permissionId: string,
@@ -644,36 +691,32 @@ export class AdminService {
     if (!isSupabaseConfigured) return;
 
     try {
-      // PROTECT ADMIN ESSENTIAL PERMISSIONS
-      if (
-        roleSlug === 'admin' &&
-        permissionName &&
-        ['roles.manage', 'users.manage', 'users.view', 'audit.view'].includes(permissionName)
-      ) {
-        throw new Error(
-          `Cannot remove essential administrative permission "${permissionName}" from the Admin role.`
-        );
+      const result = await callAdminManageUser<{
+        success: boolean;
+        message: string;
+        oldValues?: Record<string, unknown> | null;
+        newValues?: Record<string, unknown> | null;
+      }>('remove_role_permission', {
+        role_id: roleId,
+        permission_id: permissionId,
+      });
+
+      if (!result.success) {
+        throw new Error(result.message || 'Permission removal failed.');
       }
-
-      const { error } = await supabase
-        .from('role_permissions')
-        .delete()
-        .eq('role_id', roleId)
-        .eq('permission_id', permissionId);
-
-      if (error) throw error;
 
       await AuditLogger.log({
         action: 'admin.role_permission_removed',
         module: 'administration',
         tableName: 'role_permissions',
         recordId: `${roleId}_${permissionId}`,
-        oldValues: {
+        oldValues: result.oldValues ?? {
           role_id: roleId,
           permission_id: permissionId,
           role_slug: roleSlug,
           permission_name: permissionName,
         },
+        newValues: result.newValues ?? undefined,
       });
     } catch (err) {
       console.error('[AdminService] Error removing role permission:', err);

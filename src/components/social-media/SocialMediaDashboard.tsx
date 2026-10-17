@@ -1,7 +1,7 @@
-
 import React from 'react';
 import { useAuth } from '../../hooks/useAuth';
-import { Images, Download, ShieldCheck, LogOut } from 'lucide-react';
+import { Images, LogOut, ShieldCheck } from 'lucide-react';
+import { JobCompletionPhotoLibrary } from '../photos/JobCompletionPhotoLibrary';
 
 export const SocialMediaDashboard: React.FC = () => {
   const { user, profile, logout } = useAuth();
@@ -38,47 +38,36 @@ export const SocialMediaDashboard: React.FC = () => {
 
       <main className="mx-auto max-w-7xl space-y-6 px-5 py-8 sm:px-8">
         <section>
-          <p className="text-sm text-slate-500">Welcome, {displayName}</p>
+          <p className="text-sm text-slate-500">
+            Welcome, {displayName}
+          </p>
           <h2 className="mt-1 text-2xl font-bold tracking-tight">
             Job Completion Photo Library
           </h2>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
-            Access approved job completion photos for marketing and social
-            media content. You can view and download photos, but cannot upload,
-            replace, edit, or delete them.
+            View and download job completion photos for approved marketing
+            and social media content. Uploading, replacing, editing, and
+            deleting photos are not available in this workspace.
           </p>
         </section>
 
-        <section className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-100 text-slate-600">
-            <Images className="h-6 w-6" />
+        <section className="rounded-2xl border border-emerald-100 bg-emerald-50/60 p-4 sm:p-5">
+          <div className="flex items-start gap-3">
+            <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-emerald-700" />
+            <div>
+              <h3 className="text-sm font-semibold text-emerald-900">
+                Read-only photo access
+              </h3>
+              <p className="mt-1 text-sm leading-6 text-emerald-800">
+                This workspace does not provide photo upload or management
+                controls. Access to photos is also governed by Supabase
+                permissions.
+              </p>
+            </div>
           </div>
-
-          <h3 className="mt-4 text-base font-semibold">
-            Completion photos
-          </h3>
-          <p className="mt-2 max-w-xl text-sm leading-6 text-slate-500">
-            Your photo library will appear here after secure photo storage
-            and access permissions have been configured.
-          </p>
-
-          <div className="mt-5 flex items-center gap-2 rounded-lg bg-amber-50 p-3 text-sm text-amber-800">
-            <ShieldCheck className="h-5 w-5 shrink-0" />
-            <span>
-              Photo access is not connected yet. No photos are being exposed
-              by this placeholder.
-            </span>
-          </div>
-
-          <button
-            type="button"
-            disabled
-            className="mt-5 inline-flex cursor-not-allowed items-center gap-2 rounded-lg bg-slate-100 px-4 py-2.5 text-sm font-semibold text-slate-400"
-          >
-            <Download className="h-4 w-4" />
-            Download photos
-          </button>
         </section>
+
+        <JobCompletionPhotoLibrary canUpload={false} />
       </main>
     </div>
   );

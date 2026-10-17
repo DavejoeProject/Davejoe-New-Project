@@ -133,12 +133,6 @@ Deno.serve(async (req: Request) => {
   const isManagement = slugs.includes("management");
   const isExecutiveDirector = slugs.includes("executive_director");
 
-  if (!isManagement && !isExecutiveDirector) {
-    return response(
-      { error: "You are not authorized to manage users." },
-      403,
-    );
-  }
 
   let body: Record<string, unknown>;
 
@@ -147,6 +141,597 @@ Deno.serve(async (req: Request) => {
   } catch {
     return response({ error: "Invalid JSON request." }, 400);
   }
+
+const action =
+  typeof body.action === "string" ? body.action.trim() : "invite_user";
+
+const allowedActions = [
+  "invite_user",
+  "update_profile",
+  "update_status",
+  "assign_role",
+  "remove_role",
+  "assign_role_permission",
+  "remove_role_permission",
+];
+
+if (!allowedActions.includes(action)) {
+  return response({ error: "Unsupported administration action." }, 400);
+}
+
+const isSelfNameUpdate =
+  action === "update_profile" &&
+  typeof body.user_id === "string" &&
+  body.user_id.trim() === requester.id &&
+  typeof body.job_title !== "string";
+
+if (!isManagement && !isExecutiveDirector && !isSelfNameUpdate) {
+  return response(
+    { error: "You are not authorized to perform this administrative action." },
+    403,
+  );
+}
+
+if (action === "update_profile") {
+  const userId =
+    typeof body.user_id === "string" ? body.user_id.trim() : "";
+
+  const firstName =
+    typeof body.first_name === "string" ? body.first_name.trim() : undefined;
+
+  const lastName =
+    typeof body.last_name === "string" ? body.last_name.trim() : undefined;
+
+  const jobTitle =
+    typeof body.job_title === "string" ? body.job_title.trim() : undefined;
+
+  if (!userId) {
+    return response({ error: "Target user ID is required." }, 400);
+  }
+
+  if (
+    firstName === undefined &&
+    lastName === undefined &&
+    jobTitle === undefined
+  ) {
+    return response(
+      { error: "No supported profile changes were supplied." },
+      400,
+    );
+  }
+
+  if (
+    (firstName !== undefined && !firstName) ||
+    (lastName !== undefined && !lastName)
+  ) {
+    return response(
+      { error: "First and last names cannot be blank." },
+      400,
+    );
+  }
+
+  const { data: targetProfile, error: targetError } = await adminClient
+    .from("profiles")
+    .select("id, first_name, last_name, display_name, job_title")
+    .eq("id", userId)
+    .maybeSingle();
+
+  if (targetError) {
+    return response({ error: "Could not load the target profile." }, 500);
+  }
+
+  if (!targetProfile) {
+    return response({ error: "Target staff profile not found." }, 404);
+  }
+
+// All users may update their own names, but not their own job title.
+if (userId === requester.id && jobTitle !== undefined) {
+  return response(
+    { error: "You may update your own name, but not your job title." },
+    403,
+  );
+}
+
+// Executive Director cannot edit another leadership account's profile.
+if (
+  isExecutiveDirector &&
+  !isManagement &&
+  userId !== requester.id
+) {
+  const { data: targetRoles, error: targetRolesError } = await adminClient
+    .from("user_roles")
+    .select("roles(slug)")
+    .eq("user_id", userId);
+
+  if (targetRolesError) {
+    return response(
+      { error: "Could not verify the target account's roles." },
+      500,
+    );
+  }
+
+  const targetSlugs = (targetRoles ?? []).map((row: any) => {
+    const role = Array.isArray(row.roles) ? row.roles[0] : row.roles;
+    return role?.slug;
+  });
+
+  if (
+    targetSlugs.includes("management") ||
+    targetSlugs.includes("executive_director")
+  ) {
+    return response(
+      { error: "Executive Director cannot edit leadership profiles." },
+      403,
+    );
+  }
+}
+
+  const updates: Record<string, string> = {};
+
+  if (firstName !== undefined) updates.first_name = firstName;
+  if (lastName !== undefined) updates.last_name = lastName;
+
+  const nextFirstName = firstName ?? targetProfile.first_name ?? "";
+  const nextLastName = lastName ?? targetProfile.last_name ?? "";
+
+  if (firstName !== undefined || lastName !== undefined) {
+    updates.display_name = [nextFirstName, nextLastName]
+      .filter(Boolean)
+      .join(" ");
+  }
+
+  if (jobTitle !== undefined) updates.job_title = jobTitle;
+
+  const oldValues = {
+    first_name: targetProfile.first_name,
+    last_name: targetProfile.last_name,
+    display_name: targetProfile.display_name,
+    job_title: targetProfile.job_title,
+  };
+
+  const newValues = {
+    ...oldValues,
+    ...updates,
+  };
+
+  const { error: updateError } = await adminClient
+    .from("profiles")
+    .update(updates)
+    .eq("id", userId);
+
+  if (updateError) {
+    return response({ error: "Could not update the staff profile." }, 500);
+  }
+
+  return response({
+    success: true,
+    message: "Staff profile updated.",
+    oldValues,
+    newValues,
+  });
+}
+
+if (action === "update_status") {
+  const userId =
+    typeof body.user_id === "string" ? body.user_id.trim() : "";
+
+  const newStatus =
+    typeof body.status === "string" ? body.status.trim() : "";
+
+  const allowedStatuses = ["active", "inactive", "suspended", "pending"];
+
+  if (!userId || !allowedStatuses.includes(newStatus)) {
+    return response({ error: "A valid user ID and account status are required." }, 400);
+  }
+
+  // Prevent an administrator from accidentally disabling their own account.
+  if (userId === requester.id && newStatus !== "active") {
+    return response({ error: "You cannot deactivate or suspend your own account through this action." }, 403);
+  }
+
+  const { data: targetProfile, error: targetError } = await adminClient
+    .from("profiles")
+    .select("id, status")
+    .eq("id", userId)
+    .maybeSingle();
+
+  if (targetError) {
+    return response({ error: "Could not load the target account." }, 500);
+  }
+
+  if (!targetProfile) {
+    return response({ error: "Target staff account not found." }, 404);
+  }
+
+  // Executive Director cannot change the status of Management or another ED.
+  if (isExecutiveDirector && !isManagement) {
+    const { data: targetRoles, error: targetRolesError } = await adminClient
+      .from("user_roles")
+      .select("roles(slug)")
+      .eq("user_id", userId);
+
+    if (targetRolesError) {
+      return response({ error: "Could not verify the target account's roles." }, 500);
+    }
+
+    const targetSlugs = (targetRoles ?? []).map((row: any) => {
+      const role = Array.isArray(row.roles) ? row.roles[0] : row.roles;
+      return role?.slug;
+    });
+
+    if (targetSlugs.includes("management") || targetSlugs.includes("executive_director")) {
+      return response({ error: "Executive Director cannot change the status of leadership accounts." }, 403);
+    }
+  }
+
+  const { error: updateError } = await adminClient
+    .from("profiles")
+    .update({ status: newStatus })
+    .eq("id", userId);
+
+  if (updateError) {
+    return response({ error: "Could not update the account status." }, 500);
+  }
+
+ return response({
+  success: true,
+  message: "Account status updated.",
+  oldValues: {
+    status: targetProfile.status,
+  },
+  newValues: {
+    status: newStatus,
+  },
+});
+}
+
+
+
+if (action === "assign_role" || action === "remove_role") {
+  const userId =
+    typeof body.user_id === "string" ? body.user_id.trim() : "";
+
+  const roleSlug =
+    typeof body.role_slug === "string" ? body.role_slug.trim() : "";
+
+  if (!userId || !roleSlug) {
+    return response({ error: "Target user ID and role slug are required." }, 400);
+  }
+
+if (userId === requester.id) {
+  return response(
+    { error: "You cannot change your own role assignments." },
+    403,
+  );
+}
+
+  const leadershipRoles = ["management", "executive_director"];
+
+  if (!isManagement && leadershipRoles.includes(roleSlug)) {
+    return response({
+      error: "Only Management/CEO can assign or remove leadership roles.",
+    }, 403);
+  }
+
+  const { data: targetRole, error: targetRoleError } = await adminClient
+    .from("roles")
+    .select("id, slug")
+    .eq("slug", roleSlug)
+    .maybeSingle();
+
+  if (targetRoleError) {
+    return response({ error: "Could not verify the selected role." }, 500);
+  }
+
+  if (!targetRole) {
+    return response({ error: "Selected role does not exist." }, 404);
+  }
+
+  const { data: targetProfile, error: targetProfileError } = await adminClient
+    .from("profiles")
+    .select("id, status")
+    .eq("id", userId)
+    .maybeSingle();
+
+  if (targetProfileError) {
+    return response({ error: "Could not verify the target account." }, 500);
+  }
+
+  if (!targetProfile) {
+    return response({ error: "Target account not found." }, 404);
+  }
+
+  // The Executive Director cannot administer leadership accounts.
+  if (!isManagement && userId !== requester.id) {
+    const { data: targetRoles, error: targetRolesError } = await adminClient
+      .from("user_roles")
+      .select("roles(slug)")
+      .eq("user_id", userId);
+
+    if (targetRolesError) {
+      return response({ error: "Could not verify the target account's roles." }, 500);
+    }
+
+    const targetSlugs = (targetRoles ?? []).map((row: any) => {
+      const role = Array.isArray(row.roles) ? row.roles[0] : row.roles;
+      return role?.slug;
+    });
+
+    if (targetSlugs.some((slug: string) => leadershipRoles.includes(slug))) {
+      return response({
+        error: "Executive Director cannot modify leadership account assignments.",
+      }, 403);
+    }
+  }
+
+  if (action === "assign_role") {
+    const { data: existing, error: existingError } = await adminClient
+      .from("user_roles")
+      .select("id")
+      .eq("user_id", userId)
+      .eq("role_id", targetRole.id)
+      .maybeSingle();
+
+    if (existingError) {
+      return response({ error: "Could not check the existing role assignment." }, 500);
+    }
+
+    if (existing) {
+      return response({ success: true, message: "Role is already assigned." });
+    }
+
+    const { error: insertError } = await adminClient.from("user_roles").insert({
+      user_id: userId,
+      role_id: targetRole.id,
+      assigned_by: requester.id,
+    });
+
+    if (insertError) {
+      return response({ error: "Could not assign the selected role." }, 500);
+    }
+
+    return response({ success: true, message: "Role assigned." });
+  }
+
+  const { data: existingAssignment, error: assignmentError } = await adminClient
+    .from("user_roles")
+    .select("id")
+    .eq("user_id", userId)
+    .eq("role_id", targetRole.id)
+    .maybeSingle();
+
+  if (assignmentError) {
+    return response({ error: "Could not verify the role assignment." }, 500);
+  }
+
+  if (!existingAssignment) {
+    return response({ success: true, message: "Role is not assigned." });
+  }
+
+  if (roleSlug === "admin") {
+    const { data: adminRole, error: adminRoleError } = await adminClient
+      .from("roles")
+      .select("id")
+      .eq("slug", "admin")
+      .maybeSingle();
+
+    if (adminRoleError || !adminRole) {
+      return response({ error: "Could not verify the Admin role." }, 500);
+    }
+
+    const { data: adminAssignments, error: adminAssignmentsError } =
+      await adminClient
+        .from("user_roles")
+        .select("user_id, profiles!inner(status)")
+        .eq("role_id", adminRole.id)
+        .eq("profiles.status", "active");
+
+    if (adminAssignmentsError) {
+      return response({ error: "Could not verify active Admin accounts." }, 500);
+    }
+
+    const activeAdminIds = new Set(
+      (adminAssignments ?? []).map((row: any) => row.user_id),
+    );
+
+    if (
+      activeAdminIds.has(userId) &&
+      activeAdminIds.size <= 1
+    ) {
+      return response({
+        error: "Cannot remove the last active Admin account.",
+      }, 403);
+    }
+  }
+
+  const { error: deleteError } = await adminClient
+    .from("user_roles")
+    .delete()
+    .eq("user_id", userId)
+    .eq("role_id", targetRole.id);
+
+  if (deleteError) {
+    return response({ error: "Could not remove the selected role." }, 500);
+  }
+
+  return response({ success: true, message: "Role removed." });
+}
+
+
+if (
+  action === "assign_role_permission" ||
+  action === "remove_role_permission"
+) {
+  // Role-permission management is restricted to Management/CEO.
+  // Executive Director is explicitly excluded.
+  if (!isManagement && !isExecutiveDirector) {
+  return response(
+    { error: "You are not authorized to manage role permissions." },
+    403,
+  );
+}
+
+  const roleId =
+    typeof body.role_id === "string" ? body.role_id.trim() : "";
+
+  const permissionId =
+    typeof body.permission_id === "string"
+      ? body.permission_id.trim()
+      : "";
+
+  if (!roleId || !permissionId) {
+    return response(
+      { error: "Role ID and permission ID are required." },
+      400,
+    );
+  }
+
+  const { data: targetRole, error: roleError } = await adminClient
+    .from("roles")
+    .select("id, slug, name")
+    .eq("id", roleId)
+    .maybeSingle();
+
+  if (roleError) {
+    return response({ error: "Could not verify the selected role." }, 500);
+  }
+
+  if (!targetRole) {
+    return response({ error: "Selected role not found." }, 404);
+  }
+
+  const { data: targetPermission, error: permissionError } =
+    await adminClient
+      .from("permissions")
+      .select("id, name")
+      .eq("id", permissionId)
+      .maybeSingle();
+
+  if (permissionError) {
+    return response(
+      { error: "Could not verify the selected permission." },
+      500,
+    );
+  }
+
+  if (!targetPermission) {
+    return response({ error: "Selected permission not found." }, 404);
+  }
+
+  // Protect essential permissions on the Admin role.
+  const essentialAdminPermissions = [
+    "roles.manage",
+    "users.manage",
+    "users.view",
+    "audit.view",
+  ];
+
+  if (
+    action === "remove_role_permission" &&
+    targetRole.slug === "admin" &&
+    essentialAdminPermissions.includes(targetPermission.name)
+  ) {
+    return response(
+      {
+        error:
+          `Cannot remove essential administrative permission "${targetPermission.name}" from the Admin role.`,
+      },
+      403,
+    );
+  }
+
+  const { data: existingAssignment, error: assignmentError } =
+    await adminClient
+      .from("role_permissions")
+      .select("role_id, permission_id")
+      .eq("role_id", roleId)
+      .eq("permission_id", permissionId)
+      .maybeSingle();
+
+  if (assignmentError) {
+    return response(
+      { error: "Could not verify the existing permission assignment." },
+      500,
+    );
+  }
+
+  if (action === "assign_role_permission") {
+    if (existingAssignment) {
+      return response({
+        success: true,
+        message: "Permission is already assigned to this role.",
+      });
+    }
+
+    const { error: insertError } = await adminClient
+      .from("role_permissions")
+      .insert({
+        role_id: roleId,
+        permission_id: permissionId,
+      });
+
+    if (insertError) {
+      return response(
+        { error: "Could not assign the permission to this role." },
+        500,
+      );
+    }
+
+    return response({
+      success: true,
+      message: "Permission assigned to role.",
+      oldValues: null,
+      newValues: {
+        role_id: roleId,
+        role_slug: targetRole.slug,
+        permission_id: permissionId,
+        permission_name: targetPermission.name,
+      },
+    });
+  }
+
+  if (!existingAssignment) {
+    return response({
+      success: true,
+      message: "Permission is not assigned to this role.",
+    });
+  }
+
+  const { error: deleteError } = await adminClient
+    .from("role_permissions")
+    .delete()
+    .eq("role_id", roleId)
+    .eq("permission_id", permissionId);
+
+  if (deleteError) {
+    return response(
+      { error: "Could not remove the permission from this role." },
+      500,
+    );
+  }
+
+  return response({
+    success: true,
+    message: "Permission removed from role.",
+    oldValues: {
+      role_id: roleId,
+      role_slug: targetRole.slug,
+      permission_id: permissionId,
+      permission_name: targetPermission.name,
+    },
+    newValues: null,
+  });
+}
+
+
+if (action !== "invite_user") {
+  return response(
+    { error: `Action "${action}" is recognized but is not implemented yet.` },
+    400,
+  );
+}
+
+
 
   const email =
     typeof body.email === "string"
