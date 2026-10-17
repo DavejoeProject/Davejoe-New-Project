@@ -1,7 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { supabase } from '../../lib/supabase';
 import { PWAInstallButton } from '../pwa/PWAInstallButton';
+import { UserManagementView } from '../admin/UserManagementView';
+import { RolesPermissionsView } from '../admin/RolesPermissionsView';
 import {
   FinancialControlService,
   FinancialControlExecutiveSummary,
@@ -49,6 +52,7 @@ import {
   Award,
   Bell,
   SlidersHorizontal,
+  UserCog,
 } from 'lucide-react';
 
 export type ExecutiveModuleKey =
@@ -63,6 +67,8 @@ export type ExecutiveModuleKey =
   | 'clients'
   | 'staff'
   | 'artisans'
+  | 'users'
+  | 'roles'
   | 'alerts'
   | 'reports';
 
@@ -112,6 +118,19 @@ export const ExecutiveDashboard: React.FC = () => {
   const [materialLossesList, setMaterialLossesList] = useState<any[]>([]);
   const [clientsList, setClientsList] = useState<any[]>([]);
   const [alertsList, setAlertsList] = useState<any[]>([]);
+  const [rolesList, setRolesList] = useState<any[]>([]);
+  const [usersCount, setUsersCount] = useState<number>(0);
+
+  const location = useLocation();
+
+  // Sync active module if navigated via deep link
+  useEffect(() => {
+    if (location.pathname.includes('/executive/users')) {
+      setActiveModule('users');
+    } else if (location.pathname.includes('/executive/roles')) {
+      setActiveModule('roles');
+    }
+  }, [location.pathname]);
 
   const fetchDashboardData = useCallback(async () => {
     try {
@@ -127,6 +146,8 @@ export const ExecutiveDashboard: React.FC = () => {
         clientRes,
         alertsRes,
         finSummaryRes,
+        rolesRes,
+        profilesRes,
       ] = await Promise.all([
         supabase.from('projects').select('*').order('created_at', { ascending: false }),
         supabase.from('workforce_members').select('*').order('created_at', { ascending: false }),
@@ -139,6 +160,8 @@ export const ExecutiveDashboard: React.FC = () => {
         supabase.from('clients').select('*').order('created_at', { ascending: false }),
         DashboardService.getManagementAlerts(),
         FinancialControlService.getExecutiveSummary(),
+        supabase.from('roles').select('*').order('name', { ascending: true }),
+        supabase.from('profiles').select('*', { count: 'exact', head: true }),
       ]);
 
       const capturedErrors: string[] = [];
@@ -177,6 +200,8 @@ export const ExecutiveDashboard: React.FC = () => {
       setClientsList(clients);
       setAlertsList(alerts);
       setFinancialSummary(finSummaryRes.data);
+      setRolesList(rolesRes.data || []);
+      setUsersCount(profilesRes.count || (profilesRes.data ? profilesRes.data.length : 0));
 
       // Compute Top-Level KPIs from real data:
       // 1. Active Projects
@@ -271,6 +296,8 @@ export const ExecutiveDashboard: React.FC = () => {
     { key: 'clients', label: 'Client Experience', icon: Building2, count: clientsList.length },
     { key: 'staff', label: 'Staff Performance', icon: Award, count: conductList.length },
     { key: 'artisans', label: 'Artisan Network', icon: HardHat, count: workforceList.length },
+    { key: 'users', label: 'Users & Personnel', icon: UserCog, count: usersCount },
+    { key: 'roles', label: 'Roles & Permissions', icon: ShieldCheck, count: rolesList.length },
     { key: 'alerts', label: 'Management Alerts', icon: AlertOctagon, count: alertsList.length },
     { key: 'reports', label: 'Reports', icon: FileBarChart },
   ];
@@ -1730,6 +1757,26 @@ export const ExecutiveDashboard: React.FC = () => {
                 </div>
               </div>
             </div>
+          )}
+
+          {/* ========================================================================= */}
+          {/* VIEW 14: USERS & PERSONNEL GOVERNANCE                                     */}
+          {/* ========================================================================= */}
+          {activeModule === 'users' && (
+            <UserManagementView
+              allRoles={rolesList}
+              onStatsRefresh={fetchDashboardData}
+            />
+          )}
+
+          {/* ========================================================================= */}
+          {/* VIEW 15: ROLES & PERMISSIONS RBAC MATRIX                                  */}
+          {/* ========================================================================= */}
+          {activeModule === 'roles' && (
+            <RolesPermissionsView
+              initialRoles={rolesList}
+              onStatsRefresh={fetchDashboardData}
+            />
           )}
         </div>
       </main>

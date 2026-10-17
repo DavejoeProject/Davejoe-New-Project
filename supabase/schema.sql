@@ -4,3 +4,4 @@
 -- ==============================================================================
 \i 20260923000001_security_hardening.sql
 \i 20261006000001_admin_permissions_hardening.sql
+\i 20261017000001_rehab_global_and_roles_completion.sql

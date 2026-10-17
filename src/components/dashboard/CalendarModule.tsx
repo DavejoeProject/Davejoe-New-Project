@@ -8,12 +8,7 @@ interface CalendarModuleProps {
 }
 
 export const CalendarModule: React.FC<CalendarModuleProps> = ({ onBackToDashboard, schedule }) => {
-  const events = [
-    ...schedule,
-    { id: 'sch-05', day: '28', month: 'JUN', title: 'Client Walkthrough & Interim Handover', location: 'Riverside Apartments', time: '02:00 PM', status: 'Scheduled' as const },
-    { id: 'sch-06', day: '29', month: 'JUN', title: 'Structural Engineer Sign-off (Pour 4)', location: 'Oakridge Villas', time: '11:30 AM', status: 'Scheduled' as const },
-    { id: 'sch-07', day: '30', month: 'JUN', title: 'Monthly Executive Site Audit', location: 'Metro Office', time: '09:00 AM', status: 'Scheduled' as const },
-  ];
+  const events = schedule || [];
 
   return (
     <div className="space-y-6 pb-12">
@@ -41,34 +36,46 @@ export const CalendarModule: React.FC<CalendarModuleProps> = ({ onBackToDashboar
         </button>
       </div>
 
-      <div className="bg-white rounded-xl border border-slate-200/80 shadow-2xs divide-y divide-slate-100">
-        {events.map((ev) => (
-          <div key={ev.id} className="p-4 sm:p-5 flex items-center justify-between hover:bg-slate-50/60 transition-colors">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-[#E6F4EA] text-[#01875F] flex flex-col items-center justify-center font-bold shrink-0">
-                <span className="text-base leading-none">{ev.day}</span>
-                <span className="text-[10px] tracking-wider uppercase mt-0.5">{ev.month}</span>
-              </div>
+      {events.length === 0 ? (
+        <div className="bg-white rounded-xl border border-slate-200/80 p-12 text-center shadow-2xs">
+          <div className="w-12 h-12 rounded-full bg-slate-100 text-slate-400 mx-auto flex items-center justify-center mb-3">
+            <CalendarIcon className="w-6 h-6" />
+          </div>
+          <h3 className="text-sm font-bold text-slate-800">No Scheduled Site Events</h3>
+          <p className="text-xs text-slate-500 max-w-sm mx-auto mt-1">
+            Site milestones, concrete pours, and delivery appointments will populate this schedule in real time.
+          </p>
+        </div>
+      ) : (
+        <div className="bg-white rounded-xl border border-slate-200/80 shadow-2xs divide-y divide-slate-100">
+          {events.map((ev) => (
+            <div key={ev.id} className="p-4 sm:p-5 flex items-center justify-between hover:bg-slate-50/60 transition-colors">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-xl bg-[#E6F4EA] text-[#01875F] flex flex-col items-center justify-center font-bold shrink-0">
+                  <span className="text-base leading-none">{ev.day}</span>
+                  <span className="text-[10px] tracking-wider uppercase mt-0.5">{ev.month}</span>
+                </div>
 
-              <div>
-                <h4 className="text-sm font-bold text-slate-900">{ev.title}</h4>
-                <div className="flex items-center gap-2 text-xs text-slate-500 mt-1">
-                  <MapPin className="w-3 h-3 text-slate-400" />
-                  <span>{ev.location}</span>
+                <div>
+                  <h4 className="text-sm font-bold text-slate-900">{ev.title}</h4>
+                  <div className="flex items-center gap-2 text-xs text-slate-500 mt-1">
+                    <MapPin className="w-3 h-3 text-slate-400" />
+                    <span>{ev.location}</span>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-600 bg-slate-100 px-2.5 py-1 rounded-md">
-                <Clock className="w-3.5 h-3.5 text-slate-400" />
-                <span>{ev.time}</span>
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-600 bg-slate-100 px-2.5 py-1 rounded-md">
+                  <Clock className="w-3.5 h-3.5 text-slate-400" />
+                  <span>{ev.time}</span>
+                </div>
+                <ChevronRight className="w-4 h-4 text-slate-400" />
               </div>
-              <ChevronRight className="w-4 h-4 text-slate-400" />
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

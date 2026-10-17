@@ -46,6 +46,10 @@ import {
 import { ProjectControlCentre } from './ProjectControlCentre';
 import { GlobalSearchModal } from './GlobalSearchModal';
 import { NotificationsDrawer, NotificationItem } from './NotificationsDrawer';
+import { supabase } from '../../lib/supabase';
+import { UserManagementView } from '../admin/UserManagementView';
+import { RolesPermissionsView } from '../admin/RolesPermissionsView';
+import { SystemSettingsView } from '../admin/SystemSettingsView';
 
 interface CeoDashboardProps {
   initialModule?: DashboardNavKey;
@@ -147,6 +151,19 @@ export const CeoDashboard: React.FC<CeoDashboardProps> = ({ initialModule = 'ove
     ) {
       return 'management-reports';
     }
+    // Executive Governance & Administration routes
+    if (location.pathname === '/management/users') {
+      return 'users';
+    }
+    if (
+      location.pathname === '/management/roles' ||
+      location.pathname === '/management/roles-permissions'
+    ) {
+      return 'roles-permissions';
+    }
+    if (location.pathname === '/management/settings') {
+      return 'settings';
+    }
     return initialModule;
   };
 
@@ -210,6 +227,15 @@ export const CeoDashboard: React.FC<CeoDashboardProps> = ({ initialModule = 'ove
       location.pathname.startsWith('/management/reports/')
     ) {
       setCurrentModule('management-reports');
+    } else if (location.pathname === '/management/users') {
+      setCurrentModule('users');
+    } else if (
+      location.pathname === '/management/roles' ||
+      location.pathname === '/management/roles-permissions'
+    ) {
+      setCurrentModule('roles-permissions');
+    } else if (location.pathname === '/management/settings') {
+      setCurrentModule('settings');
     } else if (location.pathname === '/management' || location.pathname === '/management/') {
       setCurrentModule(initialModule || 'overview');
     }
@@ -312,12 +338,40 @@ export const CeoDashboard: React.FC<CeoDashboardProps> = ({ initialModule = 'ove
       if (location.pathname !== '/management/reports/materials') {
         navigate('/management/reports/materials');
       }
+    } else if (mod === 'users') {
+      if (location.pathname !== '/management/users') {
+        navigate('/management/users');
+      }
+    } else if (mod === 'roles-permissions') {
+      if (location.pathname !== '/management/roles-permissions') {
+        navigate('/management/roles-permissions');
+      }
+    } else if (mod === 'settings') {
+      if (location.pathname !== '/management/settings') {
+        navigate('/management/settings');
+      }
     } else if (mod === 'overview') {
       if (location.pathname !== '/management') {
         navigate('/management');
       }
     }
   };
+
+  // Roles list for UserManagementView & RolesPermissionsView
+  const [rolesList, setRolesList] = useState<any[]>([]);
+
+  const fetchRolesList = React.useCallback(async () => {
+    try {
+      const { data } = await supabase.from('roles').select('*').order('name', { ascending: true });
+      setRolesList(data || []);
+    } catch (err) {
+      console.warn('[CeoDashboard] Error loading roles:', err);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchRolesList();
+  }, [fetchRolesList]);
 
   // Overlays
   const [searchOpen, setSearchOpen] = useState<boolean>(false);
@@ -583,6 +637,18 @@ export const CeoDashboard: React.FC<CeoDashboardProps> = ({ initialModule = 'ove
                   initialCategory="materials"
                   onBackToDashboard={() => handleSelectModule('overview')}
                 />
+              ) : currentModule === 'users' ? (
+                <UserManagementView
+                  allRoles={rolesList}
+                  onStatsRefresh={fetchRolesList}
+                />
+              ) : currentModule === 'roles-permissions' ? (
+                <RolesPermissionsView
+                  initialRoles={rolesList}
+                  onStatsRefresh={fetchRolesList}
+                />
+              ) : currentModule === 'settings' ? (
+                <SystemSettingsView />
               ) : (
                 <ModuleShell
                   moduleKey={currentModule}

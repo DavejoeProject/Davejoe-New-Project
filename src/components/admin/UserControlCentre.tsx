@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '../../hooks/useAuth';
 import { AdminService, AdminUserListItem, AdminRoleItem, AuditLogEntry } from '../../services/adminService';
 import {
   X,
@@ -28,6 +29,9 @@ export const UserControlCentre: React.FC<UserControlCentreProps> = ({
   onClose,
   onUserUpdated,
 }) => {
+  const { currentRoleKey } = useAuth();
+  const canAssignRoles = currentRoleKey === 'management' || currentRoleKey === 'executive_director';
+
   const [activeTab, setActiveTab] = useState<'profile' | 'roles' | 'status' | 'audit'>('profile');
   const [isLoadingDetails, setIsLoadingDetails] = useState(false);
   const [recentLogs, setRecentLogs] = useState<AuditLogEntry[]>([]);
@@ -114,6 +118,11 @@ export const UserControlCentre: React.FC<UserControlCentreProps> = ({
   // Handle Assign Role
   const handleAssignRole = async () => {
     if (!selectedRoleToAssign) return;
+    if (!canAssignRoles) {
+      setRoleActionError('Unauthorized: Only Management / CEO and Executive Director are permitted to assign roles.');
+      return;
+    }
+
     setIsModifyingRole(true);
     setRoleActionError(null);
 
@@ -130,6 +139,11 @@ export const UserControlCentre: React.FC<UserControlCentreProps> = ({
 
   // Handle Remove Role
   const handleRemoveRole = async (roleId: string, roleSlug: string) => {
+    if (!canAssignRoles) {
+      setRoleActionError('Unauthorized: Only Management / CEO and Executive Director are permitted to remove roles.');
+      return;
+    }
+
     if (!window.confirm(`Are you sure you want to remove the role "${roleSlug}" from this user?`)) {
       return;
     }
@@ -386,16 +400,18 @@ export const UserControlCentre: React.FC<UserControlCentreProps> = ({
                           </div>
                         </div>
 
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveRole(r.id, r.slug)}
-                          disabled={isModifyingRole}
-                          title="Remove Role"
-                          className="px-2.5 py-1 text-red-600 hover:bg-red-50 rounded-lg text-xs font-semibold flex items-center gap-1 transition-colors cursor-pointer disabled:opacity-50"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                          <span>Remove</span>
-                        </button>
+                        {canAssignRoles && (
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveRole(r.id, r.slug)}
+                            disabled={isModifyingRole}
+                            title="Remove Role"
+                            className="px-2.5 py-1 text-red-600 hover:bg-red-50 rounded-lg text-xs font-semibold flex items-center gap-1 transition-colors cursor-pointer disabled:opacity-50"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                            <span>Remove</span>
+                          </button>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -407,7 +423,11 @@ export const UserControlCentre: React.FC<UserControlCentreProps> = ({
                 <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
                   Assign Another Role
                 </h3>
-                {availableRolesToAssign.length === 0 ? (
+                {!canAssignRoles ? (
+                  <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800">
+                    Role assignments and modifications are restricted to Management / CEO and Executive Director — Business Operations & Strategy.
+                  </div>
+                ) : availableRolesToAssign.length === 0 ? (
                   <p className="text-xs text-slate-400">All system roles are already assigned to this account.</p>
                 ) : (
                   <div className="flex items-center gap-2">

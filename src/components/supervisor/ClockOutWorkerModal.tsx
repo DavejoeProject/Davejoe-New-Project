@@ -27,6 +27,14 @@ export const ClockOutWorkerModal: React.FC<ClockOutWorkerModalProps> = ({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
+  React.useEffect(() => {
+    if (isOpen && onSiteWorkers.length > 0) {
+      if (!selectedRecordId || !onSiteWorkers.some((w) => w.id === selectedRecordId)) {
+        setSelectedRecordId(onSiteWorkers[0].id);
+      }
+    }
+  }, [isOpen, onSiteWorkers, selectedRecordId]);
+
   if (!isOpen) return null;
 
   const handleClockOut = async (recordId: string) => {

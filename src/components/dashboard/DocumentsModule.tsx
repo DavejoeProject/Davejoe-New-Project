@@ -6,13 +6,7 @@ interface DocumentsModuleProps {
 }
 
 export const DocumentsModule: React.FC<DocumentsModuleProps> = ({ onBackToDashboard }) => {
-  const documents = [
-    { name: 'Riverside Apartments — Approved Architectural Plans (Rev 4)', project: 'Riverside Apartments', type: 'DWG / PDF', size: '18.4 MB', date: '14 Sep 2026' },
-    { name: 'Sunset Commercial — Bill of Quantities (BoQ) & Priced Tender', project: 'Sunset Commercial', type: 'XLSX / PDF', size: '5.2 MB', date: '02 Sep 2026' },
-    { name: 'Oakridge Villas — LASPPPA Building Permit Certification', project: 'Oakridge Villas', type: 'PDF Permit', size: '2.8 MB', date: '28 Aug 2026' },
-    { name: 'Lakeside Residences — Structural Calculation Sheets & Core Tests', project: 'Lakeside Residences', type: 'PDF Report', size: '9.6 MB', date: '19 Aug 2026' },
-    { name: 'Metro Office — MEP Mechanical & Electrical Schematics', project: 'Metro Office', type: 'PDF Drawing', size: '14.1 MB', date: '11 Aug 2026' },
-  ];
+  const [documents] = React.useState<any[]>([]);
 
   return (
     <div className="space-y-6 pb-12">
@@ -40,39 +34,51 @@ export const DocumentsModule: React.FC<DocumentsModuleProps> = ({ onBackToDashbo
         </button>
       </div>
 
-      <div className="bg-white rounded-xl border border-slate-200/80 shadow-2xs divide-y divide-slate-100">
-        {documents.map((doc) => (
-          <div key={doc.name} className="p-4 sm:p-5 flex items-center justify-between hover:bg-slate-50/60 transition-colors">
-            <div className="flex items-center gap-3.5">
-              <div className="w-10 h-10 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
-                <FileText className="w-5 h-5" />
-              </div>
-              <div>
-                <h4 className="text-sm font-bold text-slate-900 leading-snug">{doc.name}</h4>
-                <div className="flex items-center gap-3 text-xs text-slate-400 mt-1">
-                  <span className="font-semibold text-slate-700">{doc.project}</span>
-                  <span>•</span>
-                  <span>{doc.type}</span>
-                  <span>•</span>
-                  <span>{doc.size}</span>
-                  <span>•</span>
-                  <span>{doc.date}</span>
+      {documents.length === 0 ? (
+        <div className="bg-white rounded-xl border border-slate-200/80 p-12 text-center shadow-2xs">
+          <div className="w-12 h-12 rounded-full bg-slate-100 text-slate-400 mx-auto flex items-center justify-center mb-3">
+            <FileText className="w-6 h-6" />
+          </div>
+          <h3 className="text-sm font-bold text-slate-800">No Documents Uploaded</h3>
+          <p className="text-xs text-slate-500 max-w-sm mx-auto mt-1">
+            Upload architectural drawings, statutory permits, contracts, or BoQs to begin managing site documents.
+          </p>
+        </div>
+      ) : (
+        <div className="bg-white rounded-xl border border-slate-200/80 shadow-2xs divide-y divide-slate-100">
+          {documents.map((doc) => (
+            <div key={doc.name} className="p-4 sm:p-5 flex items-center justify-between hover:bg-slate-50/60 transition-colors">
+              <div className="flex items-center gap-3.5">
+                <div className="w-10 h-10 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                  <FileText className="w-5 h-5" />
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold text-slate-900 leading-snug">{doc.name}</h4>
+                  <div className="flex items-center gap-3 text-xs text-slate-400 mt-1">
+                    <span className="font-semibold text-slate-700">{doc.project}</span>
+                    <span>•</span>
+                    <span>{doc.type}</span>
+                    <span>•</span>
+                    <span>{doc.size}</span>
+                    <span>•</span>
+                    <span>{doc.date}</span>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div className="flex items-center gap-2">
-              <button className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg flex items-center gap-1.5 transition-colors cursor-pointer">
-                <Eye className="w-3.5 h-3.5" />
-                <span>View</span>
-              </button>
-              <button className="p-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-colors cursor-pointer">
-                <Download className="w-3.5 h-3.5" />
-              </button>
+              <div className="flex items-center gap-2">
+                <button className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg flex items-center gap-1.5 transition-colors cursor-pointer">
+                  <Eye className="w-3.5 h-3.5" />
+                  <span>View</span>
+                </button>
+                <button className="p-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-colors cursor-pointer">
+                  <Download className="w-3.5 h-3.5" />
+                </button>
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

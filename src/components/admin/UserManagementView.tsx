@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useAuth } from '../../hooks/useAuth';
 import { AdminService, AdminUserListItem, AdminRoleItem } from '../../services/adminService';
 import { UserControlCentre } from './UserControlCentre';
+import { CreateUserModal } from './CreateUserModal';
 import {
   Search,
   Filter,
@@ -20,6 +22,11 @@ import {
   UserCheck,
   Edit,
   ArrowUpDown,
+  ShieldAlert,
+  Plus,
+  X,
+  Check,
+  UserPlus,
 } from 'lucide-react';
 
 interface UserManagementViewProps {
@@ -31,11 +38,26 @@ export const UserManagementView: React.FC<UserManagementViewProps> = ({
   allRoles,
   onStatsRefresh,
 }) => {
+  const { currentRoleKey } = useAuth();
+  const isAuthorizedLeadership =
+    currentRoleKey === 'management' || currentRoleKey === 'executive_director';
+
   const [users, setUsers] = useState<AdminUserListItem[]>([]);
   const [totalCount, setTotalCount] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Create User Modal state
+  const [createUserModalOpen, setCreateUserModalOpen] = useState(false);
+
+  // Quick Assign Role Modal state
+  const [assignRoleModalOpen, setAssignRoleModalOpen] = useState(false);
+  const [targetUserId, setTargetUserId] = useState('');
+  const [targetRoleId, setTargetRoleId] = useState('');
+  const [isSubmittingRole, setIsSubmittingRole] = useState(false);
+  const [assignError, setAssignError] = useState<string | null>(null);
+  const [assignSuccess, setAssignSuccess] = useState<string | null>(null);
 
   // Filters & Search
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -154,18 +176,86 @@ export const UserManagementView: React.FC<UserManagementViewProps> = ({
     }
   };
 
+  const handleQuickAssignRole = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!targetUserId || !targetRoleId) {
+      setAssignError('Please select both a person and a role to assign.');
+      return;
+    }
+
+    setIsSubmittingRole(true);
+    setAssignError(null);
+    setAssignSuccess(null);
+
+    try {
+      await AdminService.assignUserRole(targetUserId, targetRoleId);
+      setAssignSuccess('Role assigned successfully!');
+      await fetchUsers();
+      if (onStatsRefresh) onStatsRefresh();
+      setTimeout(() => {
+        setAssignRoleModalOpen(false);
+        setTargetUserId('');
+        setTargetRoleId('');
+        setAssignSuccess(null);
+      }, 1500);
+    } catch (err: any) {
+      setAssignError(err?.message || 'Failed to assign role.');
+    } finally {
+      setIsSubmittingRole(false);
+    }
+  };
+
+  if (!isAuthorizedLeadership) {
+    return (
+      <div className="bg-amber-50 border border-amber-200 rounded-2xl p-8 text-center space-y-3">
+        <ShieldAlert className="w-10 h-10 text-amber-600 mx-auto" />
+        <h3 className="text-base font-bold text-amber-900">Restricted Leadership Workspace</h3>
+        <p className="text-xs text-amber-700 max-w-md mx-auto">
+          User directory and personnel role assignments are strictly restricted to Management / CEO and Executive Director — Business Operations & Strategy.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h2 className="text-lg font-bold text-slate-900 tracking-tight">User Management</h2>
+          <div className="flex items-center gap-2">
+            <h2 className="text-lg font-bold text-slate-900 tracking-tight">User Management & Role Governance</h2>
+            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-[#01875F] border border-emerald-200">
+              Leadership Restricted
+            </span>
+          </div>
           <p className="text-xs text-slate-500 mt-0.5">
-            Manage user accounts, profile details, roles, and administrative access permissions.
+            Manage user accounts, assign database roles, configure profile details, and govern system access.
           </p>
         </div>
 
         <div className="flex items-center gap-2.5">
+          <button
+            type="button"
+            onClick={() => setCreateUserModalOpen(true)}
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[#01875F] hover:bg-[#00704e] text-white rounded-xl text-xs font-semibold transition-colors shadow-2xs cursor-pointer"
+          >
+            <UserPlus className="w-3.5 h-3.5" />
+            <span>Create User Account</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              setAssignRoleModalOpen(true);
+              setAssignError(null);
+              setAssignSuccess(null);
+            }}
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-semibold transition-colors shadow-2xs cursor-pointer"
+          >
+            <UserCheck className="w-3.5 h-3.5 text-[#01875F]" />
+            <span>Assign Role to Person</span>
+          </button>
+
           <button
             type="button"
             onClick={handleRefresh}
@@ -520,6 +610,119 @@ export const UserManagementView: React.FC<UserManagementViewProps> = ({
           allRoles={allRoles}
           onClose={() => setSelectedUser(null)}
           onUserUpdated={handleUserUpdated}
+        />
+      )}
+
+      {/* Quick Assign Role Modal */}
+      {assignRoleModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs animate-in fade-in">
+          <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xl max-w-md w-full p-6 space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-emerald-50 text-[#01875F] flex items-center justify-center">
+                  <UserCheck className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-slate-900">Assign Role to Person</h3>
+                  <p className="text-[11px] text-slate-500">Executive authorization for role delegation</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setAssignRoleModalOpen(false)}
+                className="text-slate-400 hover:text-slate-600 p-1 cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {assignError && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                <span>{assignError}</span>
+              </div>
+            )}
+
+            {assignSuccess && (
+              <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-[#01875F] flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 shrink-0" />
+                <span>{assignSuccess}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleQuickAssignRole} className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                  1. Select Person / User Account
+                </label>
+                <select
+                  value={targetUserId}
+                  onChange={(e) => setTargetUserId(e.target.value)}
+                  required
+                  className="w-full h-10 px-3 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 outline-none focus:border-[#01875F] focus:ring-1 focus:ring-[#01875F] transition-all cursor-pointer"
+                >
+                  <option value="">Select a user account...</option>
+                  {users.map((u) => {
+                    const name = u.display_name || `${u.first_name || ''} ${u.last_name || ''}`.trim() || u.email || u.id;
+                    const existingRoles = u.roles.map((r) => r.slug).join(', ') || 'No role';
+                    return (
+                      <option key={u.id} value={u.id}>
+                        {name} ({u.email || 'No email'}) — [Current: {existingRoles}]
+                      </option>
+                    );
+                  })}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                  2. Select Role to Assign
+                </label>
+                <select
+                  value={targetRoleId}
+                  onChange={(e) => setTargetRoleId(e.target.value)}
+                  required
+                  className="w-full h-10 px-3 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 outline-none focus:border-[#01875F] focus:ring-1 focus:ring-[#01875F] transition-all cursor-pointer"
+                >
+                  <option value="">Select database role...</option>
+                  {allRoles.map((r) => (
+                    <option key={r.id} value={r.id}>
+                      {r.name} ({r.slug})
+                    </option>
+                  ))}
+                </select>
+                <p className="text-[11px] text-slate-400 mt-1">
+                  Only Management / CEO and Executive Director are authorized to delegate roles.
+                </p>
+              </div>
+
+              <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-2.5">
+                <button
+                  type="button"
+                  onClick={() => setAssignRoleModalOpen(false)}
+                  className="px-4 py-2 border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-xl transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmittingRole || !targetUserId || !targetRoleId}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#01875F] hover:bg-[#00704e] text-white text-xs font-semibold rounded-xl transition-colors cursor-pointer disabled:opacity-50 shadow-xs"
+                >
+                  <Check className="w-3.5 h-3.5" />
+                  <span>{isSubmittingRole ? 'Assigning Role...' : 'Confirm Role Assignment'}</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {createUserModalOpen && (
+        <CreateUserModal
+          allRoles={allRoles}
+          onClose={() => setCreateUserModalOpen(false)}
+          onUserCreated={handleRefresh}
         />
       )}
     </div>

@@ -2,6 +2,7 @@ import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import { ensureValidSession } from '../lib/authSession';
 import { AttendanceService, AttendanceRecordItem, getNigerianTodayIso } from './attendanceService';
 import { formatNigerianDate } from './materialsService';
+import { AuthService } from './authService';
 
 export interface SupervisorProjectItem {
   id: string;
@@ -161,7 +162,60 @@ export interface SupervisorDashboardData {
 
 export class SiteSupervisorService {
   /**
-   * Resolves projects authorized for this supervisor.
+   * Verifies whether a given user is explicitly authorized to access or mutate a project.
+   * Supervisors must have active membership in project_members or active assignment
+   * in project_workforce_assignments. Privileged management/admin roles retain oversight.
+   */
+  static async isProjectAuthorized(userId: string, projectId: string): Promise<boolean> {
+    if (!isSupabaseConfigured || !userId || !projectId) return false;
+
+    try {
+      // 1. Check management/admin/executive roles for authorized organizational oversight
+      const { assignedSlugs } = await AuthService.getUserRolesDetailed(userId);
+      const isPrivileged = assignedSlugs.some((s) =>
+        ['admin', 'management', 'executive_director'].includes(s.toLowerCase().trim())
+      );
+      if (isPrivileged) return true;
+
+      // 2. Explicit project membership
+      const { data: member } = await supabase
+        .from('project_members')
+        .select('id')
+        .eq('project_id', projectId)
+        .eq('user_id', userId)
+        .maybeSingle();
+
+      if (member) return true;
+
+      // 3. Workforce assignment link
+      const { data: wfMember } = await supabase
+        .from('workforce_members')
+        .select('id')
+        .eq('profile_id', userId)
+        .maybeSingle();
+
+      if (wfMember?.id) {
+        const { data: assignment } = await supabase
+          .from('project_workforce_assignments')
+          .select('id')
+          .eq('project_id', projectId)
+          .eq('workforce_member_id', wfMember.id)
+          .eq('is_active', true)
+          .maybeSingle();
+
+        if (assignment) return true;
+      }
+
+      return false;
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * Resolves projects explicitly authorized for this supervisor.
+   * Access is strictly restricted to verified project assignments.
+   * No insecure fallback to arbitrary active/operational projects.
    */
   static async getSupervisorProjects(userId: string): Promise<{
     projects: SupervisorProjectItem[];
@@ -174,7 +228,7 @@ export class SiteSupervisorService {
     try {
       await ensureValidSession();
 
-      // Check project_members table
+      // 1. Check explicit project_members table
       const { data: projMembers } = await supabase
         .from('project_members')
         .select('project_id')
@@ -182,7 +236,7 @@ export class SiteSupervisorService {
 
       let assignedProjectIds: string[] = (projMembers || []).map((pm: any) => pm.project_id);
 
-      // Check workforce member link
+      // 2. Check workforce member assignment link
       const { data: memberData } = await supabase
         .from('workforce_members')
         .select('id')
@@ -202,26 +256,26 @@ export class SiteSupervisorService {
         }
       }
 
-      // Check projects created_by
-      const { data: createdProjects } = await supabase
-        .from('projects')
-        .select('id')
-        .eq('created_by', userId);
+      // Check if user has administrative oversight role
+      const { assignedSlugs } = await AuthService.getUserRolesDetailed(userId);
+      const isPrivileged = assignedSlugs.some((s) =>
+        ['admin', 'management', 'executive_director'].includes(s.toLowerCase().trim())
+      );
 
-      if (createdProjects && createdProjects.length > 0) {
-        const ids = createdProjects.map((p: any) => p.id);
-        assignedProjectIds = Array.from(new Set([...assignedProjectIds, ...ids]));
+      // CRITICAL SECURITY RULE: If a site supervisor has no assigned projects,
+      // return an empty project list immediately. DO NOT fall back to general active projects.
+      if (!isPrivileged && assignedProjectIds.length === 0) {
+        return { projects: [], error: null };
       }
 
       // Query projects table
       let projQuery = supabase.from('projects').select('*');
 
-      // If specific projects are assigned to this supervisor, scope to them
       if (assignedProjectIds.length > 0) {
         projQuery = projQuery.in('id', assignedProjectIds);
-      } else {
-        // If no explicit assignment records exist yet, select active projects in progress
-        projQuery = projQuery.in('status', ['active', 'in_progress', 'snagging', 'approved', 'on_hold']);
+      } else if (isPrivileged) {
+        // Privileged management/admin oversight fallback to live operational statuses
+        projQuery = projQuery.in('status', ['in_progress', 'snagging', 'approved', 'on_hold']);
       }
 
       const { data: rawProjects, error: projErr } = await projQuery.order('name');
@@ -299,7 +353,7 @@ export class SiteSupervisorService {
         project_code: p.project_code || p.code || 'PRJ',
         name: p.name,
         description: p.description || null,
-        status: p.status || 'active',
+        status: p.status || 'in_progress',
         start_date: p.start_date || null,
         expected_completion_date: p.expected_completion_date || null,
         address: p.address || null,
@@ -388,7 +442,7 @@ export class SiteSupervisorService {
         };
       }
 
-      // Concurrently query all supervisor domain data
+      // Concurrently query all supervisor domain data strictly scoped to supervisor projects
       const [
         attendanceRes,
         prodRes,
@@ -397,7 +451,7 @@ export class SiteSupervisorService {
         inspRes,
         reportsRes,
       ] = await Promise.all([
-        AttendanceService.getTodayAttendance(),
+        AttendanceService.getTodayAttendance({ projectIds }),
         supabase
           .from('productivity_records')
           .select(`
@@ -480,11 +534,10 @@ export class SiteSupervisorService {
             projects:project_id ( id, name, project_code )
           `)
           .in('project_id', projectIds)
-          .eq('note_type', 'daily_report')
           .order('created_at', { ascending: false }),
       ]);
 
-      // 3. Today's Attendance filtered to supervisor projects
+      // 3. Today's Attendance strictly scoped to supervisor projects
       const filteredAttendance = (attendanceRes.records || []).filter((r) =>
         projectIds.includes(r.project_id)
       );
@@ -558,38 +611,50 @@ export class SiteSupervisorService {
         });
       });
 
-      // 8. Daily Reports (stored in project_notes with note_type = 'daily_report')
-      const dailyReports: SupervisorDailyReport[] = (reportsRes.data || []).map((rn: any) => {
-        let parsed = { work_completed: rn.content };
-        try {
-          if (rn.content && rn.content.startsWith('{')) {
-            parsed = JSON.parse(rn.content);
+      // 8. Daily Reports (robust extraction conforming to live schema & proposal)
+      const dailyReports: SupervisorDailyReport[] = (reportsRes.data || [])
+        .filter((rn: any) => {
+          if (rn.note_type === 'daily_report') return true;
+          const titleLower = (rn.title || '').toLowerCase();
+          if (titleLower.includes('daily') || titleLower.includes('report') || titleLower.includes('site report')) {
+            return true;
           }
-        } catch {
-          // Plain text content
-        }
+          if (rn.content && typeof rn.content === 'string' && rn.content.includes('"work_completed"')) {
+            return true;
+          }
+          return false;
+        })
+        .map((rn: any) => {
+          let parsed: any = { work_completed: rn.content };
+          try {
+            if (rn.content && rn.content.startsWith('{')) {
+              parsed = JSON.parse(rn.content);
+            }
+          } catch {
+            // Plain text content
+          }
 
-        return {
-          id: rn.id,
-          project_id: rn.project_id,
-          project_name: rn.projects?.name || 'Project',
-          project_code: rn.projects?.project_code || 'PRJ',
-          title: rn.title || 'Daily Site Report',
-          report_date: formatNigerianDate(rn.created_at),
-          work_completed: parsed.work_completed || rn.content || '',
-          work_planned: (parsed as any).work_planned,
-          areas_worked: (parsed as any).areas_worked,
-          quantities_completed: (parsed as any).quantities_completed,
-          workforce_present: (parsed as any).workforce_present,
-          materials_received: (parsed as any).materials_received,
-          materials_used: (parsed as any).materials_used,
-          delays_issues: (parsed as any).delays_issues,
-          safety_concerns: (parsed as any).safety_concerns,
-          next_steps: (parsed as any).next_steps,
-          created_by: rn.created_by,
-          created_at: rn.created_at,
-        };
-      });
+          return {
+            id: rn.id,
+            project_id: rn.project_id,
+            project_name: rn.projects?.name || 'Project',
+            project_code: rn.projects?.project_code || 'PRJ',
+            title: rn.title || 'Daily Site Report',
+            report_date: parsed.report_date || formatNigerianDate(rn.created_at),
+            work_completed: parsed.work_completed || rn.content || '',
+            work_planned: parsed.work_planned || undefined,
+            areas_worked: parsed.areas_worked || undefined,
+            quantities_completed: parsed.quantities_completed || undefined,
+            workforce_present: parsed.workforce_present != null ? Number(parsed.workforce_present) : undefined,
+            materials_received: parsed.materials_received || undefined,
+            materials_used: parsed.materials_used || undefined,
+            delays_issues: parsed.delays_issues || undefined,
+            safety_concerns: parsed.safety_concerns || undefined,
+            next_steps: parsed.next_steps || undefined,
+            created_by: rn.created_by,
+            created_at: rn.created_at,
+          };
+        });
 
       // KPI Calculations
       let workforceOnSite = 0;
@@ -607,7 +672,7 @@ export class SiteSupervisorService {
       }
 
       const activeProjectsCount = projects.filter(
-        (p) => p.status === 'active' || p.status === 'in_progress'
+        (p) => ['in_progress', 'approved', 'snagging'].includes(p.status)
       ).length;
 
       const attentionProjectsCount = projects.filter((p) => {
@@ -787,6 +852,8 @@ export class SiteSupervisorService {
 
   /**
    * Submits a structured Daily Site Report using verified public.project_notes
+   * Validates project authorization, prevents duplicate submission for the same day,
+   * binds author to session.user.id, and safely falls back if 'daily_report' enum is pending.
    */
   static async submitDailySiteReport(payload: {
     projectId: string;
@@ -810,9 +877,43 @@ export class SiteSupervisorService {
       if (!session?.user) return { success: false, error: 'Session is not authenticated.' };
 
       if (!payload.projectId) return { success: false, error: 'Project is required.' };
-      if (!payload.workCompleted.trim()) return { success: false, error: 'Work completed description is required.' };
+      if (!payload.workCompleted?.trim()) return { success: false, error: 'Work completed description is required.' };
+      if (!payload.reportDate) return { success: false, error: 'Report date is required.' };
+
+      // 1. Authoritative project authorization check
+      const isAuthorized = await this.isProjectAuthorized(session.user.id, payload.projectId);
+      if (!isAuthorized) {
+        return { success: false, error: 'Access Denied: You are not an assigned supervisor for this project.' };
+      }
+
+      // 2. Prevent duplicate daily report for the same project and date by this user
+      const { data: existingNotes } = await supabase
+        .from('project_notes')
+        .select('id, title, content')
+        .eq('project_id', payload.projectId)
+        .eq('created_by', session.user.id);
+
+      const hasDuplicate = (existingNotes || []).some((n: any) => {
+        try {
+          if (n.content && n.content.startsWith('{')) {
+            const parsed = JSON.parse(n.content);
+            return parsed.report_date === payload.reportDate;
+          }
+          return n.title && n.title.includes(payload.reportDate);
+        } catch {
+          return false;
+        }
+      });
+
+      if (hasDuplicate) {
+        return {
+          success: false,
+          error: `A daily site report for ${payload.reportDate} has already been submitted for this project. Duplicate submissions are prevented.`,
+        };
+      }
 
       const structuredContent = JSON.stringify({
+        report_type: 'daily_report',
         report_date: payload.reportDate,
         work_planned: payload.workPlanned || null,
         work_completed: payload.workCompleted.trim(),
@@ -826,15 +927,30 @@ export class SiteSupervisorService {
         next_steps: payload.nextSteps || null,
       });
 
-      const { error } = await supabase.from('project_notes').insert({
+      const reportTitle = payload.title.trim() || `Daily Site Report — ${payload.reportDate}`;
+
+      // 3. Try inserting with note_type = 'daily_report'. If rejected by enum, fall back to 'general'
+      let { error: insertErr } = await supabase.from('project_notes').insert({
         project_id: payload.projectId,
-        title: payload.title.trim() || `Daily Site Report — ${payload.reportDate}`,
+        title: reportTitle,
         content: structuredContent,
         note_type: 'daily_report',
         created_by: session.user.id,
       });
 
-      if (error) return { success: false, error: error.message };
+      if (insertErr && insertErr.message.includes('invalid input value for enum')) {
+        // Fall back to 'general' with verified schema content & title identifier
+        const fallbackRes = await supabase.from('project_notes').insert({
+          project_id: payload.projectId,
+          title: reportTitle,
+          content: structuredContent,
+          note_type: 'general',
+          created_by: session.user.id,
+        });
+        insertErr = fallbackRes.error;
+      }
+
+      if (insertErr) return { success: false, error: insertErr.message };
       return { success: true, error: null };
     } catch (err: any) {
       return {
@@ -846,6 +962,7 @@ export class SiteSupervisorService {
 
   /**
    * Log real daily productivity for a worker
+   * Validates positive numerical count and supervisor project authorization.
    */
   static async logProductivity(payload: {
     projectId: string;
@@ -861,8 +978,20 @@ export class SiteSupervisorService {
       const { session } = await ensureValidSession();
       if (!session?.user) return { success: false, error: 'Session is not authenticated.' };
 
-      if (payload.count < 0) {
-        return { success: false, error: 'Productivity count cannot be negative.' };
+      if (!payload.projectId) return { success: false, error: 'Project is required.' };
+      if (!payload.workforceMemberId) return { success: false, error: 'Artisan / workforce member is required.' };
+      if (!payload.workDate) return { success: false, error: 'Work date is required.' };
+      if (typeof payload.count !== 'number' || isNaN(payload.count) || payload.count <= 0) {
+        return { success: false, error: 'Productivity count must be a positive number greater than zero.' };
+      }
+      if (!payload.unitOfMeasure?.trim()) {
+        return { success: false, error: 'Unit of measure is required.' };
+      }
+
+      // Check project authorization
+      const isAuthorized = await this.isProjectAuthorized(session.user.id, payload.projectId);
+      if (!isAuthorized) {
+        return { success: false, error: 'Access Denied: You are not an assigned supervisor for this project.' };
       }
 
       const { error } = await supabase.from('productivity_records').insert({
@@ -870,8 +999,8 @@ export class SiteSupervisorService {
         workforce_member_id: payload.workforceMemberId,
         work_date: payload.workDate,
         count: payload.count,
-        unit_of_measure: payload.unitOfMeasure,
-        notes: payload.notes || null,
+        unit_of_measure: payload.unitOfMeasure.trim(),
+        notes: payload.notes?.trim() || null,
       });
 
       if (error) return { success: false, error: error.message };
@@ -883,6 +1012,7 @@ export class SiteSupervisorService {
 
   /**
    * Report site issue / operational task
+   * Scopes to authorized project and binds created_by to authenticated user.
    */
   static async reportSiteIssue(payload: {
     projectId: string;
@@ -897,10 +1027,18 @@ export class SiteSupervisorService {
       const { session } = await ensureValidSession();
       if (!session?.user) return { success: false, error: 'Session is not authenticated.' };
 
+      if (!payload.projectId) return { success: false, error: 'Project is required.' };
+      if (!payload.title?.trim()) return { success: false, error: 'Issue / task title is required.' };
+
+      const isAuthorized = await this.isProjectAuthorized(session.user.id, payload.projectId);
+      if (!isAuthorized) {
+        return { success: false, error: 'Access Denied: You are not an assigned supervisor for this project.' };
+      }
+
       const { error } = await supabase.from('project_tasks').insert({
         project_id: payload.projectId,
-        title: payload.title,
-        description: payload.description || null,
+        title: payload.title.trim(),
+        description: payload.description?.trim() || null,
         priority: payload.priority || 'medium',
         status: 'pending',
         due_date: payload.dueDate || null,
@@ -955,13 +1093,22 @@ export class SiteSupervisorService {
       const { session } = await ensureValidSession();
       if (!session?.user) return { success: false, error: 'Session is not authenticated.' };
 
+      if (!payload.projectId) return { success: false, error: 'Project is required.' };
+      if (!payload.workforceMemberId) return { success: false, error: 'Workforce member is required.' };
+      if (!payload.description?.trim()) return { success: false, error: 'Description is required.' };
+
+      const isAuthorized = await this.isProjectAuthorized(session.user.id, payload.projectId);
+      if (!isAuthorized) {
+        return { success: false, error: 'Access Denied: You are not an assigned supervisor for this project.' };
+      }
+
       const { error } = await supabase.from('workforce_conduct_records').insert({
         project_id: payload.projectId,
         workforce_member_id: payload.workforceMemberId,
         record_type: payload.recordType,
         severity: payload.severity,
-        description: payload.description,
-        action_taken: payload.actionTaken || null,
+        description: payload.description.trim(),
+        action_taken: payload.actionTaken?.trim() || null,
         recorded_by: session.user.id,
       });
 

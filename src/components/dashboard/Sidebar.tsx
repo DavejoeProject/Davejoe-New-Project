@@ -148,11 +148,11 @@ export const SIDEBAR_SECTIONS: NavSectionConfig[] = [
     ],
   },
   {
-    title: 'ADMINISTRATION',
+    title: 'GOVERNANCE & ROLES',
     items: [
-      { key: 'users', label: 'Users', icon: UserCog },
+      { key: 'users', label: 'Users & Personnel', icon: UserCog },
       { key: 'roles-permissions', label: 'Roles & Permissions', icon: ShieldCheck },
-      { key: 'settings', label: 'Settings', icon: Settings },
+      { key: 'settings', label: 'System Settings', icon: Settings },
     ],
   },
 ];

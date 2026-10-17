@@ -9,8 +9,8 @@ const env: Record<string, string | undefined> =
       ? (process.env as Record<string, string | undefined>)
       : {};
 
-const supabaseUrl = (env.VITE_SUPABASE_URL || '').trim();
-const supabaseKey = (
+export const supabaseUrl = (env.VITE_SUPABASE_URL || '').trim();
+export const supabaseKey = (
   env.VITE_SUPABASE_PUBLISHABLE_KEY ||
   env.VITE_SUPABASE_ANON_KEY ||
   ''

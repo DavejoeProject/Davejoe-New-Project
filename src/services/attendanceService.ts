@@ -1,6 +1,7 @@
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import { ensureValidSession } from '../lib/authSession';
 import { formatNigerianDate } from './materialsService';
+import { AuthService } from './authService';
 
 export type AttendanceStatus = 'present' | 'absent' | 'late' | 'half_day' | 'excused';
 
@@ -94,6 +95,7 @@ export interface AttendanceFilterParams {
   startDate?: string;
   endDate?: string;
   projectId?: string;
+  projectIds?: string[];
   workforceMemberId?: string;
   status?: string;
   search?: string;
@@ -130,18 +132,64 @@ export function formatTimeFromIso(iso: string | null | undefined): string {
 
 export class AttendanceService {
   /**
+   * Authoritative project authorization check for attendance management.
+   */
+  private static async isProjectAuthorizedForUser(userId: string, projectId: string): Promise<boolean> {
+    try {
+      const { assignedSlugs } = await AuthService.getUserRolesDetailed(userId);
+      const isPrivileged = assignedSlugs.some((s) =>
+        ['admin', 'management', 'executive_director'].includes(s.toLowerCase().trim())
+      );
+      if (isPrivileged) return true;
+
+      const { data: member } = await supabase
+        .from('project_members')
+        .select('id')
+        .eq('project_id', projectId)
+        .eq('user_id', userId)
+        .maybeSingle();
+      if (member) return true;
+
+      const { data: wfMember } = await supabase
+        .from('workforce_members')
+        .select('id')
+        .eq('profile_id', userId)
+        .maybeSingle();
+
+      if (wfMember?.id) {
+        const { data: assignment } = await supabase
+          .from('project_workforce_assignments')
+          .select('id')
+          .eq('project_id', projectId)
+          .eq('workforce_member_id', wfMember.id)
+          .eq('is_active', true)
+          .maybeSingle();
+        if (assignment) return true;
+      }
+
+      return false;
+    } catch {
+      return false;
+    }
+  }
+
+  /**
    * Transforms raw attendance database row with derived clock-in and clock-out times
    */
   private static transformRow(row: any): AttendanceRecordItem {
     const createdAt = row.created_at || null;
     const updatedAt = row.updated_at || null;
 
-    // A worker has clocked out if updated_at is distinctly after created_at (by at least 60 seconds)
-    // or if the record status was explicitly closed.
     let isClockedOut = false;
     let clockOutTime: string | null = null;
 
-    if (createdAt && updatedAt) {
+    if (row.actual_hours != null && Number(row.actual_hours) > 0) {
+      isClockedOut = true;
+      clockOutTime = updatedAt || createdAt;
+    } else if (row.evidence_reference === 'clock_out_recorded') {
+      isClockedOut = true;
+      clockOutTime = updatedAt || createdAt;
+    } else if (createdAt && updatedAt) {
       const createdMs = new Date(createdAt).getTime();
       const updatedMs = new Date(updatedAt).getTime();
       if (updatedMs - createdMs > 60000) {
@@ -252,7 +300,9 @@ export class AttendanceService {
       if (filter?.endDate) {
         query = query.lte('attendance_date', filter.endDate);
       }
-      if (filter?.projectId && filter.projectId !== 'all') {
+      if (filter?.projectIds && filter.projectIds.length > 0) {
+        query = query.in('project_id', filter.projectIds);
+      } else if (filter?.projectId && filter.projectId !== 'all') {
         query = query.eq('project_id', filter.projectId);
       }
       if (filter?.workforceMemberId && filter.workforceMemberId !== 'all') {
@@ -339,6 +389,7 @@ export class AttendanceService {
 
   /**
    * Clock in a worker (operational supervisor or worker self-clock)
+   * Enforces project authorization, duplicate prevention, and authentic geolocation capture.
    */
   static async clockInWorker(params: {
     projectId: string;
@@ -357,10 +408,23 @@ export class AttendanceService {
         return { data: null, error: 'User session is not authenticated.' };
       }
 
+      if (!params.projectId) {
+        return { data: null, error: 'Project is required.' };
+      }
+      if (!params.workforceMemberId) {
+        return { data: null, error: 'Workforce member is required.' };
+      }
+
+      // 1. Authoritative project authorization check
+      const isAuthorized = await this.isProjectAuthorizedForUser(session.user.id, params.projectId);
+      if (!isAuthorized) {
+        return { data: null, error: 'Access Denied: You are not an assigned supervisor for this project.' };
+      }
+
       const today = getNigerianTodayIso();
       const status = params.status || 'present';
 
-      // 1. Check for duplicate attendance entry for this worker on this project today
+      // 2. Strict verification: prevent duplicate shift for this worker on this project today
       const { data: existing, error: checkErr } = await supabase
         .from('attendance_records')
         .select('id, status, created_at')
@@ -376,21 +440,33 @@ export class AttendanceService {
       if (existing) {
         return {
           data: null,
-          error: `Worker is already clocked in / recorded for today (${existing.status.toUpperCase()}). Duplicate entry prevented.`,
+          error: `Worker is already clocked in / recorded for today (${existing.status.toUpperCase()}). Duplicate shifts are prevented.`,
         };
       }
 
-      // 2. Insert new verified attendance record
+      // 3. Genuine evidence typing without coordinate fabrication
+      const hasValidGps =
+        params.latitude != null &&
+        !isNaN(params.latitude) &&
+        params.longitude != null &&
+        !isNaN(params.longitude) &&
+        (params.latitude !== 0 || params.longitude !== 0);
+
       const payload: any = {
         project_id: params.projectId,
         workforce_member_id: params.workforceMemberId,
         attendance_date: today,
         status,
+        expected_hours: 8,
+        evidence_type: hasValidGps ? 'gps' : 'manual',
+        evidence_reference: 'clock_in_recorded',
         recorded_by: session.user.id,
       };
 
-      if (params.latitude != null) payload.latitude = params.latitude;
-      if (params.longitude != null) payload.longitude = params.longitude;
+      if (hasValidGps) {
+        payload.latitude = params.latitude;
+        payload.longitude = params.longitude;
+      }
 
       const { data: inserted, error: insertErr } = await supabase
         .from('attendance_records')
@@ -406,6 +482,10 @@ export class AttendanceService {
           updated_at,
           project_id,
           workforce_member_id,
+          actual_hours,
+          expected_hours,
+          evidence_type,
+          evidence_reference,
           projects:project_id ( id, name, project_code ),
           workforce_members:workforce_member_id (
             id,
@@ -431,7 +511,8 @@ export class AttendanceService {
   }
 
   /**
-   * Clock out worker: updates existing attendance record
+   * Clock out worker: records departure timestamp and calculates actual hours worked.
+   * Rejects invalid or negative work durations and unassigned project mutations.
    */
   static async clockOutWorker(attendanceRecordId: string): Promise<{ success: boolean; error: string | null }> {
     if (!isSupabaseConfigured) {
@@ -444,10 +525,14 @@ export class AttendanceService {
         return { success: false, error: 'User session is not authenticated.' };
       }
 
-      // Verify the record exists and check if already clocked out
+      if (!attendanceRecordId) {
+        return { success: false, error: 'Attendance record ID is required.' };
+      }
+
+      // 1. Verify the record exists
       const { data: record, error: findErr } = await supabase
         .from('attendance_records')
-        .select('id, created_at, updated_at, status')
+        .select('id, project_id, created_at, updated_at, actual_hours, evidence_reference, status')
         .eq('id', attendanceRecordId)
         .single();
 
@@ -455,17 +540,37 @@ export class AttendanceService {
         return { success: false, error: findErr ? findErr.message : 'Attendance record not found.' };
       }
 
-      const createdMs = new Date(record.created_at).getTime();
-      const updatedMs = record.updated_at ? new Date(record.updated_at).getTime() : 0;
-      if (updatedMs - createdMs > 60000) {
+      // 2. Authoritative project authorization check
+      const isAuthorized = await this.isProjectAuthorizedForUser(session.user.id, record.project_id);
+      if (!isAuthorized) {
+        return { success: false, error: 'Access Denied: You are not authorized to modify attendance for this project.' };
+      }
+
+      // 3. Prevent clock-out on already-closed shift
+      const isAlreadyOut =
+        (record.actual_hours != null && Number(record.actual_hours) > 0) ||
+        record.evidence_reference === 'clock_out_recorded';
+      if (isAlreadyOut) {
         return { success: false, error: 'Worker has already been clocked out for this session.' };
       }
 
-      // Update timestamp to register departure
+      // 4. Validate work duration: departure cannot precede arrival
+      const createdMs = new Date(record.created_at).getTime();
+      const nowMs = Date.now();
+      if (nowMs < createdMs) {
+        return { success: false, error: 'Invalid work duration: Departure timestamp cannot precede clock-in timestamp.' };
+      }
+
+      // Calculate work duration in hours rounded to 2 decimals (minimum 0.1 hours for logged session)
+      const durationHours = Math.max(0.1, Math.round(((nowMs - createdMs) / 3600000) * 100) / 100);
       const nowIso = new Date().toISOString();
+
+      // 5. Update record with departure timestamp & actual hours worked
       const { error: updateErr } = await supabase
         .from('attendance_records')
         .update({
+          actual_hours: durationHours,
+          evidence_reference: 'clock_out_recorded',
           updated_at: nowIso,
         })
         .eq('id', attendanceRecordId);
@@ -502,6 +607,16 @@ export class AttendanceService {
       const { session } = await ensureValidSession();
       if (!session?.user) {
         return { data: null, error: 'User session is not authenticated.' };
+      }
+
+      if (!params.projectId) return { data: null, error: 'Project is required.' };
+      if (!params.workforceMemberId) return { data: null, error: 'Workforce member is required.' };
+      if (!params.attendanceDate) return { data: null, error: 'Attendance date is required.' };
+
+      // Authoritative project authorization check
+      const isAuthorized = await this.isProjectAuthorizedForUser(session.user.id, params.projectId);
+      if (!isAuthorized) {
+        return { data: null, error: 'Access Denied: You are not an assigned supervisor for this project.' };
       }
 
       const dateStr = params.attendanceDate.trim();
@@ -552,16 +667,28 @@ export class AttendanceService {
       }
 
       // Insert new
+      const hasGps =
+        params.latitude != null &&
+        !isNaN(params.latitude) &&
+        params.longitude != null &&
+        !isNaN(params.longitude) &&
+        (params.latitude !== 0 || params.longitude !== 0);
+
       const payload: any = {
         project_id: params.projectId,
         workforce_member_id: params.workforceMemberId,
         attendance_date: dateStr,
         status: params.status,
+        expected_hours: 8,
+        evidence_type: hasGps ? 'gps' : 'manual',
+        evidence_reference: 'manual_register_recorded',
         recorded_by: session.user.id,
       };
 
-      if (params.latitude != null) payload.latitude = params.latitude;
-      if (params.longitude != null) payload.longitude = params.longitude;
+      if (hasGps) {
+        payload.latitude = params.latitude;
+        payload.longitude = params.longitude;
+      }
 
       const { data: inserted, error: insErr } = await supabase
         .from('attendance_records')

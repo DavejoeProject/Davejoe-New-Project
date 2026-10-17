@@ -91,25 +91,41 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         assignedSlugs.some((s) => s.toLowerCase().trim() === 'executive_director' || normalizeRoleKey(s) === 'executive_director') ||
         roles.some((r) => normalizeRoleKey(r) === 'executive_director');
 
+      const isManagement =
+        assignedSlugs.some((s) => s.toLowerCase().trim() === 'management') ||
+        roles.some((r) => normalizeRoleKey(r) === 'management');
+
       const isAdmin =
         assignedSlugs.some((s) => s.toLowerCase().trim() === 'admin') ||
         roles.some((r) => normalizeRoleKey(r) === 'admin');
 
-      const isManagement =
-        assignedSlugs.some((s) => s.toLowerCase().trim() === 'management') ||
-        roles.some((r) => normalizeRoleKey(r) === 'management');
+      const isTechnical =
+        assignedSlugs.some((s) => s.toLowerCase().trim() === 'technical') ||
+        roles.some((r) => normalizeRoleKey(r) === 'technical');
 
       const isSupervisor =
         assignedSlugs.some((s) => s.toLowerCase().trim() === 'supervisor') ||
         roles.some((r) => normalizeRoleKey(r) === 'supervisor');
 
+      const isProcurement =
+        assignedSlugs.some((s) => s.toLowerCase().trim() === 'procurement') ||
+        roles.some((r) => normalizeRoleKey(r) === 'procurement');
+
+      const isAccounts =
+        assignedSlugs.some((s) => s.toLowerCase().trim() === 'accounts') ||
+        roles.some((r) => normalizeRoleKey(r) === 'accounts');
+
       const isArtisan =
         assignedSlugs.some((s) => s.toLowerCase().trim() === 'artisan') ||
         roles.some((r) => normalizeRoleKey(r) === 'artisan');
 
+      const isSocialMedia =
+        assignedSlugs.some((s) => s.toLowerCase().trim() === 'social_media_manager') ||
+        roles.some((r) => normalizeRoleKey(r) === 'social_media_manager');
+
       const userPermissions = await AuthService.getUserPermissions(
         authUser.id,
-        isManagement || isAdmin
+        isManagement || isAdmin || hasExecutiveDirector
       );
       setPermissions(userPermissions);
 
@@ -118,16 +134,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       let validatedRoleKey: StandardRoleKey | null = null;
       if (hasPreferredRole && normalizedPreference) {
         validatedRoleKey = normalizedPreference;
+      } else if (isManagement) {
+        validatedRoleKey = 'management';
       } else if (hasExecutiveDirector) {
         validatedRoleKey = 'executive_director';
       } else if (isAdmin) {
         validatedRoleKey = 'admin';
-      } else if (isManagement) {
-        validatedRoleKey = 'management';
+      } else if (isTechnical) {
+        validatedRoleKey = 'technical';
       } else if (isSupervisor) {
         validatedRoleKey = 'supervisor';
+      } else if (isProcurement) {
+        validatedRoleKey = 'procurement';
+      } else if (isAccounts) {
+        validatedRoleKey = 'accounts';
       } else if (isArtisan) {
         validatedRoleKey = 'artisan';
+      } else if (isSocialMedia) {
+        validatedRoleKey = 'social_media_manager';
       } else if (assignedSlugs.length > 0) {
         validatedRoleKey = normalizeRoleKey(assignedSlugs[0]);
       } else if (roles.length > 0) {
@@ -298,7 +322,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const hasAnyPermission = useCallback(
     (perms: string[]): boolean => {
-      if (currentRoleKey === 'management' || currentRoleKey === 'admin' || permissions.includes('*')) return true;
+      if (
+        currentRoleKey === 'management' ||
+        currentRoleKey === 'executive_director' ||
+        currentRoleKey === 'admin' ||
+        permissions.includes('*')
+      )
+        return true;
       return perms.some((p) => hasPermission(p));
     },
     [currentRoleKey, permissions, hasPermission]
@@ -306,7 +336,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const hasAllPermissions = useCallback(
     (perms: string[]): boolean => {
-      if (currentRoleKey === 'management' || currentRoleKey === 'admin' || permissions.includes('*')) return true;
+      if (
+        currentRoleKey === 'management' ||
+        currentRoleKey === 'executive_director' ||
+        currentRoleKey === 'admin' ||
+        permissions.includes('*')
+      )
+        return true;
       return perms.every((p) => hasPermission(p));
     },
     [currentRoleKey, permissions, hasPermission]
@@ -316,19 +352,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     (pathname: string): boolean => {
       if (!user) return false;
       if (pathname.startsWith('/admin')) {
-        return currentRoleKey === 'admin';
+        return currentRoleKey === 'admin' || currentRoleKey === 'management' || currentRoleKey === 'executive_director';
       }
       if (pathname.startsWith('/management')) {
         return currentRoleKey === 'management';
       }
       if (pathname.startsWith('/executive')) {
-        return currentRoleKey === 'executive_director';
+        return currentRoleKey === 'executive_director' || currentRoleKey === 'management';
+      }
+      if (pathname.startsWith('/technical')) {
+        return currentRoleKey === 'technical' || currentRoleKey === 'management' || currentRoleKey === 'executive_director';
       }
       if (pathname.startsWith('/supervisor')) {
-        return currentRoleKey === 'supervisor';
+        return currentRoleKey === 'supervisor' || currentRoleKey === 'management' || currentRoleKey === 'executive_director';
+      }
+      if (pathname.startsWith('/procurement')) {
+        return currentRoleKey === 'procurement' || currentRoleKey === 'management' || currentRoleKey === 'executive_director';
+      }
+      if (pathname.startsWith('/accounts')) {
+        return currentRoleKey === 'accounts' || currentRoleKey === 'management' || currentRoleKey === 'executive_director';
       }
       if (pathname.startsWith('/artisan')) {
         return currentRoleKey === 'artisan';
+      }
+      if (pathname.startsWith('/social-media') || pathname.startsWith('/social')) {
+        return currentRoleKey === 'social_media_manager' || currentRoleKey === 'management' || currentRoleKey === 'executive_director';
       }
       return false;
     },

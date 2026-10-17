@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useAuth } from '../../hooks/useAuth';
 import {
   AdminService,
   AdminRoleItem,
@@ -33,6 +34,10 @@ export const RolesPermissionsView: React.FC<RolesPermissionsViewProps> = ({
   initialRoles,
   onStatsRefresh,
 }) => {
+  const { currentRoleKey } = useAuth();
+  const isAuthorizedLeadership =
+    currentRoleKey === 'management' || currentRoleKey === 'executive_director';
+
   const [roles, setRoles] = useState<AdminRoleItem[]>(initialRoles || []);
   const [selectedRoleId, setSelectedRoleId] = useState<string>('');
   const [allPermissions, setAllPermissions] = useState<AdminPermissionItem[]>([]);
@@ -172,6 +177,18 @@ export const RolesPermissionsView: React.FC<RolesPermissionsViewProps> = ({
         (p.description && p.description.toLowerCase().includes(term))
     );
   });
+
+  if (!isAuthorizedLeadership) {
+    return (
+      <div className="bg-amber-50 border border-amber-200 rounded-2xl p-8 text-center space-y-3">
+        <ShieldAlert className="w-10 h-10 text-amber-600 mx-auto" />
+        <h3 className="text-base font-bold text-amber-900">Restricted Leadership Workspace</h3>
+        <p className="text-xs text-amber-700 max-w-md mx-auto">
+          Role definitions, permissions matrices, and RBAC governance are strictly restricted to Management / CEO and Executive Director — Business Operations & Strategy.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
