@@ -3,7 +3,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const allowedOrigins = (
   Deno.env.get("ALLOWED_ORIGINS") ??
-  "https://davejoe-new-project.vercel.app"
+  "http://localhost:3000,https://davejoe-new-project.vercel.app"
 )
   .split(",")
   .map((origin) => origin.trim())
@@ -25,6 +25,7 @@ function getCorsHeaders(origin: string | null): Record<string, string> {
 
   return headers;
 }
+
 
 Deno.serve(async (req: Request) => {
   const origin = req.headers.get("Origin");
@@ -147,6 +148,7 @@ const action =
 
 const allowedActions = [
   "invite_user",
+  "create_user",
   "update_profile",
   "update_status",
   "assign_role",
@@ -232,40 +234,6 @@ if (userId === requester.id && jobTitle !== undefined) {
   );
 }
 
-// Executive Director cannot edit another leadership account's profile.
-if (
-  isExecutiveDirector &&
-  !isManagement &&
-  userId !== requester.id
-) {
-  const { data: targetRoles, error: targetRolesError } = await adminClient
-    .from("user_roles")
-    .select("roles(slug)")
-    .eq("user_id", userId);
-
-  if (targetRolesError) {
-    return response(
-      { error: "Could not verify the target account's roles." },
-      500,
-    );
-  }
-
-  const targetSlugs = (targetRoles ?? []).map((row: any) => {
-    const role = Array.isArray(row.roles) ? row.roles[0] : row.roles;
-    return role?.slug;
-  });
-
-  if (
-    targetSlugs.includes("management") ||
-    targetSlugs.includes("executive_director")
-  ) {
-    return response(
-      { error: "Executive Director cannot edit leadership profiles." },
-      403,
-    );
-  }
-}
-
   const updates: Record<string, string> = {};
 
   if (firstName !== undefined) updates.first_name = firstName;
@@ -343,27 +311,6 @@ if (action === "update_status") {
     return response({ error: "Target staff account not found." }, 404);
   }
 
-  // Executive Director cannot change the status of Management or another ED.
-  if (isExecutiveDirector && !isManagement) {
-    const { data: targetRoles, error: targetRolesError } = await adminClient
-      .from("user_roles")
-      .select("roles(slug)")
-      .eq("user_id", userId);
-
-    if (targetRolesError) {
-      return response({ error: "Could not verify the target account's roles." }, 500);
-    }
-
-    const targetSlugs = (targetRoles ?? []).map((row: any) => {
-      const role = Array.isArray(row.roles) ? row.roles[0] : row.roles;
-      return role?.slug;
-    });
-
-    if (targetSlugs.includes("management") || targetSlugs.includes("executive_director")) {
-      return response({ error: "Executive Director cannot change the status of leadership accounts." }, 403);
-    }
-  }
-
   const { error: updateError } = await adminClient
     .from("profiles")
     .update({ status: newStatus })
@@ -405,14 +352,6 @@ if (userId === requester.id) {
   );
 }
 
-  const leadershipRoles = ["management", "executive_director"];
-
-  if (!isManagement && leadershipRoles.includes(roleSlug)) {
-    return response({
-      error: "Only Management/CEO can assign or remove leadership roles.",
-    }, 403);
-  }
-
   const { data: targetRole, error: targetRoleError } = await adminClient
     .from("roles")
     .select("id, slug")
@@ -441,28 +380,6 @@ if (userId === requester.id) {
     return response({ error: "Target account not found." }, 404);
   }
 
-  // The Executive Director cannot administer leadership accounts.
-  if (!isManagement && userId !== requester.id) {
-    const { data: targetRoles, error: targetRolesError } = await adminClient
-      .from("user_roles")
-      .select("roles(slug)")
-      .eq("user_id", userId);
-
-    if (targetRolesError) {
-      return response({ error: "Could not verify the target account's roles." }, 500);
-    }
-
-    const targetSlugs = (targetRoles ?? []).map((row: any) => {
-      const role = Array.isArray(row.roles) ? row.roles[0] : row.roles;
-      return role?.slug;
-    });
-
-    if (targetSlugs.some((slug: string) => leadershipRoles.includes(slug))) {
-      return response({
-        error: "Executive Director cannot modify leadership account assignments.",
-      }, 403);
-    }
-  }
 
   if (action === "assign_role") {
     const { data: existing, error: existingError } = await adminClient
@@ -724,6 +641,104 @@ if (
 }
 
 
+if (action === "create_user") {
+  const email = typeof body.email === "string" ? body.email.trim().toLowerCase() : "";
+  const password = typeof body.password === "string" ? body.password : "";
+  const firstName = typeof body.first_name === "string" ? body.first_name.trim() : "";
+  const lastName = typeof body.last_name === "string" ? body.last_name.trim() : "";
+  const phone = typeof body.phone === "string" ? body.phone.trim() : "";
+  const roleSlugs = Array.isArray(body.role_slugs)
+    ? [...new Set(body.role_slugs.filter((value): value is string => typeof value === "string").map((value) => value.trim()).filter(Boolean))]
+    : [];
+
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || !firstName || password.length < 8 || roleSlugs.length === 0) {
+    return response({ error: "A valid email, first name, password of at least 8 characters, and at least one role are required." }, 400);
+  }
+  if (roleSlugs.length > 9) {
+    return response({ error: "No more than nine roles may be assigned to one account." }, 400);
+  }
+
+  const { data: roles, error: rolesLookupError } = await adminClient
+    .from("roles")
+    .select("id, slug, name")
+    .in("slug", roleSlugs);
+
+  if (rolesLookupError) {
+    return response({ error: "Could not verify the selected roles." }, 500);
+  }
+  if (!roles || roles.length !== roleSlugs.length) {
+    return response({ error: "One or more selected roles do not exist." }, 400);
+  }
+
+  const { data: createdAuth, error: createAuthError } = await adminClient.auth.admin.createUser({
+    email,
+    password,
+    email_confirm: true,
+    user_metadata: {
+      first_name: firstName,
+      last_name: lastName,
+      display_name: [firstName, lastName].filter(Boolean).join(" "),
+    },
+  });
+
+  if (createAuthError || !createdAuth.user) {
+    return response({ error: createAuthError?.message ?? "Could not create the authentication account." }, 400);
+  }
+
+  const newUserId = createdAuth.user.id;
+  const { error: profileError } = await adminClient.from("profiles").upsert({
+    id: newUserId,
+    email,
+    first_name: firstName,
+    last_name: lastName || null,
+    display_name: [firstName, lastName].filter(Boolean).join(" "),
+    phone: phone || null,
+    status: "active",
+  }, { onConflict: "id" });
+
+  if (profileError) {
+    await adminClient.auth.admin.deleteUser(newUserId);
+    return response({ error: "Profile setup failed. The new authentication account was rolled back where possible." }, 500);
+  }
+
+  const assignments = roles.map((role: { id: string }) => ({
+    user_id: newUserId,
+    role_id: role.id,
+    assigned_by: requester.id,
+  }));
+  const { error: assignmentError } = await adminClient.from("user_roles").insert(assignments);
+
+  if (assignmentError) {
+    await adminClient.from("user_roles").delete().eq("user_id", newUserId);
+    await adminClient.from("profiles").delete().eq("id", newUserId);
+    await adminClient.auth.admin.deleteUser(newUserId);
+    return response({ error: "Role assignment failed. The account was rolled back where possible." }, 500);
+  }
+
+  // Best-effort audit record. Account creation succeeds only after profile and roles persist.
+  const { error: auditError } = await adminClient.from("audit_logs").insert({
+    actor_id: requester.id,
+    action: "admin.user_created",
+    module: "administration",
+    table_name: "profiles",
+    record_id: newUserId,
+    new_values: { email, assigned_roles: roles.map((role: { slug: string }) => role.slug) },
+  });
+  if (auditError) {
+    await adminClient.from("user_roles").delete().eq("user_id", newUserId);
+    await adminClient.from("profiles").delete().eq("id", newUserId);
+    await adminClient.auth.admin.deleteUser(newUserId);
+    return response({ error: "Audit logging failed. The new account was rolled back where possible." }, 500);
+  }
+
+  return response({
+    success: true,
+    message: "User account created and roles assigned.",
+    user_id: newUserId,
+    assigned_roles: roles.map((role: { slug: string }) => role.slug),
+  }, 201);
+}
+
 if (action !== "invite_user") {
   return response(
     { error: `Action "${action}" is recognized but is not implemented yet.` },
@@ -761,16 +776,6 @@ if (action !== "invite_user") {
     return response({
       error: "Valid email, first name, and role are required.",
     }, 400);
-  }
-
-  // Executive Director cannot grant leadership-level roles.
-  if (
-    !isManagement &&
-    ["management", "executive_director"].includes(roleSlug)
-  ) {
-    return response({
-      error: "Only Management/CEO can assign leadership-level roles.",
-    }, 403);
   }
 
   // Resolve an existing role; never create roles from request input.

@@ -117,6 +117,22 @@ export default function App() {
             }
           />
           <Route
+            path="/management/users"
+            element={
+              <ManagementRouteGuard>
+                <CeoDashboard initialModule="users" />
+              </ManagementRouteGuard>
+            }
+          />
+          <Route
+            path="/management/roles-permissions"
+            element={
+              <ManagementRouteGuard>
+                <CeoDashboard initialModule="roles-permissions" />
+              </ManagementRouteGuard>
+            }
+          />
+          <Route
             path="/management/projects"
             element={
               <ManagementRouteGuard>

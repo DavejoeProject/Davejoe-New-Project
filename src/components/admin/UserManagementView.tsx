@@ -225,7 +225,7 @@ export const UserManagementView: React.FC<UserManagementViewProps> = ({
           <div className="flex items-center gap-2">
             <h2 className="text-lg font-bold text-slate-900 tracking-tight">User Management & Role Governance</h2>
             <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-[#01875F] border border-emerald-200">
-              Leadership Restricted
+              Leadership Access
             </span>
           </div>
           <p className="text-xs text-slate-500 mt-0.5">

@@ -284,35 +284,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const hasPermission = useCallback(
     (permission: string): boolean => {
-      if (currentRoleKey === 'management' || currentRoleKey === 'admin' || permissions.includes('*')) return true;
-
-      // Executive Director: strategic company-wide read oversight across operational dashboards
-      // Strictly excludes mutating/write actions like finance transactions, user admin, role alterations, procurement approvals
-      if (currentRoleKey === 'executive_director') {
-        const restrictedMutations = [
-          'users.manage',
-          'users.create',
-          'users.delete',
-          'roles.manage',
-          'roles.assign',
-          'finance.transact',
-          'finance.manage',
-          'finance.approve',
-          'procurement.approve',
-          'procurement.create_po',
-          'technical.certify',
-        ];
-        if (restrictedMutations.includes(permission)) {
-          return permissions.includes(permission);
-        }
-        if (
-          permission.endsWith('.view') ||
-          permission.endsWith('.read') ||
-          permission.includes('overview') ||
-          permission.includes('report')
-        ) {
-          return true;
-        }
+      // Leadership and system administrators share full application permissions.
+      if (
+        currentRoleKey === 'management' ||
+        currentRoleKey === 'executive_director' ||
+        currentRoleKey === 'admin' ||
+        permissions.includes('*')
+      ) {
+        return true;
       }
 
       return permissions.includes(permission);

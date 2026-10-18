@@ -4,6 +4,7 @@ import { UserProfile, StandardRoleKey, normalizeRoleKey } from './authService';
 
 type AdminManageUserAction =
   | 'invite_user'
+  | 'create_user'
   | 'update_profile'
   | 'update_status'
   | 'assign_role'
@@ -104,6 +105,57 @@ export interface AdminDashboardMetrics {
 }
 
 export class AdminService {
+  /**
+   * Create a staff account through the server-authorized Edge Function.
+   * Never create privileged Auth users directly from the browser.
+   */
+  static async createUser(input: {
+    email: string;
+    password: string;
+    firstName: string;
+    lastName: string;
+    phone?: string;
+    roleSlugs: string[];
+  }): Promise<{ success: boolean; user_id: string; assigned_roles: string[] }> {
+    if (!isSupabaseConfigured) {
+      throw new Error('Supabase is not configured. User accounts cannot be created.');
+    }
+
+    const email = input.email.trim().toLowerCase();
+    const firstName = input.firstName.trim();
+    const lastName = input.lastName.trim();
+    const roleSlugs = [...new Set(input.roleSlugs.map((slug) => slug.trim()).filter(Boolean))];
+
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      throw new Error('Enter a valid email address.');
+    }
+    if (!firstName) throw new Error('First name is required.');
+    if (input.password.length < 8) {
+      throw new Error('Password must contain at least 8 characters.');
+    }
+    if (roleSlugs.length === 0) throw new Error('Select at least one role.');
+
+    const result = await callAdminManageUser<{
+      success: boolean;
+      user_id: string;
+      assigned_roles: string[];
+      message?: string;
+    }>('create_user', {
+      email,
+      password: input.password,
+      first_name: firstName,
+      last_name: lastName,
+      phone: input.phone?.trim() || '',
+      role_slugs: roleSlugs,
+    });
+
+    if (!result?.success || !result.user_id) {
+      throw new Error(result?.message || 'The server did not confirm account creation.');
+    }
+
+    return result;
+  }
+
   // ============================================================================
   // 1. DASHBOARD METRICS
   // ============================================================================
