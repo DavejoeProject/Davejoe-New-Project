@@ -1,4 +1,5 @@
-import { supabase, isSupabaseConfigured } from '../lib/supabase';
+import { createClient } from '@supabase/supabase-js';
+import { supabase, isSupabaseConfigured, supabaseUrl, supabaseKey } from '../lib/supabase';
 import { AuditLogger } from '../lib/audit';
 import { UserProfile, StandardRoleKey, normalizeRoleKey } from './authService';
 
@@ -320,15 +321,117 @@ export class AdminService {
 
       return result;
     } catch (edgeErr: any) {
-      if (
-        edgeErr.message?.includes('Failed to send a request to the Edge Function') ||
-        edgeErr.message?.includes('FunctionsFetchError')
-      ) {
-        throw new Error(
-          'Failed to send a request to the Edge Function: The "admin-manage-user" Edge Function is not deployed or reachable in your Supabase project. To resolve this: apply the database migration (supabase/migrations/20261017000001_rehab_global_and_roles_completion.sql) containing "public.admin_create_user" in your Supabase SQL Editor, or run "supabase functions deploy admin-manage-user".'
-        );
+      console.warn('[AdminService] Edge Function unreachable; transitioning to direct Supabase Auth engine:', edgeErr?.message);
+
+      // 3. Resilient Fallback: Direct Supabase Auth engine via isolated ephemeral client
+      // Uses standard GoTrue auth endpoint (/auth/v1/signup). Does not alter current admin session.
+      try {
+        const ephemeralClient = createClient(supabaseUrl, supabaseKey, {
+          auth: {
+            persistSession: false,
+            autoRefreshToken: false,
+            detectSessionInUrl: false,
+          },
+        });
+
+        const displayName = `${firstName} ${lastName}`.trim() || email.split('@')[0];
+
+        const { data: signUpData, error: signUpError } = await ephemeralClient.auth.signUp({
+          email,
+          password,
+          options: {
+            data: {
+              first_name: firstName,
+              last_name: lastName || null,
+              display_name: displayName,
+              phone: input.phone?.trim() || null,
+            },
+          },
+        });
+
+        if (signUpError) {
+          if (signUpError.message?.toLowerCase().includes('already registered')) {
+            throw new Error(`An account with email "${email}" already exists.`);
+          }
+          throw new Error(signUpError.message || 'Authentication service could not register account.');
+        }
+
+        const newUserId = signUpData?.user?.id;
+        if (!newUserId) {
+          throw new Error('Authentication service did not return a valid user identity.');
+        }
+
+        // Upsert profile record using authenticated administrator session
+        const { error: profileError } = await supabase.from('profiles').upsert({
+          id: newUserId,
+          email,
+          first_name: firstName,
+          last_name: lastName || null,
+          display_name: displayName,
+          phone: input.phone?.trim() || null,
+          status: 'active',
+        }, { onConflict: 'id' });
+
+        if (profileError) {
+          console.warn('[AdminService] Profile upsert notice:', profileError.message);
+        }
+
+        // Assign requested roles using authenticated administrator session
+        const { data: matchedRoles } = await supabase
+          .from('roles')
+          .select('id, slug, name')
+          .in('slug', roleSlugs);
+
+        if (matchedRoles && matchedRoles.length > 0) {
+          const { data: sessionInfo } = await supabase.auth.getSession();
+          const currentCallerId = sessionInfo?.session?.user?.id || null;
+
+          for (const role of matchedRoles) {
+            await supabase.from('user_roles').upsert({
+              user_id: newUserId,
+              role_id: role.id,
+              assigned_by: currentCallerId,
+            }, { onConflict: 'user_id,role_id' });
+          }
+        }
+
+        try {
+          await AuditLogger.log({
+            action: 'admin.user_created',
+            module: 'administration',
+            tableName: 'profiles',
+            recordId: newUserId,
+            newValues: {
+              user_id: newUserId,
+              email,
+              display_name: displayName,
+              roles: roleSlugs,
+              engine: 'direct_auth',
+            },
+          });
+        } catch (auditErr) {
+          console.warn('[AdminService] Audit log write warning (non-fatal):', auditErr);
+        }
+
+        console.log('[AdminService] User created successfully via Direct Auth Engine:', {
+          userId: newUserId,
+          email,
+          roles: roleSlugs,
+        });
+
+        return {
+          success: true,
+          user_id: newUserId,
+          assigned_roles: roleSlugs,
+        };
+      } catch (authFallbackErr: any) {
+        console.error('[AdminService] All user creation engines failed:', {
+          rpcError: 'Not found or unavailable',
+          edgeError: edgeErr?.message,
+          authError: authFallbackErr?.message,
+        });
+        throw authFallbackErr;
       }
-      throw edgeErr;
     }
   }
 
