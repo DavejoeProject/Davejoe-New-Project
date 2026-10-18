@@ -8,7 +8,9 @@ type AdminManageUserAction =
   | 'update_profile'
   | 'update_status'
   | 'assign_role'
-  | 'remove_role';
+  | 'remove_role'
+  | 'assign_role_permission'
+  | 'remove_role_permission';
 
 async function callAdminManageUser<T = unknown>(
   action: AdminManageUserAction,
@@ -386,6 +388,70 @@ export class AdminService {
       };
     } catch (err) {
       console.error('[AdminService] Error loading user details:', err);
+      throw err;
+    }
+  }
+
+  static async createUser(params: {
+    email: string;
+    password?: string;
+    firstName: string;
+    lastName: string;
+    phone?: string;
+    roleSlugs: string[];
+  }): Promise<{ user_id: string; assigned_roles: string[] }> {
+    if (!isSupabaseConfigured) {
+      throw new Error('Supabase is not configured in this environment.');
+    }
+
+    try {
+      const edgeResult = await callAdminManageUser<{
+        success: boolean;
+        user_id?: string;
+        userId?: string;
+        assigned_roles?: string[];
+        error?: string;
+        message?: string;
+      }>('create_user', {
+        email: params.email.trim().toLowerCase(),
+        password: params.password,
+        first_name: params.firstName.trim(),
+        last_name: params.lastName.trim(),
+        phone: params.phone?.trim() || undefined,
+        role_slugs: params.roleSlugs,
+      });
+
+      const userId = edgeResult.user_id || edgeResult.userId;
+      if (!userId) {
+        throw new Error(edgeResult.error || edgeResult.message || 'User creation did not return a valid user ID.');
+      }
+
+      const assignedRoles = edgeResult.assigned_roles || params.roleSlugs;
+
+      // Log successful user creation into client audit logger
+      try {
+        await AuditLogger.log({
+          action: 'admin.user_created',
+          module: 'administration',
+          tableName: 'profiles',
+          recordId: userId,
+          newValues: {
+            user_id: userId,
+            email: params.email.trim().toLowerCase(),
+            display_name: `${params.firstName.trim()} ${params.lastName.trim()}`.trim(),
+            roles: assignedRoles,
+          },
+        });
+      } catch (auditErr) {
+        console.warn('[AdminService] Audit log write warning (non-fatal):', auditErr);
+      }
+
+      return {
+        user_id: userId,
+        assigned_roles: assignedRoles,
+      };
+    } catch (err: any) {
+      console.error('[AdminService] createUser error:', err);
       throw err;
     }
   }

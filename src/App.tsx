@@ -15,6 +15,9 @@ import { ArtisanDashboard } from './components/artisan/ArtisanDashboard';
 import { AdminDashboard } from './components/admin/AdminDashboard';
 import { ExecutiveDashboard } from './components/executive/ExecutiveDashboard';
 import { SocialMediaDashboard } from './components/social-media/SocialMediaDashboard';
+import { TechnicalDashboard } from './components/technical/TechnicalDashboard';
+import { ProcurementDashboard } from './components/procurement/ProcurementDashboard';
+import { AccountsDashboard } from './components/accounts/AccountsDashboard';
 import { AttendanceRegister } from './components/attendance/AttendanceRegister';
 import { useAuth } from './hooks/useAuth';
 import { PWAInstallPrompt } from './components/pwa/PWAInstallPrompt';
@@ -46,17 +49,25 @@ const RootRedirect: React.FC = () => {
       return <Navigate to="/executive" replace />;
     }
     
-if (currentRoleKey === 'supervisor') {
-  return <Navigate to="/supervisor" replace />;
-}
-if (currentRoleKey === 'artisan') {
-  return <Navigate to="/artisan" replace />;
-}
-if (currentRoleKey === 'social_media_manager') {
-  return <Navigate to="/social-media" replace />;
-}
-return <Navigate to="/access-denied" replace />;
-
+    if (currentRoleKey === 'supervisor') {
+      return <Navigate to="/supervisor" replace />;
+    }
+    if (currentRoleKey === 'artisan') {
+      return <Navigate to="/artisan" replace />;
+    }
+    if (currentRoleKey === 'technical') {
+      return <Navigate to="/technical" replace />;
+    }
+    if (currentRoleKey === 'procurement') {
+      return <Navigate to="/procurement" replace />;
+    }
+    if (currentRoleKey === 'accounts') {
+      return <Navigate to="/accounts" replace />;
+    }
+    if (currentRoleKey === 'social_media_manager') {
+      return <Navigate to="/social-media" replace />;
+    }
+    return <Navigate to="/access-denied" replace />;
   }
 
   return <Navigate to="/login" replace />;
@@ -371,20 +382,20 @@ export default function App() {
             }
           />
 
-          {/* Non-management dashboards are currently inactive */}
+          {/* Phase 9.2: Technical Inspection & Quality Control Workspace */}
           <Route
-            path="/admin"
+            path="/technical"
             element={
-              <ProtectedRoute allowedRoles={[]}>
-                <AccessDenied />
+              <ProtectedRoute allowedRoles={['technical', 'management', 'executive_director']}>
+                <TechnicalDashboard />
               </ProtectedRoute>
             }
           />
           <Route
-            path="/technical"
+            path="/technical/*"
             element={
-              <ProtectedRoute allowedRoles={[]}>
-                <AccessDenied />
+              <ProtectedRoute allowedRoles={['technical', 'management', 'executive_director']}>
+                <TechnicalDashboard />
               </ProtectedRoute>
             }
           />
@@ -508,24 +519,51 @@ export default function App() {
 <Route
   path="/social-media"
   element={
-    <ProtectedRoute allowedRoles={['social_media_manager']}>
+    <ProtectedRoute allowedRoles={['social_media_manager', 'management', 'executive_director']}>
       <SocialMediaDashboard />
     </ProtectedRoute>
   }
 />
+<Route
+  path="/social-media/*"
+  element={
+    <ProtectedRoute allowedRoles={['social_media_manager', 'management', 'executive_director']}>
+      <SocialMediaDashboard />
+    </ProtectedRoute>
+  }
+/>
+          {/* Procurement & Logistics Management */}
           <Route
             path="/procurement"
             element={
-              <ProtectedRoute allowedRoles={[]}>
-                <AccessDenied />
+              <ProtectedRoute allowedRoles={['procurement', 'management', 'executive_director']}>
+                <ProcurementDashboard />
               </ProtectedRoute>
             }
           />
           <Route
+            path="/procurement/*"
+            element={
+              <ProtectedRoute allowedRoles={['procurement', 'management', 'executive_director']}>
+                <ProcurementDashboard />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Financial & Accounts Management */}
+          <Route
             path="/accounts"
             element={
-              <ProtectedRoute allowedRoles={[]}>
-                <AccessDenied />
+              <ProtectedRoute allowedRoles={['accounts', 'management', 'executive_director']}>
+                <AccountsDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/accounts/*"
+            element={
+              <ProtectedRoute allowedRoles={['accounts', 'management', 'executive_director']}>
+                <AccountsDashboard />
               </ProtectedRoute>
             }
           />
