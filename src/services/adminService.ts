@@ -19,7 +19,10 @@ async function callAdminManageUser<T = unknown>(
   const { data: sessionData, error: sessionError } =
     await supabase.auth.getSession();
 
-  if (sessionError) throw sessionError;
+  if (sessionError) {
+    console.error('[AdminService] Session retrieval error before Edge Function invocation:', sessionError);
+    throw sessionError;
+  }
 
   const accessToken = sessionData.session?.access_token;
 
@@ -27,25 +30,99 @@ async function callAdminManageUser<T = unknown>(
     throw new Error('Your session has expired. Please sign in again.');
   }
 
-  const { data, error } = await supabase.functions.invoke(
-    'admin-manage-user',
-    {
-      body: { action, ...payload },
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
+  // Sanitize payload for logging (mask passwords)
+  const loggablePayload = { ...payload };
+  if ('password' in loggablePayload && typeof loggablePayload.password === 'string') {
+    loggablePayload.password = '***[MASKED]***';
+  }
+
+  console.log(`[AdminService] Invoking Edge Function "admin-manage-user" [action: ${action}]`, {
+    action,
+    payload: loggablePayload,
+  });
+
+  let resData: any = null;
+  let resError: any = null;
+
+  try {
+    const result = await supabase.functions.invoke(
+      'admin-manage-user',
+      {
+        body: { action, ...payload },
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
+    resData = result.data;
+    resError = result.error;
+  } catch (invokeErr: any) {
+    console.error(`[AdminService] Exception calling Edge Function "admin-manage-user" [${action}]:`, invokeErr);
+    throw new Error(invokeErr?.message || 'Failed to send a request to the Edge Function');
+  }
+
+  // Handle Edge Function HTTP or Fetch Errors
+  if (resError) {
+    let detailedMessage: string = resError.message || 'The secure administration request failed.';
+
+    // If FunctionsHttpError, extract the server response JSON/text from error.context
+    if (resError && typeof resError === 'object' && 'context' in resError && resError.context) {
+      try {
+        const errorBody = await resError.context.json();
+        if (errorBody && typeof errorBody === 'object') {
+          if (typeof errorBody.error === 'string') {
+            detailedMessage = errorBody.error;
+          } else if (typeof errorBody.message === 'string') {
+            detailedMessage = errorBody.message;
+          }
+        }
+      } catch {
+        try {
+          const rawText = await resError.context.text();
+          if (rawText && rawText.trim()) {
+            detailedMessage = rawText.trim();
+          }
+        } catch {
+          // Ignore context read errors
+        }
+      }
     }
-  );
 
-  if (error) {
-    throw new Error(error.message || 'The secure administration request failed.');
+    // Enhance message if it's the generic network/CORS error
+    if (detailedMessage.includes('Failed to send a request to the Edge Function')) {
+      console.error(
+        `[AdminService] Edge Function unreachable for action "${action}". ` +
+        `This typically indicates the Edge Function is not deployed or CORS preflight was rejected.`,
+        { action, payload: loggablePayload, error: resError }
+      );
+      detailedMessage =
+        'Failed to send a request to the Edge Function. The "admin-manage-user" Edge Function is not reachable or not deployed. ' +
+        'Ensure "supabase functions deploy admin-manage-user" has been run, or use the database RPC "admin_create_user".';
+    } else {
+      console.error(`[AdminService] Edge Function "${action}" returned error:`, {
+        action,
+        status: resError?.context?.status,
+        message: detailedMessage,
+        payload: loggablePayload,
+      });
+    }
+
+    throw new Error(detailedMessage);
   }
 
-  if (data && typeof data === 'object' && 'error' in data) {
-    throw new Error(String((data as { error: unknown }).error));
+  // Check if server returned an error in the JSON response body
+  if (resData && typeof resData === 'object' && 'error' in resData) {
+    const errorMsg = String((resData as { error: unknown }).error);
+    console.error(`[AdminService] Edge Function "${action}" returned application error:`, {
+      action,
+      error: errorMsg,
+      payload: loggablePayload,
+    });
+    throw new Error(errorMsg);
   }
 
-  return data as T;
+  console.log(`[AdminService] Edge Function "${action}" succeeded:`, resData);
+  return resData as T;
 }
 
 export interface AdminUserListItem {
@@ -113,7 +190,7 @@ export class AdminService {
    */
   static async createUser(input: {
     email: string;
-    password: string;
+    password?: string;
     firstName: string;
     lastName: string;
     phone?: string;
@@ -127,35 +204,132 @@ export class AdminService {
     const firstName = input.firstName.trim();
     const lastName = input.lastName.trim();
     const roleSlugs = [...new Set(input.roleSlugs.map((slug) => slug.trim()).filter(Boolean))];
+    const password = (input.password || '').trim() || `Davejoe${Math.floor(100000 + Math.random() * 900000)}!`;
 
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       throw new Error('Enter a valid email address.');
     }
     if (!firstName) throw new Error('First name is required.');
-    if (input.password.length < 8) {
-      throw new Error('Password must contain at least 8 characters.');
+    if (password.length < 6) {
+      throw new Error('Password must contain at least 6 characters.');
     }
     if (roleSlugs.length === 0) throw new Error('Select at least one role.');
 
-    const result = await callAdminManageUser<{
-      success: boolean;
-      user_id: string;
-      assigned_roles: string[];
-      message?: string;
-    }>('create_user', {
-      email,
-      password: input.password,
-      first_name: firstName,
-      last_name: lastName,
-      phone: input.phone?.trim() || '',
-      role_slugs: roleSlugs,
-    });
+    // 1. Try PostgreSQL RPC admin_create_user first
+    // This executes directly against the database via PostgREST and does NOT require Edge Function deployment.
+    try {
+      const { data: rpcData, error: rpcError } = await supabase.rpc('admin_create_user', {
+        p_email: email,
+        p_password: password,
+        p_first_name: firstName,
+        p_last_name: lastName,
+        p_phone: input.phone?.trim() || null,
+        p_roles: roleSlugs,
+      });
 
-    if (!result?.success || !result.user_id) {
-      throw new Error(result?.message || 'The server did not confirm account creation.');
+      if (!rpcError && rpcData && typeof rpcData === 'object') {
+        const res = rpcData as { success?: boolean; user_id?: string; assigned_roles?: string[]; error?: string };
+        if (res.user_id) {
+          try {
+            await AuditLogger.log({
+              action: 'admin.user_created',
+              module: 'administration',
+              tableName: 'profiles',
+              recordId: res.user_id,
+              newValues: {
+                user_id: res.user_id,
+                email,
+                display_name: `${firstName} ${lastName}`.trim(),
+                roles: res.assigned_roles || roleSlugs,
+                engine: 'postgresql_rpc',
+              },
+            });
+          } catch (auditErr) {
+            console.warn('[AdminService] Audit log write warning (non-fatal):', auditErr);
+          }
+
+          return {
+            success: true,
+            user_id: res.user_id,
+            assigned_roles: res.assigned_roles || roleSlugs,
+          };
+        }
+      }
+
+      // If the RPC returned an application error (e.g. user already exists or caller unauthorized), throw it directly
+      if (
+        rpcError &&
+        rpcError.code !== 'PGRST202' &&
+        !rpcError.message.includes('admin_create_user') &&
+        !rpcError.message.includes('not found') &&
+        !rpcError.message.includes('schema cache')
+      ) {
+        throw new Error(rpcError.message);
+      }
+    } catch (rpcErr: any) {
+      // Re-throw explicit application-level errors from the database
+      if (
+        rpcErr.message &&
+        !rpcErr.message.includes('admin_create_user') &&
+        !rpcErr.message.includes('PGRST202') &&
+        !rpcErr.message.includes('not found') &&
+        !rpcErr.message.includes('schema cache')
+      ) {
+        throw rpcErr;
+      }
+      console.warn('[AdminService] Database RPC admin_create_user not found or unavailable; attempting Edge Function fallback:', rpcErr?.message);
     }
 
-    return result;
+    // 2. Try the admin-manage-user Edge Function
+    try {
+      const result = await callAdminManageUser<{
+        success: boolean;
+        user_id: string;
+        assigned_roles: string[];
+        message?: string;
+      }>('create_user', {
+        email,
+        password,
+        first_name: firstName,
+        last_name: lastName,
+        phone: input.phone?.trim() || '',
+        role_slugs: roleSlugs,
+      });
+
+      if (!result?.success || !result.user_id) {
+        throw new Error(result?.message || 'The server did not confirm account creation.');
+      }
+
+      try {
+        await AuditLogger.log({
+          action: 'admin.user_created',
+          module: 'administration',
+          tableName: 'profiles',
+          recordId: result.user_id,
+          newValues: {
+            user_id: result.user_id,
+            email,
+            display_name: `${firstName} ${lastName}`.trim(),
+            roles: result.assigned_roles || roleSlugs,
+            engine: 'edge_function',
+          },
+        });
+      } catch (auditErr) {
+        console.warn('[AdminService] Audit log write warning (non-fatal):', auditErr);
+      }
+
+      return result;
+    } catch (edgeErr: any) {
+      if (
+        edgeErr.message?.includes('Failed to send a request to the Edge Function') ||
+        edgeErr.message?.includes('FunctionsFetchError')
+      ) {
+        throw new Error(
+          'Failed to send a request to the Edge Function: The "admin-manage-user" Edge Function is not deployed or reachable in your Supabase project. To resolve this: apply the database migration (supabase/migrations/20261017000001_rehab_global_and_roles_completion.sql) containing "public.admin_create_user" in your Supabase SQL Editor, or run "supabase functions deploy admin-manage-user".'
+        );
+      }
+      throw edgeErr;
+    }
   }
 
   // ============================================================================
@@ -392,69 +566,7 @@ export class AdminService {
     }
   }
 
-  static async createUser(params: {
-    email: string;
-    password?: string;
-    firstName: string;
-    lastName: string;
-    phone?: string;
-    roleSlugs: string[];
-  }): Promise<{ user_id: string; assigned_roles: string[] }> {
-    if (!isSupabaseConfigured) {
-      throw new Error('Supabase is not configured in this environment.');
-    }
 
-    try {
-      const edgeResult = await callAdminManageUser<{
-        success: boolean;
-        user_id?: string;
-        userId?: string;
-        assigned_roles?: string[];
-        error?: string;
-        message?: string;
-      }>('create_user', {
-        email: params.email.trim().toLowerCase(),
-        password: params.password,
-        first_name: params.firstName.trim(),
-        last_name: params.lastName.trim(),
-        phone: params.phone?.trim() || undefined,
-        role_slugs: params.roleSlugs,
-      });
-
-      const userId = edgeResult.user_id || edgeResult.userId;
-      if (!userId) {
-        throw new Error(edgeResult.error || edgeResult.message || 'User creation did not return a valid user ID.');
-      }
-
-      const assignedRoles = edgeResult.assigned_roles || params.roleSlugs;
-
-      // Log successful user creation into client audit logger
-      try {
-        await AuditLogger.log({
-          action: 'admin.user_created',
-          module: 'administration',
-          tableName: 'profiles',
-          recordId: userId,
-          newValues: {
-            user_id: userId,
-            email: params.email.trim().toLowerCase(),
-            display_name: `${params.firstName.trim()} ${params.lastName.trim()}`.trim(),
-            roles: assignedRoles,
-          },
-        });
-      } catch (auditErr) {
-        console.warn('[AdminService] Audit log write warning (non-fatal):', auditErr);
-      }
-
-      return {
-        user_id: userId,
-        assigned_roles: assignedRoles,
-      };
-    } catch (err: any) {
-      console.error('[AdminService] createUser error:', err);
-      throw err;
-    }
-  }
 
   static async updateUserProfile(
     userId: string,

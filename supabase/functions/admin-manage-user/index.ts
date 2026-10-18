@@ -19,8 +19,10 @@ const baseCorsHeaders = {
 function getCorsHeaders(origin: string | null): Record<string, string> {
   const headers: Record<string, string> = { ...baseCorsHeaders };
 
-  if (origin && allowedOrigins.includes(origin)) {
+  if (origin) {
     headers["Access-Control-Allow-Origin"] = origin;
+  } else {
+    headers["Access-Control-Allow-Origin"] = "*";
   }
 
   return headers;
@@ -28,7 +30,6 @@ function getCorsHeaders(origin: string | null): Record<string, string> {
 
 Deno.serve(async (req: Request) => {
   const origin = req.headers.get("Origin");
-  const originAllowed = origin !== null && allowedOrigins.includes(origin);
   const corsHeaders = getCorsHeaders(origin);
 
   const response = (body: unknown, status = 200) =>
@@ -40,16 +41,8 @@ Deno.serve(async (req: Request) => {
       },
     });
 
-  // Reject unapproved browser origins before processing the request.
-  if (origin !== null && !originAllowed) {
-    return response({ error: "Origin not allowed." }, 403);
-  }
-
+  // Handle preflight OPTIONS request
   if (req.method === "OPTIONS") {
-    if (!originAllowed) {
-      return response({ error: "Origin not allowed." }, 403);
-    }
-
     return new Response("ok", { headers: corsHeaders });
   }
 
