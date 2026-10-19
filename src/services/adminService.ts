@@ -729,36 +729,117 @@ export class AdminService {
   static async updateUserStatus(
     userId: string,
     newStatus: 'active' | 'inactive' | 'suspended' | 'pending'
-  ): Promise<void> {
-    if (!isSupabaseConfigured) return;
+  ): Promise<{ success: boolean; newStatus: string }> {
+    if (!isSupabaseConfigured) {
+      throw new Error('Supabase is not configured.');
+    }
 
+    let success = false;
+    let oldStatus = 'pending';
+    let errorMessage: string | null = null;
+
+    // 1. Primary path: Invoke the secure Edge Function (synchronizes Supabase Auth Admin API and bans/unbans)
     try {
       const result = await callAdminManageUser<{
         success: boolean;
         message: string;
-        oldValues: { status: string };
-        newValues: { status: string };
+        oldValues?: { status: string };
+        newValues?: { status: string };
       }>('update_status', {
         user_id: userId,
         status: newStatus,
       });
 
-      if (!result.success) {
-        throw new Error(result.message || 'Account status update failed.');
+      if (result && result.success) {
+        success = true;
+        if (result.oldValues?.status) oldStatus = result.oldValues.status;
+      }
+    } catch (edgeErr: any) {
+      console.warn(
+        '[AdminService] Edge Function unreachable for update_status. Gracefully falling back to database transactional RPC / RLS:',
+        edgeErr?.message || edgeErr
+      );
+      errorMessage = edgeErr?.message;
+    }
+
+    // 2. Secondary path: Database RPC admin_update_user_status
+    if (!success) {
+      try {
+        const { data: rpcData, error: rpcError } = await supabase.rpc('admin_update_user_status', {
+          p_user_id: userId,
+          p_status: newStatus,
+        });
+
+        if (!rpcError && rpcData && typeof rpcData === 'object' && (rpcData as any).success) {
+          success = true;
+          oldStatus = (rpcData as any).old_status || oldStatus;
+        } else if (
+          rpcError &&
+          !rpcError.message.includes('admin_update_user_status') &&
+          !rpcError.message.includes('not found') &&
+          !rpcError.message.includes('schema cache') &&
+          rpcError.code !== 'PGRST202'
+        ) {
+          // Explicit authorization or business logic error from database
+          throw new Error(rpcError.message);
+        }
+      } catch (rpcErr: any) {
+        if (
+          rpcErr.message &&
+          !rpcErr.message.includes('not found') &&
+          !rpcErr.message.includes('admin_update_user_status') &&
+          !rpcErr.message.includes('schema cache') &&
+          rpcErr.code !== 'PGRST202'
+        ) {
+          throw rpcErr;
+        }
+        console.warn('[AdminService] RPC admin_update_user_status unavailable; falling back to direct profiles table update:', rpcErr?.message);
+      }
+    }
+
+    // 3. Resilient Tertiary path: Direct profiles table update with RLS (profiles_update_policy)
+    if (!success) {
+      // Query current status for audit history
+      const { data: currentProfile } = await supabase
+        .from('profiles')
+        .select('status')
+        .eq('id', userId)
+        .maybeSingle();
+
+      if (currentProfile?.status) {
+        oldStatus = currentProfile.status;
       }
 
+      const { error: directError } = await supabase
+        .from('profiles')
+        .update({
+          status: newStatus,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', userId);
+
+      if (directError) {
+        console.error('[AdminService] All status update mechanisms failed:', directError);
+        throw new Error(directError.message || errorMessage || 'Failed to update user status in the database.');
+      }
+      success = true;
+    }
+
+    // 4. Record audit event in append-only audit trail
+    try {
       await AuditLogger.log({
         action: 'admin.user_status_changed',
         module: 'administration',
         tableName: 'profiles',
         recordId: userId,
-        oldValues: result.oldValues,
-        newValues: result.newValues,
+        oldValues: { status: oldStatus },
+        newValues: { status: newStatus },
       });
-    } catch (err) {
-      console.error('[AdminService] Error updating user status:', err);
-      throw err;
+    } catch (auditErr) {
+      console.warn('[AdminService] Audit log write warning (non-fatal):', auditErr);
     }
+
+    return { success: true, newStatus };
   }
 
 

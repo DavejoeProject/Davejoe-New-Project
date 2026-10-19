@@ -94,21 +94,25 @@ export const UserControlCentre: React.FC<UserControlCentreProps> = ({
     }
   };
 
+  const [statusSuccessMessage, setStatusSuccessMessage] = useState<string | null>(null);
+
   // Handle Status Change
   const handleStatusChange = async (newStatus: 'active' | 'inactive' | 'suspended' | 'pending') => {
     if (newStatus === currentStatus) return;
-    if (!window.confirm(`Are you sure you want to change this user status to "${newStatus}"?`)) {
-      return;
-    }
 
     setIsChangingStatus(true);
     setStatusError(null);
+    setStatusSuccessMessage(null);
 
     try {
       await AdminService.updateUserStatus(user.id, newStatus);
       setCurrentStatus(newStatus);
+      user.status = newStatus;
+      setStatusSuccessMessage(`Account status updated to "${newStatus.toUpperCase()}" successfully.`);
       onUserUpdated();
+      setTimeout(() => setStatusSuccessMessage(null), 4000);
     } catch (err: any) {
+      console.error('[UserControlCentre] Error updating user status:', err);
       setStatusError(err?.message || 'Failed to update user status.');
     } finally {
       setIsChangingStatus(false);
@@ -469,38 +473,173 @@ export const UserControlCentre: React.FC<UserControlCentreProps> = ({
                 </div>
               )}
 
+              {statusSuccessMessage && (
+                <div className="p-3 bg-emerald-50 border border-emerald-200 text-xs text-[#01875F] rounded-xl flex items-center gap-2 font-semibold animate-fadeIn">
+                  <CheckCircle2 className="w-4 h-4 shrink-0" />
+                  <span>{statusSuccessMessage}</span>
+                </div>
+              )}
+
+              <div className="p-3.5 bg-slate-50 border border-slate-200/80 rounded-xl flex items-center justify-between text-xs">
+                <div>
+                  <span className="text-slate-500 block text-[11px]">Current Account Status</span>
+                  <span className="font-bold uppercase tracking-wider text-slate-800 text-xs">
+                    {currentStatus}
+                  </span>
+                </div>
+                <span className={`px-2.5 py-1 rounded-full text-[11px] font-bold uppercase tracking-wide border ${
+                  currentStatus === 'active'
+                    ? 'bg-emerald-50 text-[#01875F] border-emerald-200'
+                    : currentStatus === 'suspended'
+                    ? 'bg-red-50 text-red-600 border-red-200'
+                    : currentStatus === 'pending'
+                    ? 'bg-amber-50 text-amber-700 border-amber-200'
+                    : 'bg-slate-100 text-slate-600 border-slate-200'
+                }`}>
+                  {currentStatus}
+                </span>
+              </div>
+
               <p className="text-xs text-slate-500">
-                Manage access permission status. Users with inactive or suspended status are denied access during login authentication.
+                Authorized administrators (Management / CEO and Executive Director) can update account statuses. Setting an account to Active removes Auth bans and allows dashboard access; Suspend and Inactive enforce immediate server-side restrictions and revoke workspace access.
               </p>
 
-              <div className="grid grid-cols-2 gap-3">
-                {(['active', 'inactive', 'suspended', 'pending'] as const).map((st) => {
-                  const isCurrent = currentStatus === st;
-                  return (
-                    <button
-                      key={st}
-                      type="button"
-                      disabled={isChangingStatus}
-                      onClick={() => handleStatusChange(st)}
-                      className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer ${
-                        isCurrent
-                          ? 'border-[#01875F] bg-emerald-50/40 text-slate-900 ring-2 ring-[#01875F]/20'
-                          : 'border-slate-200 bg-white hover:bg-slate-50 text-slate-700'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="capitalize font-bold text-xs">{st}</span>
-                        {isCurrent && <CheckCircle2 className="w-4 h-4 text-[#01875F]" />}
-                      </div>
-                      <p className="text-[11px] text-slate-500">
-                        {st === 'active' && 'Normal workspace access permitted.'}
-                        {st === 'inactive' && 'Account disabled. Login denied.'}
-                        {st === 'suspended' && 'Administrative temporary suspension.'}
-                        {st === 'pending' && 'Awaiting administrator verification.'}
-                      </p>
-                    </button>
-                  );
-                })}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {/* 1. ACTIVE */}
+                <div
+                  className={`p-3.5 rounded-xl border transition-all text-left flex flex-col justify-between ${
+                    currentStatus === 'active'
+                      ? 'border-[#01875F] bg-emerald-50/40 ring-2 ring-[#01875F]/20'
+                      : 'border-slate-200 bg-white hover:bg-slate-50/80'
+                  }`}
+                >
+                  <div>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="font-bold text-xs text-slate-900 flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block" />
+                        Active
+                      </span>
+                      {currentStatus === 'active' && (
+                        <span className="text-[10px] font-bold text-[#01875F] bg-emerald-100 px-2 py-0.5 rounded-full">
+                          Current Status
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-[11px] text-slate-500 mb-3">
+                      Authorizes full access to assigned role workspaces. Removes any Supabase Auth ban so the user can log in normally.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    disabled={isChangingStatus || currentStatus === 'active'}
+                    onClick={() => handleStatusChange('active')}
+                    className="w-full py-2 px-3 bg-[#01875F] hover:bg-[#00704e] text-white text-xs font-semibold rounded-lg transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shadow-2xs"
+                  >
+                    {currentStatus === 'active' ? 'Currently Active' : 'Set to Active'}
+                  </button>
+                </div>
+
+                {/* 2. SUSPENDED */}
+                <div
+                  className={`p-3.5 rounded-xl border transition-all text-left flex flex-col justify-between ${
+                    currentStatus === 'suspended'
+                      ? 'border-red-500 bg-red-50/40 ring-2 ring-red-500/20'
+                      : 'border-slate-200 bg-white hover:bg-slate-50/80'
+                  }`}
+                >
+                  <div>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="font-bold text-xs text-slate-900 flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-red-500 inline-block" />
+                        Suspended
+                      </span>
+                      {currentStatus === 'suspended' && (
+                        <span className="text-[10px] font-bold text-red-700 bg-red-100 px-2 py-0.5 rounded-full">
+                          Current Status
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-[11px] text-slate-500 mb-3">
+                      Temporarily halts workspace access and applies server-side restrictions. Preserves profile and operational records for future reactivation.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    disabled={isChangingStatus || currentStatus === 'suspended'}
+                    onClick={() => handleStatusChange('suspended')}
+                    className="w-full py-2 px-3 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded-lg transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shadow-2xs"
+                  >
+                    {currentStatus === 'suspended' ? 'Currently Suspended' : 'Suspend Account'}
+                  </button>
+                </div>
+
+                {/* 3. INACTIVE */}
+                <div
+                  className={`p-3.5 rounded-xl border transition-all text-left flex flex-col justify-between ${
+                    currentStatus === 'inactive'
+                      ? 'border-slate-500 bg-slate-100/50 ring-2 ring-slate-400/20'
+                      : 'border-slate-200 bg-white hover:bg-slate-50/80'
+                  }`}
+                >
+                  <div>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="font-bold text-xs text-slate-900 flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-slate-400 inline-block" />
+                        Inactive
+                      </span>
+                      {currentStatus === 'inactive' && (
+                        <span className="text-[10px] font-bold text-slate-700 bg-slate-200 px-2 py-0.5 rounded-full">
+                          Current Status
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-[11px] text-slate-500 mb-3">
+                      Deactivates account. Prevents normal logins and rejects session operations while keeping historical project records intact.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    disabled={isChangingStatus || currentStatus === 'inactive'}
+                    onClick={() => handleStatusChange('inactive')}
+                    className="w-full py-2 px-3 bg-slate-700 hover:bg-slate-800 text-white text-xs font-semibold rounded-lg transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shadow-2xs"
+                  >
+                    {currentStatus === 'inactive' ? 'Currently Inactive' : 'Set to Inactive'}
+                  </button>
+                </div>
+
+                {/* 4. PENDING */}
+                <div
+                  className={`p-3.5 rounded-xl border transition-all text-left flex flex-col justify-between ${
+                    currentStatus === 'pending'
+                      ? 'border-amber-500 bg-amber-50/40 ring-2 ring-amber-500/20'
+                      : 'border-slate-200 bg-white hover:bg-slate-50/80'
+                  }`}
+                >
+                  <div>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="font-bold text-xs text-slate-900 flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-amber-500 inline-block" />
+                        Pending
+                      </span>
+                      {currentStatus === 'pending' && (
+                        <span className="text-[10px] font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full">
+                          Current Status
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-[11px] text-slate-500 mb-3">
+                      Awaiting verification. Access to role dashboards remains paused until an administrator activates the profile.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    disabled={isChangingStatus || currentStatus === 'pending'}
+                    onClick={() => handleStatusChange('pending')}
+                    className="w-full py-2 px-3 bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold rounded-lg transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shadow-2xs"
+                  >
+                    {currentStatus === 'pending' ? 'Currently Pending' : 'Set to Pending'}
+                  </button>
+                </div>
               </div>
             </div>
           )}

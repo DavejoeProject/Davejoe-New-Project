@@ -311,23 +311,68 @@ if (action === "update_status") {
 
   const { error: updateError } = await adminClient
     .from("profiles")
-    .update({ status: newStatus })
+    .update({ status: newStatus, updated_at: new Date().toISOString() })
     .eq("id", userId);
 
   if (updateError) {
-    return response({ error: "Could not update the account status." }, 500);
+    return response({ error: "Could not update the account status in database profiles." }, 500);
   }
 
- return response({
-  success: true,
-  message: "Account status updated.",
-  oldValues: {
-    status: targetProfile.status,
-  },
-  newValues: {
-    status: newStatus,
-  },
-});
+  // Synchronize Supabase Auth Account restrictions via Auth Admin API
+  try {
+    if (newStatus === "active") {
+      // Lift any temporary or permanent bans so the user can authenticate
+      await adminClient.auth.admin.updateUserById(userId, {
+        ban_duration: "none",
+        app_metadata: { status: "active" },
+      });
+    } else if (newStatus === "suspended") {
+      // Apply temporary suspension ban (invalidates refresh tokens and blocks sign-in)
+      await adminClient.auth.admin.updateUserById(userId, {
+        ban_duration: "876600h",
+        app_metadata: { status: "suspended" },
+      });
+    } else if (newStatus === "inactive") {
+      // Deactivate account access via Auth ban and metadata
+      await adminClient.auth.admin.updateUserById(userId, {
+        ban_duration: "876600h",
+        app_metadata: { status: "inactive" },
+      });
+    } else if (newStatus === "pending") {
+      await adminClient.auth.admin.updateUserById(userId, {
+        app_metadata: { status: "pending" },
+      });
+    }
+  } catch (authAdminErr) {
+    console.warn("[admin-manage-user] Auth admin ban update notice:", authAdminErr);
+  }
+
+  // Write audit log entry
+  try {
+    await adminClient.from("audit_logs").insert({
+      actor_id: requester.id,
+      action: "admin.user_status_changed",
+      module: "administration",
+      table_name: "profiles",
+      record_id: userId,
+      old_values: { status: targetProfile.status },
+      new_values: { status: newStatus },
+      created_at: new Date().toISOString(),
+    });
+  } catch (auditErr) {
+    console.warn("[admin-manage-user] Audit log write notice:", auditErr);
+  }
+
+  return response({
+    success: true,
+    message: `Account status updated to ${newStatus}.`,
+    oldValues: {
+      status: targetProfile.status,
+    },
+    newValues: {
+      status: newStatus,
+    },
+  });
 }
 
 

@@ -84,11 +84,10 @@ export const ExecutiveRouteGuard: React.FC<ExecutiveRouteGuardProps> = ({ childr
           AuthService.getUserRolesDetailed(user.id),
         ]);
 
+        // Check if user is active: any status other than 'active' (suspended, inactive, pending) is blocked
         const isSuspended = Boolean(
-          profile?.status &&
-            ['inactive', 'suspended', 'disabled', 'blocked', 'banned'].includes(
-              profile.status.toLowerCase().trim()
-            )
+          !profile?.status ||
+          profile.status.toLowerCase().trim() !== 'active'
         );
 
         // Verify authoritative database role slug matches 'executive_director'
@@ -182,15 +181,31 @@ export const ExecutiveRouteGuard: React.FC<ExecutiveRouteGuardProps> = ({ childr
   }
 
   if (authState.isSuspended) {
+    const status = authState.userProfile?.status?.toLowerCase() || 'pending';
+    const isSuspended = status === 'suspended';
+    const isPending = status === 'pending';
+
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#f8faf9] px-4">
         <div className="w-full max-w-md bg-white rounded-2xl border border-slate-200/80 shadow-sm p-8 text-center">
-          <div className="w-14 h-14 bg-amber-50 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-4">
+          <div className={`w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4 ${
+            isSuspended ? 'bg-red-50 text-red-600' : isPending ? 'bg-amber-50 text-amber-600' : 'bg-slate-100 text-slate-600'
+          }`}>
             <UserX className="w-8 h-8" />
           </div>
-          <h2 className="text-lg font-bold text-slate-900 mb-2">Account Inactive</h2>
+          <h2 className="text-lg font-bold text-slate-900 mb-2">
+            {isSuspended
+              ? 'Account Suspended'
+              : isPending
+              ? 'Account Pending Activation'
+              : 'Account Inactive'}
+          </h2>
           <p className="text-sm text-slate-600 mb-6 leading-relaxed">
-            Your executive account is currently {authState.userProfile?.status || 'inactive'}. Please contact system support.
+            {isSuspended
+              ? 'Your account has been temporarily suspended by Davejoe Management. You cannot access workspaces or execute operations.'
+              : isPending
+              ? 'Your executive account is awaiting administrator verification and activation.'
+              : 'Your executive account is marked as inactive. Please contact system support.'}
           </p>
           <button
             type="button"

@@ -135,6 +135,29 @@ export const UserManagementView: React.FC<UserManagementViewProps> = ({
     if (onStatsRefresh) onStatsRefresh();
   };
 
+  const [updatingStatusUserId, setUpdatingStatusUserId] = useState<string | null>(null);
+  const [statusSuccessToast, setStatusSuccessToast] = useState<string | null>(null);
+
+  const handleQuickStatusChange = async (
+    userId: string,
+    newStatus: 'active' | 'inactive' | 'suspended' | 'pending'
+  ) => {
+    setUpdatingStatusUserId(userId);
+    setError(null);
+    try {
+      await AdminService.updateUserStatus(userId, newStatus);
+      setStatusSuccessToast(`Account status updated to ${newStatus.toUpperCase()}`);
+      setTimeout(() => setStatusSuccessToast(null), 3500);
+      await fetchUsers();
+      if (onStatsRefresh) onStatsRefresh();
+    } catch (err: any) {
+      console.error('[UserManagementView] Error updating status:', err);
+      setError(err?.message || 'Failed to update account status.');
+    } finally {
+      setUpdatingStatusUserId(null);
+    }
+  };
+
   const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
 
   const getStatusBadge = (status: string) => {
@@ -400,6 +423,23 @@ export const UserManagementView: React.FC<UserManagementViewProps> = ({
         )}
       </div>
 
+      {/* Status Success Notice */}
+      {statusSuccessToast && (
+        <div className="p-3.5 bg-emerald-50 border border-emerald-200 rounded-2xl text-xs text-[#01875F] font-semibold flex items-center justify-between animate-fadeIn">
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 text-[#01875F] shrink-0" />
+            <span>{statusSuccessToast}</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setStatusSuccessToast(null)}
+            className="text-emerald-700 hover:text-emerald-900 cursor-pointer"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      )}
+
       {/* Error Notice */}
       {error && (
         <div className="p-4 bg-red-50 border border-red-200 rounded-2xl text-xs text-red-700 flex items-center justify-between">
@@ -518,8 +558,58 @@ export const UserManagementView: React.FC<UserManagementViewProps> = ({
                           </div>
                         </td>
 
-                        {/* Status */}
-                        <td className="py-3.5 px-4">{getStatusBadge(u.status)}</td>
+                        {/* Status with Quick Controls */}
+                        <td
+                          className="py-3.5 px-4"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <div className="flex flex-col gap-1.5 items-start">
+                            <div className="flex items-center gap-1.5">
+                              {getStatusBadge(u.status)}
+                              {updatingStatusUserId === u.id && (
+                                <div className="w-3 h-3 border-2 border-[#01875F]/30 border-t-[#01875F] rounded-full animate-spin shrink-0" />
+                              )}
+                            </div>
+
+                            {isAuthorizedLeadership && (
+                              <div className="flex items-center gap-1">
+                                {u.status !== 'active' ? (
+                                  <button
+                                    type="button"
+                                    disabled={updatingStatusUserId === u.id}
+                                    onClick={() => handleQuickStatusChange(u.id, 'active')}
+                                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#01875F] hover:bg-[#00704e] text-white text-[10px] font-semibold transition-colors cursor-pointer disabled:opacity-50 shadow-2xs"
+                                    title="Activate account workspace access"
+                                  >
+                                    <Check className="w-2.5 h-2.5" />
+                                    <span>{u.status === 'pending' ? 'Activate' : 'Reactivate'}</span>
+                                  </button>
+                                ) : (
+                                  <>
+                                    <button
+                                      type="button"
+                                      disabled={updatingStatusUserId === u.id}
+                                      onClick={() => handleQuickStatusChange(u.id, 'suspended')}
+                                      className="inline-flex items-center px-1.5 py-0.5 rounded-md bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 text-[10px] font-medium transition-colors cursor-pointer disabled:opacity-50"
+                                      title="Suspend user account"
+                                    >
+                                      Suspend
+                                    </button>
+                                    <button
+                                      type="button"
+                                      disabled={updatingStatusUserId === u.id}
+                                      onClick={() => handleQuickStatusChange(u.id, 'inactive')}
+                                      className="inline-flex items-center px-1.5 py-0.5 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 text-[10px] font-medium transition-colors cursor-pointer disabled:opacity-50"
+                                      title="Deactivate user account"
+                                    >
+                                      Inactive
+                                    </button>
+                                  </>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        </td>
 
                         {/* Workforce Link */}
                         <td className="py-3.5 px-4">

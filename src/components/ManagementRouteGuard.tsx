@@ -93,12 +93,10 @@ export const ManagementRouteGuard: React.FC<ManagementRouteGuardProps> = ({ chil
           AuthService.getUserRolesDetailed(user.id),
         ]);
 
-        // Check if user is suspended/inactive
+        // Check if user is active: any status other than 'active' (suspended, inactive, pending) is blocked
         const isSuspended = Boolean(
-          profile?.status &&
-          ['inactive', 'suspended', 'disabled', 'blocked', 'banned'].includes(
-            profile.status.toLowerCase().trim()
-          )
+          !profile?.status ||
+          profile.status.toLowerCase().trim() !== 'active'
         );
 
         // Step 5: Verify role.slug === "management" strictly from authoritative database sources
@@ -183,17 +181,33 @@ export const ManagementRouteGuard: React.FC<ManagementRouteGuardProps> = ({ chil
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  // 3. Suspended account: Display suspended warning
+  // 3. Suspended / Inactive / Pending account: Display appropriate restriction notice
   if (authState.isSuspended) {
+    const status = authState.userProfile?.status?.toLowerCase() || 'pending';
+    const isSuspended = status === 'suspended';
+    const isPending = status === 'pending';
+
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#f8faf9] px-4">
         <div className="w-full max-w-md bg-white rounded-2xl border border-slate-200 shadow-sm p-8 text-center">
-          <div className="w-14 h-14 bg-amber-50 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-4">
+          <div className={`w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4 ${
+            isSuspended ? 'bg-red-50 text-red-600' : isPending ? 'bg-amber-50 text-amber-600' : 'bg-slate-100 text-slate-600'
+          }`}>
             <UserX className="w-8 h-8" />
           </div>
-          <h2 className="text-lg font-bold text-slate-900 mb-2">Account Inactive</h2>
+          <h2 className="text-lg font-bold text-slate-900 mb-2">
+            {isSuspended
+              ? 'Account Suspended'
+              : isPending
+              ? 'Account Pending Activation'
+              : 'Account Inactive'}
+          </h2>
           <p className="text-sm text-slate-600 mb-6 leading-relaxed">
-            Your account is currently {authState.userProfile?.status}. Please contact an administrator or HR.
+            {isSuspended
+              ? 'Your account has been temporarily suspended by Davejoe Management. You cannot access workspaces or execute operations.'
+              : isPending
+              ? 'Your account is awaiting administrative verification and activation by Management or Executive Director.'
+              : 'Your account is marked as inactive. Please contact Management or Executive Director to restore access.'}
           </p>
           <button
             type="button"

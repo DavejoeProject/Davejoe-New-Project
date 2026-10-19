@@ -70,6 +70,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const roles = Array.from(new Set([...assignedSlugs, ...assignedNames]));
 
       setProfile(userProfile);
+
+      // Verify active account status: inactive, suspended, or pending users are immediately blocked
+      const statusLower = userProfile?.status?.toLowerCase().trim();
+      const isActive = statusLower === 'active';
+
+      if (!isActive) {
+        console.warn(
+          `[AuthContext] User ${authUser.id} account status is "${userProfile?.status}". Workspace access revoked.`
+        );
+        setAssignedRoles([]);
+        setPermissions([]);
+        setCurrentRoleKey(null);
+        return;
+      }
+
       setAssignedRoles(roles);
 
       // Read any active role preference from session storage (e.g. from login role dropdown)
@@ -330,6 +345,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const canAccessRoute = useCallback(
     (pathname: string): boolean => {
       if (!user) return false;
+      if (!profile?.status || profile.status.toLowerCase().trim() !== 'active') {
+        return false;
+      }
       if (pathname.startsWith('/admin')) {
         return currentRoleKey === 'admin' || currentRoleKey === 'management' || currentRoleKey === 'executive_director';
       }
@@ -359,7 +377,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       return false;
     },
-    [user, currentRoleKey]
+    [user, profile, currentRoleKey]
   );
 
   const value = useMemo(

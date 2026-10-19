@@ -714,8 +714,10 @@ export class AuthService {
 
       throw new Error(
         statusLower === 'pending'
-          ? 'Your account is awaiting activation. Please contact Management.'
-          : 'Your account is not active. Please contact Management.'
+          ? 'Your account is pending administrator activation. Please contact Management or Executive Director.'
+          : statusLower === 'suspended'
+          ? 'Your account has been suspended by administration. Access to Davejoe workspaces is denied.'
+          : 'Your account is currently inactive. Please contact Management or Executive Director.'
       );
     }
 
