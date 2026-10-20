@@ -100,7 +100,10 @@ export const SupervisorRouteGuard: React.FC<SupervisorRouteGuardProps> = ({ chil
           return n.includes('supervisor') || n.includes('site supervisor');
         });
 
-        const isAuthorized = !isSuspended && (hasSupervisorSlug || hasSupervisorName);
+        const isLeadership = assignedSlugs.some((s) => ['management', 'executive_director'].includes(s.toLowerCase().trim())) ||
+          assignedNames.some((n) => ['management', 'executive_director'].includes(normalizeRoleKey(n) || ''));
+
+        const isAuthorized = !isSuspended && (hasSupervisorSlug || hasSupervisorName || isLeadership);
 
         // Check if user has an alternative authorized role
         let alternativeRole: string | null = null;

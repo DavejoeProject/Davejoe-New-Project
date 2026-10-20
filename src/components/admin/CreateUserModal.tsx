@@ -36,6 +36,7 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [selectedRoleSlugs, setSelectedRoleSlugs] = useState<string[]>([]);
+  const [accountStatus, setAccountStatus] = useState<'active' | 'pending'>('active');
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -44,6 +45,7 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
     password?: string;
     roles: string[];
     userId: string;
+    status: string;
   } | null>(null);
   const [copied, setCopied] = useState(false);
 
@@ -90,6 +92,7 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
         lastName: lastName.trim(),
         phone: phone.trim() || undefined,
         roleSlugs: selectedRoleSlugs,
+        status: accountStatus,
       });
 
       setCreatedResult({
@@ -97,6 +100,7 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
         password: effectivePassword,
         roles: result.assigned_roles,
         userId: result.user_id,
+        status: accountStatus,
       });
       onUserCreated();
     } catch (err: any) {
@@ -372,6 +376,54 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
                       </label>
                     );
                   })}
+                </div>
+              </div>
+
+              {/* Initial Account Status Selection */}
+              <div className="space-y-2 pt-2 border-t border-slate-100">
+                <div className="flex items-center justify-between">
+                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                    Initial Account Status
+                  </label>
+                  <span className="text-[10px] text-slate-400">
+                    Controls immediate login &amp; workspace access
+                  </span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  <button
+                    type="button"
+                    onClick={() => setAccountStatus('active')}
+                    className={`p-3 rounded-xl border text-left text-xs transition-colors cursor-pointer ${
+                      accountStatus === 'active'
+                        ? 'border-[#01875F] bg-emerald-50/50 text-[#01875F] font-bold ring-1 ring-[#01875F]'
+                        : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
+                    }`}
+                  >
+                    <span className="flex items-center gap-1.5 font-bold text-slate-900">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                      Active (Recommended)
+                    </span>
+                    <span className="text-[11px] font-normal text-slate-500 block mt-1">
+                      Staff account can sign in immediately to their assigned dashboards.
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setAccountStatus('pending')}
+                    className={`p-3 rounded-xl border text-left text-xs transition-colors cursor-pointer ${
+                      accountStatus === 'pending'
+                        ? 'border-amber-500 bg-amber-50/50 text-amber-800 font-bold ring-1 ring-amber-500'
+                        : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
+                    }`}
+                  >
+                    <span className="flex items-center gap-1.5 font-bold text-slate-900">
+                      <span className="w-2 h-2 rounded-full bg-amber-500" />
+                      Pending Activation
+                    </span>
+                    <span className="text-[11px] font-normal text-slate-500 block mt-1">
+                      Staff account is registered but requires administrator activation before login.
+                    </span>
+                  </button>
                 </div>
               </div>
 

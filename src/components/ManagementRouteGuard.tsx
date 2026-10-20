@@ -99,7 +99,7 @@ export const ManagementRouteGuard: React.FC<ManagementRouteGuardProps> = ({ chil
           profile.status.toLowerCase().trim() !== 'active'
         );
 
-        // Step 5: Verify role.slug === "management" strictly from authoritative database sources
+        // Step 5: Verify role.slug === "management" or "executive_director" from authoritative database sources
         const hasManagementSlug = assignedSlugs.some(
           (slug) => slug.toLowerCase().trim() === 'management'
         );
@@ -108,7 +108,18 @@ export const ManagementRouteGuard: React.FC<ManagementRouteGuardProps> = ({ chil
           (name) => name.toLowerCase().includes('management') || name.toLowerCase().includes('ceo')
         );
 
-        const isAuthorized = !isSuspended && (hasManagementSlug || hasManagementName);
+        const hasExecutiveSlug = assignedSlugs.some(
+          (slug) =>
+            slug.toLowerCase().trim() === 'executive_director' ||
+            normalizeRoleKey(slug) === 'executive_director'
+        );
+
+        const hasExecutiveName = assignedNames.some(
+          (name) => normalizeRoleKey(name) === 'executive_director'
+        );
+
+        // Management / CEO and Executive Director share equal leadership authority
+        const isAuthorized = !isSuspended && (hasManagementSlug || hasManagementName || hasExecutiveSlug || hasExecutiveName);
 
         // Check if user has an alternative valid role (e.g. executive_director, admin, supervisor, artisan)
         let alternativeRole: string | null = null;

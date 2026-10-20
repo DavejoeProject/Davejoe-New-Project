@@ -148,10 +148,6 @@ export const UserControlCentre: React.FC<UserControlCentreProps> = ({
       return;
     }
 
-    if (!window.confirm(`Are you sure you want to remove the role "${roleSlug}" from this user?`)) {
-      return;
-    }
-
     setIsModifyingRole(true);
     setRoleActionError(null);
 

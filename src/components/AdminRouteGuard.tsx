@@ -100,7 +100,10 @@ export const AdminRouteGuard: React.FC<AdminRouteGuardProps> = ({ children }) =>
           return n.includes('admin') || n.includes('administrator') || n.includes('coordinator');
         });
 
-        const isAuthorized = !isSuspended && (hasAdminSlug || hasAdminName);
+        const isLeadership = assignedSlugs.some((s) => ['management', 'executive_director'].includes(s.toLowerCase().trim())) ||
+          assignedNames.some((n) => ['management', 'executive_director'].includes(normalizeRoleKey(n) || ''));
+
+        const isAuthorized = !isSuspended && (hasAdminSlug || hasAdminName || isLeadership);
 
         // Check if user has an alternative valid role (e.g. executive_director, management, supervisor, artisan)
         let alternativeRole: string | null = null;

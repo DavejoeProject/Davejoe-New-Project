@@ -196,6 +196,7 @@ export class AdminService {
     lastName: string;
     phone?: string;
     roleSlugs: string[];
+    status?: 'active' | 'inactive' | 'suspended' | 'pending';
   }): Promise<{ success: boolean; user_id: string; assigned_roles: string[] }> {
     if (!isSupabaseConfigured) {
       throw new Error('Supabase is not configured. User accounts cannot be created.');
@@ -206,6 +207,7 @@ export class AdminService {
     const lastName = input.lastName.trim();
     const roleSlugs = [...new Set(input.roleSlugs.map((slug) => slug.trim()).filter(Boolean))];
     const password = (input.password || '').trim() || `Davejoe${Math.floor(100000 + Math.random() * 900000)}!`;
+    const targetStatus = input.status || 'active';
 
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       throw new Error('Enter a valid email address.');
@@ -231,6 +233,11 @@ export class AdminService {
       if (!rpcError && rpcData && typeof rpcData === 'object') {
         const res = rpcData as { success?: boolean; user_id?: string; assigned_roles?: string[]; error?: string };
         if (res.user_id) {
+          // Ensure requested status is persisted
+          if (targetStatus !== 'active') {
+            await AdminService.updateUserStatus(res.user_id, targetStatus).catch(() => {});
+          }
+
           try {
             await AuditLogger.log({
               action: 'admin.user_created',
@@ -242,6 +249,7 @@ export class AdminService {
                 email,
                 display_name: `${firstName} ${lastName}`.trim(),
                 roles: res.assigned_roles || roleSlugs,
+                status: targetStatus,
                 engine: 'postgresql_rpc',
               },
             });
@@ -369,7 +377,7 @@ export class AdminService {
           last_name: lastName || null,
           display_name: displayName,
           phone: input.phone?.trim() || null,
-          status: 'active',
+          status: targetStatus,
         }, { onConflict: 'id' });
 
         if (profileError) {

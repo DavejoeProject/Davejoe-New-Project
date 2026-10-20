@@ -101,7 +101,16 @@ export const ExecutiveRouteGuard: React.FC<ExecutiveRouteGuardProps> = ({ childr
           return normalizeRoleKey(name) === 'executive_director';
         });
 
-        const isAuthorized = !isSuspended && (hasExecutiveSlug || hasExecutiveName);
+        const hasManagementSlug = assignedSlugs.some(
+          (slug) => slug.toLowerCase().trim() === 'management'
+        );
+
+        const hasManagementName = assignedNames.some(
+          (name) => name.toLowerCase().includes('management') || name.toLowerCase().includes('ceo')
+        );
+
+        // Management / CEO and Executive Director share equal leadership authority
+        const isAuthorized = !isSuspended && (hasExecutiveSlug || hasExecutiveName || hasManagementSlug || hasManagementName);
 
         // Check if user has an alternative valid role (e.g. admin, management, supervisor, artisan)
         let alternativeRole: string | null = null;

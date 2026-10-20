@@ -539,11 +539,11 @@ export default function App() {
             }
           />
 
-          {/* Phase 9.2: Dedicated Attendance Register (Supervisor & Management) */}
+          {/* Phase 9.2: Dedicated Attendance Register (Supervisor, Management & Executive Director) */}
           <Route
             path="/attendance"
             element={
-              <ProtectedRoute allowedRoles={['management', 'supervisor']}>
+              <ProtectedRoute allowedRoles={['management', 'executive_director', 'supervisor']}>
                 <AttendanceRegister />
               </ProtectedRoute>
             }
@@ -551,7 +551,7 @@ export default function App() {
           <Route
             path="/attendance/today"
             element={
-              <ProtectedRoute allowedRoles={['management', 'supervisor']}>
+              <ProtectedRoute allowedRoles={['management', 'executive_director', 'supervisor']}>
                 <AttendanceRegister initialTab="today" />
               </ProtectedRoute>
             }

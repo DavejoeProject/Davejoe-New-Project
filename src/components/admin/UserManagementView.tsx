@@ -38,7 +38,7 @@ export const UserManagementView: React.FC<UserManagementViewProps> = ({
   allRoles,
   onStatsRefresh,
 }) => {
-  const { currentRoleKey } = useAuth();
+  const { user, currentRoleKey } = useAuth();
   const isAuthorizedLeadership =
     currentRoleKey === 'management' || currentRoleKey === 'executive_director';
 
@@ -572,8 +572,8 @@ export const UserManagementView: React.FC<UserManagementViewProps> = ({
                             </div>
 
                             {isAuthorizedLeadership && (
-                              <div className="flex items-center gap-1">
-                                {u.status !== 'active' ? (
+                              <div className="flex items-center gap-1 flex-wrap">
+                                {u.status !== 'active' && (
                                   <button
                                     type="button"
                                     disabled={updatingStatusUserId === u.id}
@@ -584,27 +584,28 @@ export const UserManagementView: React.FC<UserManagementViewProps> = ({
                                     <Check className="w-2.5 h-2.5" />
                                     <span>{u.status === 'pending' ? 'Activate' : 'Reactivate'}</span>
                                   </button>
-                                ) : (
-                                  <>
-                                    <button
-                                      type="button"
-                                      disabled={updatingStatusUserId === u.id}
-                                      onClick={() => handleQuickStatusChange(u.id, 'suspended')}
-                                      className="inline-flex items-center px-1.5 py-0.5 rounded-md bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 text-[10px] font-medium transition-colors cursor-pointer disabled:opacity-50"
-                                      title="Suspend user account"
-                                    >
-                                      Suspend
-                                    </button>
-                                    <button
-                                      type="button"
-                                      disabled={updatingStatusUserId === u.id}
-                                      onClick={() => handleQuickStatusChange(u.id, 'inactive')}
-                                      className="inline-flex items-center px-1.5 py-0.5 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 text-[10px] font-medium transition-colors cursor-pointer disabled:opacity-50"
-                                      title="Deactivate user account"
-                                    >
-                                      Inactive
-                                    </button>
-                                  </>
+                                )}
+                                {u.status !== 'suspended' && (
+                                  <button
+                                    type="button"
+                                    disabled={updatingStatusUserId === u.id || user?.id === u.id}
+                                    onClick={() => handleQuickStatusChange(u.id, 'suspended')}
+                                    className="inline-flex items-center px-1.5 py-0.5 rounded-md bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 text-[10px] font-medium transition-colors cursor-pointer disabled:opacity-50"
+                                    title="Suspend user account"
+                                  >
+                                    Suspend
+                                  </button>
+                                )}
+                                {u.status !== 'inactive' && (
+                                  <button
+                                    type="button"
+                                    disabled={updatingStatusUserId === u.id || user?.id === u.id}
+                                    onClick={() => handleQuickStatusChange(u.id, 'inactive')}
+                                    className="inline-flex items-center px-1.5 py-0.5 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 text-[10px] font-medium transition-colors cursor-pointer disabled:opacity-50"
+                                    title="Deactivate user account"
+                                  >
+                                    Inactive
+                                  </button>
                                 )}
                               </div>
                             )}

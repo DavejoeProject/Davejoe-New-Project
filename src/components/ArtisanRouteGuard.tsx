@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import { AuthService, UserProfile } from '../services/authService';
+import { AuthService, UserProfile, normalizeRoleKey } from '../services/authService';
 import { AccessDenied } from './AccessDenied';
 import { UserX, LogOut } from 'lucide-react';
 
@@ -96,7 +96,10 @@ export const ArtisanRouteGuard: React.FC<ArtisanRouteGuardProps> = ({ children }
           return n.includes('artisan') || n.includes('workforce');
         });
 
-        const isAuthorized = !isSuspended && (hasArtisanSlug || hasArtisanName);
+        const isLeadershipOrSupervisor = assignedSlugs.some((s) => ['management', 'executive_director', 'supervisor'].includes(s.toLowerCase().trim())) ||
+          assignedNames.some((n) => ['management', 'executive_director', 'supervisor'].includes(normalizeRoleKey(n) || ''));
+
+        const isAuthorized = !isSuspended && (hasArtisanSlug || hasArtisanName || isLeadershipOrSupervisor);
 
         if (isMounted) {
           setAuthState({

@@ -18,7 +18,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   requiredRole,
   requiredPermission,
 }) => {
-  const { user, profile, currentRoleKey, hasPermission, isLoading, isInitialized, logout } = useAuth();
+  const { user, profile, currentRoleKey, hasRole, hasPermission, isLoading, isInitialized, logout } = useAuth();
   const location = useLocation();
 
   // Show clean loading spinner during session restoration
@@ -93,11 +93,21 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     return <AccessDenied />;
   }
 
-  // Check role restrictions: Only authorized database role allowed
+  // Check role restrictions: Authorized database role or leadership oversight
   const effectiveAllowed = allowedRoles || (requiredRole ? [requiredRole] : undefined);
 
   if (effectiveAllowed && effectiveAllowed.length > 0) {
-    const isAllowed = Boolean(currentRoleKey && effectiveAllowed.includes(currentRoleKey));
+    const isLeadership =
+      hasRole('management') ||
+      hasRole('executive_director') ||
+      currentRoleKey === 'management' ||
+      currentRoleKey === 'executive_director';
+
+    const isAllowed = Boolean(
+      (currentRoleKey && effectiveAllowed.includes(currentRoleKey)) ||
+      effectiveAllowed.some((role) => hasRole(role)) ||
+      isLeadership
+    );
 
     if (!isAllowed) {
       return <AccessDenied />;

@@ -292,9 +292,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     (roleInput: string): boolean => {
       const targetKey = normalizeRoleKey(roleInput);
       if (!targetKey) return false;
-      return currentRoleKey === targetKey;
+      if (currentRoleKey === targetKey) return true;
+      return assignedRoles.some((r) => normalizeRoleKey(r) === targetKey);
     },
-    [currentRoleKey]
+    [currentRoleKey, assignedRoles]
   );
 
   const hasPermission = useCallback(
@@ -304,6 +305,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         currentRoleKey === 'management' ||
         currentRoleKey === 'executive_director' ||
         currentRoleKey === 'admin' ||
+        hasRole('management') ||
+        hasRole('executive_director') ||
+        hasRole('admin') ||
         permissions.includes('*')
       ) {
         return true;
@@ -311,7 +315,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       return permissions.includes(permission);
     },
-    [currentRoleKey, permissions]
+    [currentRoleKey, hasRole, permissions]
   );
 
   const hasAnyPermission = useCallback(
@@ -320,12 +324,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         currentRoleKey === 'management' ||
         currentRoleKey === 'executive_director' ||
         currentRoleKey === 'admin' ||
+        hasRole('management') ||
+        hasRole('executive_director') ||
+        hasRole('admin') ||
         permissions.includes('*')
       )
         return true;
       return perms.some((p) => hasPermission(p));
     },
-    [currentRoleKey, permissions, hasPermission]
+    [currentRoleKey, hasRole, permissions, hasPermission]
   );
 
   const hasAllPermissions = useCallback(
@@ -334,12 +341,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         currentRoleKey === 'management' ||
         currentRoleKey === 'executive_director' ||
         currentRoleKey === 'admin' ||
+        hasRole('management') ||
+        hasRole('executive_director') ||
+        hasRole('admin') ||
         permissions.includes('*')
       )
         return true;
       return perms.every((p) => hasPermission(p));
     },
-    [currentRoleKey, permissions, hasPermission]
+    [currentRoleKey, hasRole, permissions, hasPermission]
   );
 
   const canAccessRoute = useCallback(
@@ -348,36 +358,48 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (!profile?.status || profile.status.toLowerCase().trim() !== 'active') {
         return false;
       }
+      const isLeadership =
+        currentRoleKey === 'management' ||
+        currentRoleKey === 'executive_director' ||
+        hasRole('management') ||
+        hasRole('executive_director');
+
+      // Leadership has operational oversight across all operational modules
+      if (isLeadership) return true;
+
       if (pathname.startsWith('/admin')) {
-        return currentRoleKey === 'admin' || currentRoleKey === 'management' || currentRoleKey === 'executive_director';
+        return currentRoleKey === 'admin' || hasRole('admin');
       }
       if (pathname.startsWith('/management')) {
-        return currentRoleKey === 'management';
+        return hasRole('management');
       }
       if (pathname.startsWith('/executive')) {
-        return currentRoleKey === 'executive_director' || currentRoleKey === 'management';
+        return hasRole('executive_director');
       }
       if (pathname.startsWith('/technical')) {
-        return currentRoleKey === 'technical' || currentRoleKey === 'management' || currentRoleKey === 'executive_director';
+        return currentRoleKey === 'technical' || hasRole('technical');
       }
       if (pathname.startsWith('/supervisor')) {
-        return currentRoleKey === 'supervisor' || currentRoleKey === 'management' || currentRoleKey === 'executive_director';
+        return currentRoleKey === 'supervisor' || hasRole('supervisor');
+      }
+      if (pathname.startsWith('/attendance')) {
+        return currentRoleKey === 'supervisor' || hasRole('supervisor');
       }
       if (pathname.startsWith('/procurement')) {
-        return currentRoleKey === 'procurement' || currentRoleKey === 'management' || currentRoleKey === 'executive_director';
+        return currentRoleKey === 'procurement' || hasRole('procurement');
       }
       if (pathname.startsWith('/accounts')) {
-        return currentRoleKey === 'accounts' || currentRoleKey === 'management' || currentRoleKey === 'executive_director';
+        return currentRoleKey === 'accounts' || hasRole('accounts');
       }
       if (pathname.startsWith('/artisan')) {
-        return currentRoleKey === 'artisan';
+        return currentRoleKey === 'artisan' || hasRole('artisan') || currentRoleKey === 'supervisor' || hasRole('supervisor');
       }
       if (pathname.startsWith('/social-media') || pathname.startsWith('/social')) {
-        return currentRoleKey === 'social_media_manager' || currentRoleKey === 'management' || currentRoleKey === 'executive_director';
+        return currentRoleKey === 'social_media_manager' || hasRole('social_media_manager');
       }
       return false;
     },
-    [user, profile, currentRoleKey]
+    [user, profile, currentRoleKey, hasRole]
   );
 
   const value = useMemo(
