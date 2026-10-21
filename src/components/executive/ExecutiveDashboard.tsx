@@ -53,7 +53,15 @@ import {
   Bell,
   SlidersHorizontal,
   UserCog,
+  Menu,
+  X,
+  ChevronDown,
+  RotateCcw,
+  Wrench,
 } from 'lucide-react';
+import { ProjectMaterialRemnantsModule } from '../remnants/ProjectMaterialRemnantsModule';
+import { ToolsEquipmentModule } from '../tools/ToolsEquipmentModule';
+import { TaskInstructionsPanel } from '../tasks/TaskInstructionsPanel';
 
 export type ExecutiveModuleKey =
   | 'overview'
@@ -70,7 +78,10 @@ export type ExecutiveModuleKey =
   | 'users'
   | 'roles'
   | 'alerts'
-  | 'reports';
+  | 'reports'
+  | 'tasks'
+  | 'tools'
+  | 'remnants';
 
 export const ExecutiveDashboard: React.FC = () => {
   const { user, profile, logout } = useAuth();
@@ -277,46 +288,84 @@ export const ExecutiveDashboard: React.FC = () => {
 
   const executiveRoleTitle = 'EXECUTIVE DIRECTOR, BUSINESS OPERATIONS & STRATEGY';
 
-  // Navigation Items matching the 12 departmental requirements
-  const navItems: {
-    key: ExecutiveModuleKey;
-    label: string;
-    icon: React.ComponentType<{ className?: string }>;
-    count?: number | string;
-    isUnconfigured?: boolean;
-  }[] = [
-    { key: 'overview', label: 'Executive Control Centre', icon: LayoutDashboard },
-    { key: 'leads', label: 'Business Development & Leads', icon: Briefcase, isUnconfigured: true },
-    { key: 'projects', label: 'Projects', icon: FolderKanban, count: projectsList.length },
-    { key: 'workforce', label: 'Workforce & Productivity', icon: Users, count: workforceList.length },
-    { key: 'qc', label: 'Technical Inspection & QC', icon: ClipboardCheck, count: inspectionsList.length },
-    { key: 'materials', label: 'Materials', icon: Package, count: materialsList.length },
-    { key: 'procurement', label: 'Procurement & Logistics', icon: Truck, count: purchaseOrdersList.length },
-    { key: 'finance', label: 'Finance & Commercial', icon: DollarSign },
-    { key: 'clients', label: 'Client Experience', icon: Building2, count: clientsList.length },
-    { key: 'staff', label: 'Staff Performance', icon: Award, count: conductList.length },
-    { key: 'artisans', label: 'Artisan Network', icon: HardHat, count: workforceList.length },
-    { key: 'users', label: 'Users & Personnel', icon: UserCog, count: usersCount },
-    { key: 'roles', label: 'Roles & Permissions', icon: ShieldCheck, count: rolesList.length },
-    { key: 'alerts', label: 'Management Alerts', icon: AlertOctagon, count: alertsList.length },
-    { key: 'reports', label: 'Reports', icon: FileBarChart },
+  const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
+  const [collapsedNavSections, setCollapsedNavSections] = useState<Record<string, boolean>>({});
+
+  const toggleSection = (title: string) => {
+    setCollapsedNavSections((prev) => ({ ...prev, [title]: !prev[title] }));
+  };
+
+  // 5 Strategic Categories for Executive Leadership
+  const executiveSections = [
+    {
+      title: 'STRATEGIC OVERSIGHT',
+      items: [
+        { key: 'overview' as ExecutiveModuleKey, label: 'Executive Control Centre', icon: LayoutDashboard },
+        { key: 'alerts' as ExecutiveModuleKey, label: 'Management Alerts', icon: AlertOctagon, count: alertsList.length },
+        { key: 'reports' as ExecutiveModuleKey, label: 'Corporate Reports', icon: FileBarChart },
+      ],
+    },
+    {
+      title: 'PROJECTS & QUALITY',
+      items: [
+        { key: 'projects' as ExecutiveModuleKey, label: 'Projects', icon: FolderKanban, count: projectsList.length },
+        { key: 'tasks' as ExecutiveModuleKey, label: 'Task Specifications & Handovers', icon: ClipboardCheck },
+        { key: 'qc' as ExecutiveModuleKey, label: 'Technical Inspection & QC', icon: ClipboardCheck, count: inspectionsList.length },
+        { key: 'materials' as ExecutiveModuleKey, label: 'Materials Overview', icon: Package, count: materialsList.length },
+        { key: 'tools' as ExecutiveModuleKey, label: 'Tools & Equipment Register', icon: Wrench },
+        { key: 'remnants' as ExecutiveModuleKey, label: 'Material Remnants & Recovery', icon: RotateCcw },
+      ],
+    },
+    {
+      title: 'WORKFORCE & TEAMS',
+      items: [
+        { key: 'workforce' as ExecutiveModuleKey, label: 'Workforce & Productivity', icon: Users, count: workforceList.length },
+        { key: 'staff' as ExecutiveModuleKey, label: 'Staff Performance', icon: Award, count: conductList.length },
+        { key: 'artisans' as ExecutiveModuleKey, label: 'Artisan Network', icon: HardHat, count: workforceList.length },
+      ],
+    },
+    {
+      title: 'COMMERCIAL & LOGISTICS',
+      items: [
+        { key: 'finance' as ExecutiveModuleKey, label: 'Finance & Commercial', icon: DollarSign },
+        { key: 'procurement' as ExecutiveModuleKey, label: 'Procurement & Logistics', icon: Truck, count: purchaseOrdersList.length },
+        { key: 'leads' as ExecutiveModuleKey, label: 'Business Development & Leads', icon: Briefcase, isUnconfigured: true },
+        { key: 'clients' as ExecutiveModuleKey, label: 'Client Experience', icon: Building2, count: clientsList.length },
+      ],
+    },
+    {
+      title: 'GOVERNANCE & USERS',
+      items: [
+        { key: 'users' as ExecutiveModuleKey, label: 'Users & Personnel', icon: UserCog, count: usersCount },
+        { key: 'roles' as ExecutiveModuleKey, label: 'Roles & Permissions', icon: ShieldCheck, count: rolesList.length },
+      ],
+    },
   ];
 
-  return (
-    <div className="min-h-screen bg-[#F8FAFB] flex flex-col md:flex-row text-slate-800 font-sans selection:bg-[#01875F]/20 selection:text-[#01875F]">
-      {/* SIDEBAR */}
-      <aside
-        className={`${
-          sidebarCollapsed ? 'w-full md:w-20' : 'w-full md:w-72'
-        } bg-white border-r border-slate-200/90 flex flex-col shrink-0 transition-all duration-200 select-none`}
-      >
+  // Auto-expand section containing activeModule
+  useEffect(() => {
+    const parent = executiveSections.find((sec) => sec.items.some((item) => item.key === activeModule));
+    if (parent && collapsedNavSections[parent.title]) {
+      setCollapsedNavSections((prev) => ({ ...prev, [parent.title]: false }));
+    }
+  }, [activeModule]);
+
+  const handleSelectModule = (modKey: ExecutiveModuleKey) => {
+    setActiveModule(modKey);
+    setSearchQuery('');
+    setMobileDrawerOpen(false);
+  };
+
+  const renderSidebarContent = (isMobile = false) => (
+    <div className="flex flex-col h-full justify-between select-none">
+      <div>
         {/* Brand Lockup */}
         <div className="h-16 px-5 border-b border-slate-100 flex items-center justify-between">
           <div className="flex items-center gap-2.5 min-w-0">
             <div className="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center shadow-xs bg-white border border-slate-100 shrink-0">
               <img src="/favicon.png" alt="Davejoe" className="w-full h-full object-contain" />
             </div>
-            {!sidebarCollapsed && (
+            {(!sidebarCollapsed || isMobile) && (
               <div className="flex flex-col min-w-0">
                 <span className="font-bold text-slate-900 tracking-tight text-[15px] leading-tight truncate">
                   Davejoe
@@ -328,129 +377,196 @@ export const ExecutiveDashboard: React.FC = () => {
             )}
           </div>
 
-          <button
-            type="button"
-            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-            className="hidden md:flex w-7 h-7 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 items-center justify-center transition-colors cursor-pointer"
-            title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-          >
-            {sidebarCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
-          </button>
-        </div>
-
-        {/* Navigation Menu */}
-        <div className="p-3 flex-1 flex flex-col justify-between overflow-y-auto">
-          <nav className="space-y-0.5">
-            {!sidebarCollapsed && (
-              <div className="px-3 pt-2 pb-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                Strategic Oversight
-              </div>
-            )}
-            {navItems.map((item) => {
-              const Icon = item.icon;
-              const isActive = activeModule === item.key;
-              return (
-                <button
-                  key={item.key}
-                  type="button"
-                  onClick={() => {
-                    setActiveModule(item.key);
-                    setSearchQuery('');
-                  }}
-                  title={sidebarCollapsed ? item.label : undefined}
-                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold transition-colors cursor-pointer text-left ${
-                    isActive
-                      ? 'bg-[#01875F] text-white shadow-xs'
-                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
-                  }`}
-                >
-                  <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : 'text-slate-400'}`} />
-                  {!sidebarCollapsed && (
-                    <div className="flex items-center justify-between flex-1 min-w-0">
-                      <span className="truncate">{item.label}</span>
-                      {item.count != null && (
-                        <span
-                          className={`ml-2 text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
-                            isActive
-                              ? 'bg-white/20 text-white'
-                              : 'bg-slate-100 text-slate-500'
-                          }`}
-                        >
-                          {item.count}
-                        </span>
-                      )}
-                      {item.isUnconfigured && (
-                        <span
-                          className={`ml-1 text-[9px] px-1 py-0.2 rounded font-medium ${
-                            isActive ? 'bg-white/20 text-white' : 'bg-amber-50 text-amber-700'
-                          }`}
-                        >
-                          Setup
-                        </span>
-                      )}
-                    </div>
-                  )}
-                </button>
-              );
-            })}
-          </nav>
-
-          {/* Account Lockup & Actions */}
-          <div className="pt-3 border-t border-slate-100 mt-3 space-y-2">
-            {!sidebarCollapsed ? (
-              <div className="px-3 py-2 bg-slate-50 rounded-xl border border-slate-100 flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-full bg-[#01875F] text-white flex items-center justify-center text-xs font-bold shrink-0 shadow-2xs">
-                  {executiveDisplayName[0]?.toUpperCase() || 'O'}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs font-bold text-slate-900 truncate leading-tight uppercase tracking-tight">
-                    {executiveDisplayName}
-                  </p>
-                  <p className="text-[10px] text-[#01875F] font-semibold truncate leading-tight mt-0.5">
-                    Executive Director
-                  </p>
-                </div>
-              </div>
-            ) : (
-              <div className="flex justify-center py-1">
-                <div className="w-8 h-8 rounded-full bg-[#01875F] text-white flex items-center justify-center text-xs font-bold shadow-2xs">
-                  {executiveDisplayName[0]?.toUpperCase() || 'O'}
-                </div>
-              </div>
-            )}
-
-            {!sidebarCollapsed && (
-              <div className="px-1">
-                <PWAInstallButton className="w-full text-xs justify-center py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200" />
-              </div>
-            )}
-
+          {isMobile ? (
             <button
               type="button"
-              onClick={() => logout()}
-              title="Sign Out"
-              className={`w-full flex items-center ${
-                sidebarCollapsed ? 'justify-center' : 'gap-2.5'
-              } px-3 py-2 rounded-xl text-xs font-semibold text-red-600 hover:bg-red-50 transition-colors cursor-pointer text-left`}
+              onClick={() => setMobileDrawerOpen(false)}
+              className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer"
+              aria-label="Close menu"
             >
-              <LogOut className="w-4 h-4 text-red-500 shrink-0" />
-              {!sidebarCollapsed && <span>Sign Out</span>}
+              <X className="w-5 h-5" />
             </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+              className="hidden md:flex w-7 h-7 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 items-center justify-center transition-colors cursor-pointer"
+              title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            >
+              {sidebarCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+            </button>
+          )}
+        </div>
+
+        {/* Collapsible Navigation Menu */}
+        <div className="p-3 space-y-4 overflow-y-auto max-h-[calc(100vh-170px)]">
+          {executiveSections.map((section) => {
+            const isSectionCollapsed = Boolean(collapsedNavSections[section.title]);
+            return (
+              <div key={section.title} className="space-y-1">
+                {!sidebarCollapsed || isMobile ? (
+                  <button
+                    type="button"
+                    onClick={() => toggleSection(section.title)}
+                    className="w-full flex items-center justify-between px-2.5 py-1 rounded-md text-[10px] font-bold tracking-wider uppercase text-slate-400 hover:text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer"
+                  >
+                    <span>{section.title}</span>
+                    <div className="flex items-center text-slate-400">
+                      {isSectionCollapsed ? (
+                        <ChevronRight className="w-3.5 h-3.5" />
+                      ) : (
+                        <ChevronDown className="w-3.5 h-3.5" />
+                      )}
+                    </div>
+                  </button>
+                ) : (
+                  <div className="my-2 border-t border-slate-100" />
+                )}
+
+                {(!isSectionCollapsed || sidebarCollapsed) && (
+                  <div className="space-y-0.5">
+                    {section.items.map((item) => {
+                      const Icon = item.icon;
+                      const isActive = activeModule === item.key;
+                      return (
+                        <button
+                          key={item.key}
+                          type="button"
+                          onClick={() => handleSelectModule(item.key)}
+                          title={sidebarCollapsed && !isMobile ? item.label : undefined}
+                          className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold transition-colors cursor-pointer text-left ${
+                            isActive
+                              ? 'bg-[#01875F] text-white shadow-xs'
+                              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                          } ${sidebarCollapsed && !isMobile ? 'justify-center px-0' : ''}`}
+                        >
+                          <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : 'text-slate-400'}`} />
+                          {(!sidebarCollapsed || isMobile) && (
+                            <div className="flex items-center justify-between flex-1 min-w-0">
+                              <span className="truncate">{item.label}</span>
+                              {item.count != null && (
+                                <span
+                                  className={`ml-2 text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
+                                    isActive
+                                      ? 'bg-white/20 text-white'
+                                      : 'bg-slate-100 text-slate-500'
+                                  }`}
+                                >
+                                  {item.count}
+                                </span>
+                              )}
+                              {item.isUnconfigured && (
+                                <span
+                                  className={`ml-1 text-[9px] px-1 py-0.2 rounded font-medium ${
+                                    isActive ? 'bg-white/20 text-white' : 'bg-amber-50 text-amber-700'
+                                  }`}
+                                >
+                                  Setup
+                                </span>
+                              )}
+                            </div>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Account Lockup & Actions */}
+      <div className="p-3 border-t border-slate-100 space-y-2 bg-slate-50/50">
+        {!sidebarCollapsed || isMobile ? (
+          <div className="px-3 py-2 bg-white rounded-xl border border-slate-200/80 flex items-center gap-2.5 shadow-2xs">
+            <div className="w-8 h-8 rounded-full bg-[#01875F] text-white flex items-center justify-center text-xs font-bold shrink-0 shadow-2xs">
+              {executiveDisplayName[0]?.toUpperCase() || 'O'}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-bold text-slate-900 truncate leading-tight uppercase tracking-tight">
+                {executiveDisplayName}
+              </p>
+              <p className="text-[10px] text-[#01875F] font-semibold truncate leading-tight mt-0.5">
+                Executive Director
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="flex justify-center py-1">
+            <div className="w-8 h-8 rounded-full bg-[#01875F] text-white flex items-center justify-center text-xs font-bold shadow-2xs">
+              {executiveDisplayName[0]?.toUpperCase() || 'O'}
+            </div>
+          </div>
+        )}
+
+        {(!sidebarCollapsed || isMobile) && (
+          <div className="px-1">
+            <PWAInstallButton className="w-full text-xs justify-center py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200" />
+          </div>
+        )}
+
+        <button
+          type="button"
+          onClick={() => logout()}
+          title="Sign Out"
+          className={`w-full flex items-center ${
+            sidebarCollapsed && !isMobile ? 'justify-center' : 'gap-2.5'
+          } px-3 py-2 rounded-xl text-xs font-semibold text-red-600 hover:bg-red-50 transition-colors cursor-pointer text-left`}
+        >
+          <LogOut className="w-4 h-4 text-red-500 shrink-0" />
+          {(!sidebarCollapsed || isMobile) && <span>Sign Out</span>}
+        </button>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="min-h-screen bg-[#F8FAFB] flex flex-col md:flex-row text-slate-800 font-sans selection:bg-[#01875F]/20 selection:text-[#01875F]">
+      {/* Desktop Left Collapsible Sidebar */}
+      <aside
+        className={`hidden md:flex ${
+          sidebarCollapsed ? 'w-20' : 'w-72'
+        } bg-white border-r border-slate-200/90 flex-col shrink-0 transition-all duration-200 h-screen sticky top-0`}
+      >
+        {renderSidebarContent(false)}
+      </aside>
+
+      {/* Mobile Slide-in Drawer with Backdrop */}
+      {mobileDrawerOpen && (
+        <div className="fixed inset-0 z-50 md:hidden flex">
+          <div
+            className="fixed inset-0 bg-slate-900/40 backdrop-blur-2xs transition-opacity"
+            onClick={() => setMobileDrawerOpen(false)}
+          />
+          <div className="relative w-72 max-w-[85vw] bg-white z-50 flex flex-col h-full shadow-2xl animate-in slide-in-from-left duration-200">
+            {renderSidebarContent(true)}
           </div>
         </div>
-      </aside>
+      )}
 
       {/* MAIN VIEWPORT */}
       <main className="flex-1 flex flex-col min-w-0 overflow-y-auto">
         {/* Top Header with Identity Requirement */}
-        <header className="h-20 px-6 sm:px-8 border-b border-slate-200/80 bg-white flex items-center justify-between shrink-0">
-          <div className="min-w-0 pr-4">
-            <h1 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight uppercase">
-              {executiveDisplayName}
-            </h1>
-            <p className="text-xs font-semibold text-[#01875F] tracking-wide uppercase mt-0.5 truncate">
-              {executiveRoleTitle}
-            </p>
+        <header className="h-18 sm:h-20 px-4 sm:px-8 border-b border-slate-200/80 bg-white flex items-center justify-between shrink-0">
+          <div className="flex items-center gap-3 min-w-0 pr-4">
+            <button
+              type="button"
+              onClick={() => setMobileDrawerOpen(true)}
+              className="md:hidden p-2 -ml-1 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg cursor-pointer"
+              aria-label="Open navigation menu"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+            <div className="min-w-0">
+              <h1 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight uppercase truncate">
+                {executiveDisplayName}
+              </h1>
+              <p className="text-xs font-semibold text-[#01875F] tracking-wide uppercase mt-0.5 truncate">
+                {executiveRoleTitle}
+              </p>
+            </div>
           </div>
 
           <div className="flex items-center gap-2.5 shrink-0">
@@ -1778,6 +1894,15 @@ export const ExecutiveDashboard: React.FC = () => {
               onStatsRefresh={fetchDashboardData}
             />
           )}
+
+          {/* VIEW 16: TASK SPECIFICATIONS & HANDOVERS */}
+          {activeModule === 'tasks' && <TaskInstructionsPanel />}
+
+          {/* VIEW 17: COMPANY TOOLS & EQUIPMENT REGISTER */}
+          {activeModule === 'tools' && <ToolsEquipmentModule />}
+
+          {/* VIEW 18: PROJECT MATERIAL REMNANTS & RECOVERY */}
+          {activeModule === 'remnants' && <ProjectMaterialRemnantsModule />}
         </div>
       </main>
     </div>

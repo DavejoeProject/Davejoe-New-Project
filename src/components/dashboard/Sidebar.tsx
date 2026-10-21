@@ -33,6 +33,10 @@ import {
   LogOut,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
+  X,
+  Wrench,
+  ClipboardList,
 } from 'lucide-react';
 import { PWAInstallButton } from '../pwa/PWAInstallButton';
 
@@ -46,6 +50,7 @@ export type DashboardNavKey =
   | 'project-performance'
   | 'milestones'
   | 'inspections'
+  | 'tasks'
   // WORKFORCE
   | 'workforce'
   | 'workforce-performance'
@@ -53,7 +58,7 @@ export type DashboardNavKey =
   | 'productivity'
   | 'overtime'
   | 'conduct'
-  // MATERIALS
+  // MATERIALS & TOOLS
   | 'materials'
   | 'materials-directory'
   | 'material-requests'
@@ -62,6 +67,8 @@ export type DashboardNavKey =
   | 'stock'
   | 'losses-returns'
   | 'reconciliation'
+  | 'remnants'
+  | 'tools'
   // FINANCIAL CONTROL
   | 'project-costs'
   | 'budget-vs-actual'
@@ -105,6 +112,7 @@ export const SIDEBAR_SECTIONS: NavSectionConfig[] = [
       { key: 'project-performance', label: 'Project Performance', icon: TrendingUp },
       { key: 'milestones', label: 'Milestones', icon: Flag },
       { key: 'inspections', label: 'Inspections', icon: ClipboardCheck },
+      { key: 'tasks', label: 'Task Specifications', icon: ClipboardList },
     ],
   },
   {
@@ -119,15 +127,17 @@ export const SIDEBAR_SECTIONS: NavSectionConfig[] = [
     ],
   },
   {
-    title: 'MATERIALS',
+    title: 'MATERIALS & ASSETS',
     items: [
-      { key: 'materials', label: 'Materials', icon: Package },
+      { key: 'materials', label: 'Materials Overview', icon: Package },
       { key: 'material-requests', label: 'Material Requests', icon: FileText },
       { key: 'procurement', label: 'Procurement', icon: ShoppingCart },
       { key: 'deliveries', label: 'Deliveries', icon: Truck },
       { key: 'stock', label: 'Stock', icon: Boxes },
       { key: 'losses-returns', label: 'Losses & Returns', icon: RotateCcw },
       { key: 'reconciliation', label: 'Reconciliation', icon: Scale },
+      { key: 'remnants', label: 'Site Remnants', icon: RotateCcw },
+      { key: 'tools', label: 'Tools & Equipment', icon: Wrench },
     ],
   },
   {
@@ -165,6 +175,7 @@ interface SidebarProps {
   onLogout: () => void;
   userName?: string;
   userRole?: string;
+  onCloseMobile?: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -175,7 +186,52 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onLogout,
   userName = 'Mayowa',
   userRole = 'Management / CEO',
+  onCloseMobile,
 }) => {
+  // Collapsible section state
+  const [collapsedSections, setCollapsedSections] = React.useState<Record<string, boolean>>(() => {
+    try {
+      const saved = localStorage.getItem('davejoe_sidebar_sections_state');
+      if (saved) return JSON.parse(saved);
+    } catch {
+      // Ignored
+    }
+    return {};
+  });
+
+  const toggleSection = (title: string) => {
+    setCollapsedSections((prev) => {
+      const updated = { ...prev, [title]: !prev[title] };
+      try {
+        localStorage.setItem('davejoe_sidebar_sections_state', JSON.stringify(updated));
+      } catch {
+        // Ignored
+      }
+      return updated;
+    });
+  };
+
+  // Ensure active module's section is never collapsed
+  React.useEffect(() => {
+    const parentSection = SIDEBAR_SECTIONS.find((s) =>
+      s.items.some(
+        (i) =>
+          i.key === currentModule ||
+          (i.key === 'materials' && currentModule === 'materials-directory')
+      )
+    );
+    if (parentSection && collapsedSections[parentSection.title]) {
+      setCollapsedSections((prev) => ({ ...prev, [parentSection.title]: false }));
+    }
+  }, [currentModule]);
+
+  const handleItemClick = (key: DashboardNavKey) => {
+    onSelectModule(key);
+    if (onCloseMobile) {
+      onCloseMobile();
+    }
+  };
+
   return (
     <aside
       className={`bg-white border-r border-slate-200/90 flex flex-col justify-between transition-all duration-300 ease-in-out shrink-0 select-none z-30 h-full ${
@@ -189,7 +245,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         }`}
       >
         <div
-          onClick={() => onSelectModule('overview')}
+          onClick={() => handleItemClick('overview')}
           className="flex items-center gap-2.5 cursor-pointer group"
           title="Davejoe Management Tool"
         >
@@ -215,17 +271,30 @@ export const Sidebar: React.FC<SidebarProps> = ({
           )}
         </div>
 
-        {!collapsed && (
-          <button
-            type="button"
-            onClick={onToggleCollapse}
-            className="w-7 h-7 rounded-md hover:bg-slate-100 text-slate-400 hover:text-slate-600 flex items-center justify-center transition-colors cursor-pointer"
-            title="Collapse sidebar"
-            aria-label="Collapse sidebar"
-          >
-            <ChevronLeft className="w-4 h-4 stroke-[2]" />
-          </button>
-        )}
+        <div className="flex items-center gap-1">
+          {onCloseMobile && (
+            <button
+              type="button"
+              onClick={onCloseMobile}
+              className="md:hidden w-8 h-8 rounded-lg hover:bg-slate-100 text-slate-500 hover:text-slate-800 flex items-center justify-center transition-colors cursor-pointer"
+              aria-label="Close menu"
+            >
+              <X className="w-5 h-5 stroke-[2]" />
+            </button>
+          )}
+
+          {!collapsed && (
+            <button
+              type="button"
+              onClick={onToggleCollapse}
+              className="hidden md:flex w-7 h-7 rounded-md hover:bg-slate-100 text-slate-400 hover:text-slate-600 items-center justify-center transition-colors cursor-pointer"
+              title="Collapse sidebar"
+              aria-label="Collapse sidebar"
+            >
+              <ChevronLeft className="w-4 h-4 stroke-[2]" />
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Collapsed Expand Toggle */}
@@ -244,51 +313,82 @@ export const Sidebar: React.FC<SidebarProps> = ({
       )}
 
       {/* Scrollable Navigation Sections */}
-      <div className="flex-1 overflow-y-auto px-3 py-3 space-y-5 custom-scrollbar">
-        {SIDEBAR_SECTIONS.map((section) => (
-          <div key={section.title} className="space-y-1">
-            {!collapsed && (
-              <div className="px-3 py-1 text-[10.5px] font-bold tracking-wider text-slate-400 uppercase">
-                {section.title}
-              </div>
-            )}
+      <div className="flex-1 overflow-y-auto px-3 py-3 space-y-4 custom-scrollbar">
+        {SIDEBAR_SECTIONS.map((section) => {
+          const isSectionCollapsed = Boolean(collapsedSections[section.title]);
+          const containsActive = section.items.some(
+            (i) =>
+              currentModule === i.key ||
+              (i.key === 'materials' && currentModule === 'materials-directory')
+          );
 
-            <div className="space-y-0.5">
-              {section.items.map((item) => {
-                const Icon = item.icon;
-                const isActive =
-                  currentModule === item.key ||
-                  (item.key === 'materials' && currentModule === 'materials-directory');
-
-                return (
-                  <button
-                    key={item.key}
-                    type="button"
-                    onClick={() => onSelectModule(item.key)}
-                    title={collapsed ? item.label : undefined}
-                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-colors cursor-pointer group text-left ${
-                      isActive
-                        ? 'bg-[#01875F] text-white shadow-2xs font-semibold'
-                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
-                    } ${collapsed ? 'justify-center px-0 py-2.5' : ''}`}
-                  >
-                    <Icon
-                      className={`w-[17px] h-[17px] shrink-0 ${
-                        isActive
-                          ? 'text-white'
-                          : 'text-slate-500 group-hover:text-slate-800'
-                      }`}
-                      strokeWidth={isActive ? 2.2 : 1.9}
-                    />
-                    {!collapsed && (
-                      <span className="truncate text-[13px]">{item.label}</span>
+          return (
+            <div key={section.title} className="space-y-1">
+              {!collapsed ? (
+                <button
+                  type="button"
+                  onClick={() => toggleSection(section.title)}
+                  className="w-full flex items-center justify-between px-2.5 py-1 rounded-md text-[10.5px] font-bold tracking-wider uppercase text-slate-400 hover:text-slate-700 hover:bg-slate-50/80 transition-colors group cursor-pointer"
+                  title={`${isSectionCollapsed ? 'Expand' : 'Collapse'} ${section.title}`}
+                >
+                  <div className="flex items-center gap-1.5 truncate">
+                    <span>{section.title}</span>
+                    <span className="text-[9.5px] font-medium text-slate-400/80">
+                      ({section.items.length})
+                    </span>
+                  </div>
+                  <div className="flex items-center text-slate-400 group-hover:text-slate-600 transition-transform">
+                    {isSectionCollapsed ? (
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    ) : (
+                      <ChevronDown className="w-3.5 h-3.5" />
                     )}
-                  </button>
-                );
-              })}
+                  </div>
+                </button>
+              ) : (
+                <div className="my-2 border-t border-slate-100" />
+              )}
+
+              {/* Items - visible if section is expanded OR sidebar is in icon-only collapsed mode */}
+              {(!isSectionCollapsed || collapsed) && (
+                <div className="space-y-0.5 animate-in fade-in duration-150">
+                  {section.items.map((item) => {
+                    const Icon = item.icon;
+                    const isActive =
+                      currentModule === item.key ||
+                      (item.key === 'materials' && currentModule === 'materials-directory');
+
+                    return (
+                      <button
+                        key={item.key}
+                        type="button"
+                        onClick={() => handleItemClick(item.key)}
+                        title={collapsed ? item.label : undefined}
+                        className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-colors cursor-pointer group text-left ${
+                          isActive
+                            ? 'bg-[#01875F] text-white shadow-2xs font-semibold'
+                            : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                        } ${collapsed ? 'justify-center px-0 py-2.5' : ''}`}
+                      >
+                        <Icon
+                          className={`w-[17px] h-[17px] shrink-0 ${
+                            isActive
+                              ? 'text-white'
+                              : 'text-slate-500 group-hover:text-slate-800'
+                          }`}
+                          strokeWidth={isActive ? 2.2 : 1.9}
+                        />
+                        {!collapsed && (
+                          <span className="truncate text-[13px]">{item.label}</span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Bottom Section: Authenticated Identity, Profile & Logout */}

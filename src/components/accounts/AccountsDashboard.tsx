@@ -21,13 +21,16 @@ import {
   ArrowUpRight,
   ShieldCheck,
   AlertTriangle,
+  RotateCcw,
 } from 'lucide-react';
 import { FinancialControlModule } from '../dashboard/FinancialControlModule';
+import { DailyAttendanceWidget } from '../attendance/DailyAttendanceWidget';
+import { ProjectMaterialRemnantsModule } from '../remnants/ProjectMaterialRemnantsModule';
 
 export const AccountsDashboard: React.FC = () => {
   const { user, profile, logout } = useAuth();
   const [financialSummary, setFinancialSummary] = useState<FinancialControlExecutiveSummary | null>(null);
-  const [activeTab, setActiveTab] = useState<'overview' | 'projects' | 'budget' | 'commitments'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'projects' | 'budget' | 'commitments' | 'remnants'>('overview');
   const [purchaseOrders, setPurchaseOrders] = useState<any[]>([]);
   const [projects, setProjects] = useState<any[]>([]);
 
@@ -127,6 +130,9 @@ export const AccountsDashboard: React.FC = () => {
 
       {/* Main Content */}
       <main className="p-6 sm:p-8 max-w-7xl w-full mx-auto space-y-6 flex-1">
+        {/* Daily Timekeeping for Accounts & Finance Officer */}
+        <DailyAttendanceWidget />
+
         {/* Banner */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
@@ -146,7 +152,7 @@ export const AccountsDashboard: React.FC = () => {
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex items-center gap-2 border-b border-slate-200 pb-2">
+        <div className="flex items-center gap-2 border-b border-slate-200 pb-2 overflow-x-auto touch-pan-x">
           <button
             type="button"
             onClick={() => setActiveTab('overview')}
@@ -182,6 +188,15 @@ export const AccountsDashboard: React.FC = () => {
             }`}
           >
             Purchase Commitments ({purchaseOrders.length})
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('remnants')}
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
+              activeTab === 'remnants' ? 'bg-[#01875F] text-white shadow-xs' : 'text-slate-600 hover:bg-slate-100'
+            }`}
+          >
+            Remnants Reconciliation Value
           </button>
         </div>
 
@@ -363,6 +378,9 @@ export const AccountsDashboard: React.FC = () => {
             )}
           </div>
         )}
+
+        {/* TAB 5: REMNANTS RECONCILIATION */}
+        {activeTab === 'remnants' && <ProjectMaterialRemnantsModule />}
       </main>
     </div>
   );

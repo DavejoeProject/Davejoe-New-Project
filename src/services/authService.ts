@@ -758,7 +758,10 @@ const activeRoles: StandardRoleKey[] = [
   'admin',
   'management',
   'executive_director',
+  'technical',
   'supervisor',
+  'procurement',
+  'accounts',
   'artisan',
   'social_media_manager',
 ];

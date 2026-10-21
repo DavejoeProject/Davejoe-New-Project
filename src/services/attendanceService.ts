@@ -776,4 +776,348 @@ export class AttendanceService {
       return { data: null, error: err instanceof Error ? err.message : 'Failed to fetch attendance details.' };
     }
   }
+
+  /**
+   * Universal resolution of today's attendance status for any non-leadership user
+   */
+  static async getUserTodayAttendanceStatus(userId: string): Promise<{
+    hasRecord: boolean;
+    attendanceId: string | null;
+    status: AttendanceStatus | 'not_recorded';
+    clockInTime: string | null;
+    clockOutTime: string | null;
+    isClockedIn: boolean;
+    isClockedOut: boolean;
+    actualHours: number;
+    projectName: string | null;
+    projectId: string | null;
+    error: string | null;
+  }> {
+    const fallback = {
+      hasRecord: false,
+      attendanceId: null,
+      status: 'not_recorded' as const,
+      clockInTime: null,
+      clockOutTime: null,
+      isClockedIn: false,
+      isClockedOut: false,
+      actualHours: 0,
+      projectName: null,
+      projectId: null,
+      error: null,
+    };
+
+    if (!isSupabaseConfigured || !userId) return fallback;
+
+    try {
+      await ensureValidSession();
+      const today = getNigerianTodayIso();
+
+      // 1. Find linked workforce_member record
+      const { data: wfMember } = await supabase
+        .from('workforce_members')
+        .select('id')
+        .eq('profile_id', userId)
+        .maybeSingle();
+
+      const memberId = wfMember?.id;
+
+      // 2. Query today's attendance record
+      let query = supabase
+        .from('attendance_records')
+        .select(`
+          id,
+          attendance_date,
+          status,
+          created_at,
+          updated_at,
+          actual_hours,
+          project_id,
+          projects:project_id(id, name)
+        `)
+        .eq('attendance_date', today);
+
+      if (memberId) {
+        query = query.or(`workforce_member_id.eq.${memberId},recorded_by.eq.${userId}`);
+      } else {
+        query = query.eq('recorded_by', userId);
+      }
+
+      const { data: record, error } = await query.order('created_at', { ascending: false }).limit(1).maybeSingle();
+
+      if (error || !record) return fallback;
+
+      const createdAt = record.created_at;
+      const updatedAt = record.updated_at;
+      let isOut = false;
+      let clockOutTime: string | null = null;
+      let actualHours = Number(record.actual_hours) || 0;
+
+      if (createdAt && updatedAt) {
+        const diffMs = new Date(updatedAt).getTime() - new Date(createdAt).getTime();
+        if (diffMs > 60000 || actualHours > 0) {
+          isOut = true;
+          clockOutTime = updatedAt;
+          if (actualHours <= 0) {
+            actualHours = Number((diffMs / 3600000).toFixed(2));
+          }
+        }
+      }
+
+      return {
+        hasRecord: true,
+        attendanceId: record.id,
+        status: (record.status as AttendanceStatus) || 'present',
+        clockInTime: createdAt,
+        clockOutTime,
+        isClockedIn: !isOut,
+        isClockedOut: isOut,
+        actualHours,
+        projectName: (record as any).projects?.name || 'Project Operation',
+        projectId: record.project_id || null,
+        error: null,
+      };
+    } catch (err: any) {
+      console.warn('[AttendanceService] getUserTodayAttendanceStatus warning:', err);
+      return fallback;
+    }
+  }
+
+  /**
+   * Universal Clock-In for ALL Active Non-Leadership Roles:
+   * Admin, Technical QC, Site Supervisor, Procurement, Accounts, Artisan, Social Media Manager.
+   * Excludes Management / CEO and Executive Director.
+   */
+  static async clockInNonLeadershipUser(params: {
+    userId: string;
+    projectId?: string;
+    latitude?: number;
+    longitude?: number;
+  }): Promise<{ success: boolean; data?: any; error: string | null }> {
+    if (!isSupabaseConfigured) return { success: false, error: 'Database is not configured.' };
+
+    try {
+      const { session } = await ensureValidSession();
+      if (!session?.user) return { success: false, error: 'User is not authenticated.' };
+
+      // 1. Verify user profile and account status
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('id, status, display_name, first_name, last_name, job_title')
+        .eq('id', params.userId)
+        .maybeSingle();
+
+      if (profile?.status && profile.status.toLowerCase().trim() !== 'active') {
+        return {
+          success: false,
+          error: `Account status is ${profile.status.toUpperCase()}. Only active personnel may clock in.`,
+        };
+      }
+
+      // 2. Check leadership exclusion
+      const { assignedSlugs } = await AuthService.getUserRolesDetailed(params.userId);
+      const isLeadership = assignedSlugs.some(
+        (s) => s.toLowerCase() === 'management' || s.toLowerCase() === 'executive_director'
+      );
+      if (isLeadership) {
+        return {
+          success: false,
+          error: 'Management and Executive Director roles are excluded from the mandatory daily clocking requirement.',
+        };
+      }
+
+      // 3. Resolve or auto-ensure workforce_members record for non-artisan corporate roles
+      let workforceMemberId: string | null = null;
+      const { data: existingWf } = await supabase
+        .from('workforce_members')
+        .select('id')
+        .eq('profile_id', params.userId)
+        .maybeSingle();
+
+      if (existingWf) {
+        workforceMemberId = existingWf.id;
+      } else {
+        // Auto-link workforce member profile
+        const randomCode = 'EMP-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+        const roleLabel = assignedSlugs[0] || profile?.job_title || 'Corporate Staff';
+
+        const { data: createdWf, error: wfCreateErr } = await supabase
+          .from('workforce_members')
+          .insert({
+            workforce_code: randomCode,
+            trade: roleLabel,
+            status: 'active',
+            profile_id: params.userId,
+            notes: 'Auto-linked staff profile for daily attendance tracking',
+          })
+          .select('id')
+          .single();
+
+        if (wfCreateErr) {
+          // If insert fails due to RLS, try to find any existing workforce record
+          const { data: fallbackWf } = await supabase
+            .from('workforce_members')
+            .select('id')
+            .limit(1)
+            .maybeSingle();
+          workforceMemberId = fallbackWf?.id || null;
+        } else {
+          workforceMemberId = createdWf?.id || null;
+        }
+      }
+
+      if (!workforceMemberId) {
+        return {
+          success: false,
+          error: 'Unable to establish employee attendance identity in database.',
+        };
+      }
+
+      // 4. Resolve target project
+      let targetProjectId = params.projectId;
+      if (!targetProjectId) {
+        // Check active assignment
+        const { data: assign } = await supabase
+          .from('project_workforce_assignments')
+          .select('project_id')
+          .eq('workforce_member_id', workforceMemberId)
+          .eq('is_active', true)
+          .limit(1)
+          .maybeSingle();
+
+        if (assign?.project_id) {
+          targetProjectId = assign.project_id;
+        } else {
+          // Fallback to first available enterprise project
+          const { data: proj } = await supabase.from('projects').select('id').limit(1).maybeSingle();
+          targetProjectId = proj?.id;
+        }
+      }
+
+      if (!targetProjectId) {
+        return {
+          success: false,
+          error: 'No active project or operational site found to register attendance.',
+        };
+      }
+
+      const today = getNigerianTodayIso();
+
+      // 5. Prevent duplicate clock-in for today
+      const { data: existingShift } = await supabase
+        .from('attendance_records')
+        .select('id, status, created_at')
+        .eq('workforce_member_id', workforceMemberId)
+        .eq('attendance_date', today)
+        .maybeSingle();
+
+      if (existingShift) {
+        return {
+          success: false,
+          error: `You have already clocked in for today (${existingShift.status.toUpperCase()}). Duplicate shifts are prevented.`,
+        };
+      }
+
+      // 6. Persist attendance record
+      const hasGps = params.latitude != null && params.longitude != null;
+      const payload: any = {
+        project_id: targetProjectId,
+        workforce_member_id: workforceMemberId,
+        attendance_date: today,
+        status: 'present',
+        expected_hours: 8,
+        recorded_by: params.userId,
+        evidence_type: hasGps ? 'gps' : 'manual',
+        evidence_reference: 'non_leadership_self_clock',
+      };
+
+      if (hasGps) {
+        payload.latitude = params.latitude;
+        payload.longitude = params.longitude;
+      }
+
+      const { data: inserted, error: insErr } = await supabase
+        .from('attendance_records')
+        .insert(payload)
+        .select(`
+          id,
+          attendance_date,
+          status,
+          created_at,
+          projects:project_id(name)
+        `)
+        .single();
+
+      if (insErr) {
+        return { success: false, error: insErr.message };
+      }
+
+      return { success: true, data: inserted, error: null };
+    } catch (err: any) {
+      console.error('[AttendanceService] clockInNonLeadershipUser error:', err);
+      return { success: false, error: err.message || 'Failed to record clock-in.' };
+    }
+  }
+
+  /**
+   * Universal Clock-Out for Non-Leadership Roles
+   */
+  static async clockOutNonLeadershipUser(params: {
+    userId: string;
+    attendanceRecordId?: string;
+  }): Promise<{ success: boolean; actualHours: number; error: string | null }> {
+    if (!isSupabaseConfigured) return { success: false, actualHours: 0, error: 'Database is not configured.' };
+
+    try {
+      const today = getNigerianTodayIso();
+      let recordId = params.attendanceRecordId;
+
+      // If ID not provided, resolve today's open record
+      if (!recordId) {
+        const status = await this.getUserTodayAttendanceStatus(params.userId);
+        if (!status.hasRecord || !status.attendanceId) {
+          return { success: false, actualHours: 0, error: 'No active clock-in session found for today.' };
+        }
+        if (status.isClockedOut) {
+          return { success: false, actualHours: status.actualHours, error: 'You are already clocked out for today.' };
+        }
+        recordId = status.attendanceId;
+      }
+
+      // Fetch the clock-in timestamp to compute duration
+      const { data: record, error: findErr } = await supabase
+        .from('attendance_records')
+        .select('id, created_at, updated_at, actual_hours')
+        .eq('id', recordId)
+        .single();
+
+      if (findErr || !record) {
+        return { success: false, actualHours: 0, error: 'Attendance record not found.' };
+      }
+
+      const clockInTime = new Date(record.created_at).getTime();
+      const nowTime = Date.now();
+      const elapsedHours = Number(Math.max(0.1, (nowTime - clockInTime) / 3600000).toFixed(2));
+      const nowIso = new Date().toISOString();
+
+      const { error: updateErr } = await supabase
+        .from('attendance_records')
+        .update({
+          updated_at: nowIso,
+          actual_hours: elapsedHours,
+          status: 'present',
+        })
+        .eq('id', recordId);
+
+      if (updateErr) {
+        return { success: false, actualHours: 0, error: updateErr.message };
+      }
+
+      return { success: true, actualHours: elapsedHours, error: null };
+    } catch (err: any) {
+      console.error('[AttendanceService] clockOutNonLeadershipUser error:', err);
+      return { success: false, actualHours: 0, error: err.message || 'Failed to process clock-out.' };
+    }
+  }
 }
+

@@ -21,6 +21,9 @@ import {
   ChevronRight,
   Shield,
   FileText,
+  Wrench,
+  RotateCcw,
+  ClipboardList,
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import {
@@ -31,6 +34,10 @@ import {
 import { formatNigerianDate, formatNaira } from '../../services/materialsService';
 import { ATTENDANCE_STATUS_CONFIG, formatTimeFromIso } from '../../services/attendanceService';
 import { AttendanceRegister } from '../attendance/AttendanceRegister';
+import { DailyAttendanceWidget } from '../attendance/DailyAttendanceWidget';
+import { ProjectMaterialRemnantsModule } from '../remnants/ProjectMaterialRemnantsModule';
+import { ToolsEquipmentModule } from '../tools/ToolsEquipmentModule';
+import { TaskInstructionsPanel } from '../tasks/TaskInstructionsPanel';
 import { ClockInWorkerModal } from './ClockInWorkerModal';
 import { ClockOutWorkerModal } from './ClockOutWorkerModal';
 import { RecordAttendanceModal } from './RecordAttendanceModal';
@@ -41,6 +48,9 @@ import { NewMaterialRequestModal } from '../dashboard/NewMaterialRequestModal';
 export type SupervisorNavKey =
   | 'today'
   | 'projects'
+  | 'tasks'
+  | 'tools'
+  | 'remnants'
   | 'attendance'
   | 'workforce'
   | 'productivity'
@@ -279,17 +289,20 @@ export const SupervisorDashboard: React.FC = () => {
               <AlertTriangle className="w-4 h-4 text-rose-600" />
             </div>
             <div className="text-2xl font-bold font-mono text-rose-700">
-              data?.kpis.unresolvedSiteIssues ?? 0
+              {data?.kpis.unresolvedSiteIssues ?? 0}
             </div>
             <p className="text-[11px] text-slate-500 mt-1">Defects &amp; pending tasks</p>
           </div>
         </div>
 
         {/* Operational Navigation Tabs */}
-        <div className="bg-white p-1.5 rounded-2xl border border-slate-200/80 shadow-2xs flex items-center gap-1 overflow-x-auto">
+        <div className="bg-white p-1.5 rounded-2xl border border-slate-200/80 shadow-2xs flex items-center gap-1 overflow-x-auto touch-pan-x">
           {[
             { key: 'today', label: "Today's Operations", icon: Clock },
             { key: 'projects', label: 'My Projects', icon: Building },
+            { key: 'tasks', label: 'Task Instructions', icon: ClipboardList },
+            { key: 'tools', label: 'Tools & Equipment', icon: Wrench },
+            { key: 'remnants', label: 'Material Remnants', icon: RotateCcw },
             { key: 'attendance', label: 'Attendance & Muster', icon: UserCheck },
             { key: 'productivity', label: 'Productivity Logs', icon: TrendingUp },
             { key: 'issues', label: 'Site Tasks & Issues', icon: AlertTriangle },
@@ -321,6 +334,9 @@ export const SupervisorDashboard: React.FC = () => {
         {/* Tab 1: Today's Operations */}
         {activeTab === 'today' && (
           <div className="space-y-6">
+            {/* Daily Self Attendance for Site Supervisor */}
+            <DailyAttendanceWidget />
+
             {/* Split Grid: Today's Attendance Snapshot vs Today's Productivity Logs */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Today's Attendance Box */}
@@ -824,6 +840,21 @@ export const SupervisorDashboard: React.FC = () => {
               </div>
             </div>
           </div>
+        )}
+
+        {/* Tab: Mandatory Task Instructions & Handover */}
+        {activeTab === 'tasks' && (
+          <TaskInstructionsPanel projectId={selectedProject?.id} />
+        )}
+
+        {/* Tab: Tools & Equipment Custody & Returns */}
+        {activeTab === 'tools' && (
+          <ToolsEquipmentModule />
+        )}
+
+        {/* Tab: Material Remnants & Reconciliation */}
+        {activeTab === 'remnants' && (
+          <ProjectMaterialRemnantsModule initialProjectId={selectedProject?.id} />
         )}
       </main>
 

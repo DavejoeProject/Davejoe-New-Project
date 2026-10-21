@@ -2,6 +2,7 @@ import React from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { Images, LogOut, Sparkles, Building2, ShieldCheck } from 'lucide-react';
 import { JobCompletionPhotoLibrary } from '../photos/JobCompletionPhotoLibrary';
+import { DailyAttendanceWidget } from '../attendance/DailyAttendanceWidget';
 
 export const SocialMediaDashboard: React.FC = () => {
   const { user, profile, hasRole, currentRoleKey, logout } = useAuth();
@@ -56,6 +57,9 @@ export const SocialMediaDashboard: React.FC = () => {
       </header>
 
       <main className="mx-auto max-w-7xl space-y-6 px-5 py-8 sm:px-8">
+        {/* Daily Timekeeping for Social Media Specialist */}
+        <DailyAttendanceWidget />
+
         <section className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 text-xs text-[#01875F] font-bold mb-1">

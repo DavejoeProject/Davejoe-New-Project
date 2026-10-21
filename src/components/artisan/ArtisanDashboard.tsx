@@ -15,6 +15,8 @@ import {
   Shield,
   Phone,
   User,
+  ClipboardList,
+  RotateCcw,
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import {
@@ -24,9 +26,12 @@ import {
 import { formatNigerianDate } from '../../services/materialsService';
 import { ATTENDANCE_STATUS_CONFIG, formatTimeFromIso } from '../../services/attendanceService';
 import { RequestOvertimeModal } from './RequestOvertimeModal';
+import { TaskInstructionsPanel } from '../tasks/TaskInstructionsPanel';
+import { ProjectMaterialRemnantsModule } from '../remnants/ProjectMaterialRemnantsModule';
 
 export const ArtisanDashboard: React.FC = () => {
   const { user, profile, logout } = useAuth();
+  const [artisanTab, setArtisanTab] = useState<'shift' | 'tasks' | 'remnants' | 'history' | 'profile'>('shift');
 
   const [data, setData] = useState<ArtisanDashboardData | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -242,15 +247,46 @@ export const ArtisanDashboard: React.FC = () => {
           </div>
         )}
 
-        {/* 1. Today's Attendance & Timekeeping Card */}
-        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs p-6">
-          <div className="flex items-center justify-between pb-4 border-b border-slate-100">
-            <div className="flex items-center gap-2">
-              <Clock className="w-5 h-5 text-[#01875F]" />
-              <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
-                Today's Attendance Status
-              </h3>
-            </div>
+        {/* Navigation Tabs */}
+        <div className="bg-white p-1.5 rounded-2xl border border-slate-200/80 shadow-2xs flex items-center gap-1 overflow-x-auto touch-pan-x">
+          {[
+            { key: 'shift', label: "Today's Shift", icon: Clock },
+            { key: 'tasks', label: 'My Task Instructions', icon: ClipboardList },
+            { key: 'remnants', label: 'Report Material Remnants', icon: RotateCcw },
+            { key: 'history', label: 'Attendance History', icon: Calendar },
+            { key: 'profile', label: 'Artisan Profile', icon: Shield },
+          ].map((t) => {
+            const Icon = t.icon;
+            const isActive = artisanTab === t.key;
+            return (
+              <button
+                key={t.key}
+                type="button"
+                onClick={() => setArtisanTab(t.key as any)}
+                className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
+                  isActive
+                    ? 'bg-[#01875F] text-white shadow-2xs'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                }`}
+              >
+                <Icon className="w-3.5 h-3.5" />
+                <span>{t.label}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        {artisanTab === 'shift' && (
+          <div className="space-y-6">
+            {/* 1. Today's Attendance & Timekeeping Card */}
+            <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs p-6">
+              <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+                <div className="flex items-center gap-2">
+                  <Clock className="w-5 h-5 text-[#01875F]" />
+                  <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
+                    Today's Attendance Status
+                  </h3>
+                </div>
             <span className="text-xs font-medium text-slate-500">
               {formatNigerianDate(new Date().toISOString())}
             </span>
@@ -472,8 +508,21 @@ export const ArtisanDashboard: React.FC = () => {
             )}
           </div>
         </div>
+        </div>
+        )}
+
+        {/* 2. My Task Instructions & Technical Specifications */}
+        {artisanTab === 'tasks' && (
+          <TaskInstructionsPanel projectId={data?.activeProject?.projectId} />
+        )}
+
+        {/* 3. Report Material Remnants on Site */}
+        {artisanTab === 'remnants' && (
+          <ProjectMaterialRemnantsModule initialProjectId={data?.activeProject?.projectId} />
+        )}
 
         {/* 4. My Recent Attendance History (Last 14 Days) */}
+        {artisanTab === 'history' && (
         <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs p-6 space-y-4">
           <div className="flex items-center justify-between pb-3 border-b border-slate-100">
             <div className="flex items-center gap-2">
@@ -535,8 +584,10 @@ export const ArtisanDashboard: React.FC = () => {
             </div>
           )}
         </div>
+        )}
 
         {/* 5. My Profile Card */}
+        {artisanTab === 'profile' && (
         <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs p-6 max-w-xl">
           <div className="flex items-center gap-4 pb-5 border-b border-slate-100">
             <div className="w-14 h-14 rounded-2xl bg-[#01875F] text-white flex items-center justify-center font-bold text-xl shadow-2xs">
@@ -579,6 +630,7 @@ export const ArtisanDashboard: React.FC = () => {
             </div>
           </div>
         </div>
+        )}
       </main>
 
       {/* Overtime Request Modal */}

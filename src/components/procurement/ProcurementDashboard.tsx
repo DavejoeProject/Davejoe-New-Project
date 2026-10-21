@@ -18,14 +18,19 @@ import {
   Plus,
   Send,
   AlertTriangle,
+  RotateCcw,
+  Wrench,
 } from 'lucide-react';
+import { DailyAttendanceWidget } from '../attendance/DailyAttendanceWidget';
+import { ProjectMaterialRemnantsModule } from '../remnants/ProjectMaterialRemnantsModule';
+import { ToolsEquipmentModule } from '../tools/ToolsEquipmentModule';
 import { CreatePurchaseOrderModal } from '../dashboard/CreatePurchaseOrderModal';
 import { NewMaterialRequestModal } from '../dashboard/NewMaterialRequestModal';
 import { RecordDeliveryModal } from '../dashboard/RecordDeliveryModal';
 
 export const ProcurementDashboard: React.FC = () => {
   const { user, profile, logout } = useAuth();
-  const [activeTab, setActiveTab] = useState<'orders' | 'requests' | 'deliveries' | 'suppliers'>('orders');
+  const [activeTab, setActiveTab] = useState<'orders' | 'requests' | 'deliveries' | 'suppliers' | 'remnants' | 'tools'>('orders');
 
   const [purchaseOrders, setPurchaseOrders] = useState<any[]>([]);
   const [materialRequests, setMaterialRequests] = useState<any[]>([]);
@@ -153,6 +158,9 @@ export const ProcurementDashboard: React.FC = () => {
 
       {/* Main Content */}
       <main className="p-6 sm:p-8 max-w-7xl w-full mx-auto space-y-6 flex-1">
+        {/* Daily Timekeeping for Procurement & Logistics */}
+        <DailyAttendanceWidget />
+
         {/* Banner */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
@@ -285,6 +293,24 @@ export const ProcurementDashboard: React.FC = () => {
             }`}
           >
             Supplier Directory ({suppliers.length})
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('remnants')}
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
+              activeTab === 'remnants' ? 'bg-[#01875F] text-white shadow-xs' : 'text-slate-600 hover:bg-slate-100'
+            }`}
+          >
+            Material Remnants & Recovery
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('tools')}
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
+              activeTab === 'tools' ? 'bg-[#01875F] text-white shadow-xs' : 'text-slate-600 hover:bg-slate-100'
+            }`}
+          >
+            Tools & Equipment Register
           </button>
         </div>
 
@@ -477,6 +503,12 @@ export const ProcurementDashboard: React.FC = () => {
             )}
           </div>
         )}
+
+        {/* TAB 5: MATERIAL REMNANTS & RECOVERY */}
+        {activeTab === 'remnants' && <ProjectMaterialRemnantsModule />}
+
+        {/* TAB 6: TOOLS & EQUIPMENT LOGISTICS */}
+        {activeTab === 'tools' && <ToolsEquipmentModule />}
       </main>
 
       {/* Modals */}

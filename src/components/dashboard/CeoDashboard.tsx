@@ -50,6 +50,9 @@ import { supabase } from '../../lib/supabase';
 import { UserManagementView } from '../admin/UserManagementView';
 import { RolesPermissionsView } from '../admin/RolesPermissionsView';
 import { SystemSettingsView } from '../admin/SystemSettingsView';
+import { ProjectMaterialRemnantsModule } from '../remnants/ProjectMaterialRemnantsModule';
+import { ToolsEquipmentModule } from '../tools/ToolsEquipmentModule';
+import { TaskInstructionsPanel } from '../tasks/TaskInstructionsPanel';
 
 interface CeoDashboardProps {
   initialModule?: DashboardNavKey;
@@ -458,6 +461,7 @@ export const CeoDashboard: React.FC<CeoDashboardProps> = ({ initialModule = 'ove
               onLogout={handleLogout}
               userName={userName}
               userRole={userRole}
+              onCloseMobile={() => setMobileSidebarOpen(false)}
             />
           </div>
         </div>
@@ -647,6 +651,12 @@ export const CeoDashboard: React.FC<CeoDashboardProps> = ({ initialModule = 'ove
                   initialRoles={rolesList}
                   onStatsRefresh={fetchRolesList}
                 />
+              ) : currentModule === 'tasks' ? (
+                <TaskInstructionsPanel />
+              ) : currentModule === 'remnants' ? (
+                <ProjectMaterialRemnantsModule />
+              ) : currentModule === 'tools' ? (
+                <ToolsEquipmentModule />
               ) : currentModule === 'settings' ? (
                 <SystemSettingsView />
               ) : (

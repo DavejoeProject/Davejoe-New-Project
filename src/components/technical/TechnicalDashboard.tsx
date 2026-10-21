@@ -17,10 +17,17 @@ import {
   Building2,
   Calendar,
   AlertOctagon,
+  Wrench,
+  RotateCcw,
 } from 'lucide-react';
+import { DailyAttendanceWidget } from '../attendance/DailyAttendanceWidget';
+import { ProjectMaterialRemnantsModule } from '../remnants/ProjectMaterialRemnantsModule';
+import { ToolsEquipmentModule } from '../tools/ToolsEquipmentModule';
+import { TaskInstructionsPanel } from '../tasks/TaskInstructionsPanel';
 
 export const TechnicalDashboard: React.FC = () => {
   const { user, profile, logout } = useAuth();
+  const [activeTab, setActiveTab] = useState<'inspections' | 'tasks' | 'tools' | 'remnants'>('inspections');
   const [inspections, setInspections] = useState<any[]>([]);
   const [projects, setProjects] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -190,8 +197,41 @@ export const TechnicalDashboard: React.FC = () => {
 
       {/* Main Viewport */}
       <main className="p-6 sm:p-8 max-w-7xl w-full mx-auto space-y-6 flex-1">
-        {/* Banner */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        {/* Daily Timekeeping for QC Officer */}
+        <DailyAttendanceWidget />
+
+        {/* Operational Navigation Tabs */}
+        <div className="bg-white p-1.5 rounded-2xl border border-slate-200/80 shadow-2xs flex items-center gap-1 overflow-x-auto touch-pan-x">
+          {[
+            { key: 'inspections', label: 'Technical Inspections', icon: ClipboardCheck },
+            { key: 'tasks', label: 'Task Verification & Handovers', icon: FileCheck },
+            { key: 'tools', label: 'Tools Return & Condition Audits', icon: Wrench },
+            { key: 'remnants', label: 'Remnants Quality Review', icon: RotateCcw },
+          ].map((t) => {
+            const Icon = t.icon;
+            const isActive = activeTab === t.key;
+            return (
+              <button
+                key={t.key}
+                type="button"
+                onClick={() => setActiveTab(t.key as any)}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
+                  isActive
+                    ? 'bg-[#01875F] text-white shadow-2xs'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                }`}
+              >
+                <Icon className="w-3.5 h-3.5" />
+                <span>{t.label}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        {activeTab === 'inspections' && (
+          <div className="space-y-6">
+            {/* Banner */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2.5">
               <ClipboardCheck className="w-6 h-6 text-[#01875F]" />
@@ -398,6 +438,17 @@ export const TechnicalDashboard: React.FC = () => {
             </div>
           )}
         </div>
+        </div>
+        )}
+
+        {/* Tab 2: Task Verification & Quality Review */}
+        {activeTab === 'tasks' && <TaskInstructionsPanel />}
+
+        {/* Tab 3: Tools & Equipment Return Condition Audits */}
+        {activeTab === 'tools' && <ToolsEquipmentModule />}
+
+        {/* Tab 4: Material Remnants Quality Inspection */}
+        {activeTab === 'remnants' && <ProjectMaterialRemnantsModule />}
       </main>
 
       {/* Record Inspection Modal */}

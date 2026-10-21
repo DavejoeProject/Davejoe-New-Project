@@ -24,10 +24,21 @@ import {
   CheckCircle2,
   Clock,
   ChevronRight,
+  ChevronLeft,
+  ChevronDown,
+  Menu,
+  X,
   ShieldAlert,
   ArrowRight,
   Plus,
+  RotateCcw,
+  Wrench,
+  ClipboardList,
 } from 'lucide-react';
+import { DailyAttendanceWidget } from '../attendance/DailyAttendanceWidget';
+import { ProjectMaterialRemnantsModule } from '../remnants/ProjectMaterialRemnantsModule';
+import { ToolsEquipmentModule } from '../tools/ToolsEquipmentModule';
+import { TaskInstructionsPanel } from '../tasks/TaskInstructionsPanel';
 
 type AdminTab =
   | 'dashboard'
@@ -38,7 +49,10 @@ type AdminTab =
   | 'roles'
   | 'audit-logs'
   | 'photos'
-  | 'settings';
+  | 'settings'
+  | 'remnants'
+  | 'tools'
+  | 'tasks';
 
 export const AdminDashboard: React.FC = () => {
   const { user, profile, logout } = useAuth();
@@ -54,12 +68,23 @@ export const AdminDashboard: React.FC = () => {
     if (path.includes('/admin/workforce')) return 'workforce';
     if (path.includes('/admin/projects')) return 'projects';
     if (path.includes('/admin/clients')) return 'clients';
+    if (path.includes('/admin/photos')) return 'photos';
+    if (path.includes('/admin/remnants')) return 'remnants';
+    if (path.includes('/admin/tools')) return 'tools';
+    if (path.includes('/admin/tasks')) return 'tasks';
     return 'dashboard';
   };
 
   const [activeTab, setActiveTab] = useState<AdminTab>(() => resolveTabFromPath(location.pathname));
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
+  const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const toggleSection = (title: string) => {
+    setCollapsedSections((prev) => ({ ...prev, [title]: !prev[title] }));
+  };
 
   // Sync tab state when URL changes
   useEffect(() => {
@@ -71,6 +96,7 @@ export const AdminDashboard: React.FC = () => {
 
   const handleSelectTab = (tab: AdminTab) => {
     setActiveTab(tab);
+    setMobileDrawerOpen(false);
     if (tab === 'dashboard') {
       navigate('/admin');
     } else {
@@ -141,112 +167,240 @@ export const AdminDashboard: React.FC = () => {
     await fetchAdminData();
   };
 
-  const navItems: { key: AdminTab; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
-    { key: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { key: 'users', label: 'Users', icon: Users },
-    { key: 'roles', label: 'Roles & Permissions', icon: ShieldCheck },
-    { key: 'audit-logs', label: 'Audit Logs', icon: FileText },
-    { key: 'settings', label: 'Settings', icon: Settings },
-    { key: 'workforce', label: 'Workforce', icon: HardHat },
-    { key: 'projects', label: 'Projects', icon: FolderKanban },
-    { key: 'clients', label: 'Clients', icon: Building2 },
-{ key: 'photos', label: 'Job Photos', icon: Images },
+  const adminSections = [
+    {
+      title: 'OPERATIONS & SITES',
+      items: [
+        { key: 'dashboard' as AdminTab, label: 'Control Centre', icon: LayoutDashboard },
+        { key: 'projects' as AdminTab, label: 'Projects', icon: FolderKanban, count: metrics.projectsCount },
+        { key: 'tasks' as AdminTab, label: 'Task Specifications', icon: ClipboardList },
+        { key: 'workforce' as AdminTab, label: 'Workforce', icon: HardHat, count: metrics.workforceCount },
+        { key: 'tools' as AdminTab, label: 'Tools & Equipment', icon: Wrench },
+        { key: 'remnants' as AdminTab, label: 'Material Remnants', icon: RotateCcw },
+        { key: 'clients' as AdminTab, label: 'Clients', icon: Building2 },
+      ],
+    },
+    {
+      title: 'MEDIA & ASSETS',
+      items: [
+        { key: 'photos' as AdminTab, label: 'Job Photos', icon: Images },
+      ],
+    },
+    {
+      title: 'GOVERNANCE & SYSTEM',
+      items: [
+        { key: 'users' as AdminTab, label: 'Users & Access', icon: Users, count: metrics.usersCount },
+        { key: 'roles' as AdminTab, label: 'Roles & Permissions', icon: ShieldCheck, count: metrics.rolesCount },
+        { key: 'audit-logs' as AdminTab, label: 'Audit Logs', icon: FileText, count: metrics.recentAuditCount },
+        { key: 'settings' as AdminTab, label: 'System Settings', icon: Settings },
+      ],
+    },
   ];
 
   const adminDisplayName = profile?.display_name || user?.email?.split('@')[0] || 'Administrator';
 
-  return (
-    <div className="min-h-screen bg-[#F8FAFB] flex flex-col md:flex-row text-slate-800 font-sans selection:bg-[#01875F]/20 selection:text-[#01875F]">
-      {/* SIDEBAR */}
-      <aside className="w-full md:w-64 bg-white border-r border-slate-200/90 flex flex-col shrink-0">
+  // Render navigation inside sidebar or mobile drawer
+  const renderSidebarContent = (isMobile = false) => (
+    <div className="flex flex-col h-full justify-between select-none">
+      <div>
         {/* Brand Lockup */}
         <div className="h-16 px-5 border-b border-slate-100 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center shadow-xs bg-white border border-slate-100 shrink-0">
               <img src="/favicon.png" alt="Davejoe" className="w-full h-full object-contain" />
             </div>
-            <div className="flex flex-col">
-              <span className="font-bold text-slate-900 tracking-tight text-[15px] leading-tight">
-                Davejoe
-              </span>
-              <span className="text-[10px] font-semibold text-[#01875F] tracking-wider uppercase leading-tight">
-                Administration
-              </span>
-            </div>
+            {(!sidebarCollapsed || isMobile) && (
+              <div className="flex flex-col min-w-0">
+                <span className="font-bold text-slate-900 tracking-tight text-[15px] leading-tight truncate">
+                  Davejoe
+                </span>
+                <span className="text-[10px] font-semibold text-[#01875F] tracking-wider uppercase leading-tight truncate">
+                  Administration
+                </span>
+              </div>
+            )}
           </div>
-        </div>
 
-        {/* Navigation Menu */}
-        <div className="p-3.5 flex-1 flex flex-col justify-between overflow-y-auto">
-          <nav className="space-y-1">
-            <div className="px-3 pt-2 pb-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-              System Control Centre
-            </div>
-            {navItems.map((item) => {
-              const Icon = item.icon;
-              const isActive = activeTab === item.key;
-              return (
-                <button
-                  key={item.key}
-                  type="button"
-                  onClick={() => handleSelectTab(item.key)}
-                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold transition-colors cursor-pointer text-left ${
-                    isActive
-                      ? 'bg-[#01875F] text-white shadow-xs'
-                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
-                  }`}
-                >
-                  <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : 'text-slate-400'}`} />
-                  <span>{item.label}</span>
-                </button>
-              );
-            })}
-          </nav>
-
-          {/* User Account / Sign Out */}
-          <div className="pt-4 border-t border-slate-100 mt-4 space-y-2">
-            <div className="px-3 py-2 bg-slate-50 rounded-xl border border-slate-100 flex items-center gap-2.5">
-              <div className="w-7 h-7 rounded-full bg-[#01875F]/10 text-[#01875F] flex items-center justify-center text-xs font-bold shrink-0">
-                {adminDisplayName[0].toUpperCase()}
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-xs font-semibold text-slate-800 truncate leading-tight">
-                  {adminDisplayName}
-                </p>
-                <p className="text-[10px] text-slate-400 truncate leading-tight mt-0.5">
-                  {user?.email}
-                </p>
-              </div>
-            </div>
-
+          {isMobile ? (
             <button
               type="button"
-              onClick={() => logout()}
-              className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-red-600 hover:bg-red-50 transition-colors cursor-pointer text-left"
+              onClick={() => setMobileDrawerOpen(false)}
+              className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer"
+              aria-label="Close menu"
             >
-              <LogOut className="w-4 h-4 text-red-500 shrink-0" />
-              <span>Sign Out</span>
+              <X className="w-5 h-5" />
             </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+              className="hidden md:flex w-7 h-7 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 items-center justify-center transition-colors cursor-pointer"
+              title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            >
+              {sidebarCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+            </button>
+          )}
+        </div>
+
+        {/* Collapsible Navigation Menu */}
+        <div className="p-3 space-y-4 overflow-y-auto max-h-[calc(100vh-160px)]">
+          {adminSections.map((section) => {
+            const isSectionCollapsed = Boolean(collapsedSections[section.title]);
+            return (
+              <div key={section.title} className="space-y-1">
+                {!sidebarCollapsed || isMobile ? (
+                  <button
+                    type="button"
+                    onClick={() => toggleSection(section.title)}
+                    className="w-full flex items-center justify-between px-2.5 py-1 rounded-md text-[10px] font-bold tracking-wider uppercase text-slate-400 hover:text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer"
+                  >
+                    <span>{section.title}</span>
+                    <div className="flex items-center text-slate-400">
+                      {isSectionCollapsed ? (
+                        <ChevronRight className="w-3.5 h-3.5" />
+                      ) : (
+                        <ChevronDown className="w-3.5 h-3.5" />
+                      )}
+                    </div>
+                  </button>
+                ) : (
+                  <div className="my-2 border-t border-slate-100" />
+                )}
+
+                {(!isSectionCollapsed || sidebarCollapsed) && (
+                  <div className="space-y-0.5">
+                    {section.items.map((item) => {
+                      const Icon = item.icon;
+                      const isActive = activeTab === item.key;
+                      return (
+                        <button
+                          key={item.key}
+                          type="button"
+                          onClick={() => handleSelectTab(item.key)}
+                          title={sidebarCollapsed && !isMobile ? item.label : undefined}
+                          className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold transition-colors cursor-pointer text-left ${
+                            isActive
+                              ? 'bg-[#01875F] text-white shadow-xs'
+                              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                          } ${sidebarCollapsed && !isMobile ? 'justify-center px-0' : ''}`}
+                        >
+                          <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : 'text-slate-400'}`} />
+                          {(!sidebarCollapsed || isMobile) && (
+                            <div className="flex items-center justify-between flex-1 min-w-0">
+                              <span className="truncate">{item.label}</span>
+                              {item.count != null && (
+                                <span
+                                  className={`ml-2 text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
+                                    isActive ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'
+                                  }`}
+                                >
+                                  {item.count}
+                                </span>
+                              )}
+                            </div>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* User Account / Sign Out */}
+      <div className="p-3 border-t border-slate-100 space-y-2 bg-slate-50/50">
+        {!sidebarCollapsed || isMobile ? (
+          <div className="px-3 py-2 bg-white rounded-xl border border-slate-200/80 flex items-center gap-2.5 shadow-2xs">
+            <div className="w-7 h-7 rounded-full bg-[#01875F]/10 text-[#01875F] flex items-center justify-center text-xs font-bold shrink-0">
+              {adminDisplayName[0].toUpperCase()}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-semibold text-slate-800 truncate leading-tight">
+                {adminDisplayName}
+              </p>
+              <p className="text-[10px] text-[#01875F] font-medium truncate leading-tight mt-0.5">
+                Admin Coordinator
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="flex justify-center py-1">
+            <div className="w-7 h-7 rounded-full bg-[#01875F]/10 text-[#01875F] flex items-center justify-center text-xs font-bold">
+              {adminDisplayName[0].toUpperCase()}
+            </div>
+          </div>
+        )}
+
+        <button
+          type="button"
+          onClick={() => logout()}
+          title="Sign Out"
+          className={`w-full flex items-center ${
+            sidebarCollapsed && !isMobile ? 'justify-center' : 'gap-2.5'
+          } px-3 py-2 rounded-xl text-xs font-semibold text-red-600 hover:bg-red-50 transition-colors cursor-pointer text-left`}
+        >
+          <LogOut className="w-4 h-4 text-red-500 shrink-0" />
+          {(!sidebarCollapsed || isMobile) && <span>Sign Out</span>}
+        </button>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="min-h-screen bg-[#F8FAFB] flex flex-col md:flex-row text-slate-800 font-sans selection:bg-[#01875F]/20 selection:text-[#01875F]">
+      {/* Desktop Collapsible Sidebar */}
+      <aside
+        className={`hidden md:flex ${
+          sidebarCollapsed ? 'w-20' : 'w-64'
+        } bg-white border-r border-slate-200/90 flex-col shrink-0 transition-all duration-200 h-screen sticky top-0`}
+      >
+        {renderSidebarContent(false)}
+      </aside>
+
+      {/* Mobile Slide-in Drawer with Backdrop */}
+      {mobileDrawerOpen && (
+        <div className="fixed inset-0 z-50 md:hidden flex">
+          <div
+            className="fixed inset-0 bg-slate-900/40 backdrop-blur-2xs transition-opacity"
+            onClick={() => setMobileDrawerOpen(false)}
+          />
+          <div className="relative w-72 max-w-[85vw] bg-white z-50 flex flex-col h-full shadow-2xl animate-in slide-in-from-left duration-200">
+            {renderSidebarContent(true)}
           </div>
         </div>
-      </aside>
+      )}
 
       {/* MAIN CONTENT AREA */}
       <main className="flex-1 flex flex-col min-w-0 overflow-y-auto">
         {/* Top Header */}
-        <header className="h-16 px-6 sm:px-8 border-b border-slate-200/80 bg-white flex items-center justify-between shrink-0">
-          <div>
-            <h1 className="text-base font-bold text-slate-900 tracking-tight">
-              {activeTab === 'dashboard' && 'Admin Dashboard'}
-              {activeTab === 'users' && 'User Management'}
-              {activeTab === 'roles' && 'Roles & Permissions'}
-              {activeTab === 'audit-logs' && 'Audit Logs'}
-              {activeTab === 'settings' && 'Administration Settings'}
-              {activeTab === 'workforce' && 'Workforce Registry'}
-              {activeTab === 'projects' && 'Enterprise Projects'}
-              {activeTab === 'clients' && 'Client Management'}
-{activeTab === 'photos' && 'Job Completion Photos'}
-            </h1>
+        <header className="h-16 px-4 sm:px-8 border-b border-slate-200/80 bg-white flex items-center justify-between shrink-0">
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => setMobileDrawerOpen(true)}
+              className="md:hidden p-2 -ml-1 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg cursor-pointer"
+              aria-label="Open navigation menu"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+            <div>
+              <h1 className="text-base font-bold text-slate-900 tracking-tight">
+                {activeTab === 'dashboard' && 'Admin Dashboard'}
+                {activeTab === 'users' && 'User Management'}
+                {activeTab === 'roles' && 'Roles & Permissions'}
+                {activeTab === 'audit-logs' && 'Audit Logs'}
+                {activeTab === 'settings' && 'Administration Settings'}
+                {activeTab === 'workforce' && 'Workforce Registry'}
+                {activeTab === 'projects' && 'Enterprise Projects'}
+                {activeTab === 'clients' && 'Client Management'}
+                {activeTab === 'photos' && 'Job Completion Photos'}
+                {activeTab === 'tasks' && 'Task Instructions & Specifications'}
+                {activeTab === 'tools' && 'Company Tools & Equipment Register'}
+                {activeTab === 'remnants' && 'Project Material Remnants & Recovery'}
+              </h1>
             <p className="text-xs text-slate-500 hidden sm:block">
               {activeTab === 'dashboard' && 'Manage users, access, system configuration and administrative operations.'}
               {activeTab === 'users' && 'Manage users, profiles, roles and system access.'}
@@ -256,7 +410,11 @@ export const AdminDashboard: React.FC = () => {
               {activeTab === 'workforce' && 'Artisans and workforce members configured in Davejoe.'}
               {activeTab === 'projects' && 'Enterprise construction and civil engineering projects.'}
               {activeTab === 'clients' && 'Corporate and residential client accounts.'}
+              {activeTab === 'tasks' && 'Issue mandatory specifications, PPE, deliverables, and verify task handovers.'}
+              {activeTab === 'tools' && 'Track tool assignments, dispatch custody, returns, and damage condition audits.'}
+              {activeTab === 'remnants' && 'Account for surplus materials on site, transfer custody, and verify store returns.'}
             </p>
+            </div>
           </div>
 
           <div className="flex items-center gap-3">
@@ -282,6 +440,9 @@ export const AdminDashboard: React.FC = () => {
           {/* TAB 1: DASHBOARD OVERVIEW */}
           {activeTab === 'dashboard' && (
             <div className="space-y-6">
+              {/* Daily Attendance Timekeeping for Admin */}
+              <DailyAttendanceWidget />
+
               {/* Metric KPI Cards */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div
@@ -593,6 +754,15 @@ export const AdminDashboard: React.FC = () => {
               </div>
             </div>
           )}
+
+          {/* TAB 9: TASK INSTRUCTIONS & HANDOVER */}
+          {activeTab === 'tasks' && <TaskInstructionsPanel />}
+
+          {/* TAB 10: COMPANY TOOLS & EQUIPMENT REGISTER */}
+          {activeTab === 'tools' && <ToolsEquipmentModule />}
+
+          {/* TAB 11: PROJECT MATERIAL REMNANTS & RECOVERY */}
+          {activeTab === 'remnants' && <ProjectMaterialRemnantsModule />}
         </div>
       </main>
     </div>
