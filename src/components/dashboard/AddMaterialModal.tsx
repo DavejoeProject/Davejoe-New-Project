@@ -235,19 +235,36 @@ export const AddMaterialModal: React.FC<AddMaterialModalProps> = ({
                   onChange={(e) => setCategory(e.target.value)}
                   className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#01875F] focus:border-[#01875F]"
                 >
-                  <option value="">Select or choose category</option>
-                  <option value="Civil Works">Civil Works</option>
-                  <option value="Electrical">Electrical</option>
-                  <option value="Mechanical & Plumbing">Mechanical & Plumbing</option>
-                  <option value="Finishing & Tiling">Finishing & Tiling</option>
-                  <option value="Structural Steel">Structural Steel</option>
-                  <option value="General">General</option>
-                  {existingCategories.map((c) => (
-                    <option key={c} value={c}>
-                      {c}
-                    </option>
-                  ))}
-                  <option value="__custom__">+ Enter custom category...</option>
+
+<option value="">Select or choose category</option>
+<option value="paint">Paint</option>
+<option value="primer">Primer</option>
+<option value="thinner">Thinner</option>
+<option value="plaster">Plaster</option>
+<option value="cement">Cement</option>
+<option value="sand">Sand</option>
+<option value="wallpaper">Wallpaper</option>
+<option value="adhesive">Adhesive</option>
+<option value="tools">Tools</option>
+<option value="protective_material">Protective Material</option>
+<option value="electrical">Electrical</option>
+<option value="plumbing">Plumbing</option>
+<option value="finishing">Finishing</option>
+<option value="packaging">Packaging</option>
+<option value="other">Other</option>
+{existingCategories
+  .filter((c) => ![
+    'paint', 'primer', 'thinner', 'plaster', 'cement', 'sand',
+    'wallpaper', 'adhesive', 'tools', 'protective_material',
+    'electrical', 'plumbing', 'finishing', 'packaging', 'other'
+  ].includes(c))
+  .map((c) => (
+    <option key={c} value={c}>
+      {c}
+    </option>
+  ))}
+<option value="__custom__">+ Enter custom category...</option>
+
                 </select>
 
                 {category === '__custom__' && (
@@ -321,7 +338,7 @@ export const AddMaterialModal: React.FC<AddMaterialModalProps> = ({
           {/* Row 4: Pricing & Stock Limits */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 bg-slate-50/80 rounded-xl border border-slate-200/70">
             <div className="space-y-1.5">
-              <label className="font-semibold text-slate-700 block">Standard Cost (₦)</label>
+              <label className="font-semibold text-slate-700 block">Standard Cost (â‚¦)</label>
               <input
                 type="number"
                 min="0"
@@ -331,7 +348,7 @@ export const AddMaterialModal: React.FC<AddMaterialModalProps> = ({
                 placeholder="0.00"
                 className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-mono text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#01875F] focus:border-[#01875F]"
               />
-              <span className="text-[10px] text-slate-400">Unit base reference in ₦</span>
+              <span className="text-[10px] text-slate-400">Unit base reference in â‚¦</span>
             </div>
 
             <div className="space-y-1.5">

@@ -634,7 +634,7 @@ export async function createMaterial(
     const payload = {
       material_code: code,
       name,
-      category: input.category?.trim() || 'General',
+      category: input.category?.trim() || 'other',
       description: input.description?.trim() || null,
       brand: input.brand?.trim() || null,
       specification: input.specification?.trim() || null,
@@ -707,7 +707,7 @@ export async function updateMaterial(
     };
 
     if (input.category !== undefined) {
-      payload.category = input.category?.trim() || 'General';
+      payload.category = input.category?.trim() || 'other';
     }
     if (input.description !== undefined) {
       payload.description = input.description?.trim() || null;
