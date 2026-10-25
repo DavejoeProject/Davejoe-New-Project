@@ -121,7 +121,7 @@ export const AddMaterialModal: React.FC<AddMaterialModalProps> = ({
       const input: MaterialCreateInput = {
         material_code: trimmedCode,
         name: trimmedName,
-        category: finalCategory || 'General',
+        category: finalCategory || 'other',
         brand: brand.trim() || null,
         specification: specification.trim() || null,
         unit_of_measure: finalUnit,

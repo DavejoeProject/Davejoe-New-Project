@@ -60,7 +60,7 @@ export const EditMaterialModal: React.FC<EditMaterialModalProps> = ({
   useEffect(() => {
     if (material) {
       setName(material.name || '');
-      setCategory(material.category || 'General');
+      setCategory(material.category || 'other');
       setCustomCategory('');
       setBrand(material.brand || '');
       setSpecification(material.specification || '');
@@ -123,7 +123,7 @@ export const EditMaterialModal: React.FC<EditMaterialModalProps> = ({
     try {
       const updateData: MaterialUpdateInput = {
         name: trimmedName,
-        category: finalCategory || 'General',
+        category: finalCategory || 'other',
         brand: brand.trim() || null,
         specification: specification.trim() || null,
         unit_of_measure: finalUnit,

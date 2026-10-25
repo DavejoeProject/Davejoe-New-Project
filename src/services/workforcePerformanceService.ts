@@ -912,11 +912,13 @@ export class WorkforcePerformanceService {
           supabase
             .from('attendance_records')
             .select('id, attendance_date, status, project_id, workforce_member_id'),
+          
           supabase
             .from('productivity_records')
-            .select('id, work_date, count, unit_of_measure, project_id, workforce_member_id'),
+            .select('id, work_date, completed_quantity, unit_of_measure, project_id, workforce_member_id'),
           supabase
             .from('overtime_requests')
+
             .select(`
               id,
               requested_hours,
