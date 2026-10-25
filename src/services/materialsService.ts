@@ -597,6 +597,38 @@ export async function checkMaterialCodeUnique(
 /**
  * Creates a new material in public.materials
  */
+
+// Converts UI/legacy category labels to valid Supabase enum values.
+function normalizeMaterialCategory(value: string | null | undefined): string {
+  const normalized = (value || '').trim().toLowerCase();
+  const aliases: Record<string, string> = {
+    'civil works': 'cement',
+    'electrical': 'electrical',
+    'mechanical & plumbing': 'plumbing',
+    'mechanical and plumbing': 'plumbing',
+    'finishing & tiling': 'finishing',
+    'finishing and tiling': 'finishing',
+    'structural steel': 'other',
+    'general': 'other',
+    'paint': 'paint',
+    'primer': 'primer',
+    'thinner': 'thinner',
+    'plaster': 'plaster',
+    'cement': 'cement',
+    'sand': 'sand',
+    'wallpaper': 'wallpaper',
+    'adhesive': 'adhesive',
+    'tools': 'tools',
+    'protective material': 'protective_material',
+    'protective_material': 'protective_material',
+    'plumbing': 'plumbing',
+    'finishing': 'finishing',
+    'packaging': 'packaging',
+    'other': 'other'
+  };
+
+  return aliases[normalized] || 'other';
+}
 export async function createMaterial(
   input: MaterialCreateInput
 ): Promise<{ data: MaterialRecord | null; error: string | null }> {
@@ -634,7 +666,7 @@ export async function createMaterial(
     const payload = {
       material_code: code,
       name,
-      category: input.category?.trim() || 'other',
+      category: normalizeMaterialCategory(input.category),
       description: input.description?.trim() || null,
       brand: input.brand?.trim() || null,
       specification: input.specification?.trim() || null,
@@ -707,7 +739,7 @@ export async function updateMaterial(
     };
 
     if (input.category !== undefined) {
-      payload.category = input.category?.trim() || 'other';
+      payload.category = normalizeMaterialCategory(input.category);
     }
     if (input.description !== undefined) {
       payload.description = input.description?.trim() || null;
