@@ -94,13 +94,17 @@ export const EditMaterialModal: React.FC<EditMaterialModalProps> = ({
     setErrorMessage(null);
 
     const trimmedName = name.trim();
-    const finalCategory = category === '__custom__' ? customCategory.trim() : category.trim();
+    const finalCategory = category.trim();
     const finalUnit = unitOfMeasure === '__custom__' ? customUnit.trim() : unitOfMeasure.trim();
 
     if (!trimmedName) {
       setErrorMessage('Material name cannot be empty.');
       return;
     }
+    if (!finalCategory) {
+  setErrorMessage('Please select a material category.');
+  return;
+}
     if (!finalUnit) {
       setErrorMessage('Unit of measure cannot be empty.');
       return;
@@ -123,7 +127,7 @@ export const EditMaterialModal: React.FC<EditMaterialModalProps> = ({
     try {
       const updateData: MaterialUpdateInput = {
         name: trimmedName,
-        category: finalCategory || 'other',
+        category: finalCategory,
         brand: brand.trim() || null,
         specification: specification.trim() || null,
         unit_of_measure: finalUnit,
@@ -253,7 +257,8 @@ export const EditMaterialModal: React.FC<EditMaterialModalProps> = ({
                   className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#01875F] focus:border-[#01875F]"
                 >
 
-<option value="">Select or choose category</option>
+
+<option value="">Select a category</option>
 <option value="paint">Paint</option>
 <option value="primer">Primer</option>
 <option value="thinner">Thinner</option>
@@ -270,20 +275,6 @@ export const EditMaterialModal: React.FC<EditMaterialModalProps> = ({
 <option value="packaging">Packaging</option>
 <option value="other">Other</option>
 
-
-{existingCategories
-  .filter((c) => ![
-    'paint', 'primer', 'thinner', 'plaster', 'cement', 'sand',
-    'wallpaper', 'adhesive', 'tools', 'protective_material',
-    'electrical', 'plumbing', 'finishing', 'packaging', 'other'
-  ].includes(c))
-  .map((c) => (
-    <option key={c} value={c}>
-      {c}
-    </option>
-  ))}
-
-                  <option value="__custom__">+ Enter custom category...</option>
                 </select>
 
                 {category === '__custom__' && (

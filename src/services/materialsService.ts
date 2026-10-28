@@ -599,36 +599,48 @@ export async function checkMaterialCodeUnique(
  */
 
 // Converts UI/legacy category labels to valid Supabase enum values.
-function normalizeMaterialCategory(value: string | null | undefined): string {
+
+const VALID_MATERIAL_CATEGORIES = [
+  'paint',
+  'primer',
+  'thinner',
+  'plaster',
+  'cement',
+  'sand',
+  'wallpaper',
+  'adhesive',
+  'tools',
+  'protective_material',
+  'electrical',
+  'plumbing',
+  'finishing',
+  'packaging',
+  'other',
+] as const;
+
+function normalizeMaterialCategory(
+  value: string | null | undefined
+): string | null {
   const normalized = (value || '').trim().toLowerCase();
+
   const aliases: Record<string, string> = {
-    'civil works': 'cement',
-    'electrical': 'electrical',
+    'protective material': 'protective_material',
     'mechanical & plumbing': 'plumbing',
     'mechanical and plumbing': 'plumbing',
     'finishing & tiling': 'finishing',
     'finishing and tiling': 'finishing',
-    'structural steel': 'other',
     'general': 'other',
-    'paint': 'paint',
-    'primer': 'primer',
-    'thinner': 'thinner',
-    'plaster': 'plaster',
-    'cement': 'cement',
-    'sand': 'sand',
-    'wallpaper': 'wallpaper',
-    'adhesive': 'adhesive',
-    'tools': 'tools',
-    'protective material': 'protective_material',
-    'protective_material': 'protective_material',
-    'plumbing': 'plumbing',
-    'finishing': 'finishing',
-    'packaging': 'packaging',
-    'other': 'other'
   };
 
-  return aliases[normalized] || 'other';
+  const category = aliases[normalized] || normalized;
+
+  return VALID_MATERIAL_CATEGORIES.includes(
+    category as (typeof VALID_MATERIAL_CATEGORIES)[number]
+  )
+    ? category
+    : null;
 }
+
 export async function createMaterial(
   input: MaterialCreateInput
 ): Promise<{ data: MaterialRecord | null; error: string | null }> {
@@ -642,6 +654,16 @@ export async function createMaterial(
     // 1. Validate required fields
     const code = input.material_code.trim().toUpperCase();
     const name = input.name.trim();
+
+const category = normalizeMaterialCategory(input.category);
+
+if (!category) {
+  return {
+    data: null,
+    error: 'Please select a valid material category.',
+  };
+}
+
 
     if (!code) {
       return { data: null, error: 'Material code is required.' };
@@ -666,7 +688,7 @@ export async function createMaterial(
     const payload = {
       material_code: code,
       name,
-      category: normalizeMaterialCategory(input.category),
+      category,
       description: input.description?.trim() || null,
       brand: input.brand?.trim() || null,
       specification: input.specification?.trim() || null,
@@ -738,9 +760,19 @@ export async function updateMaterial(
       updated_at: new Date().toISOString(),
     };
 
-    if (input.category !== undefined) {
-      payload.category = normalizeMaterialCategory(input.category);
-    }
+
+if (input.category !== undefined) {
+  const category = normalizeMaterialCategory(input.category);
+
+  if (!category) {
+    return {
+      data: null,
+      error: 'Please select a valid material category.',
+    };
+  }
+
+  payload.category = category;
+}
     if (input.description !== undefined) {
       payload.description = input.description?.trim() || null;
     }

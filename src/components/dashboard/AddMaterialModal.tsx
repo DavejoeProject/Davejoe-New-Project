@@ -68,7 +68,7 @@ export const AddMaterialModal: React.FC<AddMaterialModalProps> = ({
 
     const trimmedCode = materialCode.trim().toUpperCase();
     const trimmedName = name.trim();
-    const finalCategory = category === '__custom__' ? customCategory.trim() : category.trim();
+    const finalCategory = category.trim();
     const finalUnit = unitOfMeasure === '__custom__' ? customUnit.trim() : unitOfMeasure.trim();
 
     if (!trimmedCode) {
@@ -79,6 +79,11 @@ export const AddMaterialModal: React.FC<AddMaterialModalProps> = ({
       setErrorMessage('Material name is required.');
       return;
     }
+    if (!finalCategory) {
+      setErrorMessage('Please select a material category.');
+      return;
+    }
+
     if (!finalUnit) {
       setErrorMessage('Unit of measure is required.');
       return;
@@ -236,7 +241,8 @@ export const AddMaterialModal: React.FC<AddMaterialModalProps> = ({
                   className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#01875F] focus:border-[#01875F]"
                 >
 
-<option value="">Select or choose category</option>
+
+<option value="">Select a category</option>
 <option value="paint">Paint</option>
 <option value="primer">Primer</option>
 <option value="thinner">Thinner</option>
@@ -252,18 +258,7 @@ export const AddMaterialModal: React.FC<AddMaterialModalProps> = ({
 <option value="finishing">Finishing</option>
 <option value="packaging">Packaging</option>
 <option value="other">Other</option>
-{existingCategories
-  .filter((c) => ![
-    'paint', 'primer', 'thinner', 'plaster', 'cement', 'sand',
-    'wallpaper', 'adhesive', 'tools', 'protective_material',
-    'electrical', 'plumbing', 'finishing', 'packaging', 'other'
-  ].includes(c))
-  .map((c) => (
-    <option key={c} value={c}>
-      {c}
-    </option>
-  ))}
-<option value="__custom__">+ Enter custom category...</option>
+
 
                 </select>
 
