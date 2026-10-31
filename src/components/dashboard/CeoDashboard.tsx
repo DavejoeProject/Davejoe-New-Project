@@ -53,6 +53,7 @@ import { SystemSettingsView } from '../admin/SystemSettingsView';
 import { ProjectMaterialRemnantsModule } from '../remnants/ProjectMaterialRemnantsModule';
 import { ToolsEquipmentModule } from '../tools/ToolsEquipmentModule';
 import { TaskInstructionsPanel } from '../tasks/TaskInstructionsPanel';
+import { ProjectPlanningModule } from '../planning/ProjectPlanningModule';
 
 interface CeoDashboardProps {
   initialModule?: DashboardNavKey;
@@ -76,6 +77,9 @@ export const CeoDashboard: React.FC<CeoDashboardProps> = ({ initialModule = 'ove
   );
 
   const getModuleFromPath = (): DashboardNavKey => {
+    if (location.pathname === '/management/planning' || location.pathname.startsWith('/management/planning/')) {
+      return 'planning';
+    }
     if (location.pathname === '/management/projects' || location.pathname.startsWith('/management/projects/')) {
       return 'all-projects';
     }
@@ -178,7 +182,9 @@ export const CeoDashboard: React.FC<CeoDashboardProps> = ({ initialModule = 'ove
 
   // Sync route on location change
   useEffect(() => {
-    if (location.pathname === '/management/projects' || location.pathname.startsWith('/management/projects/')) {
+    if (location.pathname === '/management/planning' || location.pathname.startsWith('/management/planning/')) {
+      setCurrentModule('planning');
+    } else if (location.pathname === '/management/projects' || location.pathname.startsWith('/management/projects/')) {
       setCurrentModule('all-projects');
     } else if (location.pathname === '/management/workforce/performance') {
       setCurrentModule('workforce-performance');
@@ -253,7 +259,11 @@ export const CeoDashboard: React.FC<CeoDashboardProps> = ({ initialModule = 'ove
 
   const handleSelectModule = (mod: DashboardNavKey) => {
     setCurrentModule(mod);
-    if (mod === 'all-projects') {
+    if (mod === 'planning') {
+      if (location.pathname !== '/management/planning') {
+        navigate('/management/planning');
+      }
+    } else if (mod === 'all-projects') {
       if (location.pathname !== '/management/projects') {
         navigate('/management/projects');
       }
@@ -514,6 +524,10 @@ export const CeoDashboard: React.FC<CeoDashboardProps> = ({ initialModule = 'ove
                   onSelectModule={handleSelectModule}
                   userName={userName}
                   userRole={userRole}
+                />
+              ) : currentModule === 'planning' ? (
+                <ProjectPlanningModule
+                  onBackToDashboard={() => handleSelectModule('overview')}
                 />
               ) : currentModule === 'all-projects' ? (
                 <ProjectsModule

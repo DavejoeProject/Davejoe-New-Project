@@ -194,6 +194,22 @@ export default function App() {
             }
           />
           <Route
+            path="/management/planning"
+            element={
+              <ManagementRouteGuard>
+                <CeoDashboard initialModule="planning" />
+              </ManagementRouteGuard>
+            }
+          />
+          <Route
+            path="/management/planning/:projectionId"
+            element={
+              <ManagementRouteGuard>
+                <CeoDashboard initialModule="planning" />
+              </ManagementRouteGuard>
+            }
+          />
+          <Route
             path="/management/projects"
             element={
               <ManagementRouteGuard>

@@ -58,10 +58,12 @@ import {
   ChevronDown,
   RotateCcw,
   Wrench,
+  Calculator,
 } from 'lucide-react';
 import { ProjectMaterialRemnantsModule } from '../remnants/ProjectMaterialRemnantsModule';
 import { ToolsEquipmentModule } from '../tools/ToolsEquipmentModule';
 import { TaskInstructionsPanel } from '../tasks/TaskInstructionsPanel';
+import { ProjectPlanningModule } from '../planning/ProjectPlanningModule';
 
 export type ExecutiveModuleKey =
   | 'overview'
@@ -81,7 +83,8 @@ export type ExecutiveModuleKey =
   | 'reports'
   | 'tasks'
   | 'tools'
-  | 'remnants';
+  | 'remnants'
+  | 'planning';
 
 export const ExecutiveDashboard: React.FC = () => {
   const { user, profile, logout } = useAuth();
@@ -308,6 +311,7 @@ export const ExecutiveDashboard: React.FC = () => {
     {
       title: 'PROJECTS & QUALITY',
       items: [
+        { key: 'planning' as ExecutiveModuleKey, label: 'Project Planning & Projections', icon: Calculator },
         { key: 'projects' as ExecutiveModuleKey, label: 'Projects', icon: FolderKanban, count: projectsList.length },
         { key: 'tasks' as ExecutiveModuleKey, label: 'Task Specifications & Handovers', icon: ClipboardCheck },
         { key: 'qc' as ExecutiveModuleKey, label: 'Technical Inspection & QC', icon: ClipboardCheck, count: inspectionsList.length },
@@ -1204,6 +1208,13 @@ export const ExecutiveDashboard: React.FC = () => {
                 </div>
               </div>
             </div>
+          )}
+
+          {/* ========================================================================= */}
+          {/* VIEW: PROJECT PLANNING & PROJECTIONS                                      */}
+          {/* ========================================================================= */}
+          {activeModule === 'planning' && (
+            <ProjectPlanningModule />
           )}
 
           {/* ========================================================================= */}

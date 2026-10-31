@@ -37,6 +37,7 @@ import {
   X,
   Wrench,
   ClipboardList,
+  Calculator,
 } from 'lucide-react';
 import { PWAInstallButton } from '../pwa/PWAInstallButton';
 import { BRAND_ASSETS } from '../../config/branding';
@@ -46,6 +47,8 @@ export type DashboardNavKey =
   | 'overview'
   | 'approvals'
   | 'alerts'
+  // PROJECT PLANNING & PROJECTIONS
+  | 'planning'
   // PROJECTS
   | 'all-projects'
   | 'project-performance'
@@ -104,6 +107,12 @@ export const SIDEBAR_SECTIONS: NavSectionConfig[] = [
       { key: 'overview', label: 'Overview', icon: LayoutDashboard },
       { key: 'approvals', label: 'Approvals', icon: CheckSquare },
       { key: 'alerts', label: 'Alerts', icon: AlertTriangle },
+    ],
+  },
+  {
+    title: 'PROJECT PLANNING',
+    items: [
+      { key: 'planning', label: 'Planning & Projections', icon: Calculator },
     ],
   },
   {
