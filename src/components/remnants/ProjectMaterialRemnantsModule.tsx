@@ -38,6 +38,8 @@ export const ProjectMaterialRemnantsModule: React.FC<ProjectMaterialRemnantsModu
 }) => {
   const [remnants, setRemnants] = useState<ProjectMaterialRemnantItem[]>([]);
   const [projects, setProjects] = useState<{ id: string; name: string }[]>([]);
+  const [materials, setMaterials] = useState<Array<{ id: string; name: string; category?: string; unit_of_measure?: string }>>([]);
+  const [selectedMaterialId, setSelectedMaterialId] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [selectedProjectId, setSelectedProjectId] = useState<string>(initialProjectId || 'all');
@@ -66,15 +68,17 @@ export const ProjectMaterialRemnantsModule: React.FC<ProjectMaterialRemnantsModu
 
   const fetchRemnants = async () => {
     try {
-      const [remRes, projRes] = await Promise.all([
+      const [remRes, projRes, matRes] = await Promise.all([
         ProjectMaterialRemnantsService.getRemnants({
           projectId: selectedProjectId,
           status: statusFilter,
         }),
         supabase.from('projects').select('id, name').order('name'),
+        supabase.from('materials').select('id, name, category, unit_of_measure').order('name'),
       ]);
       setRemnants(remRes.data || []);
       setProjects(projRes.data || []);
+      setMaterials(matRes.data || []);
     } catch (err) {
       console.warn('[RemnantsModule] fetch error:', err);
     } finally {
@@ -114,6 +118,7 @@ export const ProjectMaterialRemnantsModule: React.FC<ProjectMaterialRemnantsModu
     try {
       const input: CreateRemnantInput = {
         project_id: formProject,
+        material_id: selectedMaterialId || undefined,
         material_name: formMaterialName.trim(),
         category: formCategory,
         unit_of_measure: formUnit,
@@ -132,6 +137,7 @@ export const ProjectMaterialRemnantsModule: React.FC<ProjectMaterialRemnantsModu
         setFormError(res.error);
       } else {
         setRecordModalOpen(false);
+        setSelectedMaterialId('');
         setFormMaterialName('');
         setFormNotes('');
         await fetchRemnants();
@@ -448,6 +454,35 @@ export const ProjectMaterialRemnantsModule: React.FC<ProjectMaterialRemnantsModu
                 </select>
               </div>
 
+              {materials.length > 0 && (
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                    Select from Materials Catalog (Optional)
+                  </label>
+                  <select
+                    value={selectedMaterialId}
+                    onChange={(e) => {
+                      const mId = e.target.value;
+                      setSelectedMaterialId(mId);
+                      const found = materials.find((m) => m.id === mId);
+                      if (found) {
+                        setFormMaterialName(found.name);
+                        if (found.category) setFormCategory(found.category);
+                        if (found.unit_of_measure) setFormUnit(found.unit_of_measure);
+                      }
+                    }}
+                    className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-[#01875F]"
+                  >
+                    <option value="">-- Or enter custom material details below --</option>
+                    {materials.map((m) => (
+                      <option key={m.id} value={m.id}>
+                        {m.name} ({m.unit_of_measure || 'units'})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
@@ -458,7 +493,10 @@ export const ProjectMaterialRemnantsModule: React.FC<ProjectMaterialRemnantsModu
                     required
                     placeholder="e.g. 18mm Marine Plywood"
                     value={formMaterialName}
-                    onChange={(e) => setFormMaterialName(e.target.value)}
+                    onChange={(e) => {
+                      setFormMaterialName(e.target.value);
+                      if (selectedMaterialId) setSelectedMaterialId('');
+                    }}
                     className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-[#01875F]"
                   />
                 </div>

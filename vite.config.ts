@@ -10,20 +10,26 @@ export default defineConfig(() => {
       react(),
       tailwindcss(),
       VitePWA({
-        registerType: 'prompt',
+        registerType: 'autoUpdate',
         includeAssets: [
           'favicon.ico',
-          'favicon.png',
+          'favicon-16x16.png',
+          'favicon-32x32.png',
+          'favicon-48x48.png',
           'apple-touch-icon.png',
-          'icon.svg',
-          'icon-maskable.svg',
+          'davejoe-logo-transparent.png',
+          'davejoe-logo-white.png',
+          'pwa-192x192.png',
+          'pwa-512x512.png',
+          'pwa-512x512-maskable.png',
+          'manifest.webmanifest',
         ],
         manifest: {
           id: '/',
-          name: 'Davejoe Management Tool',
+          name: 'Davejoe Interiors — Digital Operating System',
           short_name: 'Davejoe',
           description:
-            'Davejoe Management Tool for managing projects, workforce, materials and operations.',
+            'Davejoe Interiors Digital Operating System for managing people, projects, operations, materials and site performance.',
           start_url: '/',
           scope: '/',
           display: 'standalone',
@@ -45,16 +51,22 @@ export default defineConfig(() => {
               purpose: 'any',
             },
             {
-              src: '/pwa-maskable-512x512.png',
+              src: '/pwa-512x512-maskable.png',
               sizes: '512x512',
               type: 'image/png',
               purpose: 'maskable',
+            },
+            {
+              src: '/apple-touch-icon.png',
+              sizes: '180x180',
+              type: 'image/png',
+              purpose: 'any',
             },
           ],
         },
         workbox: {
           maximumFileSizeToCacheInBytes: 6 * 1024 * 1024,
-          globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
+          globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2,webmanifest}'],
           navigateFallback: '/index.html',
           navigateFallbackDenylist: [/^\/api\//, /^https:\/\/.*\.supabase\.co\//],
           runtimeCaching: [
@@ -98,7 +110,7 @@ export default defineConfig(() => {
               urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp)$/,
               handler: 'StaleWhileRevalidate',
               options: {
-                cacheName: 'static-images-cache',
+                cacheName: 'static-images-v2-cache',
                 expiration: {
                   maxEntries: 60,
                   maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days

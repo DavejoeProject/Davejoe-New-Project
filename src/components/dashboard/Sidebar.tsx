@@ -39,6 +39,7 @@ import {
   ClipboardList,
 } from 'lucide-react';
 import { PWAInstallButton } from '../pwa/PWAInstallButton';
+import { BRAND_ASSETS } from '../../config/branding';
 
 export type DashboardNavKey =
   // COMMAND CENTRE
@@ -246,27 +247,26 @@ export const Sidebar: React.FC<SidebarProps> = ({
       >
         <div
           onClick={() => handleItemClick('overview')}
-          className="flex items-center gap-2.5 cursor-pointer group"
-          title="Davejoe Management Tool"
+          className="flex items-center cursor-pointer group min-w-0"
+          title="Davejoe Interiors — Digital Operating System"
         >
-          {/* Brand Emblem */}
-          <div className="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center shadow-xs transition-transform group-hover:scale-105 shrink-0 bg-white border border-slate-100">
-            <img
-              src="/favicon.png"
-              alt="Davejoe"
-              className="w-full h-full object-contain"
-              referrerPolicy="no-referrer"
-            />
-          </div>
-
-          {!collapsed && (
-            <div className="flex flex-col min-w-0">
-              <span className="font-bold text-slate-900 tracking-tight text-[16px] leading-tight truncate">
-                Davejoe
-              </span>
-              <span className="text-[10px] uppercase font-semibold tracking-wider text-slate-400 truncate">
-                Management Tool
-              </span>
+          {collapsed ? (
+            <div className="w-9 h-9 rounded-xl overflow-hidden flex items-center justify-center shadow-xs transition-transform group-hover:scale-105 shrink-0 bg-white border border-slate-100 p-1">
+              <img
+                src={BRAND_ASSETS.emblem192}
+                alt="Davejoe Emblem"
+                className="w-full h-full object-contain"
+                referrerPolicy="no-referrer"
+              />
+            </div>
+          ) : (
+            <div className="flex items-center py-1">
+              <img
+                src={BRAND_ASSETS.logoTransparent}
+                alt="Davejoe Interiors"
+                className="h-8 max-w-[170px] w-auto object-contain transition-transform group-hover:scale-[1.02]"
+                referrerPolicy="no-referrer"
+              />
             </div>
           )}
         </div>

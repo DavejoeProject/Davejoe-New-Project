@@ -156,7 +156,7 @@ export const TechnicalDashboard: React.FC = () => {
       <header className="h-16 px-6 sm:px-8 border-b border-slate-200/80 bg-white flex items-center justify-between sticky top-0 z-30 shadow-2xs">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center bg-white border border-slate-100 shrink-0">
-            <img src="/favicon.png" alt="Davejoe" className="w-full h-full object-contain" />
+            <img src="/brand/pwa-192x192.png" alt="Davejoe Interiors" className="w-full h-full object-contain" />
           </div>
           <div>
             <span className="font-bold text-slate-900 tracking-tight text-sm sm:text-base block leading-tight">

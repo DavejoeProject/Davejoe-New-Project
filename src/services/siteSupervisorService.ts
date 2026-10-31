@@ -1039,7 +1039,7 @@ export class SiteSupervisorService {
         project_id: payload.projectId,
         title: payload.title.trim(),
         description: payload.description?.trim() || null,
-        priority: payload.priority || 'medium',
+        priority: payload.priority === 'critical' ? 'urgent' : (payload.priority || 'medium'),
         status: 'pending',
         due_date: payload.dueDate || null,
         created_by: session.user.id,

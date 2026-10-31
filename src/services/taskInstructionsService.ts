@@ -2,10 +2,23 @@ import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import { ensureValidSession } from '../lib/authSession';
 import { AuditLogger } from '../lib/audit';
 
-export type TaskPriority = 'low' | 'normal' | 'high' | 'urgent';
+export type TaskPriority = 'low' | 'medium' | 'high' | 'urgent';
 export type TaskStatus = 'todo' | 'in_progress' | 'completed' | 'blocked' | 'cancelled';
 export type TaskAcknowledgementStatus = 'unacknowledged' | 'acknowledged' | 'clarification_requested';
 export type TaskVerificationStatus = 'pending_review' | 'verified' | 'rejected' | 'returned_for_correction';
+
+/**
+ * Normalizes user-supplied or legacy priority values to the strict PostgreSQL project_task_priority enum:
+ * 'low' | 'medium' | 'high' | 'urgent'
+ */
+export function normalizeTaskPriority(val?: string | null): TaskPriority {
+  if (!val) return 'medium';
+  const lower = val.toLowerCase().trim();
+  if (lower === 'urgent' || lower === 'critical') return 'urgent';
+  if (lower === 'high') return 'high';
+  if (lower === 'low') return 'low';
+  return 'medium';
+}
 
 export interface TaskInstructionMetadata {
   deliverable?: string | null;
@@ -158,7 +171,7 @@ function mapRowToTaskInstruction(row: any): TaskInstructionItem {
     description: cleanDescription || row.description || null,
     assigned_to: row.assigned_to,
     issued_by: row.issued_by || meta.issued_by || row.created_by || null,
-    priority: (row.priority as TaskPriority) || 'normal',
+    priority: normalizeTaskPriority(row.priority),
     status: (row.status as TaskStatus) || 'todo',
     start_date: row.start_date || meta.start_date || null,
     due_date: row.due_date || null,
@@ -297,7 +310,7 @@ export class TaskInstructionsService {
         project_id: input.project_id,
         title: input.title.trim(),
         description: packedDescription,
-        priority: input.priority || 'normal',
+        priority: normalizeTaskPriority(input.priority),
         status: 'todo',
         due_date: input.due_date || null,
         created_by: session?.user?.id || null,

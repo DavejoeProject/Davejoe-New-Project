@@ -207,7 +207,7 @@ export const AdminDashboard: React.FC = () => {
         <div className="h-16 px-5 border-b border-slate-100 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center shadow-xs bg-white border border-slate-100 shrink-0">
-              <img src="/favicon.png" alt="Davejoe" className="w-full h-full object-contain" />
+              <img src="/brand/pwa-192x192.png" alt="Davejoe Interiors" className="w-full h-full object-contain" />
             </div>
             {(!sidebarCollapsed || isMobile) && (
               <div className="flex flex-col min-w-0">

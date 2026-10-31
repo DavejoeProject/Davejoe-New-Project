@@ -61,7 +61,7 @@ export const TaskInstructionsPanel: React.FC<TaskInstructionsPanelProps> = ({
     project_id: projectId || '',
     title: '',
     description: '',
-    priority: 'normal',
+    priority: 'medium',
     deliverable: '',
     required_materials: '',
     required_tools: '',
@@ -208,7 +208,7 @@ export const TaskInstructionsPanel: React.FC<TaskInstructionsPanelProps> = ({
         project_id: projectId || (availableProjects.length > 0 ? availableProjects[0].id : ''),
         title: '',
         description: '',
-        priority: 'normal',
+        priority: 'medium',
         deliverable: '',
         required_materials: '',
         required_tools: '',
@@ -242,8 +242,9 @@ export const TaskInstructionsPanel: React.FC<TaskInstructionsPanelProps> = ({
         return <span className="px-2 py-0.5 text-xs font-semibold rounded bg-red-100 text-red-800">Urgent</span>;
       case 'high':
         return <span className="px-2 py-0.5 text-xs font-semibold rounded bg-amber-100 text-amber-800">High</span>;
-      case 'normal':
-        return <span className="px-2 py-0.5 text-xs font-medium rounded bg-blue-100 text-blue-800">Normal</span>;
+      case 'medium':
+      case 'normal' as any:
+        return <span className="px-2 py-0.5 text-xs font-medium rounded bg-blue-100 text-blue-800">Medium</span>;
       default:
         return <span className="px-2 py-0.5 text-xs font-medium rounded bg-gray-100 text-gray-700">Low</span>;
     }
@@ -639,7 +640,7 @@ export const TaskInstructionsPanel: React.FC<TaskInstructionsPanelProps> = ({
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:ring-2 focus:ring-[#01875F] focus:outline-none"
                   >
                     <option value="low">Low</option>
-                    <option value="normal">Normal</option>
+                    <option value="medium">Medium</option>
                     <option value="high">High</option>
                     <option value="urgent">Urgent</option>
                   </select>

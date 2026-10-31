@@ -73,8 +73,8 @@ export const PWAInstallPrompt: React.FC<PWAInstallPromptProps> = ({
           {/* Brand Emblem */}
           <div className="w-11 h-11 rounded-xl overflow-hidden shrink-0 shadow-xs border border-slate-100 bg-white">
             <img
-              src="/pwa-192x192.png"
-              alt="Davejoe Logo"
+              src="/brand/pwa-192x192.png"
+              alt="Davejoe Interiors"
               className="w-full h-full object-contain"
               referrerPolicy="no-referrer"
             />
@@ -152,8 +152,8 @@ export const PWAInstallPrompt: React.FC<PWAInstallPromptProps> = ({
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 rounded-xl overflow-hidden shrink-0 border border-slate-100 bg-white shadow-2xs">
                 <img
-                  src="/pwa-192x192.png"
-                  alt="Davejoe Logo"
+                  src="/brand/pwa-192x192.png"
+                  alt="Davejoe Interiors"
                   className="w-full h-full object-contain"
                   referrerPolicy="no-referrer"
                 />

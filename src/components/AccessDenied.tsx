@@ -39,7 +39,7 @@ export const AccessDenied: React.FC = () => {
       {/* Brand Header */}
       <div className="flex items-center gap-2.5 mb-8">
         <div className="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center shadow-xs shrink-0 bg-white border border-slate-100">
-          <img src="/favicon.png" alt="Davejoe" className="w-full h-full object-contain" />
+          <img src="/brand/pwa-192x192.png" alt="Davejoe Interiors" className="w-full h-full object-contain" />
         </div>
         <div className="flex flex-col text-left">
           <span className="text-sm font-bold text-slate-900 tracking-tight leading-tight">
