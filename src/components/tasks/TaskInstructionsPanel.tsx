@@ -17,6 +17,7 @@ import {
   ChevronUp,
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
+import { supabase } from '../../lib/supabase';
 import {
   TaskInstructionsService,
   TaskInstructionItem,
@@ -38,6 +39,8 @@ export const TaskInstructionsPanel: React.FC<TaskInstructionsPanelProps> = ({
   const [tasks, setTasks] = useState<TaskInstructionItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [modalError, setModalError] = useState<string | null>(null);
+  const [availableProjects, setAvailableProjects] = useState<Array<{ id: string; name: string; project_code?: string }>>([]);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [expandedTaskId, setExpandedTaskId] = useState<string | null>(null);
@@ -103,8 +106,24 @@ export const TaskInstructionsPanel: React.FC<TaskInstructionsPanelProps> = ({
     loadTasks();
   }, [loadTasks]);
 
+  useEffect(() => {
+    supabase
+      .from('projects')
+      .select('id, name, project_code')
+      .order('name')
+      .then(({ data }) => {
+        if (data) {
+          setAvailableProjects(data);
+          if (!createForm.project_id && data.length > 0) {
+            setCreateForm((prev) => ({ ...prev, project_id: projectId || data[0].id }));
+          }
+        }
+      });
+  }, [projectId]);
+
   const handleAcknowledge = async (task: TaskInstructionItem) => {
     setActionLoading(true);
+    setError(null);
     try {
       const res = await TaskInstructionsService.acknowledgeTask({
         taskId: task.id,
@@ -113,7 +132,7 @@ export const TaskInstructionsPanel: React.FC<TaskInstructionsPanelProps> = ({
       if (!res.success) throw new Error(res.error || 'Failed to acknowledge');
       await loadTasks();
     } catch (e: any) {
-      alert(e.message || 'Failed to acknowledge task');
+      setError(e.message || 'Failed to acknowledge task');
     } finally {
       setActionLoading(false);
     }
@@ -122,6 +141,7 @@ export const TaskInstructionsPanel: React.FC<TaskInstructionsPanelProps> = ({
   const handleClarificationSubmit = async () => {
     if (!selectedTask || !clarificationNotes.trim()) return;
     setActionLoading(true);
+    setModalError(null);
     try {
       const res = await TaskInstructionsService.acknowledgeTask({
         taskId: selectedTask.id,
@@ -133,7 +153,7 @@ export const TaskInstructionsPanel: React.FC<TaskInstructionsPanelProps> = ({
       setClarificationNotes('');
       await loadTasks();
     } catch (e: any) {
-      alert(e.message || 'Failed to request clarification');
+      setModalError(e.message || 'Failed to request clarification');
     } finally {
       setActionLoading(false);
     }
@@ -142,6 +162,7 @@ export const TaskInstructionsPanel: React.FC<TaskInstructionsPanelProps> = ({
   const handleReviewSubmit = async (verdict: 'verified' | 'rejected' | 'returned_for_correction') => {
     if (!selectedTask) return;
     setActionLoading(true);
+    setModalError(null);
     try {
       const res = await TaskInstructionsService.reviewTask({
         taskId: selectedTask.id,
@@ -153,7 +174,7 @@ export const TaskInstructionsPanel: React.FC<TaskInstructionsPanelProps> = ({
       setReviewNotes('');
       await loadTasks();
     } catch (e: any) {
-      alert(e.message || 'Failed to review task');
+      setModalError(e.message || 'Failed to review task');
     } finally {
       setActionLoading(false);
     }
@@ -161,20 +182,30 @@ export const TaskInstructionsPanel: React.FC<TaskInstructionsPanelProps> = ({
 
   const handleCreateTask = async (e: React.FormEvent) => {
     e.preventDefault();
+    setModalError(null);
+
     if (!createForm.title.trim()) {
-      alert('Task title is required');
+      setModalError('Task title is required');
       return;
     }
+
+    const resolvedProjectId = createForm.project_id || projectId;
+    if (!resolvedProjectId) {
+      setModalError('Please select a valid project for this task instruction');
+      return;
+    }
+
     setActionLoading(true);
     try {
       const res = await TaskInstructionsService.createTask({
         ...createForm,
-        project_id: createForm.project_id || projectId || 'general',
+        project_id: resolvedProjectId,
       });
       if (res.error) throw new Error(res.error);
       setShowCreateModal(false);
+      setModalError(null);
       setCreateForm({
-        project_id: projectId || '',
+        project_id: projectId || (availableProjects.length > 0 ? availableProjects[0].id : ''),
         title: '',
         description: '',
         priority: 'normal',
@@ -189,7 +220,7 @@ export const TaskInstructionsPanel: React.FC<TaskInstructionsPanelProps> = ({
       });
       await loadTasks();
     } catch (e: any) {
-      alert(e.message || 'Failed to create task instruction');
+      setModalError(e.message || 'Failed to create task instruction');
     } finally {
       setActionLoading(false);
     }
@@ -537,6 +568,39 @@ export const TaskInstructionsPanel: React.FC<TaskInstructionsPanelProps> = ({
             </div>
 
             <form onSubmit={handleCreateTask} className="mt-4 space-y-4">
+              {modalError && (
+                <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-xs text-red-700 flex items-center gap-2">
+                  <AlertTriangle className="w-4 h-4 text-red-600 shrink-0" />
+                  <span>{modalError}</span>
+                </div>
+              )}
+
+              {!projectId && (
+                <div>
+                  <label className="block text-xs font-semibold text-gray-700 uppercase mb-1">
+                    Project *
+                  </label>
+                  <select
+                    required
+                    value={createForm.project_id}
+                    onChange={(e) => setCreateForm({ ...createForm, project_id: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:ring-2 focus:ring-[#01875F] focus:outline-none"
+                  >
+                    <option value="">Select a Project</option>
+                    {availableProjects.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.name} {p.project_code ? `(${p.project_code})` : ''}
+                      </option>
+                    ))}
+                  </select>
+                  {availableProjects.length === 0 && (
+                    <p className="text-[11px] text-amber-600 mt-1">
+                      No active projects found. Please ensure a project exists before creating task instructions.
+                    </p>
+                  )}
+                </div>
+              )}
+
               <div>
                 <label className="block text-xs font-semibold text-gray-700 uppercase mb-1">
                   Task Title *
@@ -693,6 +757,12 @@ export const TaskInstructionsPanel: React.FC<TaskInstructionsPanelProps> = ({
             <p className="text-xs text-gray-500 mb-4">
               State clearly what instructions, drawings, materials, or safety specifications require clarification before work commences.
             </p>
+            {modalError && (
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-xs text-red-700 flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4 text-red-600 shrink-0" />
+                <span>{modalError}</span>
+              </div>
+            )}
             <textarea
               rows={4}
               required
@@ -733,6 +803,12 @@ export const TaskInstructionsPanel: React.FC<TaskInstructionsPanelProps> = ({
             <p className="text-xs text-gray-500 mb-3">
               Task: <strong className="text-gray-800">{selectedTask.title}</strong>
             </p>
+            {modalError && (
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-xs text-red-700 flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4 text-red-600 shrink-0" />
+                <span>{modalError}</span>
+              </div>
+            )}
             <label className="block text-xs font-semibold text-gray-700 uppercase mb-1">
               Inspection / Verification Findings
             </label>
