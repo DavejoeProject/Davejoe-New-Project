@@ -120,17 +120,17 @@ export const SupervisorDashboard: React.FC = () => {
     <div className="min-h-screen bg-[#f8faf9] flex flex-col select-none">
       {/* Top Enterprise Navigation Bar */}
       <header className="sticky top-0 z-40 bg-white border-b border-slate-200/90 shadow-2xs">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-[#01875F] text-white flex items-center justify-center font-bold text-sm shadow-2xs">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+            <div className="w-9 h-9 rounded-xl bg-[#01875F] text-white flex items-center justify-center font-bold text-sm shadow-2xs shrink-0">
               <HardHat className="w-5 h-5" />
             </div>
-            <div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block -mb-0.5">
+            <div className="min-w-0">
+              <span className="text-[9.5px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-400 block -mb-0.5 truncate">
                 DAVEJOE MANAGEMENT TOOL
               </span>
-              <div className="flex items-center gap-2">
-                <h1 className="text-sm sm:text-base font-bold text-slate-900 tracking-tight">
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <h1 className="text-xs sm:text-base font-bold text-slate-900 tracking-tight truncate">
                   Site Supervisor Operations
                 </h1>
                 <span className="hidden sm:inline-block px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#E6F4EA] text-[#01875F] border border-[#01875F]/20">
@@ -173,9 +173,9 @@ export const SupervisorDashboard: React.FC = () => {
       </header>
 
       {/* Main Container */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-4 sm:space-y-6 overflow-x-hidden">
         {/* Welcome Banner & Quick Action Buttons */}
-        <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-2xs flex flex-col lg:flex-row lg:items-center justify-between gap-5">
+        <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200/80 shadow-2xs flex flex-col lg:flex-row lg:items-center justify-between gap-4 sm:gap-5">
           <div>
             <div className="flex items-center gap-2 text-xs text-slate-400 font-medium mb-1">
               <Calendar className="w-3.5 h-3.5 text-[#01875F]" />
@@ -183,7 +183,7 @@ export const SupervisorDashboard: React.FC = () => {
               <span>&bull;</span>
               <span>{data?.projects.length || 0} Assigned Projects</span>
             </div>
-            <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
+            <h2 className="text-lg sm:text-2xl font-bold text-slate-900 tracking-tight">
               {getGreeting()}, {supervisorName}
             </h2>
             <p className="text-xs sm:text-sm text-slate-500 mt-1">
@@ -192,7 +192,7 @@ export const SupervisorDashboard: React.FC = () => {
           </div>
 
           {/* Quick Action Strip */}
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2">
             <button
               type="button"
               onClick={() => setIsClockInOpen(true)}
@@ -296,7 +296,7 @@ export const SupervisorDashboard: React.FC = () => {
         </div>
 
         {/* Operational Navigation Tabs */}
-        <div className="bg-white p-1.5 rounded-2xl border border-slate-200/80 shadow-2xs flex items-center gap-1 overflow-x-auto touch-pan-x">
+        <div className="bg-white p-1.5 rounded-2xl border border-slate-200/80 shadow-2xs flex items-center gap-1 overflow-x-auto no-scrollbar touch-pan-x flex-nowrap">
           {[
             { key: 'today', label: "Today's Operations", icon: Clock },
             { key: 'projects', label: 'My Projects', icon: Building },
@@ -318,7 +318,7 @@ export const SupervisorDashboard: React.FC = () => {
                   setActiveTab(t.key as SupervisorNavKey);
                   setSelectedProject(null);
                 }}
-                className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
+                className={`flex items-center gap-2 px-3.5 py-2.5 min-h-[42px] rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
                   isActive
                     ? 'bg-[#01875F] text-white shadow-2xs'
                     : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'

@@ -86,16 +86,16 @@ export const AccountsDashboard: React.FC = () => {
   return (
     <div className="min-h-screen bg-[#F8FAFB] flex flex-col text-slate-800 font-sans selection:bg-[#01875F]/20 selection:text-[#01875F]">
       {/* Top Header */}
-      <header className="h-16 px-6 sm:px-8 border-b border-slate-200/80 bg-white flex items-center justify-between sticky top-0 z-30 shadow-2xs">
-        <div className="flex items-center gap-3">
+      <header className="h-16 px-3 sm:px-8 border-b border-slate-200/80 bg-white flex items-center justify-between sticky top-0 z-30 shadow-2xs">
+        <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
           <div className="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center bg-white border border-slate-100 shrink-0">
             <img src="/brand/pwa-192x192.png" alt="Davejoe Interiors" className="w-full h-full object-contain" />
           </div>
-          <div>
-            <span className="font-bold text-slate-900 tracking-tight text-sm sm:text-base block leading-tight">
+          <div className="min-w-0">
+            <span className="font-bold text-slate-900 tracking-tight text-xs sm:text-base block leading-tight truncate">
               Davejoe Accounts & Financial Control
             </span>
-            <span className="text-[10px] font-semibold text-[#01875F] tracking-wider uppercase block">
+            <span className="text-[9.5px] sm:text-[10px] font-semibold text-[#01875F] tracking-wider uppercase block truncate">
               Financial Ledgers & Project Costing
             </span>
           </div>
@@ -129,15 +129,15 @@ export const AccountsDashboard: React.FC = () => {
       </header>
 
       {/* Main Content */}
-      <main className="p-6 sm:p-8 max-w-7xl w-full mx-auto space-y-6 flex-1">
+      <main className="p-3 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto space-y-4 sm:space-y-6 flex-1 overflow-x-hidden">
         {/* Daily Timekeeping for Accounts & Finance Officer */}
         <DailyAttendanceWidget />
 
         {/* Banner */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2.5">
-              <CircleDollarSign className="w-6 h-6 text-[#01875F]" />
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2.5">
+              <CircleDollarSign className="w-5 h-5 sm:w-6 sm:h-6 text-[#01875F]" />
               <span>Accounts & Financial Command</span>
             </h1>
             <p className="text-xs sm:text-sm text-slate-500 mt-1">
@@ -152,11 +152,11 @@ export const AccountsDashboard: React.FC = () => {
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex items-center gap-2 border-b border-slate-200 pb-2 overflow-x-auto touch-pan-x">
+        <div className="flex items-center gap-1.5 border-b border-slate-200 pb-2 overflow-x-auto no-scrollbar touch-pan-x flex-nowrap">
           <button
             type="button"
             onClick={() => setActiveTab('overview')}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
+            className={`min-h-[42px] px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-colors cursor-pointer ${
               activeTab === 'overview' ? 'bg-[#01875F] text-white shadow-xs' : 'text-slate-600 hover:bg-slate-100'
             }`}
           >
@@ -165,7 +165,7 @@ export const AccountsDashboard: React.FC = () => {
           <button
             type="button"
             onClick={() => setActiveTab('projects')}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
+            className={`min-h-[42px] px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-colors cursor-pointer ${
               activeTab === 'projects' ? 'bg-[#01875F] text-white shadow-xs' : 'text-slate-600 hover:bg-slate-100'
             }`}
           >
@@ -174,7 +174,7 @@ export const AccountsDashboard: React.FC = () => {
           <button
             type="button"
             onClick={() => setActiveTab('budget')}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
+            className={`min-h-[42px] px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-colors cursor-pointer ${
               activeTab === 'budget' ? 'bg-[#01875F] text-white shadow-xs' : 'text-slate-600 hover:bg-slate-100'
             }`}
           >
@@ -183,7 +183,7 @@ export const AccountsDashboard: React.FC = () => {
           <button
             type="button"
             onClick={() => setActiveTab('commitments')}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
+            className={`min-h-[42px] px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-colors cursor-pointer ${
               activeTab === 'commitments' ? 'bg-[#01875F] text-white shadow-xs' : 'text-slate-600 hover:bg-slate-100'
             }`}
           >
@@ -192,7 +192,7 @@ export const AccountsDashboard: React.FC = () => {
           <button
             type="button"
             onClick={() => setActiveTab('remnants')}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
+            className={`min-h-[42px] px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-colors cursor-pointer ${
               activeTab === 'remnants' ? 'bg-[#01875F] text-white shadow-xs' : 'text-slate-600 hover:bg-slate-100'
             }`}
           >
@@ -202,9 +202,9 @@ export const AccountsDashboard: React.FC = () => {
 
         {/* TAB 1: OVERVIEW */}
         {activeTab === 'overview' && (
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {/* KPI Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
               <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-2xs">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">

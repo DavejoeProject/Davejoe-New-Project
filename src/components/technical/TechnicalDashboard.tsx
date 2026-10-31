@@ -153,30 +153,31 @@ export const TechnicalDashboard: React.FC = () => {
   return (
     <div className="min-h-screen bg-[#F8FAFB] flex flex-col text-slate-800 font-sans selection:bg-[#01875F]/20 selection:text-[#01875F]">
       {/* Top Header */}
-      <header className="h-16 px-6 sm:px-8 border-b border-slate-200/80 bg-white flex items-center justify-between sticky top-0 z-30 shadow-2xs">
-        <div className="flex items-center gap-3">
+      <header className="h-16 px-3 sm:px-8 border-b border-slate-200/80 bg-white flex items-center justify-between sticky top-0 z-30 shadow-2xs">
+        <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
           <div className="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center bg-white border border-slate-100 shrink-0">
             <img src="/brand/pwa-192x192.png" alt="Davejoe Interiors" className="w-full h-full object-contain" />
           </div>
-          <div>
-            <span className="font-bold text-slate-900 tracking-tight text-sm sm:text-base block leading-tight">
+          <div className="min-w-0">
+            <span className="font-bold text-slate-900 tracking-tight text-xs sm:text-base block leading-tight truncate">
               Davejoe Technical & QC Command
             </span>
-            <span className="text-[10px] font-semibold text-[#01875F] tracking-wider uppercase block">
+            <span className="text-[9.5px] sm:text-[10px] font-semibold text-[#01875F] tracking-wider uppercase block truncate">
               Quality Assurance & Compliance
             </span>
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           <button
             type="button"
             onClick={handleRefresh}
             disabled={isRefreshing}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-semibold transition-colors cursor-pointer disabled:opacity-60"
+            className="inline-flex items-center justify-center w-8 h-8 sm:w-auto sm:h-auto sm:px-3 sm:py-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-semibold transition-colors cursor-pointer disabled:opacity-60"
+            aria-label="Refresh"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-[#01875F]' : ''}`} />
-            <span className="hidden sm:inline">Refresh</span>
+            <span className="hidden sm:inline ml-1.5">Refresh</span>
           </button>
 
           <div className="hidden sm:flex items-center gap-2 px-3 py-1 bg-slate-50 border border-slate-200 rounded-full text-xs">
@@ -187,21 +188,21 @@ export const TechnicalDashboard: React.FC = () => {
           <button
             type="button"
             onClick={() => logout()}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 text-slate-600 hover:text-red-600 hover:border-red-200 text-xs font-semibold cursor-pointer transition-colors"
+            className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl border border-slate-200 text-slate-600 hover:text-red-600 hover:border-red-200 text-xs font-semibold cursor-pointer transition-colors"
           >
             <LogOut className="w-3.5 h-3.5" />
-            <span>Sign Out</span>
+            <span className="hidden sm:inline">Sign Out</span>
           </button>
         </div>
       </header>
 
       {/* Main Viewport */}
-      <main className="p-6 sm:p-8 max-w-7xl w-full mx-auto space-y-6 flex-1">
+      <main className="p-3 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto space-y-4 sm:space-y-6 flex-1 overflow-x-hidden">
         {/* Daily Timekeeping for QC Officer */}
         <DailyAttendanceWidget />
 
         {/* Operational Navigation Tabs */}
-        <div className="bg-white p-1.5 rounded-2xl border border-slate-200/80 shadow-2xs flex items-center gap-1 overflow-x-auto touch-pan-x">
+        <div className="bg-white p-1.5 rounded-2xl border border-slate-200/80 shadow-2xs flex items-center gap-1 overflow-x-auto no-scrollbar touch-pan-x flex-nowrap">
           {[
             { key: 'inspections', label: 'Technical Inspections', icon: ClipboardCheck },
             { key: 'tasks', label: 'Task Verification & Handovers', icon: FileCheck },
@@ -215,7 +216,7 @@ export const TechnicalDashboard: React.FC = () => {
                 key={t.key}
                 type="button"
                 onClick={() => setActiveTab(t.key as any)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
+                className={`flex items-center gap-2 px-3.5 py-2.5 min-h-[42px] rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
                   isActive
                     ? 'bg-[#01875F] text-white shadow-2xs'
                     : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
@@ -253,7 +254,7 @@ export const TechnicalDashboard: React.FC = () => {
         </div>
 
         {/* Real KPI Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-2xs">
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
@@ -370,72 +371,123 @@ export const TechnicalDashboard: React.FC = () => {
           </div>
         </div>
 
-        {/* Inspections Table */}
-        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs p-6 space-y-4">
+        {/* Inspections Table & Mobile Cards */}
+        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs p-4 sm:p-6 space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-base font-bold text-slate-900">Quality Inspection Records</h2>
-            <span className="text-xs text-slate-400">Total displayed: {filteredInspections.length}</span>
+            <h2 className="text-sm sm:text-base font-bold text-slate-900">Quality Inspection Records</h2>
+            <span className="text-[11px] sm:text-xs text-slate-400">Total displayed: {filteredInspections.length}</span>
           </div>
 
           {filteredInspections.length === 0 ? (
-            <div className="py-16 text-center text-xs text-slate-400 border border-dashed border-slate-200 rounded-xl space-y-2">
-              <ClipboardCheck className="w-10 h-10 text-slate-300 mx-auto" />
+            <div className="py-12 sm:py-16 text-center text-xs text-slate-400 border border-dashed border-slate-200 rounded-xl space-y-2 p-4">
+              <ClipboardCheck className="w-9 h-9 sm:w-10 sm:h-10 text-slate-300 mx-auto" />
               <p className="font-semibold text-slate-600 text-sm">No inspection records found in database</p>
-              <p className="text-slate-400 max-w-sm mx-auto">
+              <p className="text-slate-400 max-w-sm mx-auto text-[11px] sm:text-xs">
                 No technical inspection finding matches your filter criteria. Use "+ Record New Inspection" to log genuine on-site QC audits.
               </p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
-                <thead>
-                  <tr className="border-b border-slate-100 text-slate-400 font-semibold uppercase tracking-wider">
-                    <th className="py-2.5 px-3">Project</th>
-                    <th className="py-2.5 px-3">Inspection Type</th>
-                    <th className="py-2.5 px-3">Date</th>
-                    <th className="py-2.5 px-3">Result Status</th>
-                    <th className="py-2.5 px-3">Compliance</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {filteredInspections.map((ins) => {
-                    const statusLower = (ins.result || ins.status || '').toLowerCase();
-                    const isPassed = statusLower === 'passed' || statusLower === 'completed';
-                    const isCritical = statusLower === 'failed' || statusLower === 'critical';
-                    return (
-                      <tr key={ins.id} className="hover:bg-slate-50/50">
-                        <td className="py-3 px-3 font-semibold text-slate-900">
-                          {ins.projects?.name || 'Assigned Site'}
-                        </td>
-                        <td className="py-3 px-3 text-slate-700 font-medium">
-                          {ins.inspection_type || 'General Quality Inspection'}
-                        </td>
-                        <td className="py-3 px-3 text-slate-500">
-                          {ins.scheduled_date || new Date(ins.created_at).toLocaleDateString()}
-                        </td>
-                        <td className="py-3 px-3">
-                          <span
-                            className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
-                              isPassed
-                                ? 'bg-emerald-50 text-[#01875F] border border-emerald-200'
-                                : isCritical
-                                  ? 'bg-red-50 text-red-600 border border-red-200'
-                                  : 'bg-amber-50 text-amber-700 border border-amber-200'
-                            }`}
-                          >
-                            {isPassed ? <CheckCircle2 className="w-3 h-3" /> : isCritical ? <XCircle className="w-3 h-3" /> : <Clock className="w-3 h-3" />}
-                            <span className="capitalize">{ins.result || ins.status || 'Pending'}</span>
-                          </span>
-                        </td>
-                        <td className="py-3 px-3 text-slate-400 font-mono text-[11px]">
+            <>
+              {/* Mobile Card List (< md) */}
+              <div className="md:hidden space-y-3">
+                {filteredInspections.map((ins) => {
+                  const statusLower = (ins.result || ins.status || '').toLowerCase();
+                  const isPassed = statusLower === 'passed' || statusLower === 'completed';
+                  const isCritical = statusLower === 'failed' || statusLower === 'critical';
+                  return (
+                    <div
+                      key={ins.id}
+                      className="p-3.5 bg-slate-50/70 border border-slate-200/80 rounded-xl space-y-2.5"
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0">
+                          <h4 className="text-xs font-bold text-slate-900 leading-snug truncate">
+                            {ins.projects?.name || 'Assigned Site'}
+                          </h4>
+                          <p className="text-[11px] text-slate-600 font-medium mt-0.5">
+                            {ins.inspection_type || 'General Quality Inspection'}
+                          </p>
+                        </div>
+                        <span
+                          className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold shrink-0 ${
+                            isPassed
+                              ? 'bg-emerald-50 text-[#01875F] border border-emerald-200'
+                              : isCritical
+                                ? 'bg-red-50 text-red-600 border border-red-200'
+                                : 'bg-amber-50 text-amber-700 border border-amber-200'
+                          }`}
+                        >
+                          {isPassed ? <CheckCircle2 className="w-3 h-3" /> : isCritical ? <XCircle className="w-3 h-3" /> : <Clock className="w-3 h-3" />}
+                          <span className="capitalize">{ins.result || ins.status || 'Pending'}</span>
+                        </span>
+                      </div>
+
+                      <div className="pt-2 border-t border-slate-200/60 flex items-center justify-between text-[11px] text-slate-500">
+                        <span className="flex items-center gap-1">
+                          <Calendar className="w-3 h-3 text-slate-400" />
+                          <span>{ins.scheduled_date || new Date(ins.created_at).toLocaleDateString()}</span>
+                        </span>
+                        <span className="font-mono text-[10px] text-slate-400">
                           ISO 9001 / Davejoe QA
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Desktop Table (>= md) */}
+              <div className="hidden md:block overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead>
+                    <tr className="border-b border-slate-100 text-slate-400 font-semibold uppercase tracking-wider">
+                      <th className="py-2.5 px-3">Project</th>
+                      <th className="py-2.5 px-3">Inspection Type</th>
+                      <th className="py-2.5 px-3">Date</th>
+                      <th className="py-2.5 px-3">Result Status</th>
+                      <th className="py-2.5 px-3">Compliance</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {filteredInspections.map((ins) => {
+                      const statusLower = (ins.result || ins.status || '').toLowerCase();
+                      const isPassed = statusLower === 'passed' || statusLower === 'completed';
+                      const isCritical = statusLower === 'failed' || statusLower === 'critical';
+                      return (
+                        <tr key={ins.id} className="hover:bg-slate-50/50">
+                          <td className="py-3 px-3 font-semibold text-slate-900">
+                            {ins.projects?.name || 'Assigned Site'}
+                          </td>
+                          <td className="py-3 px-3 text-slate-700 font-medium">
+                            {ins.inspection_type || 'General Quality Inspection'}
+                          </td>
+                          <td className="py-3 px-3 text-slate-500">
+                            {ins.scheduled_date || new Date(ins.created_at).toLocaleDateString()}
+                          </td>
+                          <td className="py-3 px-3">
+                            <span
+                              className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                                isPassed
+                                  ? 'bg-emerald-50 text-[#01875F] border border-emerald-200'
+                                  : isCritical
+                                    ? 'bg-red-50 text-red-600 border border-red-200'
+                                    : 'bg-amber-50 text-amber-700 border border-amber-200'
+                              }`}
+                            >
+                              {isPassed ? <CheckCircle2 className="w-3 h-3" /> : isCritical ? <XCircle className="w-3 h-3" /> : <Clock className="w-3 h-3" />}
+                              <span className="capitalize">{ins.result || ins.status || 'Pending'}</span>
+                            </span>
+                          </td>
+                          <td className="py-3 px-3 text-slate-400 font-mono text-[11px]">
+                            ISO 9001 / Davejoe QA
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </>
           )}
         </div>
         </div>
@@ -453,27 +505,28 @@ export const TechnicalDashboard: React.FC = () => {
 
       {/* Record Inspection Modal */}
       {modalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl border border-slate-200 shadow-2xl w-full max-w-md p-6 space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-              <h3 className="text-base font-bold text-slate-900">Record Technical Inspection</h3>
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4">
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl w-full max-w-md max-h-[96vh] sm:max-h-[92vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between px-4 sm:px-5 py-3.5 border-b border-slate-100 shrink-0">
+              <h3 className="text-sm sm:text-base font-bold text-slate-900">Record Technical Inspection</h3>
               <button
                 type="button"
                 onClick={() => setModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600 font-bold text-lg"
+                aria-label="Close"
+                className="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 flex items-center justify-center font-bold text-lg cursor-pointer"
               >
                 &times;
               </button>
             </div>
 
-            {formError && (
-              <div className="p-3 bg-red-50 text-red-700 text-xs rounded-xl flex items-center gap-2">
-                <AlertOctagon className="w-4 h-4 shrink-0" />
-                <span>{formError}</span>
-              </div>
-            )}
-
-            <form onSubmit={handleCreateInspection} className="space-y-3.5 text-xs">
+            <form onSubmit={handleCreateInspection} className="flex flex-col flex-1 overflow-hidden min-h-0">
+              <div className="p-4 sm:p-5 space-y-3.5 text-xs flex-1 overflow-y-auto min-h-0">
+                {formError && (
+                  <div className="p-3 bg-red-50 text-red-700 text-xs rounded-xl flex items-center gap-2">
+                    <AlertOctagon className="w-4 h-4 shrink-0" />
+                    <span>{formError}</span>
+                  </div>
+                )}
               <div>
                 <label className="block font-semibold text-slate-700 mb-1">Select Project Site *</label>
                 <select
@@ -557,18 +610,20 @@ export const TechnicalDashboard: React.FC = () => {
                 />
               </div>
 
-              <div className="pt-3 border-t border-slate-100 flex justify-end gap-2">
+              </div>
+
+              <div className="p-3.5 sm:p-4 bg-slate-50/80 border-t border-slate-100 flex justify-end gap-2.5 shrink-0">
                 <button
                   type="button"
                   onClick={() => setModalOpen(false)}
-                  className="px-4 py-2 bg-slate-100 rounded-xl font-semibold"
+                  className="min-h-[44px] px-4 py-2.5 bg-slate-100 hover:bg-slate-200 rounded-xl font-semibold cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-5 py-2 bg-[#01875F] text-white rounded-xl font-semibold disabled:opacity-60 shadow-2xs"
+                  className="min-h-[44px] px-5 py-2.5 bg-[#01875F] hover:bg-[#00704e] text-white rounded-xl font-semibold disabled:opacity-60 shadow-2xs cursor-pointer"
                 >
                   {isSubmitting ? 'Saving...' : 'Submit Certification'}
                 </button>

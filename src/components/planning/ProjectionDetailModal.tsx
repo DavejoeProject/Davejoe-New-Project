@@ -287,18 +287,18 @@ export const ProjectionDetailModal: React.FC<ProjectionDetailModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4 overflow-y-auto">
-      <div className="bg-white rounded-2xl max-w-5xl w-full max-h-[92vh] flex flex-col shadow-2xl border border-slate-200 animate-in fade-in zoom-in-95 duration-150 my-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-2 sm:p-4">
+      <div className="bg-white rounded-2xl max-w-5xl w-full max-h-[96vh] sm:max-h-[92vh] flex flex-col shadow-2xl border border-slate-200 animate-in fade-in zoom-in-95 duration-150 overflow-hidden my-auto">
         {/* Top Header */}
-        <div className="px-6 py-4 border-b border-slate-100 flex items-start justify-between shrink-0 bg-slate-50/70">
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <span className="font-mono text-xs font-bold text-slate-700 bg-white px-2 py-0.5 rounded border border-slate-200">
+        <div className="px-4 sm:px-6 py-3.5 sm:py-4 border-b border-slate-100 flex items-start justify-between shrink-0 bg-slate-50/70">
+          <div className="min-w-0 pr-2">
+            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mb-1">
+              <span className="font-mono text-[11px] sm:text-xs font-bold text-slate-700 bg-white px-2 py-0.5 rounded border border-slate-200">
                 {projection.projection_number}
               </span>
-              <span className="text-xs text-slate-400 font-semibold">v{projection.version}</span>
+              <span className="text-[11px] sm:text-xs text-slate-400 font-semibold">v{projection.version}</span>
               <span
-                className={`text-xs font-semibold px-2.5 py-0.5 rounded-full capitalize ${
+                className={`text-[10.5px] sm:text-xs font-semibold px-2 sm:px-2.5 py-0.5 rounded-full capitalize ${
                   projection.status === 'approved'
                     ? 'bg-emerald-100 text-emerald-800'
                     : projection.status === 'converted'
@@ -313,51 +313,52 @@ export const ProjectionDetailModal: React.FC<ProjectionDetailModalProps> = ({
                 {projection.status.replace('_', ' ')}
               </span>
               {projection.sub_status && (
-                <span className="text-[11px] font-medium text-slate-500 bg-white/80 px-2 py-0.5 rounded border border-slate-200">
+                <span className="text-[10px] sm:text-[11px] font-medium text-slate-500 bg-white/80 px-2 py-0.5 rounded border border-slate-200 truncate max-w-[140px] sm:max-w-none">
                   {projection.sub_status.replace(/_/g, ' ')}
                 </span>
               )}
             </div>
-            <h2 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">
+            <h2 className="text-base sm:text-xl font-bold text-slate-900 tracking-tight truncate">
               {projection.proposed_project_name}
             </h2>
-            <p className="text-xs text-slate-500">Client: {projection.client_name}</p>
+            <p className="text-[11px] sm:text-xs text-slate-500 truncate">Client: {projection.client_name}</p>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
             {isConverted && projection.converted_project_code && (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg text-xs font-bold">
+              <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg text-xs font-bold">
                 <CheckCircle2 className="w-4 h-4" />
-                Active Project: {projection.converted_project_code}
+                Active: {projection.converted_project_code}
               </span>
             )}
             <button
               type="button"
               onClick={onClose}
-              className="p-2 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 transition-colors"
+              aria-label="Close modal"
+              className="w-9 h-9 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 transition-colors flex items-center justify-center cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
           </div>
         </div>
 
-        {/* Workspace Navigation Tabs */}
-        <div className="px-6 border-b border-slate-200 bg-white flex items-center gap-1 overflow-x-auto text-xs font-semibold shrink-0">
+        {/* Workspace Navigation Tabs with responsive horizontal scrolling */}
+        <div className="px-3 sm:px-6 border-b border-slate-200 bg-white flex items-center gap-1 overflow-x-auto no-scrollbar text-xs font-semibold shrink-0 flex-nowrap">
           {[
             { id: 'overview', label: 'Overview' },
-            { id: 'technical', label: 'Technical Scope' },
+            { id: 'technical', label: 'Technical' },
             { id: 'boq', label: `BOQ (${projection.line_items?.length || 0})` },
-            { id: 'financials', label: 'Cost & Profitability' },
+            { id: 'financials', label: 'Financials' },
             { id: 'contributions', label: `Contributions (${projection.contributions?.length || 0})` },
-            { id: 'quotation', label: 'Quotation & Acceptance' },
-            { id: 'approval', label: 'Management Review' },
-            { id: 'convert', label: 'Project Conversion' },
+            { id: 'quotation', label: 'Quotation' },
+            { id: 'approval', label: 'Review' },
+            { id: 'convert', label: 'Conversion' },
           ].map((tab) => (
             <button
               key={tab.id}
               type="button"
               onClick={() => setActiveTab(tab.id as any)}
-              className={`py-3 px-3.5 border-b-2 whitespace-nowrap transition-colors cursor-pointer ${
+              className={`py-3 px-2.5 sm:px-3.5 border-b-2 whitespace-nowrap transition-colors cursor-pointer min-h-[44px] flex items-center ${
                 activeTab === tab.id
                   ? 'border-[#01875F] text-[#01875F] font-bold'
                   : 'border-transparent text-slate-500 hover:text-slate-800'
@@ -369,7 +370,7 @@ export const ProjectionDetailModal: React.FC<ProjectionDetailModalProps> = ({
         </div>
 
         {/* Modal Content Canvas */}
-        <div className="p-6 overflow-y-auto space-y-5 flex-1">
+        <div className="p-3.5 sm:p-6 overflow-y-auto space-y-4 sm:space-y-5 flex-1 min-h-0">
           {actionError && (
             <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 flex items-center justify-between">
               <span>{actionError}</span>
@@ -610,8 +611,9 @@ export const ProjectionDetailModal: React.FC<ProjectionDetailModalProps> = ({
               )}
 
               <div className="border border-slate-200 rounded-xl overflow-hidden">
-                <table className="w-full text-xs text-left">
-                  <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 uppercase text-[10px] font-semibold">
+                <div className="overflow-x-auto no-scrollbar">
+                  <table className="w-full text-xs text-left min-w-[580px]">
+                    <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 uppercase text-[10px] font-semibold">
                     <tr>
                       <th className="py-2.5 px-3">Category</th>
                       <th className="py-2.5 px-3">Description</th>
@@ -657,6 +659,7 @@ export const ProjectionDetailModal: React.FC<ProjectionDetailModalProps> = ({
                 </table>
               </div>
             </div>
+          </div>
           )}
 
           {/* TAB 4: FINANCIALS */}

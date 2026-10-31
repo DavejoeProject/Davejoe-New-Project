@@ -114,16 +114,16 @@ export const ProcurementDashboard: React.FC = () => {
   return (
     <div className="min-h-screen bg-[#F8FAFB] flex flex-col text-slate-800 font-sans selection:bg-[#01875F]/20 selection:text-[#01875F]">
       {/* Top Header */}
-      <header className="h-16 px-6 sm:px-8 border-b border-slate-200/80 bg-white flex items-center justify-between sticky top-0 z-30 shadow-2xs">
-        <div className="flex items-center gap-3">
+      <header className="h-16 px-3 sm:px-8 border-b border-slate-200/80 bg-white flex items-center justify-between sticky top-0 z-30 shadow-2xs">
+        <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
           <div className="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center bg-white border border-slate-100 shrink-0">
             <img src="/brand/pwa-192x192.png" alt="Davejoe Interiors" className="w-full h-full object-contain" />
           </div>
-          <div>
-            <span className="font-bold text-slate-900 tracking-tight text-sm sm:text-base block leading-tight">
+          <div className="min-w-0">
+            <span className="font-bold text-slate-900 tracking-tight text-xs sm:text-base block leading-tight truncate">
               Davejoe Procurement & Logistics
             </span>
-            <span className="text-[10px] font-semibold text-[#01875F] tracking-wider uppercase block">
+            <span className="text-[9.5px] sm:text-[10px] font-semibold text-[#01875F] tracking-wider uppercase block truncate">
               Supply Chain & Logistics Management
             </span>
           </div>
@@ -157,15 +157,15 @@ export const ProcurementDashboard: React.FC = () => {
       </header>
 
       {/* Main Content */}
-      <main className="p-6 sm:p-8 max-w-7xl w-full mx-auto space-y-6 flex-1">
+      <main className="p-3 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto space-y-4 sm:space-y-6 flex-1 overflow-x-hidden">
         {/* Daily Timekeeping for Procurement & Logistics */}
         <DailyAttendanceWidget />
 
         {/* Banner */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2.5">
-              <Truck className="w-6 h-6 text-[#01875F]" />
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2.5">
+              <Truck className="w-5 h-5 sm:w-6 sm:h-6 text-[#01875F]" />
               <span>Procurement & Supply Chain Command</span>
             </h1>
             <p className="text-xs sm:text-sm text-slate-500 mt-1">
@@ -173,11 +173,11 @@ export const ProcurementDashboard: React.FC = () => {
             </p>
           </div>
 
-          <div className="flex items-center gap-2.5 self-start sm:self-auto">
+          <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto">
             <button
               type="button"
               onClick={() => setCreatePoOpen(true)}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#01875F] hover:bg-[#00704e] text-white rounded-xl text-xs font-semibold transition-colors shadow-2xs cursor-pointer"
+              className="inline-flex items-center gap-1.5 min-h-[44px] sm:min-h-[38px] px-3.5 py-2 bg-[#01875F] hover:bg-[#00704e] text-white rounded-xl text-xs font-semibold transition-colors shadow-2xs cursor-pointer"
             >
               <Plus className="w-4 h-4" />
               <span>Create Purchase Order</span>
@@ -185,7 +185,7 @@ export const ProcurementDashboard: React.FC = () => {
             <button
               type="button"
               onClick={() => setRecordDeliveryOpen(true)}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-semibold transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1.5 min-h-[44px] sm:min-h-[38px] px-3.5 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-semibold transition-colors cursor-pointer"
             >
               <Truck className="w-4 h-4 text-[#01875F]" />
               <span>Record Delivery</span>
@@ -194,7 +194,7 @@ export const ProcurementDashboard: React.FC = () => {
         </div>
 
         {/* Real KPI Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-2xs">
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
@@ -257,11 +257,11 @@ export const ProcurementDashboard: React.FC = () => {
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex items-center gap-2 border-b border-slate-200 pb-2">
+        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar border-b border-slate-200 pb-2 flex-nowrap">
           <button
             type="button"
             onClick={() => setActiveTab('orders')}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
+            className={`min-h-[42px] px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-colors cursor-pointer ${
               activeTab === 'orders' ? 'bg-[#01875F] text-white shadow-xs' : 'text-slate-600 hover:bg-slate-100'
             }`}
           >
@@ -270,7 +270,7 @@ export const ProcurementDashboard: React.FC = () => {
           <button
             type="button"
             onClick={() => setActiveTab('requests')}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
+            className={`min-h-[42px] px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-colors cursor-pointer ${
               activeTab === 'requests' ? 'bg-[#01875F] text-white shadow-xs' : 'text-slate-600 hover:bg-slate-100'
             }`}
           >
@@ -279,7 +279,7 @@ export const ProcurementDashboard: React.FC = () => {
           <button
             type="button"
             onClick={() => setActiveTab('deliveries')}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
+            className={`min-h-[42px] px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-colors cursor-pointer ${
               activeTab === 'deliveries' ? 'bg-[#01875F] text-white shadow-xs' : 'text-slate-600 hover:bg-slate-100'
             }`}
           >
@@ -288,7 +288,7 @@ export const ProcurementDashboard: React.FC = () => {
           <button
             type="button"
             onClick={() => setActiveTab('suppliers')}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
+            className={`min-h-[42px] px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-colors cursor-pointer ${
               activeTab === 'suppliers' ? 'bg-[#01875F] text-white shadow-xs' : 'text-slate-600 hover:bg-slate-100'
             }`}
           >
@@ -297,7 +297,7 @@ export const ProcurementDashboard: React.FC = () => {
           <button
             type="button"
             onClick={() => setActiveTab('remnants')}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
+            className={`min-h-[42px] px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-colors cursor-pointer ${
               activeTab === 'remnants' ? 'bg-[#01875F] text-white shadow-xs' : 'text-slate-600 hover:bg-slate-100'
             }`}
           >
@@ -306,7 +306,7 @@ export const ProcurementDashboard: React.FC = () => {
           <button
             type="button"
             onClick={() => setActiveTab('tools')}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
+            className={`min-h-[42px] px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-colors cursor-pointer ${
               activeTab === 'tools' ? 'bg-[#01875F] text-white shadow-xs' : 'text-slate-600 hover:bg-slate-100'
             }`}
           >

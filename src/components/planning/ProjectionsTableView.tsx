@@ -116,7 +116,7 @@ export const ProjectionsTableView: React.FC<ProjectionsTableViewProps> = ({
         </div>
       </div>
 
-      {/* Table */}
+      {/* Table / Mobile Cards */}
       <div className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs overflow-hidden">
         {filtered.length === 0 ? (
           <div className="py-16 text-center text-slate-400 text-xs">
@@ -124,81 +124,166 @@ export const ProjectionsTableView: React.FC<ProjectionsTableViewProps> = ({
             No projections matching the selected criteria.
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-xs text-left">
-              <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold uppercase text-[10px]">
-                <tr>
-                  <th className="py-3 px-4">Projection Code</th>
-                  <th className="py-3 px-4">Proposed Project Name</th>
-                  <th className="py-3 px-4">Client</th>
-                  <th className="py-3 px-3 text-right">Est. Cost</th>
-                  <th className="py-3 px-3 text-right">Contract Value</th>
-                  <th className="py-3 px-3 text-right">Gross Margin</th>
-                  <th className="py-3 px-4 text-center">Lifecycle Status</th>
-                  <th className="py-3 px-4 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {filtered.map((proj) => (
-                  <tr
-                    key={proj.id}
-                    onClick={() => onSelectProjection(proj)}
-                    className="hover:bg-slate-50/70 transition-colors cursor-pointer group"
-                  >
-                    <td className="py-3 px-4 font-mono font-bold text-slate-700">
-                      {proj.projection_number}
-                    </td>
-                    <td className="py-3 px-4">
-                      <div className="font-bold text-slate-900 group-hover:text-[#01875F] transition-colors">
-                        {proj.proposed_project_name}
+          <>
+            {/* Mobile Card View (md:hidden) */}
+            <div className="md:hidden divide-y divide-slate-100">
+              {filtered.map((proj) => (
+                <div
+                  key={proj.id}
+                  onClick={() => onSelectProjection(proj)}
+                  className="p-4 hover:bg-slate-50/70 transition-colors cursor-pointer space-y-3"
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span className="font-mono font-bold text-slate-700 bg-slate-100 px-1.5 py-0.5 rounded text-[10px] border border-slate-200/80">
+                          {proj.projection_number}
+                        </span>
+                        <span
+                          className={`inline-block text-[10px] font-semibold px-2 py-0.5 rounded-full capitalize ${
+                            proj.status === 'approved'
+                              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                              : proj.status === 'converted'
+                              ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                              : proj.status === 'under_review'
+                              ? 'bg-amber-50 text-amber-700 border border-amber-200'
+                              : proj.status === 'client_review'
+                              ? 'bg-cyan-50 text-cyan-700 border border-cyan-200'
+                              : 'bg-slate-100 text-slate-700 border border-slate-200'
+                          }`}
+                        >
+                          {proj.status.replace('_', ' ')}
+                        </span>
                       </div>
-                      <div className="text-[11px] text-slate-500">{proj.site_location || 'Location TBD'}</div>
-                    </td>
-                    <td className="py-3 px-4 text-slate-700 font-medium">{proj.client_name}</td>
-                    <td className="py-3 px-3 text-right font-mono text-slate-600">
-                      {formatNaira(proj.estimated_grand_total)}
-                    </td>
-                    <td className="py-3 px-3 text-right font-mono font-bold text-slate-900">
-                      {formatNaira(proj.proposed_selling_price || proj.estimated_grand_total)}
-                    </td>
-                    <td className="py-3 px-3 text-right font-mono font-bold text-emerald-700">
-                      {proj.projected_gross_margin_pct}%
-                    </td>
-                    <td className="py-3 px-4 text-center">
-                      <span
-                        className={`inline-block text-[10px] font-semibold px-2 py-0.5 rounded-full capitalize ${
-                          proj.status === 'approved'
-                            ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                            : proj.status === 'converted'
-                            ? 'bg-blue-50 text-blue-700 border border-blue-200'
-                            : proj.status === 'under_review'
-                            ? 'bg-amber-50 text-amber-700 border border-amber-200'
-                            : proj.status === 'client_review'
-                            ? 'bg-cyan-50 text-cyan-700 border border-cyan-200'
-                            : 'bg-slate-100 text-slate-700 border border-slate-200'
-                        }`}
-                      >
-                        {proj.status.replace('_', ' ')}
+                      <h3 className="font-bold text-slate-900 text-sm mt-1 leading-snug">
+                        {proj.proposed_project_name}
+                      </h3>
+                      <p className="text-[11px] text-slate-500 line-clamp-1 mt-0.5">
+                        {proj.site_location || 'Location TBD'}
+                      </p>
+                    </div>
+                    <span className="font-mono font-bold text-xs px-2 py-1 bg-emerald-50 text-emerald-700 rounded-md border border-emerald-200/80 shrink-0">
+                      {proj.projected_gross_margin_pct}% Mgn
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 text-xs bg-slate-50/60 p-2.5 rounded-lg border border-slate-100">
+                    <div>
+                      <span className="text-[10px] uppercase font-semibold text-slate-400 block">Client</span>
+                      <span className="font-medium text-slate-800 truncate block">{proj.client_name}</span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] uppercase font-semibold text-slate-400 block">Contract Value</span>
+                      <span className="font-mono font-bold text-[#01875F] truncate block">
+                        {formatNaira(proj.proposed_selling_price || proj.estimated_grand_total)}
                       </span>
-                    </td>
-                    <td className="py-3 px-4 text-right">
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onSelectProjection(proj);
-                        }}
-                        className="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-semibold text-[#01875F] bg-[#01875F]/10 hover:bg-[#01875F]/20 rounded-md transition-colors"
-                      >
-                        Open Record
-                        <ExternalLink className="w-3 h-3" />
-                      </button>
-                    </td>
+                    </div>
+                    <div>
+                      <span className="text-[10px] uppercase font-semibold text-slate-400 block">Estimated Cost</span>
+                      <span className="font-mono text-slate-600 truncate block">
+                        {formatNaira(proj.estimated_grand_total)}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] uppercase font-semibold text-slate-400 block">Sub-Status</span>
+                      <span className="text-slate-700 capitalize truncate block text-[11px]">
+                        {proj.sub_status?.replace(/_/g, ' ') || 'Draft'}
+                      </span>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onSelectProjection(proj);
+                    }}
+                    className="w-full inline-flex items-center justify-center gap-1.5 py-2 px-3 text-xs font-semibold text-[#01875F] bg-[#01875F]/10 hover:bg-[#01875F]/20 rounded-lg transition-colors min-h-[38px] cursor-pointer"
+                  >
+                    <span>Open Projection Record</span>
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop Table (hidden md:block) */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full text-xs text-left">
+                <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold uppercase text-[10px]">
+                  <tr>
+                    <th className="py-3 px-4">Projection Code</th>
+                    <th className="py-3 px-4">Proposed Project Name</th>
+                    <th className="py-3 px-4">Client</th>
+                    <th className="py-3 px-3 text-right">Est. Cost</th>
+                    <th className="py-3 px-3 text-right">Contract Value</th>
+                    <th className="py-3 px-3 text-right">Gross Margin</th>
+                    <th className="py-3 px-4 text-center">Lifecycle Status</th>
+                    <th className="py-3 px-4 text-right">Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {filtered.map((proj) => (
+                    <tr
+                      key={proj.id}
+                      onClick={() => onSelectProjection(proj)}
+                      className="hover:bg-slate-50/70 transition-colors cursor-pointer group"
+                    >
+                      <td className="py-3 px-4 font-mono font-bold text-slate-700">
+                        {proj.projection_number}
+                      </td>
+                      <td className="py-3 px-4">
+                        <div className="font-bold text-slate-900 group-hover:text-[#01875F] transition-colors">
+                          {proj.proposed_project_name}
+                        </div>
+                        <div className="text-[11px] text-slate-500">{proj.site_location || 'Location TBD'}</div>
+                      </td>
+                      <td className="py-3 px-4 text-slate-700 font-medium">{proj.client_name}</td>
+                      <td className="py-3 px-3 text-right font-mono text-slate-600">
+                        {formatNaira(proj.estimated_grand_total)}
+                      </td>
+                      <td className="py-3 px-3 text-right font-mono font-bold text-slate-900">
+                        {formatNaira(proj.proposed_selling_price || proj.estimated_grand_total)}
+                      </td>
+                      <td className="py-3 px-3 text-right font-mono font-bold text-emerald-700">
+                        {proj.projected_gross_margin_pct}%
+                      </td>
+                      <td className="py-3 px-4 text-center">
+                        <span
+                          className={`inline-block text-[10px] font-semibold px-2 py-0.5 rounded-full capitalize ${
+                            proj.status === 'approved'
+                              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                              : proj.status === 'converted'
+                              ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                              : proj.status === 'under_review'
+                              ? 'bg-amber-50 text-amber-700 border border-amber-200'
+                              : proj.status === 'client_review'
+                              ? 'bg-cyan-50 text-cyan-700 border border-cyan-200'
+                              : 'bg-slate-100 text-slate-700 border border-slate-200'
+                          }`}
+                        >
+                          {proj.status.replace('_', ' ')}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4 text-right">
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onSelectProjection(proj);
+                          }}
+                          className="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-semibold text-[#01875F] bg-[#01875F]/10 hover:bg-[#01875F]/20 rounded-md transition-colors"
+                        >
+                          Open Record
+                          <ExternalLink className="w-3 h-3" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </div>
     </div>

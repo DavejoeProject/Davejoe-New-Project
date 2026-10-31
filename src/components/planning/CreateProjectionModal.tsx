@@ -290,16 +290,16 @@ export const CreateProjectionModal: React.FC<CreateProjectionModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4 overflow-y-auto">
-      <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[92vh] flex flex-col shadow-2xl border border-slate-200 animate-in fade-in zoom-in-95 duration-150 my-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-2 sm:p-4 overflow-y-auto">
+      <div className="bg-white rounded-xl sm:rounded-2xl max-w-4xl w-full max-h-[96vh] sm:max-h-[92vh] flex flex-col shadow-2xl border border-slate-200 animate-in fade-in zoom-in-95 duration-150 my-auto">
         {/* Header */}
-        <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between shrink-0">
-          <div>
-            <h2 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight flex items-center gap-2">
-              <Calculator className="w-5 h-5 text-[#01875F]" />
-              New Project Projection & Cost Estimation
+        <div className="px-4 sm:px-6 py-3.5 sm:py-4 border-b border-slate-100 flex items-center justify-between shrink-0">
+          <div className="min-w-0 pr-2">
+            <h2 className="text-sm sm:text-lg font-bold text-slate-900 tracking-tight flex items-center gap-2 truncate">
+              <Calculator className="w-5 h-5 text-[#01875F] shrink-0" />
+              <span>New Project Projection</span>
             </h2>
-            <p className="text-xs text-slate-500">
+            <p className="text-[11px] sm:text-xs text-slate-500 truncate mt-0.5">
               Step {step} of 5 — {step === 1 && 'Client & Job Identification'}
               {step === 2 && 'Technical Scope & Measurements'}
               {step === 3 && 'Bill of Quantities (BOQ)'}
@@ -310,14 +310,14 @@ export const CreateProjectionModal: React.FC<CreateProjectionModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="p-2 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+            className="p-2 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors shrink-0 cursor-pointer min-h-[36px]"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Stepper Progress Bar */}
-        <div className="px-6 pt-3 pb-2 bg-slate-50/70 border-b border-slate-100 flex items-center justify-between text-xs font-semibold shrink-0">
+        <div className="px-3 sm:px-6 pt-2.5 pb-2 bg-slate-50/70 border-b border-slate-100 flex items-center gap-1 sm:justify-between text-xs font-semibold shrink-0 overflow-x-auto no-scrollbar">
           {[
             { num: 1, label: 'Client & Job' },
             { num: 2, label: 'Technical Scope' },
@@ -346,7 +346,7 @@ export const CreateProjectionModal: React.FC<CreateProjectionModalProps> = ({
         </div>
 
         {/* Modal Body */}
-        <div className="p-6 overflow-y-auto space-y-5 flex-1">
+        <div className="p-4 sm:p-6 overflow-y-auto space-y-4 sm:space-y-5 flex-1">
           {error && (
             <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 flex items-center gap-2">
               <AlertCircle className="w-4 h-4 shrink-0" />
@@ -767,8 +767,8 @@ export const CreateProjectionModal: React.FC<CreateProjectionModalProps> = ({
               </div>
 
               {/* BOQ Table */}
-              <div className="border border-slate-200 rounded-xl overflow-hidden">
-                <table className="w-full text-xs text-left">
+              <div className="border border-slate-200 rounded-xl overflow-x-auto">
+                <table className="w-full text-xs text-left min-w-[560px]">
                   <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold uppercase text-[10px]">
                     <tr>
                       <th className="py-2.5 px-3">Category</th>

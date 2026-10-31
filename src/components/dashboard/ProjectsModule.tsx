@@ -239,9 +239,94 @@ export const ProjectsModule: React.FC<ProjectsModuleProps> = ({ onBackToDashboar
           </div>
         </div>
       ) : (
-        /* Real Projects Table */
+        /* Real Projects Table / Mobile Card View */
         <div className="bg-white rounded-xl border border-slate-200/80 shadow-2xs overflow-hidden">
-          <div className="overflow-x-auto">
+          {/* Mobile Card List (md:hidden) */}
+          <div className="md:hidden divide-y divide-slate-100">
+            {projects.map((proj) => {
+              const statusCfg = PROJECT_STATUS_CONFIG[proj.status as ProjectStatus] || {
+                label: proj.status,
+                badgeClass: 'bg-slate-100 text-slate-700 border-slate-200',
+              };
+              const clientDisplayName = proj.clients?.name || '—';
+
+              return (
+                <div
+                  key={proj.id}
+                  onClick={() => navigate(`/management/projects/${proj.id}`)}
+                  className="p-4 hover:bg-slate-50/70 transition-colors cursor-pointer space-y-3"
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span className="font-mono font-bold text-slate-700 bg-slate-100 px-1.5 py-0.5 rounded text-[10px] border border-slate-200/80">
+                          {proj.project_code}
+                        </span>
+                        <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-semibold border ${statusCfg.badgeClass}`}>
+                          {statusCfg.label}
+                        </span>
+                      </div>
+                      <h3 className="font-bold text-slate-900 text-sm mt-1 leading-snug">
+                        {proj.name}
+                      </h3>
+                      {proj.description && (
+                        <p className="text-[11px] text-slate-500 line-clamp-1 mt-0.5">
+                          {proj.description}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 text-xs bg-slate-50/60 p-2.5 rounded-lg border border-slate-100">
+                    <div>
+                      <span className="text-[10px] uppercase font-semibold text-slate-400 block">Client</span>
+                      <span className="font-medium text-slate-800 truncate block">{clientDisplayName}</span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] uppercase font-semibold text-slate-400 block">Contract Value</span>
+                      <span className="font-mono font-bold text-[#01875F] truncate block">
+                        {proj.contract_value != null ? formatNaira(proj.contract_value) : '—'}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] uppercase font-semibold text-slate-400 block">Start Date</span>
+                      <span className="text-slate-600 font-mono text-[11px]">
+                        {proj.start_date ? formatDateNigerian(proj.start_date) : '—'}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] uppercase font-semibold text-slate-400 block">Target Completion</span>
+                      <span className="text-slate-600 font-mono text-[11px]">
+                        {proj.expected_completion_date ? formatDateNigerian(proj.expected_completion_date) : '—'}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 pt-1" onClick={(e) => e.stopPropagation()}>
+                    <button
+                      type="button"
+                      onClick={() => navigate(`/management/projects/${proj.id}`)}
+                      className="flex-1 inline-flex items-center justify-center gap-1.5 py-2 px-3 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-lg text-xs font-semibold transition-colors cursor-pointer min-h-[38px]"
+                    >
+                      <Eye className="w-3.5 h-3.5 text-slate-500" />
+                      <span>Control Centre</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setEditingProject(proj)}
+                      className="inline-flex items-center justify-center gap-1.5 py-2 px-3 bg-[#01875F]/10 hover:bg-[#01875F]/20 text-[#01875F] rounded-lg text-xs font-semibold transition-colors cursor-pointer min-h-[38px]"
+                    >
+                      <Edit3 className="w-3.5 h-3.5" />
+                      <span>Edit</span>
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Desktop Table (hidden md:block) */}
+          <div className="hidden md:block overflow-x-auto">
             <table className="w-full text-left border-collapse text-xs">
               <thead>
                 <tr className="bg-slate-50/75 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider text-slate-500">

@@ -216,93 +216,101 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
       {kpis?.error ? (
         renderSectionError(kpis.error, retryKpis)
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           {/* Card 1: Active Projects */}
           <div
             onClick={() => onSelectModule('all-projects')}
-            className="bg-white rounded-xl border border-slate-200/80 p-5 shadow-2xs hover:border-slate-300 transition-all cursor-pointer group"
+            className="bg-white rounded-xl border border-slate-200/80 p-3.5 sm:p-5 shadow-2xs hover:border-slate-300 transition-all cursor-pointer group flex flex-col justify-between"
           >
-            <div className="flex items-center justify-between mb-3">
-              <div className="w-10 h-10 rounded-lg bg-[#E6F4EA] flex items-center justify-center text-[#01875F]">
-                <FolderKanban className="w-5 h-5" strokeWidth={2} />
+            <div className="flex items-center justify-between mb-2 sm:mb-3">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-[#E6F4EA] flex items-center justify-center text-[#01875F]">
+                <FolderKanban className="w-4 h-4 sm:w-5 sm:h-5" strokeWidth={2} />
               </div>
-              <span className="text-[11px] font-semibold text-slate-400 group-hover:text-[#01875F] transition-colors">
+              <span className="hidden sm:inline text-[11px] font-semibold text-slate-400 group-hover:text-[#01875F] transition-colors">
                 Projects &rarr;
               </span>
             </div>
-            <span className="text-xs font-medium text-slate-500 block">ACTIVE PROJECTS</span>
-            <div className="text-2xl sm:text-3xl font-bold text-slate-900 mt-0.5 tracking-tight font-mono">
-              {formatCount(kpis?.data.activeProjects)}
+            <div>
+              <span className="text-[10px] sm:text-xs font-medium text-slate-500 block uppercase tracking-wide">Active Projects</span>
+              <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-900 mt-0.5 tracking-tight font-mono">
+                {formatCount(kpis?.data.activeProjects)}
+              </div>
+              <span className="text-[10px] sm:text-[11.5px] text-slate-400 mt-0.5 sm:mt-1 block truncate">
+                {kpis?.data.activeProjects === 0 ? 'No projects yet' : `${kpis?.data.totalProjects} total`}
+              </span>
             </div>
-            <span className="text-[11.5px] text-slate-400 mt-1 block">
-              {kpis?.data.activeProjects === 0 ? 'No projects yet' : `${kpis?.data.totalProjects} total registered`}
-            </span>
           </div>
 
           {/* Card 2: Total Workforce */}
           <div
             onClick={() => onSelectModule('workforce')}
-            className="bg-white rounded-xl border border-slate-200/80 p-5 shadow-2xs hover:border-slate-300 transition-all cursor-pointer group"
+            className="bg-white rounded-xl border border-slate-200/80 p-3.5 sm:p-5 shadow-2xs hover:border-slate-300 transition-all cursor-pointer group flex flex-col justify-between"
           >
-            <div className="flex items-center justify-between mb-3">
-              <div className="w-10 h-10 rounded-lg bg-[#E6F4EA] flex items-center justify-center text-[#01875F]">
-                <Users className="w-5 h-5" strokeWidth={2} />
+            <div className="flex items-center justify-between mb-2 sm:mb-3">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-[#E6F4EA] flex items-center justify-center text-[#01875F]">
+                <Users className="w-4 h-4 sm:w-5 sm:h-5" strokeWidth={2} />
               </div>
-              <span className="text-[11px] font-semibold text-slate-400 group-hover:text-[#01875F] transition-colors">
+              <span className="hidden sm:inline text-[11px] font-semibold text-slate-400 group-hover:text-[#01875F] transition-colors">
                 Workforce &rarr;
               </span>
             </div>
-            <span className="text-xs font-medium text-slate-500 block">TOTAL WORKFORCE</span>
-            <div className="text-2xl sm:text-3xl font-bold text-slate-900 mt-0.5 tracking-tight font-mono">
-              {formatCount(kpis?.data.totalWorkforce)}
+            <div>
+              <span className="text-[10px] sm:text-xs font-medium text-slate-500 block uppercase tracking-wide">Workforce</span>
+              <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-900 mt-0.5 tracking-tight font-mono">
+                {formatCount(kpis?.data.totalWorkforce)}
+              </div>
+              <span className="text-[10px] sm:text-[11.5px] text-slate-400 mt-0.5 sm:mt-1 block truncate">
+                {kpis?.data.totalWorkforce === 0 ? 'No members' : 'Active members'}
+              </span>
             </div>
-            <span className="text-[11.5px] text-slate-400 mt-1 block">
-              {kpis?.data.totalWorkforce === 0 ? 'No workforce records' : 'Active workforce members'}
-            </span>
           </div>
 
           {/* Card 3: Pending Approvals */}
           <div
             onClick={() => onSelectModule('approvals')}
-            className="bg-white rounded-xl border border-slate-200/80 p-5 shadow-2xs hover:border-slate-300 transition-all cursor-pointer group"
+            className="bg-white rounded-xl border border-slate-200/80 p-3.5 sm:p-5 shadow-2xs hover:border-slate-300 transition-all cursor-pointer group flex flex-col justify-between"
           >
-            <div className="flex items-center justify-between mb-3">
-              <div className="w-10 h-10 rounded-lg bg-[#E6F4EA] flex items-center justify-center text-[#01875F]">
-                <CheckSquare className="w-5 h-5" strokeWidth={2} />
+            <div className="flex items-center justify-between mb-2 sm:mb-3">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-[#E6F4EA] flex items-center justify-center text-[#01875F]">
+                <CheckSquare className="w-4 h-4 sm:w-5 sm:h-5" strokeWidth={2} />
               </div>
-              <span className="text-[11px] font-semibold text-slate-400 group-hover:text-[#01875F] transition-colors">
+              <span className="hidden sm:inline text-[11px] font-semibold text-slate-400 group-hover:text-[#01875F] transition-colors">
                 Review &rarr;
               </span>
             </div>
-            <span className="text-xs font-medium text-slate-500 block">PENDING APPROVALS</span>
-            <div className="text-2xl sm:text-3xl font-bold text-slate-900 mt-0.5 tracking-tight font-mono">
-              {formatCount(kpis?.data.pendingApprovals)}
+            <div>
+              <span className="text-[10px] sm:text-xs font-medium text-slate-500 block uppercase tracking-wide">Approvals</span>
+              <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-900 mt-0.5 tracking-tight font-mono">
+                {formatCount(kpis?.data.pendingApprovals)}
+              </div>
+              <span className="text-[10px] sm:text-[11.5px] text-slate-400 mt-0.5 sm:mt-1 block truncate">
+                {kpis?.data.pendingApprovals === 0 ? 'None pending' : 'Requires action'}
+              </span>
             </div>
-            <span className="text-[11.5px] text-slate-400 mt-1 block">
-              {kpis?.data.pendingApprovals === 0 ? 'No pending approvals' : 'Requires CEO authorization'}
-            </span>
           </div>
 
           {/* Card 4: Project Cost / Current Spend (₦) */}
           <div
             onClick={() => onSelectModule('project-costs')}
-            className="bg-white rounded-xl border border-slate-200/80 p-5 shadow-2xs hover:border-slate-300 transition-all cursor-pointer group"
+            className="bg-white rounded-xl border border-slate-200/80 p-3.5 sm:p-5 shadow-2xs hover:border-slate-300 transition-all cursor-pointer group flex flex-col justify-between"
           >
-            <div className="flex items-center justify-between mb-3">
-              <div className="w-10 h-10 rounded-lg bg-[#E6F4EA] flex items-center justify-center text-[#01875F]">
-                <CircleDollarSign className="w-5 h-5" strokeWidth={2} />
+            <div className="flex items-center justify-between mb-2 sm:mb-3">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-[#E6F4EA] flex items-center justify-center text-[#01875F]">
+                <CircleDollarSign className="w-4 h-4 sm:w-5 sm:h-5" strokeWidth={2} />
               </div>
-              <span className="text-[11px] font-semibold text-slate-400 group-hover:text-[#01875F] transition-colors">
+              <span className="hidden sm:inline text-[11px] font-semibold text-slate-400 group-hover:text-[#01875F] transition-colors">
                 Finances &rarr;
               </span>
             </div>
-            <span className="text-xs font-medium text-slate-500 block">PROJECT COST / SPEND</span>
-            <div className="text-2xl sm:text-3xl font-bold text-slate-900 mt-0.5 tracking-tight font-mono truncate">
-              {kpis?.data.projectCostFormatted || '₦0.00'}
+            <div>
+              <span className="text-[10px] sm:text-xs font-medium text-slate-500 block uppercase tracking-wide">Project Cost</span>
+              <div className="text-base sm:text-xl lg:text-2xl font-bold text-slate-900 mt-0.5 tracking-tight font-mono truncate">
+                {kpis?.data.projectCostFormatted || '₦0.00'}
+              </div>
+              <span className="text-[10px] sm:text-[11.5px] text-slate-400 mt-0.5 sm:mt-1 block truncate">
+                Recorded spend
+              </span>
             </div>
-            <span className="text-[11.5px] text-slate-400 mt-1 block">
-              {kpis?.data.projectCost === 0 ? '₦0.00 recorded' : 'Total recorded expenditures'}
-            </span>
           </div>
         </div>
       )}

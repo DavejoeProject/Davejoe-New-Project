@@ -177,6 +177,19 @@ export const CeoDashboard: React.FC<CeoDashboardProps> = ({ initialModule = 'ove
   const [currentModule, setCurrentModule] = useState<DashboardNavKey>(getModuleFromPath);
   const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState<boolean>(false);
+
+  // Lock body scroll on mobile when drawer is open
+  useEffect(() => {
+    if (mobileSidebarOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [mobileSidebarOpen]);
+
   const [data, setData] = useState<DashboardData>(EMPTY_DASHBOARD_DATA);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
@@ -492,7 +505,7 @@ export const CeoDashboard: React.FC<CeoDashboardProps> = ({ initialModule = 'ove
         />
 
         {/* Scrollable Main Workspace */}
-        <main className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6">
+        <main className="flex-1 overflow-y-auto overflow-x-hidden px-3 sm:px-6 lg:px-8 py-4 sm:py-6">
           {isLoading ? (
             /* Subtle clean skeleton loader during initial database fetch */
             <div className="space-y-6 animate-pulse max-w-7xl mx-auto">

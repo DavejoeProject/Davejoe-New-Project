@@ -151,7 +151,7 @@ export const LoginForm: React.FC = () => {
 
   return (
     <>
-      <div className="w-full max-w-[430px] bg-white rounded-2xl border border-slate-200/75 shadow-[0_12px_36px_-10px_rgba(15,23,42,0.07)] p-7 sm:p-9 relative z-10 transition-card">
+      <div className="w-full max-w-[430px] bg-white rounded-2xl border border-slate-200/75 shadow-[0_12px_36px_-10px_rgba(15,23,42,0.07)] p-5 sm:p-8 md:p-9 relative z-10 transition-card">
         {!isSuccess ? (
           <div>
             {/* Header: Welcome back */}

@@ -38,28 +38,28 @@ export const Header: React.FC<HeaderProps> = ({
   }, []);
 
   return (
-    <header className="h-16 bg-white border-b border-slate-200/90 px-4 sm:px-6 flex items-center justify-between sticky top-0 z-20 shrink-0">
+    <header className="h-16 bg-white border-b border-slate-200/90 px-3 sm:px-6 flex items-center justify-between sticky top-0 z-20 shrink-0">
       {/* Left: Mobile hamburger & Global Search */}
-      <div className="flex items-center gap-3 flex-1 max-w-md">
+      <div className="flex items-center gap-2 sm:gap-3 flex-1 max-w-md min-w-0">
         {onToggleMobileSidebar && (
           <button
             type="button"
             onClick={onToggleMobileSidebar}
-            className="md:hidden p-2 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-colors cursor-pointer"
+            className="md:hidden w-10 h-10 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 flex items-center justify-center transition-colors cursor-pointer shrink-0"
             aria-label="Toggle navigation menu"
           >
-            <Menu className="w-5 h-5" />
+            <Menu className="w-5 h-5 stroke-[2]" />
           </button>
         )}
 
         <button
           type="button"
           onClick={onOpenSearch}
-          className="w-full h-10 px-3.5 bg-slate-50 hover:bg-slate-100/80 border border-slate-200/90 rounded-lg text-left text-sm text-slate-500 flex items-center gap-2.5 transition-all cursor-pointer group focus:outline-none focus:ring-2 focus:ring-[#01875F]/20"
+          className="w-full h-10 px-3 sm:px-3.5 bg-slate-50 hover:bg-slate-100/80 border border-slate-200/90 rounded-lg text-left text-sm text-slate-500 flex items-center gap-2 sm:gap-2.5 transition-all cursor-pointer group focus:outline-none focus:ring-2 focus:ring-[#01875F]/20 min-w-0"
         >
           <Search className="w-4 h-4 text-slate-400 group-hover:text-slate-600 shrink-0" />
           <span className="truncate text-xs sm:text-[13px] text-slate-400 group-hover:text-slate-600">
-            Search projects, materials, workforce...
+            Search projects, materials...
           </span>
           <span className="hidden sm:inline-block ml-auto text-[11px] font-mono text-slate-400 bg-white border border-slate-200 px-1.5 py-0.5 rounded shadow-2xs">
             ⌘K
@@ -68,18 +68,18 @@ export const Header: React.FC<HeaderProps> = ({
       </div>
 
       {/* Right Controls: Notifications & User Profile */}
-      <div className="flex items-center gap-3 sm:gap-4 ml-4">
+      <div className="flex items-center gap-2 sm:gap-3 ml-2 sm:ml-4 shrink-0">
         {/* Notification Bell */}
         <button
           type="button"
           onClick={onOpenNotifications}
-          className="relative w-9 h-9 rounded-lg hover:bg-slate-100 flex items-center justify-center text-slate-600 hover:text-slate-900 transition-colors cursor-pointer"
+          className="relative w-10 h-10 rounded-lg hover:bg-slate-100 flex items-center justify-center text-slate-600 hover:text-slate-900 transition-colors cursor-pointer"
           title="Notifications"
           aria-label="View notifications"
         >
           <Bell className="w-[18px] h-[18px]" strokeWidth={1.8} />
           {unreadNotificationsCount > 0 && (
-            <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-red-500 ring-2 ring-white" />
+            <span className="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-red-500 ring-2 ring-white" />
           )}
         </button>
 
@@ -88,7 +88,7 @@ export const Header: React.FC<HeaderProps> = ({
           <button
             type="button"
             onClick={() => setProfileDropdownOpen((prev) => !prev)}
-            className="flex items-center gap-2.5 p-1 sm:pl-1 sm:pr-2.5 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer focus:outline-none"
+            className="flex items-center gap-2 p-1 sm:pl-1 sm:pr-2.5 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer focus:outline-none min-h-[40px]"
             aria-expanded={profileDropdownOpen}
           >
             {/* Avatar Initial */}

@@ -285,10 +285,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <button
               type="button"
               onClick={onCloseMobile}
-              className="md:hidden w-8 h-8 rounded-lg hover:bg-slate-100 text-slate-500 hover:text-slate-800 flex items-center justify-center transition-colors cursor-pointer"
-              aria-label="Close menu"
+              className="md:hidden w-10 h-10 rounded-lg hover:bg-slate-100 text-slate-500 hover:text-slate-800 flex items-center justify-center transition-colors cursor-pointer"
+              aria-label="Close navigation menu"
             >
-              <X className="w-5 h-5 stroke-[2]" />
+              <X className="w-5 h-5 stroke-[2.2]" />
             </button>
           )}
 
@@ -373,14 +373,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
                         type="button"
                         onClick={() => handleItemClick(item.key)}
                         title={collapsed ? item.label : undefined}
-                        className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-colors cursor-pointer group text-left ${
+                        className={`w-full flex items-center gap-3 px-3 py-2.5 sm:py-2 rounded-lg text-xs font-medium transition-colors cursor-pointer group text-left min-h-[42px] sm:min-h-[38px] ${
                           isActive
                             ? 'bg-[#01875F] text-white shadow-2xs font-semibold'
                             : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                         } ${collapsed ? 'justify-center px-0 py-2.5' : ''}`}
                       >
                         <Icon
-                          className={`w-[17px] h-[17px] shrink-0 ${
+                          className={`w-[18px] h-[18px] sm:w-[17px] sm:h-[17px] shrink-0 ${
                             isActive
                               ? 'text-white'
                               : 'text-slate-500 group-hover:text-slate-800'
@@ -400,8 +400,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
         })}
       </div>
 
-      {/* Bottom Section: Authenticated Identity, Profile & Logout */}
-      <div className="p-3 border-t border-slate-100 shrink-0 space-y-1.5 bg-slate-50/60">
+      {/* Bottom Section: Authenticated Identity, Profile & Logout with safe-area */}
+      <div className="p-3 pb-safe border-t border-slate-100 shrink-0 space-y-1.5 bg-slate-50/60">
         {/* User Identity Display */}
         {!collapsed ? (
           <div className="px-2.5 py-2 rounded-lg bg-white border border-slate-200/80 mb-2">
@@ -435,7 +435,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <PWAInstallButton
             variant="minimal"
             size="sm"
-            className={`w-full text-emerald-700 hover:text-emerald-800 hover:bg-emerald-50/70 ${
+            className={`w-full text-emerald-700 hover:text-emerald-800 hover:bg-emerald-50/70 min-h-[40px] sm:min-h-[36px] ${
               collapsed ? 'justify-center px-0' : 'justify-start'
             }`}
           />
@@ -446,7 +446,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           type="button"
           onClick={() => onSelectModule('profile')}
           title={collapsed ? 'Profile' : undefined}
-          className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-colors cursor-pointer group text-left ${
+          className={`w-full flex items-center gap-3 px-3 py-2.5 sm:py-2 rounded-lg text-xs font-medium transition-colors cursor-pointer group text-left min-h-[42px] sm:min-h-[38px] ${
             currentModule === 'profile'
               ? 'bg-slate-200 text-slate-900 font-semibold'
               : 'text-slate-700 hover:text-slate-900 hover:bg-slate-100/80'
@@ -461,7 +461,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           type="button"
           onClick={onLogout}
           title={collapsed ? 'Logout' : undefined}
-          className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-semibold text-red-600 hover:bg-red-50 transition-colors cursor-pointer group text-left ${
+          className={`w-full flex items-center gap-3 px-3 py-2.5 sm:py-2 rounded-lg text-xs font-semibold text-red-600 hover:bg-red-50 transition-colors cursor-pointer group text-left min-h-[42px] sm:min-h-[38px] ${
             collapsed ? 'justify-center px-0' : ''
           }`}
         >
