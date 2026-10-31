@@ -9,6 +9,123 @@ export const ALL_MATERIAL_STATUSES: MaterialStatus[] = [
   'discontinued',
 ];
 
+/**
+ * Valid PostgreSQL enum values for public.materials.category
+ * strictly enforced in Supabase: enum material_category
+ */
+export type MaterialCategory =
+  | 'cement'
+  | 'sand'
+  | 'plaster'
+  | 'paint'
+  | 'primer'
+  | 'adhesive'
+  | 'thinner'
+  | 'packaging'
+  | 'electrical'
+  | 'plumbing'
+  | 'finishing'
+  | 'tools'
+  | 'other';
+
+export const MATERIAL_CATEGORIES: Array<{
+  value: MaterialCategory;
+  label: string;
+  description: string;
+}> = [
+  { value: 'finishing', label: 'Finishing & Tiling', description: 'Tiles, plasterboards, POP, ceilings, finishing works' },
+  { value: 'cement', label: 'Cement & Concrete', description: 'Portland cement, concrete mixes, masonry bonding' },
+  { value: 'sand', label: 'Sand & Aggregates', description: 'Sharp sand, plaster sand, granite stones, gravel' },
+  { value: 'plaster', label: 'Plaster & Screed', description: 'POP plaster, wall screed putty, skim coats' },
+  { value: 'paint', label: 'Paint & Emulsions', description: 'Interior/exterior emulsions, gloss, acrylics, texcote' },
+  { value: 'primer', label: 'Primers & Undercoats', description: 'Alkali-resisting primers, metal primers, sealers' },
+  { value: 'adhesive', label: 'Adhesives & Sealants', description: 'Tile adhesive, silicone, construction glues, grouts' },
+  { value: 'thinner', label: 'Thinners & Solvents', description: 'Paint thinners, turpentine, mineral spirits, retarders' },
+  { value: 'electrical', label: 'Electrical', description: 'Wiring, conduits, breakers, switches, lighting' },
+  { value: 'plumbing', label: 'Plumbing & Mechanical', description: 'Pipes, fittings, valves, sanitary fixtures, drainage' },
+  { value: 'tools', label: 'Tools & Equipment', description: 'Hand tools, power tools, safety equipment, measuring tools' },
+  { value: 'packaging', label: 'Packaging & Protection', description: 'Masking tape, polythene sheets, cartons, wrapping' },
+  { value: 'other', label: 'General / Other', description: 'Miscellaneous construction materials and consumables' },
+];
+
+/**
+ * Maps any user input, display label, or legacy string to a valid PostgreSQL material_category enum
+ */
+export function normalizeMaterialCategory(raw?: string | null): MaterialCategory {
+  if (!raw) return 'other';
+  const clean = raw.trim().toLowerCase();
+
+  const validValues = new Set<MaterialCategory>([
+    'cement',
+    'sand',
+    'plaster',
+    'paint',
+    'primer',
+    'adhesive',
+    'thinner',
+    'packaging',
+    'electrical',
+    'plumbing',
+    'finishing',
+    'tools',
+    'other',
+  ]);
+
+  if (validValues.has(clean as MaterialCategory)) {
+    return clean as MaterialCategory;
+  }
+
+  // Friendly aliases and domain mappings
+  if (clean.includes('finish') || clean.includes('tile') || clean.includes('tiling') || clean.includes('flooring') || clean.includes('ceiling')) {
+    return 'finishing';
+  }
+  if (clean.includes('cement') || clean.includes('concrete') || clean.includes('civil') || clean.includes('block') || clean.includes('brick') || clean.includes('masonry')) {
+    return 'cement';
+  }
+  if (clean.includes('sand') || clean.includes('granite') || clean.includes('aggregate') || clean.includes('gravel')) {
+    return 'sand';
+  }
+  if (clean.includes('plaster') || clean.includes('screed') || clean.includes('pop') || clean.includes('putty')) {
+    return 'plaster';
+  }
+  if (clean.includes('primer') || clean.includes('undercoat') || clean.includes('sealer')) {
+    return 'primer';
+  }
+  if (clean.includes('paint') || clean.includes('coat') || clean.includes('emulsion') || clean.includes('gloss') || clean.includes('texcote')) {
+    return 'paint';
+  }
+  if (clean.includes('adhesive') || clean.includes('glue') || clean.includes('grout') || clean.includes('silicone') || clean.includes('sealant')) {
+    return 'adhesive';
+  }
+  if (clean.includes('thinner') || clean.includes('solvent') || clean.includes('spirit') || clean.includes('turpentine')) {
+    return 'thinner';
+  }
+  if (clean.includes('pack') || clean.includes('wrap') || clean.includes('box') || clean.includes('carton') || clean.includes('tape') || clean.includes('polythene')) {
+    return 'packaging';
+  }
+  if (clean.includes('elect') || clean.includes('wire') || clean.includes('cable') || clean.includes('switch') || clean.includes('light') || clean.includes('breaker')) {
+    return 'electrical';
+  }
+  if (clean.includes('plumb') || clean.includes('pipe') || clean.includes('drain') || clean.includes('valve') || clean.includes('mech') || clean.includes('sanitary')) {
+    return 'plumbing';
+  }
+  if (clean.includes('tool') || clean.includes('equipment') || clean.includes('machine') || clean.includes('plant') || clean.includes('safety') || clean.includes('ppe')) {
+    return 'tools';
+  }
+
+  return 'other';
+}
+
+/**
+ * Returns human-readable label for a given material_category
+ */
+export function getMaterialCategoryLabel(category?: string | null): string {
+  if (!category) return 'General / Other';
+  const normalized = normalizeMaterialCategory(category);
+  const found = MATERIAL_CATEGORIES.find((c) => c.value === normalized);
+  return found ? found.label : category;
+}
+
 export const MATERIAL_STATUS_CONFIG: Record<
   MaterialStatus,
   { label: string; badgeClasses: string; dotClasses: string }
@@ -634,7 +751,7 @@ export async function createMaterial(
     const payload = {
       material_code: code,
       name,
-      category: input.category?.trim() || 'General',
+      category: normalizeMaterialCategory(input.category),
       description: input.description?.trim() || null,
       brand: input.brand?.trim() || null,
       specification: input.specification?.trim() || null,
@@ -707,7 +824,7 @@ export async function updateMaterial(
     };
 
     if (input.category !== undefined) {
-      payload.category = input.category?.trim() || 'General';
+      payload.category = normalizeMaterialCategory(input.category);
     }
     if (input.description !== undefined) {
       payload.description = input.description?.trim() || null;

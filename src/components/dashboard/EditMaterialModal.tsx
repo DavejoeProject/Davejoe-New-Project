@@ -7,6 +7,8 @@ import {
   MaterialStatus,
   ALL_MATERIAL_STATUSES,
   MATERIAL_STATUS_CONFIG,
+  MATERIAL_CATEGORIES,
+  normalizeMaterialCategory,
 } from '../../services/materialsService';
 
 interface EditMaterialModalProps {
@@ -60,7 +62,7 @@ export const EditMaterialModal: React.FC<EditMaterialModalProps> = ({
   useEffect(() => {
     if (material) {
       setName(material.name || '');
-      setCategory(material.category || 'General');
+      setCategory(normalizeMaterialCategory(material.category));
       setCustomCategory('');
       setBrand(material.brand || '');
       setSpecification(material.specification || '');
@@ -123,7 +125,7 @@ export const EditMaterialModal: React.FC<EditMaterialModalProps> = ({
     try {
       const updateData: MaterialUpdateInput = {
         name: trimmedName,
-        category: finalCategory || 'General',
+        category: normalizeMaterialCategory(finalCategory),
         brand: brand.trim() || null,
         specification: specification.trim() || null,
         unit_of_measure: finalUnit,
@@ -252,14 +254,13 @@ export const EditMaterialModal: React.FC<EditMaterialModalProps> = ({
                   onChange={(e) => setCategory(e.target.value)}
                   className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#01875F] focus:border-[#01875F]"
                 >
-                  <option value="Civil Works">Civil Works</option>
-                  <option value="Electrical">Electrical</option>
-                  <option value="Mechanical & Plumbing">Mechanical & Plumbing</option>
-                  <option value="Finishing & Tiling">Finishing & Tiling</option>
-                  <option value="Structural Steel">Structural Steel</option>
-                  <option value="General">General</option>
+                  {MATERIAL_CATEGORIES.map((c) => (
+                    <option key={c.value} value={c.value}>
+                      {c.label}
+                    </option>
+                  ))}
                   {existingCategories
-                    .filter((c) => !['Civil Works', 'Electrical', 'Mechanical & Plumbing', 'Finishing & Tiling', 'Structural Steel', 'General'].includes(c))
+                    .filter((c) => !MATERIAL_CATEGORIES.some((mc) => mc.value === c || mc.label === c))
                     .map((c) => (
                       <option key={c} value={c}>
                         {c}

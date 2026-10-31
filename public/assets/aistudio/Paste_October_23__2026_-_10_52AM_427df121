@@ -1,0 +1,712 @@
+# DAVEJOE MANAGEMENT TOOL — PROJECT PLANNING, MATERIALS MANAGEMENT & SITE ACCOUNTABILITY
+
+## PROJECT OBJECTIVE
+
+Extend the existing Davejoe Management Tool into a fully integrated construction project planning and materials accountability system.
+
+Implement two interconnected modules:
+
+1. **Project Projection & Planning**
+2. **Materials Lifecycle, Dispatch, Reception & Usage**
+
+These must integrate with the existing Projects module, role-based dashboards, Supabase database, authentication, approvals, notifications, audit logging, and existing project assignment workflows.
+
+This is an enhancement to the current application. Do not rebuild the application, create a separate system, replace the existing authentication architecture, or break existing functionality.
+
+## PHASE 1: INSPECT THE EXISTING APPLICATION
+
+Before modifying code:
+
+1. Inspect the existing React, TypeScript, Tailwind, and Supabase architecture.
+2. Review the current Projects, Admin, Management/CEO, Executive Director, Site Supervisor, Technical Inspection & QC, Procurement & Logistics, Accounts, and Artisan dashboards.
+3. Inspect existing material-related tables, including `materials`, `material_deliveries`, `material_returns`, `material_reconciliations`, and `material_losses`, if present.
+4. Inspect existing `projects`, `project_tasks`, profile, workforce, role-assignment, approval, notification, and `audit_logs` tables.
+5. Inspect existing RLS policies, RPCs, triggers, and database relationships.
+6. Identify existing components and services that can be extended.
+
+Do not create duplicate tables, columns, services, or workflows when equivalent structures already exist.
+
+Produce a short implementation plan based on the verified schema, then proceed with the implementation.
+
+Preserve unrelated local changes. Do not deploy, apply production migrations, or modify live production data without explicit approval.
+
+# MODULE A: CENTRAL MATERIALS CATALOGUE
+
+## A1. Authorized catalogue management
+
+Only these roles may create, edit, archive, or manage the central materials catalogue:
+
+- Admin
+- Management/CEO
+- Executive Director
+
+Other roles may view relevant material details and report operational information but must not create or modify master catalogue entries.
+
+The catalogue must exist independently of individual projects. Materials can be registered before any project requires them.
+
+Each material should support appropriate fields such as:
+
+- Unique material identifier or code
+- Material name
+- Category
+- Description and specifications
+- Base measurement unit, such as bags, pieces, litres, metres, tonnes, rolls, or cubic metres
+- Estimated standard unit cost
+- Preferred supplier, if applicable
+- Storage requirements and handling instructions
+- Active or archived status
+- Creation and update metadata
+
+Use appropriate data types, validation, and relationships.
+
+Do not hard-delete materials referenced by historical transactions. Use archival where appropriate.
+
+Do not treat the catalogue's estimated price as proof of actual stock or actual purchasing cost.
+
+## A2. Project-specific materials selection
+
+Every project must have a Materials section.
+
+Authorized planning and project-management roles can select materials from the central catalogue using a searchable interface with checkboxes.
+
+Only materials actually required for that particular project should be selected. Do not automatically assign every catalogue material to every project.
+
+When a material is selected, users with appropriate permissions can specify:
+
+- Required quantity
+- Unit of measurement
+- Estimated unit price
+- Planned total cost
+- Required-by date
+- Intended use or work section
+- Technical specifications
+- Special instructions
+
+Calculate line totals and project material subtotals accurately.
+
+Allow authorized users to add or remove planned materials, with appropriate history and safeguards if the material has already been dispatched or used.
+
+Removing a material from a plan must never delete its existing dispatch, receipt, usage, or reconciliation history.
+
+# MODULE B: MATERIALS ASSIGNMENT AND LIFECYCLE
+
+## B1. Materials assigned to site supervisors
+
+When Admin, Management/CEO, or Executive Director assigns materials to a project or supervisor, those materials must appear in the appropriate Site Supervisor dashboard.
+
+The supervisor should see:
+
+- Project name and location
+- Material name and specification
+- Quantity approved or assigned
+- Quantity dispatched
+- Quantity confirmed received
+- Quantity consumed
+- Quantity remaining
+- Outstanding quantity
+- Expected delivery date
+- Material status
+- Relevant notes and instructions
+
+Clearly distinguish planned, approved, dispatched, received, consumed, returned, damaged, lost, and outstanding quantities.
+
+Do not represent a planned quantity as a dispatched quantity.
+
+## B2. Supervisor material requests
+
+Create a dedicated Materials Request section in the Site Supervisor dashboard.
+
+The supervisor must be able to:
+
+- Select a material from the project's approved material list.
+- Report that a material is finished, running low, insufficient, damaged, or unsuitable.
+- Request an additional quantity.
+- Explain the reason for the request.
+- State the work activity requiring it.
+- Specify the requested delivery date and, where useful, time.
+- Enter site conditions, urgency, and supporting notes.
+- Attach photographs or other evidence if supported by the existing storage architecture.
+- View the request status and response history.
+
+Allow the supervisor to request a catalogue material not yet included in the project plan. Such a request must be marked as requiring review or approval, not silently added to the approved allocation.
+
+Each request must have a unique reference and a status lifecycle, such as:
+
+Draft → Submitted → Under Review → Approved, Partially Approved, Rejected, or Cancelled → Fulfilment in Progress → Fulfilled or Closed.
+
+Support approval notes, rejection reasons, partial fulfilment, outstanding balances, and revision history.
+
+Admin, Management/CEO, and Executive Director must be able to view and act on requests according to their existing authority.
+
+Procurement & Logistics and Accounts should receive only the relevant request information and actions permitted by their established responsibilities.
+
+The assigned technical person must be able to view relevant requests, assess technical suitability, and submit recommendations.
+
+## B3. Delivery scheduling and notifications
+
+Every approved request or material dispatch should support an expected site delivery date and, where relevant, a delivery time window.
+
+Record changes to delivery expectations and the user who made the change.
+
+Display overdue deliveries, urgent requests, partially fulfilled requests, and requests awaiting approval.
+
+Notify the relevant authorized users when:
+
+- A supervisor submits a request.
+- A request is approved, rejected, or partially approved.
+- A delivery is scheduled or rescheduled.
+- A dispatch is created.
+- A delivery is overdue.
+- Materials are received, rejected, damaged, or reported missing.
+- Materials are running low or have been reported finished.
+
+Use the existing notification system. Do not create a separate notification architecture unnecessarily.
+
+## B4. Dispatch and handover records
+
+Create or extend a secure materials dispatch workflow.
+
+Every dispatch should capture:
+
+- Project
+- Material
+- Quantity dispatched
+- Measurement unit
+- Dispatch reference
+- Dispatch date and time
+- Dispatching person
+- Receiving person or responsible site supervisor
+- Source location or store
+- Destination project or site
+- Expected delivery date
+- Actual delivery date, when confirmed
+- Material condition at dispatch
+- Relevant batch, specification, or reference information
+- Notes and supporting evidence where appropriate
+
+Record every handover as an attributable transaction.
+
+If Procurement & Logistics is responsible for preparing a dispatch, respect the existing role model and approval process. Do not automatically grant that role unrestricted authority to alter the master catalogue or project budget.
+
+## B5. Reception and acceptance
+
+The receiving Site Supervisor or other authorized recipient must confirm the delivery.
+
+Capture:
+
+- Quantity expected
+- Quantity physically received
+- Quantity accepted
+- Quantity rejected
+- Quantity damaged
+- Quantity missing or short-delivered
+- Material condition
+- Date and time received
+- Person delivering
+- Person receiving
+- Storage or destination location
+- Notes, discrepancy reasons, and supporting photographs if supported
+- Acknowledgement by the recipient
+
+Where quantities differ, create a discrepancy requiring appropriate review. Do not automatically mark the delivery fully received.
+
+Support partial receipts and multiple deliveries against one request.
+
+Preserve the original dispatch record. A discrepancy must not be resolved by overwriting historical quantities.
+
+## B6. Technical inspection and material suitability
+
+The assigned Technical Inspection & QC person must be able to view relevant project materials, approved quantities, dispatches, receipts, and supervisor requests.
+
+Allow technical personnel to record:
+
+- Whether materials conform to the required specifications
+- Quality and condition inspection
+- Accepted, rejected, or quarantined quantities where applicable
+- Defects and reasons for rejection
+- Photographic evidence
+- Recommendations and corrective actions
+- Inspection date and inspector identity
+
+Technical personnel must not silently rewrite the approved project budget or original material plan.
+
+If a material is rejected, record the reason and initiate the appropriate replacement, return, or review workflow.
+
+## B7. Assignment to artisans
+
+Authorized Site Supervisors and assigned technical personnel may allocate materials to artisans within their authorized project scope.
+
+Each allocation must record:
+
+- Project
+- Material
+- Quantity issued to the artisan
+- Issuing person
+- Receiving artisan
+- Issue date and time
+- Intended work or task
+- Relevant instructions
+- Material condition
+- Expected usage or return date, where applicable
+- Acknowledgement of receipt
+- Remaining quantity and reconciliation status
+
+An artisan must not be able to allocate materials to another person unless explicitly authorized.
+
+Prevent allocations exceeding the available, confirmed, unallocated quantity, unless a properly authorized exception is recorded.
+
+## B8. Artisan receipt and usage reporting
+
+The Artisan dashboard must contain a Materials Received & Usage section.
+
+Artisans must be able to report:
+
+- Materials received
+- Quantity expected and quantity actually received
+- Condition at receipt
+- Missing or damaged quantities
+- Acknowledgement of receipt
+- Work activity performed using the material
+- Quantity consumed
+- Quantity remaining
+- Waste or unusable quantities
+- Quantity returned
+- Reason for unusual consumption or wastage
+- Additional material needs
+- Notes and supporting evidence where supported
+
+Require appropriate measurement units and prevent negative or inconsistent quantities.
+
+Where applicable, reconcile:
+
+Quantity received = Quantity consumed + Quantity remaining + Quantity returned + Quantity recorded as waste/loss, subject to documented adjustments and the same measurement unit.
+
+Do not silently force the figures to balance. Flag unexplained discrepancies for supervisor review.
+
+Supervisors and technical personnel must be able to review artisan reports, add review notes, request corrections, and acknowledge the reports.
+
+Authorized management users must be able to investigate discrepancies and view the audit trail.
+
+## B9. Material remnants, returns, and storage
+
+Support materials left over after a task or project activity.
+
+Record:
+
+- Material and quantity remaining
+- Condition
+- Person handing over
+- Person receiving
+- Date and time
+- Originating project or work activity
+- Destination store, site, or storage location
+- Whether the materials are reusable, damaged, or unusable
+- Inspection result
+- Supporting notes and evidence
+- Reconciliation outcome
+
+Reuse existing `material_returns`, `material_reconciliations`, `material_losses`, and other suitable tables where they fit the existing data model.
+
+Do not create a second competing material-return system.
+
+Make it possible to trace a material from the original catalogue and allocation through dispatch, receipt, artisan issue, consumption, return, and final reconciliation.
+
+# MODULE C: MATERIAL USAGE AND PROJECT REPORTING
+
+Create useful dashboards and reports for authorized roles.
+
+### Site Supervisor
+- Materials assigned to the project
+- Materials on site
+- Pending deliveries
+- Material requests and approval status
+- Materials issued to artisans
+- Usage and balance reports
+- Remnants and returns
+- Discrepancies requiring resolution
+
+### Technical Inspection & QC
+- Material specifications
+- Inspection queue
+- Rejected or damaged materials
+- Usage evidence relevant to assigned work
+- Material suitability findings
+- Outstanding technical actions
+
+### Admin, Management/CEO, Executive Director
+- Projected versus approved quantities
+- Approved versus dispatched quantities
+- Dispatched versus received quantities
+- Received versus consumed quantities
+- Current reported balances
+- Material costs and actual purchasing costs where recorded
+- Shortages, waste, damage, losses, and unexplained variances
+- Outstanding requests and overdue deliveries
+- Project-level and cross-project summaries
+
+All quantities must be calculated from the correct transaction stages. Avoid double-counting dispatches, receipts, returns, or reversals.
+
+Display the difference between estimates and actual costs clearly.
+
+# MODULE D: PROJECT PROJECTION & PLANNING
+
+Create a Project Projections section visible to:
+
+- Admin
+- Management/CEO
+- Executive Director
+
+All three roles must be able to create, edit, and manage projections according to the same authorized planning capabilities, consistent with the existing role architecture.
+
+## D1. Projection creation
+
+A projection represents a proposed project before it is formally activated.
+
+Capture relevant information such as:
+
+- Projection title and unique reference
+- Client or project owner name
+- Client contact details, with appropriate privacy protections
+- Proposed project name
+- Project description and scope
+- Site location
+- Project category
+- Expected start and completion dates
+- Project specifications
+- Project objectives and deliverables
+- Estimated project price or contract value
+- Projected material requirements
+- Projected labour and artisan costs
+- Projected logistics, transportation, and delivery costs
+- Equipment and other applicable costs
+- Contingency allowance
+- Other relevant expenses
+- Projected total cost
+- Projected profit and margin, where the necessary inputs exist
+- Planning notes, assumptions, risks, exclusions, and special conditions
+
+Use a structured form with sections and autosave or explicit save functionality.
+
+Allow authorized planners to add, edit, remove, and reorder relevant line items.
+
+Do not invent financial values or silently insert default costs that could be mistaken for real estimates.
+
+## D2. Projected material costing
+
+Each projection must contain a dedicated Materials Estimate section connected to the central catalogue.
+
+Authorized planners can select relevant materials and specify:
+
+- Required quantity
+- Unit
+- Projected unit price
+- Calculated line total
+- Estimated supplier or source
+- Expected procurement lead time
+- Expected delivery date
+- Notes and specifications
+
+Calculate the projected materials subtotal and overall project cost accurately.
+
+Allow materials to be added or removed from a projection independently of the master catalogue.
+
+Changing a projected quantity or price must not change the master catalogue's standard price or alter another project's estimate.
+
+Where actual prices later become available, preserve both projected and actual figures for comparison.
+
+## D3. Labour, logistics, equipment, and other costs
+
+Provide flexible line-item sections for:
+
+- Labour and artisans
+- Site supervision
+- Technical inspection
+- Transport and logistics
+- Tools and equipment
+- Production or fabrication where applicable
+- Other project-specific costs
+- Contingencies
+
+Support quantity, unit, rate, line total, description, and notes where appropriate.
+
+Avoid hard-coding assumptions that all projects have identical cost categories.
+
+Calculate subtotals and the overall projected cost consistently.
+
+## D4. Planning versions and change history
+
+Every projection must have a clear status, for example:
+
+Draft → Internal Review → Awaiting Inputs → Ready for Approval → Approved → Converted to Project.
+
+Allow authorized planners to revise an ongoing projection at any stage permitted by its status.
+
+Maintain a version or change history that records who changed the projection, when it changed, and the relevant before-and-after values.
+
+Where a projection has already been approved, record subsequent revisions and whether renewed approval is required.
+
+Do not erase the history of an approved projection.
+
+# MODULE E: ROLE-BASED PLANNING CONTRIBUTIONS
+
+Admin, Management/CEO, and Executive Director can invite selected roles to contribute information to a projection.
+
+Examples include:
+
+- Technical Inspection & QC: specifications, quality requirements, site conditions, and technical feasibility.
+- Site Supervisor: site assessment, material quantities, labour needs, timelines, and execution constraints.
+- Procurement & Logistics: supplier quotations, availability, lead times, delivery estimates, and logistics costs.
+- Accounts: cost validation, budget review, payment assumptions, and financial observations.
+- Artisan/Workforce: practical execution estimates, labour inputs, and task-specific requirements.
+
+Use the application's actual role names and existing role-assignment mechanisms.
+
+## E1. Invitation and instructions
+
+For every invited role, the planner must specify:
+
+- Invited role or authorized individual
+- Scope of the requested contribution
+- Clear instructions
+- Questions to answer
+- Required information or documents
+- Expected deliverables
+- Deadline
+- Priority
+- Supporting context or files where supported
+
+Track invitation status, acknowledgement, submission, review, and completion.
+
+## E2. Contributor workspace
+
+Invited contributors should see only the projections and information they are authorized to access.
+
+Provide a dedicated workspace showing:
+
+- Projection summary
+- Assigned request for input
+- Planner's instructions
+- Relevant context
+- Submission form
+- Notes and supporting evidence
+- Deadline and status
+- Submission history
+
+Contributors may submit findings, estimates, observations, quotations, recommended quantities, risks, and supporting evidence.
+
+**Contributors must not edit the master projection, its official material plan, its main financial totals, or its planning assumptions directly.**
+
+Their findings must be stored as separate submissions linked to the projection and the relevant invitation.
+
+After submission, authorized planners can review the contribution and choose to incorporate relevant information into the master projection.
+
+A contributor's recommendation must never silently change the master projection.
+
+Allow planners to accept, reject, request clarification, or mark a contribution as reviewed. Preserve the original submission and review history.
+
+## E3. Access control
+
+Apply least-privilege access. Inviting a role does not grant it unrestricted access to all projections or project financial information.
+
+Ensure that invited contributors cannot access other projections unless explicitly authorized.
+
+Validate access on the server/database layer through Supabase RLS and secure RPCs or existing authorized service patterns. Frontend visibility alone is not security.
+
+# MODULE F: PROJECTION APPROVAL AND PDF GENERATION
+
+## F1. Approval
+
+Authorized planners must be able to review the completed projection and mark it ready for approval or approved according to the existing approval model.
+
+Capture the approving user, date, relevant notes, and approved version.
+
+Do not automatically activate a project simply because a PDF was generated.
+
+## F2. Client-ready PDF
+
+Generate a professional, printable, shareable PDF project proposal or summary.
+
+It should be suitable for sharing through WhatsApp, email, and other channels with the project owner or client.
+
+Include, where appropriate:
+
+1. Davejoe Interiors branding and professional layout.
+2. Proposal title and unique reference.
+3. Date of preparation and validity period if specified.
+4. Client or project owner details.
+5. Project description and scope.
+6. Deliverables and specifications.
+7. Proposed timeline and milestones.
+8. Materials schedule, including descriptions, quantities, units, projected prices, and subtotals where appropriate.
+9. Labour, logistics, equipment, and other relevant cost breakdowns.
+10. Overall projected cost or proposal price, with the basis of the figure clearly stated.
+11. Relevant assumptions, exclusions, and terms.
+12. Approval or acceptance section if required.
+13. Appropriate contact details already stored in the application.
+
+Use the existing branding and a polished document layout. Do not expose internal-only notes, confidential supplier information, private staff records, or internal profit calculations in the client-facing PDF unless an authorized user explicitly selects an appropriate internal report instead.
+
+Support a client-facing PDF and, if practical, a separate internal planning/costing PDF.
+
+Ensure currency formatting uses the appropriate project currency. Use Nigerian naira when that is the specified currency.
+
+The PDF must be readable on mobile devices, with sensible page breaks, repeating table headers where appropriate, and no clipped content.
+
+Allow an authorized user to preview the document before downloading or sharing it.
+
+Do not claim to send a WhatsApp message automatically unless a supported integration is configured. At minimum, provide a downloadable PDF and a straightforward sharing workflow compatible with the device.
+
+Store document metadata and the projection version it represents. If a projection changes, make it clear that an older PDF may no longer reflect the current version.
+
+# MODULE G: CONVERT APPROVED PROJECTION INTO A PROJECT
+
+After an authorized user approves a projection, provide an explicit action:
+
+**Convert to Project**
+
+The conversion must create or update the appropriate record in the existing Projects module using the approved projection.
+
+Carry forward the relevant data:
+
+- Project name and description
+- Client information permitted for project records
+- Site location
+- Planned start and completion dates
+- Scope and deliverables
+- Approved material requirements
+- Budget and cost breakdowns
+- Technical specifications
+- Approved assumptions and relevant notes
+- Project planning reference and source projection
+- Appropriate documents
+
+Link the resulting project to its source projection.
+
+Preserve the approved projection and its version history.
+
+Avoid duplicate project creation if the conversion action is retried. Use a transaction or secure idempotent database operation to prevent duplicate projects and duplicate material requirements.
+
+The new project must be registered in Supabase and visible in the existing Projects module.
+
+Once converted, authorized roles can continue to edit the active project using the existing project-management workflows. Keep the original approved projection available as a historical baseline.
+
+Do not automatically assign all nine roles. Provide the existing role assignment workflow so authorized users can assign relevant staff and responsibilities.
+
+# MODULE H: USER INTERFACE
+
+Use the current Davejoe Management Tool design system and navigation.
+
+Create clear, consistent interfaces for desktop and mobile.
+
+Suggested navigation:
+
+- **Admin / Management / Executive Director:** Project Projections, Materials Catalogue, Material Requests, Dispatch & Reconciliation, Reports.
+- **Site Supervisor:** My Projects, Assigned Materials, Request Materials, Deliveries & Receipts, Artisan Allocations, Usage Reports, Remnants & Returns.
+- **Technical Inspection & QC:** Assigned Projects, Materials Inspection, Technical Recommendations, Usage Review, Pending Actions.
+- **Procurement & Logistics:** Material Requests, Supplier/Procurement Inputs, Dispatch Preparation, Delivery Schedule.
+- **Accounts:** Projection Cost Review, Budget Inputs, Estimated-versus-Actual Costs.
+- **Artisan:** Materials Received, Acknowledge Receipt, Usage Reports, Remaining Materials, Returns, Request More Materials.
+
+Adapt these sections to the existing dashboard layouts rather than duplicating the entire navigation.
+
+Provide useful empty states, loading states, validation errors, confirmation prompts, status indicators, search, filtering, and pagination where needed.
+
+Do not expose actions to unauthorized roles.
+
+# MODULE I: DATABASE, RLS, AND AUDITABILITY
+
+Implement the features through the existing Supabase architecture.
+
+Before designing migrations, map each requirement to existing tables and identify only the genuinely missing structures or fields.
+
+Potential data concepts include:
+
+- Project material requirements and allocations
+- Material requests and request items
+- Dispatches and dispatch line items
+- Receipts and receipt discrepancies
+- Artisan material allocations
+- Material usage reports and usage line items
+- Material remnant handovers and reconciliation
+- Project projections and version history
+- Projection line items and cost categories
+- Projection invitations and contributor submissions
+- Projection approval history
+- Generated proposal documents
+
+These are conceptual requirements, not instructions to create a separate table for every item. Reuse existing tables where suitable and preserve their established relationships.
+
+Use proper foreign keys, indexes, timestamps, status constraints, quantity validation, and audit fields.
+
+For material quantities, use appropriate numeric types and units. Do not assume all materials use whole-number quantities.
+
+Use transactions or secure database functions for operations that affect multiple related records, including projection conversion, dispatch, receipt, allocation, and reconciliation.
+
+Apply restrictive RLS policies for all new or modified tables.
+
+- Only Admin, Management/CEO, and Executive Director can manage the master materials catalogue and the master projection.
+- Site Supervisors can act within their assigned project scope.
+- Technical personnel can act within their assigned projects and permitted technical responsibilities.
+- Artisans can submit and view their own authorized material receipts and reports.
+- Procurement & Logistics can perform authorized procurement and dispatch responsibilities.
+- Accounts can access the financial information and contribution workflows authorized for their role.
+- Invited contributors can submit their own assigned inputs without editing the master projection.
+
+Use the project's actual role identifiers and helper functions after verifying them. Do not invent new role names or bypass existing permission checks.
+
+Do not expose Supabase service-role credentials to the browser.
+
+Record important actions in the existing audit log, including catalogue changes, material approvals, dispatches, receipts, discrepancy resolutions, allocations, usage submissions, projection changes, invitations, reviews, approvals, PDF generation, and project conversion.
+
+Preserve historical records. Use controlled corrections and reversal transactions rather than silently overwriting completed material transactions.
+
+# MODULE J: TESTING AND ACCEPTANCE CRITERIA
+
+Implement and test the following scenarios:
+
+1. An authorized user creates a material in the catalogue before any project exists.
+2. An unauthorized user cannot create or modify catalogue entries.
+3. A planner selects only the materials needed for a particular project.
+4. A project with no requirement for a particular material does not receive an automatic allocation for it.
+5. A Site Supervisor sees materials actually assigned to their project.
+6. A supervisor requests additional material, provides a reason, and specifies a required delivery date.
+7. Admin, Management, and Executive Director can review and act on that request.
+8. A request can be partially approved and partially fulfilled without losing its outstanding balance.
+9. A dispatch records the issuing person, recipient, quantity, destination, and expected delivery.
+10. The receiver records actual quantity and condition, including shortages or damage.
+11. A technical inspector can record a material quality inspection.
+12. An authorized supervisor or technical person allocates available materials to an artisan.
+13. An artisan acknowledges receipt and submits a usage report.
+14. A discrepancy between quantities is flagged instead of silently corrected.
+15. Remaining materials can be handed over to an authorized recipient and reconciled.
+16. An authorized planner creates a projection with materials, quantities, estimated prices, labour, logistics, and other costs.
+17. An invited contributor can submit findings but cannot modify the master projection.
+18. A planner can review a submission and incorporate the approved information manually.
+19. Changes to the projection preserve the appropriate history.
+20. An approved projection generates a client-facing PDF with correct totals and no internal-only information.
+21. An authorized user converts the approved projection into an active project.
+22. Retrying conversion does not create duplicate projects or material requirements.
+23. All newly introduced permissions are enforced by Supabase, not only by frontend checks.
+24. Existing authentication, dashboards, projects, approvals, attendance, notifications, and audit functionality continue to work.
+
+Run the available typecheck, lint, tests, and production build.
+
+Do not claim tests passed unless they were actually run and their results are available.
+
+# FINAL DELIVERY REPORT
+
+At completion, report:
+
+1. Existing tables and components reused.
+2. New or modified database structures.
+3. Files created or changed.
+4. Role and RLS changes.
+5. Implemented workflows and dashboard changes.
+6. PDF generation and project conversion behaviour.
+7. Tests run and their actual results.
+8. Any migration requiring review or approval.
+9. Any unfinished work, assumptions, or known limitations.
+
+Implement this incrementally in the existing application. Prioritize schema correctness, secure authorization, traceable transactions, and reliable project-to-material relationships over cosmetic changes.
+
+Do not deploy, apply production migrations, or modify live production data without explicit approval.

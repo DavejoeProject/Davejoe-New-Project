@@ -7,6 +7,8 @@ import {
   MaterialStatus,
   ALL_MATERIAL_STATUSES,
   MATERIAL_STATUS_CONFIG,
+  MATERIAL_CATEGORIES,
+  normalizeMaterialCategory,
 } from '../../services/materialsService';
 import { useAuth } from '../../hooks/useAuth';
 
@@ -121,7 +123,7 @@ export const AddMaterialModal: React.FC<AddMaterialModalProps> = ({
       const input: MaterialCreateInput = {
         material_code: trimmedCode,
         name: trimmedName,
-        category: finalCategory || 'General',
+        category: normalizeMaterialCategory(finalCategory),
         brand: brand.trim() || null,
         specification: specification.trim() || null,
         unit_of_measure: finalUnit,
@@ -236,17 +238,18 @@ export const AddMaterialModal: React.FC<AddMaterialModalProps> = ({
                   className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#01875F] focus:border-[#01875F]"
                 >
                   <option value="">Select or choose category</option>
-                  <option value="Civil Works">Civil Works</option>
-                  <option value="Electrical">Electrical</option>
-                  <option value="Mechanical & Plumbing">Mechanical & Plumbing</option>
-                  <option value="Finishing & Tiling">Finishing & Tiling</option>
-                  <option value="Structural Steel">Structural Steel</option>
-                  <option value="General">General</option>
-                  {existingCategories.map((c) => (
-                    <option key={c} value={c}>
-                      {c}
+                  {MATERIAL_CATEGORIES.map((c) => (
+                    <option key={c.value} value={c.value}>
+                      {c.label}
                     </option>
                   ))}
+                  {existingCategories
+                    .filter((c) => !MATERIAL_CATEGORIES.some((mc) => mc.value === c || mc.label === c))
+                    .map((c) => (
+                      <option key={c} value={c}>
+                        {c}
+                      </option>
+                    ))}
                   <option value="__custom__">+ Enter custom category...</option>
                 </select>
 

@@ -22,6 +22,7 @@ import {
   ALL_MATERIAL_STATUSES,
   formatNaira,
   getStockStatus,
+  getMaterialCategoryLabel,
 } from '../../services/materialsService';
 import { MaterialsNavTabs } from './MaterialsNavTabs';
 import { MaterialDetailModal } from './MaterialDetailModal';
@@ -270,7 +271,7 @@ export const MaterialsDirectoryModule: React.FC<MaterialsDirectoryModuleProps> =
               <option value="all">All Categories</option>
               {uniqueCategories.map((c) => (
                 <option key={c} value={c}>
-                  {c}
+                  {getMaterialCategoryLabel(c)}
                 </option>
               ))}
             </select>
@@ -441,7 +442,7 @@ export const MaterialsDirectoryModule: React.FC<MaterialsDirectoryModuleProps> =
 
                       {/* Category */}
                       <td className="py-3.5 px-3 text-slate-700 font-medium">
-                        {m.category || 'General'}
+                        {getMaterialCategoryLabel(m.category)}
                       </td>
 
                       {/* Unit */}

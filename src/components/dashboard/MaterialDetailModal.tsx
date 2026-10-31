@@ -20,6 +20,7 @@ import {
   formatNaira,
   formatNigerianDate,
   getStockStatus,
+  getMaterialCategoryLabel,
 } from '../../services/materialsService';
 
 interface MaterialDetailModalProps {
@@ -108,7 +109,7 @@ export const MaterialDetailModal: React.FC<MaterialDetailModalProps> = ({
               </div>
               <h2 className="text-xl font-bold text-slate-900 mt-1">{material.name}</h2>
               <p className="text-xs text-slate-500 mt-0.5">
-                Category: <span className="font-medium text-slate-700">{material.category}</span>
+                Category: <span className="font-medium text-slate-700">{getMaterialCategoryLabel(material.category)}</span>
                 {material.brand && (
                   <>
                     {' '}• Brand: <span className="font-medium text-slate-700">{material.brand}</span>
