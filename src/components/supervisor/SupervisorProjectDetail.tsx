@@ -38,6 +38,9 @@ import {
   ProjectMaterialRequestItem,
   ProjectMaterialDeliveryItem,
   ProjectMaterialUsageItem,
+  ProjectMaterialReturnItem,
+  ProjectMaterialLossItem,
+  ProjectMaterialReconciliationItem,
   ProjectActivityEntry,
 } from '../../services/projectControlService';
 import { formatNigerianDate, formatNaira } from '../../services/materialsService';
@@ -88,6 +91,9 @@ export const SupervisorProjectDetail: React.FC<SupervisorProjectDetailProps> = (
   const [materialRequests, setMaterialRequests] = useState<ProjectMaterialRequestItem[]>([]);
   const [materialDeliveries, setMaterialDeliveries] = useState<ProjectMaterialDeliveryItem[]>([]);
   const [materialUsage, setMaterialUsage] = useState<ProjectMaterialUsageItem[]>([]);
+  const [materialReturns, setMaterialReturns] = useState<ProjectMaterialReturnItem[]>([]);
+  const [materialLosses, setMaterialLosses] = useState<ProjectMaterialLossItem[]>([]);
+  const [materialReconciliations, setMaterialReconciliations] = useState<ProjectMaterialReconciliationItem[]>([]);
   const [inspections, setInspections] = useState<any[]>([]);
   const [activityHistory, setActivityHistory] = useState<ProjectActivityEntry[]>([]);
 
@@ -174,6 +180,9 @@ export const SupervisorProjectDetail: React.FC<SupervisorProjectDetailProps> = (
       setMaterialRequests(matDataRes.requests || []);
       setMaterialDeliveries(matDataRes.deliveries || []);
       setMaterialUsage(matDataRes.usage || []);
+      setMaterialReturns(matDataRes.returns || []);
+      setMaterialLosses(matDataRes.losses || []);
+      setMaterialReconciliations(matDataRes.reconciliations || []);
       setInspections(inspRes.data || []);
 
       // Parse daily reports
@@ -782,98 +791,301 @@ export const SupervisorProjectDetail: React.FC<SupervisorProjectDetailProps> = (
       )}
 
       {/* TAB 7: MATERIALS */}
-      {activeTab === 'materials' && (
-        <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-2xs space-y-6">
-          <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-            <div>
-              <h3 className="text-base font-bold text-slate-900">Site Materials Operations</h3>
-              <p className="text-xs text-slate-500">Requirements, requisitions, waybills received, and consumption</p>
+      {activeTab === 'materials' && (() => {
+        const totalRequired = materialRequirements.reduce(
+          (sum, r) => sum + (Number(r.approved_quantity) || Number(r.required_quantity) || 0),
+          0
+        );
+
+        let totalDelivered = 0;
+        materialDeliveries.forEach((d) => {
+          const items = d.material_delivery_items || (d as any).items;
+          if (items && Array.isArray(items)) {
+            items.forEach((it: any) => {
+              totalDelivered += Number(it.quantity) || 0;
+            });
+          }
+        });
+
+        const totalConsumed = materialUsage.reduce((sum, u) => sum + (Number(u.quantity_used) || 0), 0);
+        const totalReturned = materialReturns.reduce((sum, r) => sum + (Number(r.quantity_returned) || 0), 0);
+        const totalLosses = materialLosses.reduce((sum, l) => sum + (Number(l.quantity) || 0), 0);
+        const netProjectBalance = Math.max(0, totalDelivered - totalConsumed - totalLosses - totalReturned);
+
+        // Map unique materials for live per-material breakdown
+        const matMap = new Map<string, {
+          id: string;
+          name: string;
+          unit: string;
+          required: number;
+          delivered: number;
+          consumed: number;
+          returned: number;
+          losses: number;
+        }>();
+
+        materialRequirements.forEach((r) => {
+          const matId = r.materials?.id || r.id;
+          const name = r.materials?.name || 'Material Item';
+          const unit = r.materials?.unit_of_measure || 'units';
+          const prev = matMap.get(matId) || { id: matId, name, unit, required: 0, delivered: 0, consumed: 0, returned: 0, losses: 0 };
+          prev.required += Number(r.approved_quantity) || Number(r.required_quantity) || 0;
+          matMap.set(matId, prev);
+        });
+
+        materialDeliveries.forEach((d) => {
+          const items = d.material_delivery_items || (d as any).items;
+          if (items && Array.isArray(items)) {
+            items.forEach((it: any) => {
+              const matId = it.materials?.id || it.material_id || it.id;
+              const name = it.materials?.name || 'Delivered Material';
+              const unit = it.materials?.unit_of_measure || 'units';
+              const prev = matMap.get(matId) || { id: matId, name, unit, required: 0, delivered: 0, consumed: 0, returned: 0, losses: 0 };
+              prev.delivered += Number(it.quantity) || 0;
+              matMap.set(matId, prev);
+            });
+          }
+        });
+
+        materialUsage.forEach((u) => {
+          const matId = u.materials?.id || u.id;
+          const name = u.materials?.name || 'Consumed Material';
+          const unit = u.materials?.unit_of_measure || 'units';
+          const prev = matMap.get(matId) || { id: matId, name, unit, required: 0, delivered: 0, consumed: 0, returned: 0, losses: 0 };
+          prev.consumed += Number(u.quantity_used) || 0;
+          matMap.set(matId, prev);
+        });
+
+        materialReturns.forEach((r) => {
+          const matId = r.materials?.id || r.id;
+          const name = r.materials?.name || 'Returned Material';
+          const unit = r.materials?.unit_of_measure || 'units';
+          const prev = matMap.get(matId) || { id: matId, name, unit, required: 0, delivered: 0, consumed: 0, returned: 0, losses: 0 };
+          prev.returned += Number(r.quantity_returned) || 0;
+          matMap.set(matId, prev);
+        });
+
+        const perMaterialList = Array.from(matMap.values());
+
+        return (
+          <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-2xs space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-3 border-b border-slate-100">
+              <div>
+                <h3 className="text-base font-bold text-slate-900">Project Material Allocation &amp; Balance</h3>
+                <p className="text-xs text-slate-500">
+                  Full lifecycle: BOQ allocation, store issues, deliveries, actual site consumption &amp; live balance
+                </p>
+              </div>
+              <button
+                onClick={() => setIsRequestMatOpen(true)}
+                className="px-4 py-2 bg-[#01875F] hover:bg-[#00704e] text-white rounded-xl text-xs font-bold shadow-xs transition-colors self-start sm:self-auto cursor-pointer"
+              >
+                + Request Material
+              </button>
             </div>
-            <button
-              onClick={() => setIsRequestMatOpen(true)}
-              className="px-3 py-1.5 bg-[#01875F] text-white rounded-xl text-xs font-bold"
-            >
-              Request Material
-            </button>
-          </div>
 
-          {/* Sub-sections */}
-          <div className="space-y-4">
-            <h4 className="font-bold text-xs uppercase text-slate-700">Material Requisitions ({materialRequests.length})</h4>
-            {materialRequests.length === 0 ? (
-              <p className="text-xs text-slate-400 py-4 text-center border border-dashed border-slate-200 rounded-xl">
-                No material requisitions logged.
-              </p>
-            ) : (
-              <div className="divide-y divide-slate-100 text-xs">
-                {materialRequests.map((r) => (
-                  <div key={r.id} className="py-2.5 flex items-center justify-between">
-                    <div>
-                      <span className="font-mono font-bold text-slate-900">{r.request_code || 'Requisition'}</span>
-                      <span className="text-[11px] text-slate-400 block">{r.notes || 'Site requirement'}</span>
-                    </div>
-                    <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-50 text-blue-700 capitalize">
-                      {r.status}
-                    </span>
-                  </div>
-                ))}
+            {/* Reconciliation Formula Banner */}
+            <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80">
+              <div className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1">
+                Authoritative Inventory Reconciliation Formula
               </div>
-            )}
-          </div>
+              <div className="font-mono text-xs text-slate-800 font-semibold flex flex-wrap items-center gap-1.5">
+                <span className="px-2 py-0.5 rounded bg-emerald-100 text-[#01875F] font-bold">Project Balance</span>
+                <span>=</span>
+                <span className="text-blue-700">Total Store Issues/Receipts</span>
+                <span>−</span>
+                <span className="text-purple-700">Recorded Usage</span>
+                <span>−</span>
+                <span className="text-rose-700">Recorded Waste</span>
+                <span>−</span>
+                <span className="text-teal-700">Returns to Store</span>
+              </div>
+            </div>
 
-          {/* Deliveries & Waybills */}
-          <div className="space-y-4 pt-4 border-t border-slate-100">
-            <h4 className="font-bold text-xs uppercase text-slate-700">Site Deliveries &amp; Waybills ({materialDeliveries.length})</h4>
-            {materialDeliveries.length === 0 ? (
-              <p className="text-xs text-slate-400 py-4 text-center border border-dashed border-slate-200 rounded-xl">
-                No material deliveries recorded for this project site.
-              </p>
-            ) : (
-              <div className="divide-y divide-slate-100 text-xs">
-                {materialDeliveries.map((d) => (
-                  <div key={d.id} className="py-2.5 flex items-center justify-between">
-                    <div>
-                      <span className="font-mono font-bold text-slate-900">{d.delivery_code || 'Delivery'}</span>
-                      <span className="text-[11px] text-slate-500 block">
-                        Waybill / Ack: {d.acknowledgement_reference || 'Pending signoff'} • Dest: {d.destination || 'Site'}
-                      </span>
-                    </div>
-                    <div className="text-right">
-                      <span className="text-[11px] text-slate-400 block">{formatNigerianDate(d.delivery_date || d.created_at)}</span>
-                      <span className="text-[10px] text-emerald-700 font-semibold bg-emerald-50 px-2 py-0.5 rounded">Received</span>
-                    </div>
-                  </div>
-                ))}
+            {/* 5 KPI Cards */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+              <div className="p-3.5 rounded-xl border border-slate-100 bg-slate-50/60">
+                <div className="text-[10px] uppercase font-bold text-slate-400">BOQ Required</div>
+                <div className="text-lg font-bold font-mono text-slate-900 mt-1">{totalRequired}</div>
+                <div className="text-[10px] text-slate-500">Initial allocation</div>
               </div>
-            )}
-          </div>
+              <div className="p-3.5 rounded-xl border border-blue-100 bg-blue-50/40">
+                <div className="text-[10px] uppercase font-bold text-blue-600">Issues / Receipts</div>
+                <div className="text-lg font-bold font-mono text-blue-800 mt-1">{totalDelivered}</div>
+                <div className="text-[10px] text-blue-600">Delivered to site</div>
+              </div>
+              <div className="p-3.5 rounded-xl border border-purple-100 bg-purple-50/40">
+                <div className="text-[10px] uppercase font-bold text-purple-600">Site Consumed</div>
+                <div className="text-lg font-bold font-mono text-purple-800 mt-1">{totalConsumed}</div>
+                <div className="text-[10px] text-purple-600">Fitted &amp; used</div>
+              </div>
+              <div className="p-3.5 rounded-xl border border-teal-100 bg-teal-50/40">
+                <div className="text-[10px] uppercase font-bold text-teal-600">Returns / Waste</div>
+                <div className="text-lg font-bold font-mono text-teal-800 mt-1">{totalReturned + totalLosses}</div>
+                <div className="text-[10px] text-teal-600">{totalReturned} ret, {totalLosses} waste</div>
+              </div>
+              <div className="p-3.5 rounded-xl border border-emerald-200 bg-emerald-50/50 col-span-2 sm:col-span-1">
+                <div className="text-[10px] uppercase font-bold text-[#01875F]">Live Site Balance</div>
+                <div className="text-lg font-bold font-mono text-[#01875F] mt-1">{netProjectBalance}</div>
+                <div className="text-[10px] text-emerald-700">Currently on site</div>
+              </div>
+            </div>
 
-          {/* Actual Site Usage */}
-          <div className="space-y-4 pt-4 border-t border-slate-100">
-            <h4 className="font-bold text-xs uppercase text-slate-700">Site Material Consumption ({materialUsage.length})</h4>
-            {materialUsage.length === 0 ? (
-              <p className="text-xs text-slate-400 py-4 text-center border border-dashed border-slate-200 rounded-xl">
-                No material consumption entries recorded.
-              </p>
-            ) : (
-              <div className="divide-y divide-slate-100 text-xs">
-                {materialUsage.map((u) => (
-                  <div key={u.id} className="py-2.5 flex items-center justify-between">
-                    <div>
-                      <span className="font-bold text-slate-900">{u.work_area || 'Site Area'}</span>
-                      <span className="text-[11px] text-slate-500 block">{u.purpose || 'Interior execution'}</span>
-                    </div>
-                    <div className="text-right">
-                      <span className="font-mono font-bold text-purple-700 text-xs">{u.quantity_used} units</span>
-                      <span className="text-[10px] text-slate-400 block">{formatNigerianDate(u.usage_date || '')}</span>
-                    </div>
+            {/* Per-Material Live Reconciliation Ledger */}
+            <div className="space-y-3">
+              <h4 className="font-bold text-xs uppercase text-slate-700 flex items-center justify-between">
+                <span>Material-By-Material Reconciliation Ledger ({perMaterialList.length})</span>
+                <span className="text-[10px] text-slate-400 font-normal">Real-time inventory calculation</span>
+              </h4>
+              {perMaterialList.length === 0 ? (
+                <p className="text-xs text-slate-400 py-6 text-center border border-dashed border-slate-200 rounded-xl">
+                  No materials recorded for this project yet.
+                </p>
+              ) : (
+                <div className="overflow-x-auto border border-slate-100 rounded-xl">
+                  <table className="w-full text-left text-xs">
+                    <thead>
+                      <tr className="border-b border-slate-100 bg-slate-50/70 text-slate-400 font-semibold uppercase text-[10px]">
+                        <th className="py-2.5 px-3">Material</th>
+                        <th className="py-2.5 px-3">Unit</th>
+                        <th className="py-2.5 px-3 text-right">BOQ Alloc.</th>
+                        <th className="py-2.5 px-3 text-right">Received</th>
+                        <th className="py-2.5 px-3 text-right">Consumed</th>
+                        <th className="py-2.5 px-3 text-right">Returned</th>
+                        <th className="py-2.5 px-3 text-right text-emerald-700">Site Balance</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {perMaterialList.map((m) => {
+                        const bal = Math.max(0, m.delivered - m.consumed - m.losses - m.returned);
+                        return (
+                          <tr key={m.id} className="hover:bg-slate-50/50">
+                            <td className="py-2.5 px-3 font-semibold text-slate-800">{m.name}</td>
+                            <td className="py-2.5 px-3 text-slate-400 font-mono text-[11px]">{m.unit}</td>
+                            <td className="py-2.5 px-3 text-right font-mono text-slate-600">{m.required}</td>
+                            <td className="py-2.5 px-3 text-right font-mono font-semibold text-blue-700">{m.delivered}</td>
+                            <td className="py-2.5 px-3 text-right font-mono text-purple-700">{m.consumed}</td>
+                            <td className="py-2.5 px-3 text-right font-mono text-slate-500">{m.returned}</td>
+                            <td className="py-2.5 px-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/30">
+                              {bal}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+
+            {/* Sub-sections: Requisitions, Deliveries, Consumption, Returns */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 pt-4 border-t border-slate-100">
+              {/* Material Requisitions */}
+              <div className="space-y-3">
+                <h4 className="font-bold text-xs uppercase text-slate-700">Material Requisitions ({materialRequests.length})</h4>
+                {materialRequests.length === 0 ? (
+                  <p className="text-xs text-slate-400 py-4 text-center border border-dashed border-slate-200 rounded-xl">
+                    No material requisitions logged.
+                  </p>
+                ) : (
+                  <div className="divide-y divide-slate-100 text-xs border border-slate-100 rounded-xl px-3 bg-slate-50/20">
+                    {materialRequests.map((r) => (
+                      <div key={r.id} className="py-2.5 flex items-center justify-between">
+                        <div>
+                          <span className="font-mono font-bold text-slate-900">{r.request_code || 'Requisition'}</span>
+                          <span className="text-[11px] text-slate-400 block">{r.notes || 'Site requirement'}</span>
+                        </div>
+                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold capitalize ${
+                          r.status === 'approved' ? 'bg-emerald-50 text-emerald-700' : 'bg-blue-50 text-blue-700'
+                        }`}>
+                          {r.status}
+                        </span>
+                      </div>
+                    ))}
                   </div>
-                ))}
+                )}
               </div>
-            )}
+
+              {/* Site Deliveries & Waybills */}
+              <div className="space-y-3">
+                <h4 className="font-bold text-xs uppercase text-slate-700">Deliveries &amp; Waybills ({materialDeliveries.length})</h4>
+                {materialDeliveries.length === 0 ? (
+                  <p className="text-xs text-slate-400 py-4 text-center border border-dashed border-slate-200 rounded-xl">
+                    No material deliveries recorded for this project site.
+                  </p>
+                ) : (
+                  <div className="divide-y divide-slate-100 text-xs border border-slate-100 rounded-xl px-3 bg-slate-50/20">
+                    {materialDeliveries.map((d) => (
+                      <div key={d.id} className="py-2.5 flex items-center justify-between">
+                        <div>
+                          <span className="font-mono font-bold text-slate-900">{d.delivery_code || 'Delivery'}</span>
+                          <span className="text-[11px] text-slate-500 block">
+                            Ack: {d.acknowledgement_reference || 'Waybill'} • Dest: {d.destination || 'Site'}
+                          </span>
+                        </div>
+                        <div className="text-right">
+                          <span className="text-[11px] text-slate-400 block">{formatNigerianDate(d.delivery_date || d.created_at)}</span>
+                          <span className="text-[10px] text-emerald-700 font-semibold bg-emerald-50 px-2 py-0.5 rounded">Received</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Actual Site Usage */}
+              <div className="space-y-3">
+                <h4 className="font-bold text-xs uppercase text-slate-700">Site Material Consumption ({materialUsage.length})</h4>
+                {materialUsage.length === 0 ? (
+                  <p className="text-xs text-slate-400 py-4 text-center border border-dashed border-slate-200 rounded-xl">
+                    No material consumption entries recorded.
+                  </p>
+                ) : (
+                  <div className="divide-y divide-slate-100 text-xs border border-slate-100 rounded-xl px-3 bg-slate-50/20">
+                    {materialUsage.map((u) => (
+                      <div key={u.id} className="py-2.5 flex items-center justify-between">
+                        <div>
+                          <span className="font-bold text-slate-900">{u.work_area || 'Site Area'}</span>
+                          <span className="text-[11px] text-slate-500 block">{u.purpose || 'Interior execution'}</span>
+                        </div>
+                        <div className="text-right">
+                          <span className="font-mono font-bold text-purple-700 text-xs">{u.quantity_used} units</span>
+                          <span className="text-[10px] text-slate-400 block">{formatNigerianDate(u.usage_date || '')}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Material Returns to Store */}
+              <div className="space-y-3">
+                <h4 className="font-bold text-xs uppercase text-slate-700">Returns to Store ({materialReturns.length})</h4>
+                {materialReturns.length === 0 ? (
+                  <p className="text-xs text-slate-400 py-4 text-center border border-dashed border-slate-200 rounded-xl">
+                    No returns logged. Unused materials remain on site.
+                  </p>
+                ) : (
+                  <div className="divide-y divide-slate-100 text-xs border border-slate-100 rounded-xl px-3 bg-slate-50/20">
+                    {materialReturns.map((ret) => (
+                      <div key={ret.id} className="py-2.5 flex items-center justify-between">
+                        <div>
+                          <span className="font-bold text-slate-900">{ret.materials?.name || 'Material Item'}</span>
+                          <span className="text-[11px] text-slate-500 block">Condition: {ret.condition || 'Good'}</span>
+                        </div>
+                        <div className="text-right">
+                          <span className="font-mono font-bold text-teal-700 text-xs">{ret.quantity_returned} units</span>
+                          <span className="text-[10px] text-slate-400 block">{formatNigerianDate(ret.created_at)}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* TAB 8: INSPECTIONS & QC */}
       {activeTab === 'inspections' && (

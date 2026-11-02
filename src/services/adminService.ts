@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { supabase, isSupabaseConfigured, supabaseUrl, supabaseKey } from '../lib/supabase';
+import { ensureValidSession } from '../lib/authSession';
 import { AuditLogger } from '../lib/audit';
 import { UserProfile, StandardRoleKey, normalizeRoleKey } from './authService';
 
@@ -1013,6 +1014,106 @@ export class AdminService {
     } catch (err) {
       console.error('[AdminService] Error loading roles:', err);
       throw err;
+    }
+  }
+
+  /**
+   * Creates a new administrative or operational role in public.roles
+   */
+  static async createRole(params: {
+    name: string;
+    slug?: string;
+    description?: string;
+  }): Promise<{ success: boolean; data?: AdminRoleItem; error: string | null }> {
+    if (!isSupabaseConfigured) {
+      return { success: false, error: 'Database is not configured.' };
+    }
+
+    try {
+      await ensureValidSession();
+      const roleName = params.name.trim();
+      if (!roleName) {
+        return { success: false, error: 'Role name is required.' };
+      }
+
+      const roleSlug = (params.slug || roleName)
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9_]/g, '_')
+        .replace(/__+/g, '_');
+
+      // Check if role slug already exists
+      const { data: existing } = await supabase
+        .from('roles')
+        .select('id, slug')
+        .eq('slug', roleSlug)
+        .maybeSingle();
+
+      if (existing) {
+        return { success: false, error: `A role with identifier "${roleSlug}" already exists.` };
+      }
+
+      const { data, error } = await supabase
+        .from('roles')
+        .insert({
+          name: roleName,
+          slug: roleSlug,
+          description: params.description?.trim() || null,
+        })
+        .select('*')
+        .single();
+
+      if (error) {
+        return { success: false, error: error.message };
+      }
+
+      return {
+        success: true,
+        data: {
+          id: data.id,
+          slug: data.slug,
+          name: data.name,
+          description: data.description,
+          created_at: data.created_at,
+          is_system_role: false,
+          assigned_users_count: 0,
+        },
+        error: null,
+      };
+    } catch (err: any) {
+      return { success: false, error: err?.message || 'Failed to create role.' };
+    }
+  }
+
+  /**
+   * Updates role details in public.roles
+   */
+  static async updateRole(
+    roleId: string,
+    params: {
+      name?: string;
+      description?: string;
+    }
+  ): Promise<{ success: boolean; error: string | null }> {
+    if (!isSupabaseConfigured) {
+      return { success: false, error: 'Database is not configured.' };
+    }
+
+    try {
+      await ensureValidSession();
+      const updatePayload: any = {};
+      if (params.name) updatePayload.name = params.name.trim();
+      if (params.description !== undefined) updatePayload.description = params.description?.trim() || null;
+
+      const { error } = await supabase
+        .from('roles')
+        .update(updatePayload)
+        .eq('id', roleId);
+
+      if (error) return { success: false, error: error.message };
+      return { success: true, error: null };
+    } catch (err: any) {
+      return { success: false, error: err?.message || 'Failed to update role.' };
     }
   }
 

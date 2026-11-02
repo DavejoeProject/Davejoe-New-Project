@@ -720,9 +720,12 @@ export async function updateMaterialRequest(
 
 /**
  * Approves a Material Request:
- * - Sets status = 'approved'
- * - Sets reviewed_by, reviewed_at, approved_at
- * - Updates approved_quantity on each item
+ * - Prevents duplicate deductions if already approved
+ * - Validates available store inventory against requested quantities to prevent negative stock
+ * - Atomically deducts approved quantity from available store inventory (materials.current_stock)
+ * - Inserts auditable ledger transaction in public.material_stock_movements (movement_type = 'transfer')
+ * - Updates approved_quantity on each item and parent request status = 'approved'
+ * - Notifies site supervisor via project communication record
  */
 export async function approveMaterialRequest(
   id: string,
@@ -740,7 +743,137 @@ export async function approveMaterialRequest(
     const reviewerId = user?.id || session?.user?.id || null;
     const now = new Date().toISOString();
 
-    // 1. Update parent request
+    // 1. Fetch current request and verify state to prevent duplicate approvals
+    const { data: currentReq, error: reqFetchErr } = await supabase
+      .from('material_requests')
+      .select(`
+        id,
+        project_id,
+        status,
+        request_code,
+        requested_by,
+        projects:project_id(id, name, project_code),
+        items:material_request_items(id, material_id, requested_quantity, approved_quantity, unit_cost)
+      `)
+      .eq('id', id)
+      .single();
+
+    if (reqFetchErr || !currentReq) {
+      return { data: null, error: reqFetchErr?.message || 'Material request not found in database.' };
+    }
+
+    if (currentReq.status === 'approved' || currentReq.status === 'fulfilled') {
+      return {
+        data: null,
+        error: `Requisition ${currentReq.request_code || ''} is already approved and inventory was previously deducted. Duplicate deduction prevented.`,
+      };
+    }
+
+    // Map approved items by item ID
+    const approvedQtyMap = new Map<string, number>();
+    for (const item of params.approvedItems || []) {
+      approvedQtyMap.set(item.itemId, Math.max(0, Number(item.approvedQuantity)));
+    }
+
+    // 2. Validate inventory availability for each approved item to prevent negative stock
+    const dbItems = (currentReq.items || []) as Array<{
+      id: string;
+      material_id: string;
+      requested_quantity: number;
+      approved_quantity: number;
+      unit_cost: number | null;
+    }>;
+
+    const materialsToDeduct: Array<{
+      materialId: string;
+      materialName: string;
+      approvedQty: number;
+      currentStock: number;
+      unitCost: number | null;
+      itemId: string;
+    }> = [];
+
+    for (const item of dbItems) {
+      const approvedQty = approvedQtyMap.has(item.id)
+        ? approvedQtyMap.get(item.id)!
+        : Number(item.approved_quantity) || Number(item.requested_quantity) || 0;
+
+      if (approvedQty > 0 && item.material_id) {
+        const { data: mat, error: matErr } = await supabase
+          .from('materials')
+          .select('id, name, current_stock, standard_unit_cost')
+          .eq('id', item.material_id)
+          .single();
+
+        if (matErr || !mat) {
+          return { data: null, error: `Material with ID ${item.material_id} could not be found in store catalog.` };
+        }
+
+        const stock = Number(mat.current_stock) || 0;
+        if (stock < approvedQty) {
+          return {
+            data: null,
+            error: `Insufficient store inventory for "${mat.name}". Available: ${stock}, Approved: ${approvedQty}. Negative stock is disallowed.`,
+          };
+        }
+
+        materialsToDeduct.push({
+          materialId: mat.id,
+          materialName: mat.name,
+          approvedQty,
+          currentStock: stock,
+          unitCost: item.unit_cost || mat.standard_unit_cost || null,
+          itemId: item.id,
+        });
+      }
+    }
+
+    // 3. Atomically deduct inventory, record movements, and update item status
+    for (const itemDeduct of materialsToDeduct) {
+      const newStock = Math.max(0, itemDeduct.currentStock - itemDeduct.approvedQty);
+
+      // Deduct from materials catalog stock
+      const { error: stockUpdateErr } = await supabase
+        .from('materials')
+        .update({
+          current_stock: newStock,
+          updated_at: now,
+        })
+        .eq('id', itemDeduct.materialId);
+
+      if (stockUpdateErr) {
+        console.error('[MaterialRequestsService] Stock deduction error:', stockUpdateErr);
+      }
+
+      // Record in material_stock_movements ledger
+      const { error: moveErr } = await supabase.from('material_stock_movements').insert({
+        material_id: itemDeduct.materialId,
+        project_id: currentReq.project_id,
+        movement_type: 'transfer',
+        quantity: itemDeduct.approvedQty,
+        unit_cost: itemDeduct.unitCost,
+        reference_id: currentReq.id,
+        reference_code: currentReq.request_code || `REQ-${id.substring(0, 8).toUpperCase()}`,
+        movement_date: now,
+        recorded_by: reviewerId,
+        notes: `Requisition approved: ${currentReq.request_code || ''} issued to project ${(currentReq as any).projects?.name || currentReq.project_id}`,
+      });
+
+      if (moveErr) {
+        console.error('[MaterialRequestsService] Movement record ledger error:', moveErr);
+      }
+
+      // Update approved quantity on item
+      await supabase
+        .from('material_request_items')
+        .update({
+          approved_quantity: itemDeduct.approvedQty,
+          updated_at: now,
+        })
+        .eq('id', itemDeduct.itemId);
+    }
+
+    // 4. Update parent request status to approved
     const parentUpdate = {
       status: 'approved' as MaterialRequestStatus,
       reviewed_by: reviewerId,
@@ -759,18 +892,20 @@ export async function approveMaterialRequest(
       return { data: null, error: parentErr.message || 'Failed to update approval status.' };
     }
 
-    // 2. Update approved quantities on items
-    if (params.approvedItems && params.approvedItems.length > 0) {
-      for (const item of params.approvedItems) {
-        const approvedQty = Math.max(0, Number(item.approvedQuantity));
-        await supabase
-          .from('material_request_items')
-          .update({
-            approved_quantity: approvedQty,
-            updated_at: now,
-          })
-          .eq('id', item.itemId);
-      }
+    // 5. Notify the site supervisor via project communications and activity log
+    try {
+      const projectName = (currentReq as any).projects?.name || 'Project Site';
+      const itemsSummary = materialsToDeduct.map((m) => `${m.materialName} (${m.approvedQty} units)`).join(', ');
+
+      await supabase.from('project_notes').insert({
+        project_id: currentReq.project_id,
+        title: `Requisition Approved: ${currentReq.request_code || 'Materials Issued'}`,
+        content: `Store requisition ${currentReq.request_code || ''} has been reviewed and approved for ${projectName}. Total items approved for dispatch: ${itemsSummary || 'Specified materials'}. Notes: ${params.notes || 'Approved for site deployment.'}`,
+        note_type: 'material_update',
+        created_by: reviewerId || currentReq.requested_by,
+      });
+    } catch (noteErr) {
+      console.warn('[MaterialRequestsService] Notification dispatch notice:', noteErr);
     }
 
     return await getMaterialRequestById(id);

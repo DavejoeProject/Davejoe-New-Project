@@ -64,6 +64,7 @@ import { ProjectMaterialRemnantsModule } from '../remnants/ProjectMaterialRemnan
 import { ToolsEquipmentModule } from '../tools/ToolsEquipmentModule';
 import { TaskInstructionsPanel } from '../tasks/TaskInstructionsPanel';
 import { ProjectPlanningModule } from '../planning/ProjectPlanningModule';
+import { AttendanceModule } from '../dashboard/AttendanceModule';
 
 export type ExecutiveModuleKey =
   | 'overview'
@@ -89,6 +90,7 @@ export type ExecutiveModuleKey =
 export const ExecutiveDashboard: React.FC = () => {
   const { user, profile, logout } = useAuth();
   const [activeModule, setActiveModule] = useState<ExecutiveModuleKey>('overview');
+  const [workforceSubTab, setWorkforceSubTab] = useState<'attendance' | 'directory'>('attendance');
   const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
@@ -1283,63 +1285,94 @@ export const ExecutiveDashboard: React.FC = () => {
           )}
 
           {/* ========================================================================= */}
-          {/* VIEW 4: WORKFORCE AND PRODUCTIVITY (DRILL-DOWN)                           */}
+          {/* VIEW 4: WORKFORCE AND ATTENDANCE MUSTER (DRILL-DOWN)                      */}
           {/* ========================================================================= */}
           {activeModule === 'workforce' && (
-            <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs p-6 space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-slate-100">
-                <div>
-                  <h2 className="text-base font-bold text-slate-900">Workforce & Site Execution</h2>
-                  <p className="text-xs text-slate-500">
-                    Artisans, site engineers, supervisors, and trade specialists deployed across sites.
-                  </p>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className="text-xs font-semibold text-slate-500">
-                    Total: {workforceList.length}
-                  </span>
+            <div className="space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200/80 shadow-2xs">
+                <div className="flex items-center gap-2">
                   <button
                     type="button"
-                    onClick={() => setActiveModule('overview')}
-                    className="text-xs font-semibold text-[#01875F] hover:underline cursor-pointer"
+                    onClick={() => setWorkforceSubTab('attendance')}
+                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
+                      workforceSubTab === 'attendance'
+                        ? 'bg-[#01875F] text-white shadow-xs'
+                        : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                    }`}
                   >
-                    &larr; Overview
+                    Daily Attendance Muster &amp; Shifts
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setWorkforceSubTab('directory')}
+                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
+                      workforceSubTab === 'directory'
+                        ? 'bg-[#01875F] text-white shadow-xs'
+                        : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                    }`}
+                  >
+                    Workforce Personnel Directory ({workforceList.length})
                   </button>
                 </div>
+                <button
+                  type="button"
+                  onClick={() => setActiveModule('overview')}
+                  className="text-xs font-semibold text-[#01875F] hover:underline cursor-pointer self-start sm:self-auto"
+                >
+                  &larr; Overview
+                </button>
               </div>
 
-              {workforceList.length === 0 ? (
-                <div className="py-16 text-center text-xs text-slate-400 border border-dashed border-slate-200 rounded-xl">
-                  No workforce members registered yet.
-                </div>
+              {workforceSubTab === 'attendance' ? (
+                <AttendanceModule onBackToDashboard={() => setActiveModule('overview')} />
               ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left text-xs">
-                    <thead>
-                      <tr className="border-b border-slate-100 bg-slate-50/50 text-slate-400 font-semibold uppercase tracking-wider text-[11px]">
-                        <th className="py-3 px-4">Name</th>
-                        <th className="py-3 px-4">Trade / Specialization</th>
-                        <th className="py-3 px-4">Code</th>
-                        <th className="py-3 px-4">Status</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100">
-                      {workforceList.map((w) => (
-                        <tr key={w.id} className="hover:bg-slate-50/60 transition-colors">
-                          <td className="py-3.5 px-4 font-bold text-slate-900">{w.name || w.full_name}</td>
-                          <td className="py-3.5 px-4 text-slate-600">{w.trade || w.role || 'General Artisan'}</td>
-                          <td className="py-3.5 px-4 font-mono text-[11px] text-slate-400">
-                            {w.workforce_code || '—'}
-                          </td>
-                          <td className="py-3.5 px-4">
-                            <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-blue-50 text-blue-700 border border-blue-200">
-                              {w.status || 'Active'}
-                            </span>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs p-6 space-y-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-slate-100">
+                    <div>
+                      <h2 className="text-base font-bold text-slate-900">Workforce Deployment Directory</h2>
+                      <p className="text-xs text-slate-500">
+                        Artisans, site engineers, supervisors, and trade specialists deployed across sites.
+                      </p>
+                    </div>
+                    <span className="text-xs font-semibold text-slate-500">
+                      Total: {workforceList.length}
+                    </span>
+                  </div>
+
+                  {workforceList.length === 0 ? (
+                    <div className="py-16 text-center text-xs text-slate-400 border border-dashed border-slate-200 rounded-xl">
+                      No workforce members registered yet.
+                    </div>
+                  ) : (
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left text-xs">
+                        <thead>
+                          <tr className="border-b border-slate-100 bg-slate-50/50 text-slate-400 font-semibold uppercase tracking-wider text-[11px]">
+                            <th className="py-3 px-4">Name</th>
+                            <th className="py-3 px-4">Trade / Specialization</th>
+                            <th className="py-3 px-4">Code</th>
+                            <th className="py-3 px-4">Status</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100">
+                          {workforceList.map((w) => (
+                            <tr key={w.id} className="hover:bg-slate-50/60 transition-colors">
+                              <td className="py-3.5 px-4 font-bold text-slate-900">{w.name || w.full_name}</td>
+                              <td className="py-3.5 px-4 text-slate-600">{w.trade || w.role || 'General Artisan'}</td>
+                              <td className="py-3.5 px-4 font-mono text-[11px] text-slate-400">
+                                {w.workforce_code || '—'}
+                              </td>
+                              <td className="py-3.5 px-4">
+                                <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-blue-50 text-blue-700 border border-blue-200">
+                                  {w.status || 'Active'}
+                                </span>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

@@ -26,11 +26,12 @@ import {
 import { FinancialControlModule } from '../dashboard/FinancialControlModule';
 import { DailyAttendanceWidget } from '../attendance/DailyAttendanceWidget';
 import { ProjectMaterialRemnantsModule } from '../remnants/ProjectMaterialRemnantsModule';
+import { AttendanceModule } from '../dashboard/AttendanceModule';
 
 export const AccountsDashboard: React.FC = () => {
   const { user, profile, logout } = useAuth();
   const [financialSummary, setFinancialSummary] = useState<FinancialControlExecutiveSummary | null>(null);
-  const [activeTab, setActiveTab] = useState<'overview' | 'projects' | 'budget' | 'commitments' | 'remnants'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'projects' | 'budget' | 'commitments' | 'remnants' | 'attendance'>('overview');
   const [purchaseOrders, setPurchaseOrders] = useState<any[]>([]);
   const [projects, setProjects] = useState<any[]>([]);
 
@@ -197,6 +198,15 @@ export const AccountsDashboard: React.FC = () => {
             }`}
           >
             Remnants Reconciliation Value
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('attendance')}
+            className={`min-h-[42px] px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-colors cursor-pointer ${
+              activeTab === 'attendance' ? 'bg-[#01875F] text-white shadow-xs' : 'text-slate-600 hover:bg-slate-100'
+            }`}
+          >
+            Payroll Attendance Muster
           </button>
         </div>
 
@@ -381,6 +391,13 @@ export const AccountsDashboard: React.FC = () => {
 
         {/* TAB 5: REMNANTS RECONCILIATION */}
         {activeTab === 'remnants' && <ProjectMaterialRemnantsModule />}
+
+        {/* TAB 6: PAYROLL ATTENDANCE MUSTER */}
+        {activeTab === 'attendance' && (
+          <div className="space-y-4">
+            <AttendanceModule onBackToDashboard={() => setActiveTab('overview')} />
+          </div>
+        )}
       </main>
     </div>
   );

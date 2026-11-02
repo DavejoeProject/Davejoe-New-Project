@@ -8,6 +8,9 @@ import {
   AlertCircle,
   Timer,
   RefreshCw,
+  History,
+  X,
+  Calendar,
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import {
@@ -32,12 +35,9 @@ export const DailyAttendanceWidget: React.FC<DailyAttendanceWidgetProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
-  // Exclude leadership
-  const isLeadership =
-    currentRoleKey === 'management' ||
-    currentRoleKey === 'executive_director' ||
-    hasRole('management') ||
-    hasRole('executive_director');
+  const [showHistoryModal, setShowHistoryModal] = useState(false);
+  const [historyRecords, setHistoryRecords] = useState<any[]>([]);
+  const [loadingHistory, setLoadingHistory] = useState(false);
 
   const [statusData, setStatusData] = useState<{
     hasRecord: boolean;
@@ -64,7 +64,7 @@ export const DailyAttendanceWidget: React.FC<DailyAttendanceWidgetProps> = ({
   const [elapsedMinutes, setElapsedMinutes] = useState(0);
 
   const fetchStatus = useCallback(async () => {
-    if (!user || isLeadership) {
+    if (!user) {
       setLoading(false);
       return;
     }
@@ -83,7 +83,7 @@ export const DailyAttendanceWidget: React.FC<DailyAttendanceWidgetProps> = ({
     } finally {
       setLoading(false);
     }
-  }, [user, isLeadership]);
+  }, [user]);
 
   useEffect(() => {
     fetchStatus();
@@ -101,8 +101,19 @@ export const DailyAttendanceWidget: React.FC<DailyAttendanceWidgetProps> = ({
     return () => clearInterval(interval);
   }, [statusData.isClockedIn, statusData.clockInTime]);
 
-  // If leadership, exclude from mandatory daily clocking
-  if (isLeadership) return null;
+  const fetchHistory = async () => {
+    if (!user) return;
+    setLoadingHistory(true);
+    setShowHistoryModal(true);
+    try {
+      const res = await AttendanceService.getUserAttendanceHistory(user.id, 20);
+      setHistoryRecords(res.data);
+    } catch (err: any) {
+      console.warn('[DailyAttendanceWidget] history error:', err);
+    } finally {
+      setLoadingHistory(false);
+    }
+  };
 
   const handleClockIn = async () => {
     if (!user) return;
@@ -262,6 +273,16 @@ export const DailyAttendanceWidget: React.FC<DailyAttendanceWidgetProps> = ({
 
         {/* Right Side: Action Buttons */}
         <div className="flex items-center gap-2.5 shrink-0 self-stretch sm:self-center justify-end">
+          <button
+            type="button"
+            onClick={fetchHistory}
+            className="inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl transition-colors cursor-pointer"
+            title="View personal attendance history"
+          >
+            <History className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">History</span>
+          </button>
+
           {loading ? (
             <div className="flex items-center gap-2 text-xs text-slate-400 py-2">
               <RefreshCw className="w-4 h-4 animate-spin text-[#01875F]" />
@@ -308,6 +329,87 @@ export const DailyAttendanceWidget: React.FC<DailyAttendanceWidgetProps> = ({
         <div className="mt-3 p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-800 flex items-center gap-2">
           <CheckCircle2 className="w-4 h-4 shrink-0 text-[#01875F]" />
           <span>{successMsg}</span>
+        </div>
+      )}
+
+      {/* Attendance History Modal */}
+      {showHistoryModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-2xs overflow-y-auto">
+          <div className="bg-white rounded-2xl border border-slate-200/90 shadow-2xl max-w-lg w-full overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+            <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/70">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-emerald-50 text-[#01875F] flex items-center justify-center font-bold">
+                  <Calendar className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-slate-900">Personal Attendance Record</h3>
+                  <p className="text-xs text-slate-500">Authorized shift log and hours history</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowHistoryModal(false)}
+                className="p-1 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-6 max-h-[60vh] overflow-y-auto">
+              {loadingHistory ? (
+                <div className="py-12 text-center text-xs text-slate-400 flex items-center justify-center gap-2">
+                  <RefreshCw className="w-4 h-4 animate-spin text-[#01875F]" />
+                  <span>Loading attendance history...</span>
+                </div>
+              ) : historyRecords.length === 0 ? (
+                <div className="py-12 text-center text-xs text-slate-400 border border-dashed border-slate-200 rounded-xl">
+                  No attendance records logged for your profile yet.
+                </div>
+              ) : (
+                <div className="space-y-2.5">
+                  {historyRecords.map((rec) => (
+                    <div
+                      key={rec.id}
+                      className="p-3 rounded-xl border border-slate-100 hover:border-slate-200 bg-slate-50/50 flex items-center justify-between text-xs"
+                    >
+                      <div>
+                        <div className="font-bold text-slate-900">
+                          {formatNigerianDate(rec.attendance_date)}
+                        </div>
+                        <div className="text-[11px] text-slate-500">
+                          Project: {rec.projects?.name || 'General Operations'}
+                        </div>
+                        <div className="text-[10px] text-slate-400 mt-0.5">
+                          In: {formatTimeFromIso(rec.created_at)}
+                          {rec.updated_at && rec.updated_at !== rec.created_at && (
+                            <> • Out: {formatTimeFromIso(rec.updated_at)}</>
+                          )}
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <span className="inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-[#01875F] capitalize">
+                          {rec.status}
+                        </span>
+                        <div className="font-mono text-[11px] font-bold text-slate-700 mt-1">
+                          {rec.actual_hours ? `${rec.actual_hours} hrs` : 'Active'}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="px-6 py-3.5 bg-slate-50/50 border-t border-slate-100 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setShowHistoryModal(false)}
+                className="px-4 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg transition-colors cursor-pointer"
+              >
+                Close
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

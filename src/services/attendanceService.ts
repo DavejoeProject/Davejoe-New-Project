@@ -914,19 +914,10 @@ export class AttendanceService {
         };
       }
 
-      // 2. Check leadership exclusion
+      // 2. Allow all 9 corporate and field roles to record daily attendance
       const { assignedSlugs } = await AuthService.getUserRolesDetailed(params.userId);
-      const isLeadership = assignedSlugs.some(
-        (s) => s.toLowerCase() === 'management' || s.toLowerCase() === 'executive_director'
-      );
-      if (isLeadership) {
-        return {
-          success: false,
-          error: 'Management and Executive Director roles are excluded from the mandatory daily clocking requirement.',
-        };
-      }
 
-      // 3. Resolve or auto-ensure workforce_members record for non-artisan corporate roles
+      // 3. Resolve or auto-ensure workforce_members record for staff
       let workforceMemberId: string | null = null;
       const { data: existingWf } = await supabase
         .from('workforce_members')
@@ -934,35 +925,58 @@ export class AttendanceService {
         .eq('profile_id', params.userId)
         .maybeSingle();
 
-      if (existingWf) {
+      if (existingWf?.id) {
         workforceMemberId = existingWf.id;
       } else {
-        // Auto-link workforce member profile
-        const randomCode = 'EMP-' + Math.random().toString(36).substring(2, 8).toUpperCase();
-        const roleLabel = assignedSlugs[0] || profile?.job_title || 'Corporate Staff';
+        // First try calling the SECURITY DEFINER RPC ensure_user_workforce_member
+        try {
+          const { data: rpcWfId, error: rpcErr } = await supabase.rpc('ensure_user_workforce_member', {
+            p_user_id: params.userId,
+          });
+          if (!rpcErr && rpcWfId) {
+            workforceMemberId = rpcWfId;
+          }
+        } catch {
+          // RPC invocation fallback
+        }
 
-        const { data: createdWf, error: wfCreateErr } = await supabase
-          .from('workforce_members')
-          .insert({
-            workforce_code: randomCode,
-            trade: roleLabel,
-            status: 'active',
-            profile_id: params.userId,
-            notes: 'Auto-linked staff profile for daily attendance tracking',
-          })
-          .select('id')
-          .single();
+        // Fallback: direct insert if RPC was not invoked
+        if (!workforceMemberId) {
+          const randomCode = 'EMP-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+          const roleLabel = assignedSlugs[0] || profile?.job_title || 'Enterprise Staff';
 
-        if (wfCreateErr) {
-          // If insert fails due to RLS, try to find any existing workforce record
-          const { data: fallbackWf } = await supabase
+          const { data: createdWf, error: wfCreateErr } = await supabase
             .from('workforce_members')
+            .insert({
+              workforce_code: randomCode,
+              trade: roleLabel,
+              status: 'active',
+              profile_id: params.userId,
+              notes: 'Auto-linked staff profile for daily attendance tracking',
+            })
             .select('id')
-            .limit(1)
-            .maybeSingle();
-          workforceMemberId = fallbackWf?.id || null;
-        } else {
-          workforceMemberId = createdWf?.id || null;
+            .single();
+
+          if (wfCreateErr) {
+            // Check if another profile query resolves it
+            const { data: retryWf } = await supabase
+              .from('workforce_members')
+              .select('id')
+              .eq('profile_id', params.userId)
+              .maybeSingle();
+            workforceMemberId = retryWf?.id || null;
+
+            if (!workforceMemberId) {
+              const { data: fallbackWf } = await supabase
+                .from('workforce_members')
+                .select('id')
+                .limit(1)
+                .maybeSingle();
+              workforceMemberId = fallbackWf?.id || null;
+            }
+          } else {
+            workforceMemberId = createdWf?.id || null;
+          }
         }
       }
 
@@ -1117,6 +1131,60 @@ export class AttendanceService {
     } catch (err: any) {
       console.error('[AttendanceService] clockOutNonLeadershipUser error:', err);
       return { success: false, actualHours: 0, error: err.message || 'Failed to process clock-out.' };
+    }
+  }
+
+  /**
+   * Retrieves personal attendance history for any of the 9 roles
+   */
+  static async getUserAttendanceHistory(
+    userId: string,
+    limit: number = 30
+  ): Promise<{ data: any[]; error: string | null }> {
+    if (!isSupabaseConfigured || !userId) return { data: [], error: null };
+
+    try {
+      await ensureValidSession();
+
+      // Find linked workforce member id
+      const { data: wfMember } = await supabase
+        .from('workforce_members')
+        .select('id')
+        .eq('profile_id', userId)
+        .maybeSingle();
+
+      const memberId = wfMember?.id;
+
+      let query = supabase
+        .from('attendance_records')
+        .select(`
+          id,
+          attendance_date,
+          status,
+          created_at,
+          updated_at,
+          actual_hours,
+          project_id,
+          projects:project_id(id, name, project_code)
+        `);
+
+      if (memberId) {
+        query = query.or(`workforce_member_id.eq.${memberId},recorded_by.eq.${userId}`);
+      } else {
+        query = query.eq('recorded_by', userId);
+      }
+
+      const { data, error } = await query
+        .order('attendance_date', { ascending: false })
+        .limit(limit);
+
+      if (error) {
+        return { data: [], error: error.message };
+      }
+
+      return { data: data || [], error: null };
+    } catch (err: any) {
+      return { data: [], error: err?.message || 'Failed to retrieve attendance history.' };
     }
   }
 }

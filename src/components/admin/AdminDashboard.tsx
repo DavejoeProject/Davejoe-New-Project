@@ -34,17 +34,21 @@ import {
   RotateCcw,
   Wrench,
   ClipboardList,
+  CalendarCheck,
 } from 'lucide-react';
 import { DailyAttendanceWidget } from '../attendance/DailyAttendanceWidget';
 import { ProjectMaterialRemnantsModule } from '../remnants/ProjectMaterialRemnantsModule';
 import { ToolsEquipmentModule } from '../tools/ToolsEquipmentModule';
 import { TaskInstructionsPanel } from '../tasks/TaskInstructionsPanel';
+import { ProjectsModule } from '../dashboard/ProjectsModule';
+import { AttendanceModule } from '../dashboard/AttendanceModule';
 
 type AdminTab =
   | 'dashboard'
   | 'users'
   | 'workforce'
   | 'projects'
+  | 'attendance'
   | 'clients'
   | 'roles'
   | 'audit-logs'
@@ -66,6 +70,7 @@ export const AdminDashboard: React.FC = () => {
     if (path.includes('/admin/audit-logs')) return 'audit-logs';
     if (path.includes('/admin/settings')) return 'settings';
     if (path.includes('/admin/workforce')) return 'workforce';
+    if (path.includes('/admin/attendance')) return 'attendance';
     if (path.includes('/admin/projects')) return 'projects';
     if (path.includes('/admin/clients')) return 'clients';
     if (path.includes('/admin/photos')) return 'photos';
@@ -175,6 +180,7 @@ export const AdminDashboard: React.FC = () => {
         { key: 'projects' as AdminTab, label: 'Projects', icon: FolderKanban, count: metrics.projectsCount },
         { key: 'tasks' as AdminTab, label: 'Task Specifications', icon: ClipboardList },
         { key: 'workforce' as AdminTab, label: 'Workforce', icon: HardHat, count: metrics.workforceCount },
+        { key: 'attendance' as AdminTab, label: 'Attendance Muster', icon: CalendarCheck },
         { key: 'tools' as AdminTab, label: 'Tools & Equipment', icon: Wrench },
         { key: 'remnants' as AdminTab, label: 'Material Remnants', icon: RotateCcw },
         { key: 'clients' as AdminTab, label: 'Clients', icon: Building2 },
@@ -694,49 +700,15 @@ export const AdminDashboard: React.FC = () => {
 
           {/* TAB 7: PROJECTS */}
           {activeTab === 'projects' && (
-            <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs p-6 space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="text-base font-bold text-slate-900">Enterprise Projects</h2>
-                  <p className="text-xs text-slate-500">
-                    Construction and project records in Davejoe.
-                  </p>
-                </div>
-                <span className="text-xs font-semibold text-slate-400">
-                  Total: {metrics.projectsCount}
-                </span>
-              </div>
+            <div className="space-y-4">
+              <ProjectsModule onBackToDashboard={() => setActiveTab('dashboard')} />
+            </div>
+          )}
 
-              {projectsList.length === 0 ? (
-                <div className="py-12 text-center text-sm text-slate-400 border border-dashed border-slate-200 rounded-xl">
-                  No projects recorded yet.
-                </div>
-              ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left text-xs">
-                    <thead>
-                      <tr className="border-b border-slate-100 text-slate-400 font-semibold uppercase tracking-wider">
-                        <th className="py-2.5 px-3">Project</th>
-                        <th className="py-2.5 px-3">Location</th>
-                        <th className="py-2.5 px-3">Status</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100">
-                      {projectsList.map((p) => (
-                        <tr key={p.id} className="hover:bg-slate-50/50">
-                          <td className="py-3 px-3 font-semibold text-slate-800">{p.name}</td>
-                          <td className="py-3 px-3 text-slate-600">{p.location || '—'}</td>
-                          <td className="py-3 px-3">
-                            <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-[#01875F]">
-                              {p.status || 'Active'}
-                            </span>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
+          {/* TAB: ATTENDANCE */}
+          {activeTab === 'attendance' && (
+            <div className="space-y-4">
+              <AttendanceModule onBackToDashboard={() => setActiveTab('dashboard')} />
             </div>
           )}
 

@@ -1,0 +1,891 @@
+# DAVEJOE DIGITAL OPERATING SYSTEM
+# SYSTEM-WIDE FUNCTIONAL AUDIT, SUPABASE INTEGRATION & WORKFLOW CORRECTIONS
+
+## IMPORTANT: READ BEFORE IMPLEMENTING
+
+You are working on the existing Davejoe Interiors Digital Operating System.
+
+This is a system-wide audit and corrective implementation exercise.
+
+The application already contains several modules, workflows, database tables, dashboards and business functions that have been developed progressively.
+
+Some functions may already exist but are incomplete, incorrectly connected, or not functioning as intended.
+
+YOUR FIRST RESPONSIBILITY IS TO INSPECT THE ENTIRE EXISTING APPLICATION.
+
+Do not immediately create new modules or database tables.
+
+Do not assume that a feature is missing simply because it is not immediately visible.
+
+Search the entire codebase, inspect existing services, components, Supabase migrations, database relationships and application routes.
+
+For every requirement below:
+
+1. Locate the existing implementation.
+2. Determine whether it works.
+3. Identify missing functionality.
+4. Identify broken integrations.
+5. Repair existing implementations where possible.
+6. Create new functionality only where nothing suitable exists.
+
+The objective is to make the existing application function as one properly integrated Digital Operating System.
+
+## TECHNOLOGY STACK
+
+Preserve the existing stack:
+
+- React.
+- TypeScript.
+- Vite.
+- Tailwind CSS.
+- Google AI Studio for development.
+- GitHub for source control.
+- Vercel for deployment.
+- Supabase PostgreSQL.
+- Supabase Authentication.
+- Supabase Storage.
+- Supabase Row Level Security.
+
+Do not migrate the application to another platform.
+
+Do not introduce Google AppSheet.
+
+---
+
+# PART 1 — COMPLETE APPLICATION AUDIT
+
+Inspect the entire application, including:
+
+- All nine existing business roles.
+- Authentication.
+- User profiles.
+- Employee records.
+- Role and permission management.
+- Admin dashboard.
+- Accountant dashboard.
+- Executive Director dashboard.
+- Management/CEO dashboard.
+- Site Supervisor dashboard.
+- Project Management.
+- Project Planning & Projections.
+- Materials Management.
+- Store/Inventory Management.
+- Procurement.
+- Workforce Management.
+- Artisan Management.
+- Clock-in and clock-out.
+- Attendance records.
+- Daily reporting.
+- Quality Control.
+- Financial operations.
+- Notifications.
+- Approvals.
+- Audit logs.
+
+Inspect the Supabase database, existing migrations, database functions, triggers, RLS policies and frontend services.
+
+Create an internal implementation checklist.
+
+Classify each requirement as:
+
+- WORKING: Existing implementation works correctly.
+- PARTIALLY WORKING: Exists but needs improvement.
+- BROKEN: Exists but produces errors or incorrect results.
+- MISSING: No suitable implementation exists.
+
+Do not duplicate WORKING functionality.
+
+Fix BROKEN and PARTIALLY WORKING functionality.
+
+Implement MISSING functionality.
+
+Do not make unrelated changes.
+
+---
+
+# PART 2 — MATERIAL INVENTORY DEDUCTION AND RECONCILIATION
+
+This is a critical requirement.
+
+The Site Supervisor can request materials for an assigned project.
+
+When the material request is approved by an authorised person, the approved quantities must be deducted from the available Store inventory and allocated to that specific project.
+
+This must be a real Supabase database operation.
+
+It must not be a frontend-only change.
+
+## A. Material request workflow
+
+The workflow should be:
+
+1. Site Supervisor opens an assigned project.
+2. Site Supervisor creates a material request.
+3. Supervisor selects materials from the existing materials directory.
+4. Supervisor enters the required quantities.
+5. Supervisor submits the request.
+6. Authorised personnel review the request.
+7. When approved, the system checks available inventory.
+8. The approved quantities are deducted from available Store stock.
+9. A corresponding material issue transaction is recorded.
+10. The quantities are allocated to the relevant project.
+11. The Site Supervisor receives an in-app notification.
+12. The supervisor can see the approved materials in their project dashboard.
+
+Approval must only succeed if sufficient stock exists, unless an explicitly authorised partial-approval workflow is supported.
+
+## B. Inventory transaction integrity
+
+Do not simply subtract quantities from a material quantity column without recording the transaction.
+
+Use the existing inventory ledger if one exists.
+
+Otherwise, implement a proper stock movement ledger.
+
+Every stock movement must capture:
+
+- Material ID.
+- Project ID.
+- Material request ID.
+- Quantity.
+- Movement type.
+- Previous stock balance.
+- New stock balance.
+- Initiating user.
+- Approving user.
+- Transaction timestamp.
+- Reason.
+- Reference.
+
+Movement types should distinguish:
+
+- Stock receipt.
+- Project issue.
+- Return from project.
+- Stock adjustment.
+- Damaged stock.
+- Approved reversal.
+
+The inventory ledger must provide a traceable history.
+
+## C. Critical safeguards
+
+- Never deduct stock twice for the same approval.
+- Prevent duplicate approval submissions.
+- Prevent negative inventory unless an explicitly authorised exception exists.
+- Use database transactions or an atomic PostgreSQL RPC.
+- Ensure approval and inventory deduction succeed or fail together.
+- Do not allow supervisors to modify stock balances directly.
+- Record all stock adjustments.
+- Preserve historical transactions.
+- Prevent unauthorised reversal of issued materials.
+
+If a material request is amended after approval, implement a controlled adjustment transaction rather than silently rewriting previous inventory movements.
+
+If an approved request is cancelled before physical issue, use an authorised reversal.
+
+Treat approval as the authorisation and recording of a project stock issue, consistent with Davejoe's requested workflow.
+
+---
+
+# PART 3 — PROJECT MATERIAL ALLOCATION AND HISTORY
+
+The Site Supervisor must have a complete view of materials allocated to every project under their supervision.
+
+This must include materials assigned at the beginning of the project and additional materials requested during execution.
+
+Create or improve the project Materials workspace.
+
+## A. Initial project material allocation
+
+When a project becomes active, the supervisor should be able to see the initial materials allocated to the project from its approved BOQ or authorised material allocation.
+
+Display:
+
+- Material name.
+- Material specification.
+- Approved quantity.
+- Quantity initially issued.
+- Date issued.
+- Issuing department.
+- Remaining available quantity.
+
+Do not assume that a BOQ estimate is an actual stock issue.
+
+Clearly distinguish projected quantities from physically issued quantities.
+
+## B. Additional material requests
+
+Show every subsequent material request submitted during the project.
+
+Display:
+
+- Request reference.
+- Request date.
+- Material.
+- Quantity requested.
+- Quantity approved.
+- Quantity issued.
+- Approval status.
+- Approving officer.
+- Issue date.
+
+## C. Project material summary
+
+For every project, provide:
+
+- Initial allocation.
+- Additional approved allocations.
+- Total quantities received by the project.
+- Quantities used.
+- Quantities wasted or damaged.
+- Quantities returned.
+- Current project-held balance.
+
+Use a clear material movement history.
+
+Calculate:
+
+Project Material Balance = Total Project Issues + Other Valid Receipts - Recorded Usage - Recorded Waste - Returns to Store.
+
+Ensure each movement is recorded exactly once.
+
+Project material usage must not be confused with Store inventory deduction.
+
+An approved issue deducts from Store and increases project-held stock.
+
+Subsequent site consumption reduces project-held stock.
+
+A return to Store reduces project-held stock and increases available Store stock through a corresponding transaction.
+
+Do not allow the same material to be deducted twice.
+
+## D. Management visibility
+
+Management and Procurement should be able to compare:
+
+- Approved BOQ quantities.
+- Actual Store issues.
+- Project consumption.
+- Waste.
+- Remaining project stock.
+- Production achieved.
+
+Flag abnormal material consumption for investigation.
+
+---
+
+# PART 4 — FIX CLOCK-IN AND CLOCK-OUT ACROSS ALL ROLES
+
+The Site Supervisor currently receives this error:
+
+"Unable to establish employee attendance identity in database."
+
+Investigate and resolve the root cause.
+
+Do not merely suppress the error or display a success message.
+
+## A. Investigate the attendance identity failure
+
+Inspect:
+
+- Supabase Authentication users.
+- Employee profile records.
+- Employee/user relationships.
+- Existing attendance tables.
+- Foreign key constraints.
+- Role assignments.
+- Attendance services.
+- Clock-in and clock-out components.
+- Supabase RPC functions.
+- RLS policies.
+- Database triggers.
+
+Establish how the authenticated Supabase user maps to their employee identity.
+
+The authenticated user ID must be linked correctly to the corresponding employee record.
+
+Use the existing employee mapping if available.
+
+If the mapping is missing, implement a safe and controlled solution.
+
+Do not automatically create duplicate employee records every time someone clocks in.
+
+Do not identify employees using display names, email text matching or role names alone.
+
+Use stable database identifiers.
+
+## B. Universal attendance functionality
+
+Clock-in and clock-out must work correctly for every authorised employee role.
+
+Test all nine existing business roles.
+
+Do not assume that one working role means the others are working.
+
+Each employee must be able to:
+
+- Clock in.
+- View their current attendance status.
+- See their clock-in time.
+- Clock out.
+- View previous attendance records.
+- View their daily attendance history.
+
+Record:
+
+- Employee ID.
+- Authenticated user ID.
+- Date.
+- Clock-in timestamp.
+- Clock-out timestamp.
+- Attendance status.
+- Project association where applicable.
+- Location evidence where implemented.
+- Device or evidence metadata where appropriate.
+
+Use server/database timestamps as the authoritative timestamps.
+
+Prevent duplicate active clock-in sessions.
+
+Prevent clock-out without a valid active clock-in.
+
+Prevent one employee from creating or modifying another employee's attendance.
+
+Handle repeated submissions safely.
+
+Do not silently overwrite historical attendance.
+
+## C. Site Supervisor attendance
+
+For Site Supervisors:
+
+- Clock-in must work.
+- Clock-out must work.
+- Attendance must be associated with the correct employee.
+- Project association must be supported where required.
+- Attendance must appear in the appropriate administrative dashboards.
+
+Resolve the exact identity error before declaring this feature complete.
+
+---
+
+# PART 5 — DAILY ATTENDANCE VISIBILITY ACROSS MANAGEMENT DASHBOARDS
+
+Every successful attendance transaction must be visible to the appropriate authorised dashboards.
+
+This includes:
+
+1. Admin Dashboard.
+2. Accountant Dashboard.
+3. Executive Director Dashboard.
+4. Management/CEO Dashboard.
+
+Do not create four independent attendance databases.
+
+All dashboards must read from the same authoritative attendance records.
+
+## A. Admin Dashboard
+
+Display:
+
+- Total employees.
+- Employees clocked in today.
+- Employees not clocked in.
+- Employees who have clocked out.
+- Employees currently working.
+- Late arrivals, where configured.
+- Missing clock-outs.
+- Daily attendance register.
+
+Allow authorised administrative filtering by:
+
+- Date.
+- Employee.
+- Role.
+- Department.
+- Project.
+- Attendance status.
+
+## B. Accountant Dashboard
+
+Display attendance information relevant to financial operations.
+
+Include:
+
+- Daily attendance.
+- Verified attendance records.
+- Employee attendance summaries.
+- Attendance history.
+- Missing attendance evidence.
+- Attendance-related payment verification.
+
+Do not give Accounts permission to create or falsify attendance.
+
+## C. Executive Director Dashboard
+
+Provide an organisation-wide attendance summary.
+
+Display:
+
+- Today's attendance.
+- Role-based attendance breakdown.
+- Employee attendance trends.
+- Absenteeism indicators.
+- Late arrival indicators.
+- Outstanding attendance exceptions.
+
+## D. Management/CEO Dashboard
+
+Provide an executive attendance overview.
+
+Management should see:
+
+- Total workforce expected.
+- Total workforce present.
+- Total workforce absent.
+- Employees currently clocked in.
+- Attendance by department and role.
+- Project-specific workforce attendance.
+- Attendance exceptions.
+
+All dashboard summaries must be generated from actual attendance records.
+
+Use shared services or database views where appropriate.
+
+Avoid inconsistent calculations across dashboards.
+
+Respect role-based visibility and RLS.
+
+---
+
+# PART 6 — ADMIN PROJECT CREATION AND UPDATING
+
+Inspect the existing Admin project management functionality.
+
+The Admin must be able to create and update projects through the application.
+
+If this functionality already exists, repair and complete it.
+
+Do not create a duplicate project management module.
+
+## Required capabilities
+
+Admin should be able to:
+
+- Create a project.
+- Edit project details.
+- Update project descriptions.
+- Update authorised project information.
+- Associate a client.
+- Assign a project location.
+- Set project commencement dates.
+- Set expected completion dates.
+- Update project status within authorised workflow rules.
+- View assigned workforce.
+- Add workforce members.
+- Remove workforce members through controlled reassignment or removal.
+- View project activity history.
+
+Ensure projects are stored in Supabase.
+
+Do not rely on temporary frontend state.
+
+Preserve the relationship between approved project projections and active projects.
+
+Do not allow an Admin to change protected financial or technical approvals unless the existing permission system explicitly authorises that action.
+
+---
+
+# PART 7 — ADMIN ROLE CREATION AND ROLE ASSIGNMENT
+
+Inspect the existing role and permission management architecture.
+
+The Admin must be able to create and update roles and assign roles to employees, subject to authorised permissions.
+
+First determine whether the application already has:
+
+- Roles table.
+- Permissions table.
+- Role-permission mapping.
+- User-role mapping.
+- Employee-role mapping.
+- Role management interface.
+- Permission management interface.
+
+Reuse existing structures.
+
+## Required functionality
+
+Authorised Admin users should be able to:
+
+- View all existing roles.
+- Create an additional role if permitted.
+- Update role descriptions.
+- Assign permissions.
+- Remove permissions.
+- Assign a role to an employee.
+- Change an employee's role.
+- Deactivate role assignments.
+- View the history of role changes.
+
+The existing nine business roles must remain intact.
+
+Do not overwrite or rename existing roles.
+
+Do not create a second authentication system.
+
+Do not allow users to assign themselves administrative privileges.
+
+Do not allow ordinary Admin users to grant permissions beyond their own authorised administrative scope.
+
+Any role with access to sensitive financial, security or approval functionality must require appropriate authorisation.
+
+Role creation and role assignment must be reflected in Supabase.
+
+The frontend must derive permissions from the authoritative backend records.
+
+---
+
+# PART 8 — MULTIPLE WORKFORCE ASSIGNMENTS PER PROJECT
+
+This is an important project management correction.
+
+Inside every project's "Assign Workforce Member" section, the authorised user must be able to add any number of workforce members.
+
+The current interface must not restrict the user to adding just one workforce member.
+
+## Required user experience
+
+The workflow should be:
+
+1. Open a project.
+2. Click Assign Workforce Member.
+3. Select an employee or approved artisan.
+4. Confirm assignment.
+5. The person appears in the project's assigned workforce list.
+6. The user can immediately click Add Another.
+7. Select another workforce member.
+8. Repeat as many times as necessary.
+
+The assignment interface should support multiple additions without closing or resetting the entire project form unnecessarily.
+
+Provide:
+
+- Search.
+- Employee/artisan selection.
+- Role display.
+- Department display.
+- Assignment date.
+- Assigned responsibility.
+- Assignment status.
+- Removal or reassignment through authorised controls.
+
+Prevent duplicate active assignments of the same workforce member to the same project unless the existing architecture explicitly supports multiple assignment periods.
+
+## A. Workforce visibility
+
+Every assigned workforce member must be able to see the project on their own dashboard, according to their role and permissions.
+
+For example:
+
+- Site Supervisor sees operational project details.
+- Technical Officer sees inspection and QC responsibilities.
+- Procurement sees authorised procurement information.
+- Admin sees workforce and administrative information.
+- Accounts sees relevant financial and verified operational information.
+- Management sees organisation-wide information.
+
+Being assigned to a project must not automatically grant unrestricted access to the entire project or company database.
+
+## B. Database integrity
+
+Use the existing project workforce assignment structure if available.
+
+Otherwise, implement a proper many-to-many relationship between projects and workforce members.
+
+Each assignment must identify:
+
+- Project ID.
+- Employee or workforce member ID.
+- Assigned role or responsibility.
+- Assigned by.
+- Assignment date.
+- Assignment status.
+- Removal or reassignment information where applicable.
+
+Ensure that project membership is respected by RLS policies.
+
+All assigned employees must be able to retrieve the appropriate assigned projects through their authenticated accounts.
+
+---
+
+# PART 9 — CONNECT PROJECT PLANNING & PROJECTIONS TO SUPABASE
+
+This requirement is mandatory.
+
+The Project Planning & Projections module must persist its information in Supabase.
+
+The following migration has previously been prepared:
+
+`supabase/migrations/20261031000001_project_projections_and_planning.sql`
+
+It defines:
+
+- `project_projections`
+- `projection_line_items`
+- `projection_contributions`
+
+Inspect the migration and compare it with the actual deployed Supabase schema.
+
+Do not assume that preparing the SQL migration means it has been executed.
+
+## A. Verify database deployment
+
+Confirm:
+
+- All required tables exist.
+- Columns match the application.
+- Foreign keys are valid.
+- RLS policies exist.
+- Authenticated users have the required permissions.
+- Audit integrations work.
+- Database functions and triggers are available.
+
+If the migration has not been applied, prepare the correct migration for execution.
+
+Do not create duplicate tables.
+
+## B. Verify actual frontend persistence
+
+Inspect the complete planning module.
+
+Check:
+
+- Create projection.
+- Update projection.
+- Save draft.
+- Retrieve saved projection.
+- BOQ creation.
+- BOQ updates.
+- Departmental contributions.
+- Submission for review.
+- Approval.
+- Revision.
+- Quotation association.
+- Client acceptance.
+- Conversion into an active project.
+
+Every operation must persist in Supabase.
+
+Do not use localStorage or React state as a substitute for database persistence.
+
+Temporary frontend state may be used for unsaved form inputs, but all saved business records must persist in Supabase.
+
+## C. Persistence acceptance test
+
+Perform this test:
+
+1. Create a new project projection.
+2. Save it.
+3. Add multiple BOQ items.
+4. Save again.
+5. Refresh the application.
+6. Retrieve the projection.
+7. Confirm all BOQ items remain available.
+8. Sign out and sign back in.
+9. Retrieve the same projection.
+10. Verify that authorised users can access it.
+11. Verify that unauthorised users cannot access it.
+
+A successful frontend toast notification is not sufficient evidence of persistence.
+
+Verify actual database records.
+
+---
+
+# PART 10 — SHARED DATABASE AND TRANSACTION INTEGRITY
+
+The entire application must operate using consistent records.
+
+Pay particular attention to the relationships between:
+
+- Employees and authenticated users.
+- Roles and permissions.
+- Projects and workforce assignments.
+- Projects and material allocations.
+- Material requests and stock issues.
+- Store inventory and inventory ledger.
+- Attendance and employee records.
+- Project projections and active projects.
+- Site reports and production records.
+
+Where a business operation requires several related database changes, use atomic PostgreSQL transactions or secure RPC functions.
+
+For example:
+
+Approving a material request must not update the request status if the inventory deduction fails.
+
+Assigning workforce must not create an assignment without a valid project and employee.
+
+Clock-in must not create duplicate active attendance records.
+
+Project conversion must not create duplicate active projects.
+
+All critical operations must be idempotent where appropriate.
+
+All sensitive changes must have an audit trail.
+
+---
+
+# PART 11 — SECURITY AND ROLE TESTING
+
+Test the existing nine business roles individually.
+
+Do not replace the existing roles.
+
+Test:
+
+- Authentication.
+- Clock-in.
+- Clock-out.
+- Attendance visibility.
+- Project visibility.
+- Workforce assignments.
+- Material requests.
+- Material approval.
+- Project material balances.
+- Project creation and updating.
+- Role assignment.
+- Project planning persistence.
+
+Confirm that:
+
+- Users cannot modify another employee's attendance.
+- Supervisors cannot approve their own material requests.
+- Supervisors cannot directly deduct Store inventory.
+- Procurement cannot bypass authorised material approvals.
+- Accounts cannot create attendance records.
+- Ordinary users cannot grant themselves administrative permissions.
+- Assigned workforce members cannot access unrelated projects.
+- Unauthorised users cannot access project planning records.
+- Management can see authorised cross-project information.
+
+Enforce these rules in Supabase RLS and secure database operations, not just in frontend components.
+
+---
+
+# PART 12 — MOBILE AND DESKTOP PRESERVATION
+
+Preserve the existing responsive design improvements.
+
+Ensure that:
+
+- Material request approval works on mobile.
+- Project material history is readable on mobile.
+- Clock-in and clock-out controls work on mobile.
+- Daily attendance dashboards are responsive.
+- Project workforce assignment supports multiple selections on mobile.
+- Project planning forms remain responsive.
+- Admin project creation works on mobile and desktop.
+
+Do not introduce a new visual redesign unless necessary to make a broken workflow usable.
+
+---
+
+# PART 13 — TESTING AND VERIFICATION
+
+Run the following checks:
+
+1. TypeScript compilation.
+2. Production build.
+3. Existing automated tests.
+4. Supabase integration tests.
+5. Attendance tests across all nine roles.
+6. Clock-in and clock-out tests.
+7. Employee identity mapping tests.
+8. Attendance dashboard tests.
+9. Material request approval tests.
+10. Inventory deduction tests.
+11. Duplicate inventory deduction prevention.
+12. Project material balance tests.
+13. Workforce multiple-assignment tests.
+14. Project access tests.
+15. Admin project CRUD tests.
+16. Role creation and assignment tests.
+17. Project planning persistence tests.
+18. RLS security tests.
+
+Where possible, use a dedicated test environment or clearly identified test records.
+
+Do not create false production transactions during testing.
+
+Do not claim tests have passed if they have not actually been executed.
+
+---
+
+# PART 14 — IMPLEMENTATION REPORT
+
+When finished, provide a detailed report.
+
+Use the following headings:
+
+### A. Existing Features Found
+List the functionalities that already existed and were retained.
+
+### B. Broken Features Fixed
+Identify each defect and its actual root cause.
+
+### C. Existing Features Improved
+Explain the improvements made.
+
+### D. New Features Created
+Only list functionality that genuinely did not exist before.
+
+### E. Supabase Database Changes
+List:
+
+- Existing tables reused.
+- New tables, if necessary.
+- New columns, if necessary.
+- Migrations created.
+- Functions created.
+- Triggers created.
+- RLS policies added or updated.
+
+### F. Attendance Verification
+Report the results for all nine roles individually.
+
+### G. Inventory Verification
+Show that approved material requests produce the correct Store deduction and project allocation without duplicate transactions.
+
+### H. Project Planning Verification
+Show evidence that projections and BOQ items persist after refresh and reauthentication.
+
+### I. Testing
+List every test executed and whether it passed or failed.
+
+### J. Outstanding Issues
+Identify anything not completed and why.
+
+### K. Deployment Instructions
+Provide the exact SQL migrations requiring execution in Supabase and any environment or deployment steps.
+
+---
+
+# FINAL NON-NEGOTIABLE INSTRUCTIONS
+
+1. Inspect before creating.
+2. Reuse existing functionality.
+3. Do not duplicate existing modules.
+4. Do not create duplicate database records.
+5. Fix root causes rather than hiding errors.
+6. Keep the existing nine business roles.
+7. Preserve the existing application architecture.
+8. Do not break working functionality.
+9. Use Supabase as the authoritative source of business data.
+10. Ensure the entire system remains integrated.
+
+This is a corrective implementation exercise, not an invitation to rebuild Davejoe from scratch.
+
+Complete the required audit, repairs and missing functionality, then provide the implementation report.
