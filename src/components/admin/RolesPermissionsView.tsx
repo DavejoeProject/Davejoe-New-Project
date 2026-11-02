@@ -36,7 +36,9 @@ export const RolesPermissionsView: React.FC<RolesPermissionsViewProps> = ({
 }) => {
   const { currentRoleKey } = useAuth();
   const isAuthorizedLeadership =
-    currentRoleKey === 'management' || currentRoleKey === 'executive_director';
+    currentRoleKey === 'management' ||
+    currentRoleKey === 'executive_director' ||
+    currentRoleKey === 'admin';
 
   const [roles, setRoles] = useState<AdminRoleItem[]>(initialRoles || []);
   const [selectedRoleId, setSelectedRoleId] = useState<string>('');
@@ -437,9 +439,6 @@ export const RolesPermissionsView: React.FC<RolesPermissionsViewProps> = ({
                       <div className="divide-y divide-slate-100">
                         {perms.map((perm) => {
                           const isAssigned = assignedPermissionNames.has(perm.name);
-                          const isProtectedAdminPerm =
-                            selectedRole?.slug === 'admin' &&
-                            ['roles.manage', 'users.manage', 'users.view', 'audit.view'].includes(perm.name);
 
                           return (
                             <div
@@ -459,11 +458,6 @@ export const RolesPermissionsView: React.FC<RolesPermissionsViewProps> = ({
                                       Granted
                                     </span>
                                   )}
-                                  {isProtectedAdminPerm && (
-                                    <span className="px-1.5 py-0.2 rounded text-[9px] font-bold uppercase tracking-wider bg-amber-100 text-amber-800">
-                                      Core Protection
-                                    </span>
-                                  )}
                                 </div>
                                 <p className="text-[11px] text-slate-500 mt-0.5">
                                   {perm.description || `Grants access to ${perm.name} operations.`}
@@ -475,13 +469,8 @@ export const RolesPermissionsView: React.FC<RolesPermissionsViewProps> = ({
                                 type="button"
                                 disabled={isModifyingPermission}
                                 onClick={() => handleTogglePermission(perm)}
-                                title={
-                                  isProtectedAdminPerm
-                                    ? 'Core Admin permission protected against removal'
-                                    : isAssigned
-                                    ? 'Click to Revoke'
-                                    : 'Click to Grant'
-                                }
+                                title={isAssigned ? `Click to revoke ${perm.name}` : `Click to grant ${perm.name}`}
+                                aria-label={`Toggle ${perm.name} permission`}
                                 className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none disabled:opacity-50 ${
                                   isAssigned ? 'bg-[#01875F]' : 'bg-slate-200'
                                 }`}

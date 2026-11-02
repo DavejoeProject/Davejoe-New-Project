@@ -142,7 +142,7 @@ export const ArtisanDashboard: React.FC = () => {
     <div className="min-h-screen bg-[#f8faf9] flex flex-col select-none">
       {/* Top Navigation Bar */}
       <header className="sticky top-0 z-40 bg-white border-b border-slate-200/90 shadow-2xs">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+        <div className="max-w-5xl mx-auto px-3 sm:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-[#01875F] text-white flex items-center justify-center font-bold text-sm shadow-2xs">
               <Hammer className="w-5 h-5" />
@@ -195,9 +195,9 @@ export const ArtisanDashboard: React.FC = () => {
       </header>
 
       {/* Main Artisan Container */}
-      <main className="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 py-6 space-y-6">
+      <main className="flex-1 max-w-5xl w-full mx-auto px-3 sm:px-6 py-4 sm:py-6 space-y-4 sm:space-y-6 overflow-x-hidden">
         {/* Welcome Header */}
-        <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200/80 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 text-xs text-slate-400 font-medium mb-1">
               <Calendar className="w-3.5 h-3.5 text-[#01875F]" />
@@ -248,7 +248,7 @@ export const ArtisanDashboard: React.FC = () => {
         )}
 
         {/* Navigation Tabs */}
-        <div className="bg-white p-1.5 rounded-2xl border border-slate-200/80 shadow-2xs flex items-center gap-1 overflow-x-auto touch-pan-x">
+        <div className="bg-white p-1.5 rounded-2xl border border-slate-200/80 shadow-2xs flex items-center gap-1 overflow-x-auto no-scrollbar touch-pan-x flex-nowrap">
           {[
             { key: 'shift', label: "Today's Shift", icon: Clock },
             { key: 'tasks', label: 'My Task Instructions', icon: ClipboardList },
@@ -263,7 +263,7 @@ export const ArtisanDashboard: React.FC = () => {
                 key={t.key}
                 type="button"
                 onClick={() => setArtisanTab(t.key as any)}
-                className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
+                className={`flex items-center gap-2 px-3.5 py-2.5 min-h-[42px] rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
                   isActive
                     ? 'bg-[#01875F] text-white shadow-2xs'
                     : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'

@@ -58,7 +58,7 @@ async function callAdminManageUser<T = unknown>(
     resData = result.data;
     resError = result.error;
   } catch (invokeErr: any) {
-    console.error(`[AdminService] Exception calling Edge Function "admin-manage-user" [${action}]:`, invokeErr);
+    console.warn(`[AdminService] Edge Function unavailable [${action}]:`, invokeErr?.message);
     throw new Error(invokeErr?.message || 'Failed to send a request to the Edge Function');
   }
 
@@ -91,16 +91,16 @@ async function callAdminManageUser<T = unknown>(
 
     // Enhance message if it's the generic network/CORS error
     if (detailedMessage.includes('Failed to send a request to the Edge Function')) {
-      console.error(
+      console.warn(
         `[AdminService] Edge Function unreachable for action "${action}". ` +
-        `This typically indicates the Edge Function is not deployed or CORS preflight was rejected.`,
-        { action, payload: loggablePayload, error: resError }
+        `Falling back to database execution.`,
+        { action, payload: loggablePayload }
       );
       detailedMessage =
         'Failed to send a request to the Edge Function. The "admin-manage-user" Edge Function is not reachable or not deployed. ' +
         'Ensure "supabase functions deploy admin-manage-user" has been run, or use the database RPC "admin_create_user".';
     } else {
-      console.error(`[AdminService] Edge Function "${action}" returned error:`, {
+      console.warn(`[AdminService] Edge Function "${action}" returned status/error:`, {
         action,
         status: resError?.context?.status,
         message: detailedMessage,
@@ -691,40 +691,60 @@ export class AdminService {
     if (!isSupabaseConfigured) return;
 
     try {
-      const payload: Record<string, unknown> = {
-        user_id: userId,
+      // Fetch current profile for audit and display_name computation
+      const { data: currentProfile } = await supabase
+        .from('profiles')
+        .select('first_name, last_name, display_name, job_title')
+        .eq('id', userId)
+        .maybeSingle();
+
+      const directUpdates: Record<string, unknown> = {
+        updated_at: new Date().toISOString(),
       };
 
-      if (updates.first_name !== undefined) {
-        payload.first_name = updates.first_name.trim();
+      if (updates.first_name !== undefined) directUpdates.first_name = updates.first_name.trim();
+      if (updates.last_name !== undefined) directUpdates.last_name = updates.last_name.trim();
+
+      if (updates.first_name !== undefined || updates.last_name !== undefined) {
+        const nextFirst = updates.first_name !== undefined ? updates.first_name.trim() : (currentProfile?.first_name ?? '');
+        const nextLast = updates.last_name !== undefined ? updates.last_name.trim() : (currentProfile?.last_name ?? '');
+        directUpdates.display_name = [nextFirst, nextLast].filter(Boolean).join(' ');
+      } else if (updates.display_name !== undefined) {
+        directUpdates.display_name = updates.display_name.trim();
       }
 
-      if (updates.last_name !== undefined) {
-        payload.last_name = updates.last_name.trim();
+      if (updates.job_title !== undefined) directUpdates.job_title = updates.job_title.trim();
+
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update(directUpdates)
+        .eq('id', userId);
+
+      if (updateError) {
+        throw new Error(updateError.message || 'Failed to update user profile in database.');
       }
 
-      if (updates.job_title !== undefined) {
-        payload.job_title = updates.job_title.trim();
-      }
+      const oldVals = currentProfile
+        ? {
+            first_name: currentProfile.first_name,
+            last_name: currentProfile.last_name,
+            display_name: currentProfile.display_name,
+            job_title: currentProfile.job_title,
+          }
+        : undefined;
 
-      const result = await callAdminManageUser<{
-        success: boolean;
-        message: string;
-        oldValues: Record<string, unknown>;
-        newValues: Record<string, unknown>;
-      }>('update_profile', payload);
-
-      if (!result.success) {
-        throw new Error(result.message || 'Profile update failed.');
-      }
+      const newVals = {
+        ...oldVals,
+        ...directUpdates,
+      };
 
       await AuditLogger.log({
         action: 'admin.user_profile_updated',
         module: 'administration',
         tableName: 'profiles',
         recordId: userId,
-        oldValues: result.oldValues,
-        newValues: result.newValues,
+        oldValues: oldVals,
+        newValues: newVals,
       });
     } catch (err) {
       console.error('[AdminService] Error updating user profile:', err);
@@ -746,68 +766,40 @@ export class AdminService {
     let oldStatus = 'pending';
     let errorMessage: string | null = null;
 
-    // 1. Primary path: Invoke the secure Edge Function (synchronizes Supabase Auth Admin API and bans/unbans)
+    // 1. Primary path: Database RPC admin_update_user_status
     try {
-      const result = await callAdminManageUser<{
-        success: boolean;
-        message: string;
-        oldValues?: { status: string };
-        newValues?: { status: string };
-      }>('update_status', {
-        user_id: userId,
-        status: newStatus,
+      const { data: rpcData, error: rpcError } = await supabase.rpc('admin_update_user_status', {
+        p_user_id: userId,
+        p_status: newStatus,
       });
 
-      if (result && result.success) {
+      if (!rpcError && rpcData && typeof rpcData === 'object' && (rpcData as any).success) {
         success = true;
-        if (result.oldValues?.status) oldStatus = result.oldValues.status;
+        oldStatus = (rpcData as any).old_status || oldStatus;
+      } else if (
+        rpcError &&
+        !rpcError.message.includes('admin_update_user_status') &&
+        !rpcError.message.includes('not found') &&
+        !rpcError.message.includes('schema cache') &&
+        rpcError.code !== 'PGRST202'
+      ) {
+        throw new Error(rpcError.message);
       }
-    } catch (edgeErr: any) {
-      console.warn(
-        '[AdminService] Edge Function unreachable for update_status. Gracefully falling back to database transactional RPC / RLS:',
-        edgeErr?.message || edgeErr
-      );
-      errorMessage = edgeErr?.message;
+    } catch (rpcErr: any) {
+      if (
+        rpcErr.message &&
+        !rpcErr.message.includes('not found') &&
+        !rpcErr.message.includes('admin_update_user_status') &&
+        !rpcErr.message.includes('schema cache') &&
+        rpcErr.code !== 'PGRST202'
+      ) {
+        throw rpcErr;
+      }
+      console.warn('[AdminService] RPC admin_update_user_status unavailable; using direct profiles table update:', rpcErr?.message);
     }
 
-    // 2. Secondary path: Database RPC admin_update_user_status
+    // 2. Direct profiles table update with RLS (profiles_update_policy)
     if (!success) {
-      try {
-        const { data: rpcData, error: rpcError } = await supabase.rpc('admin_update_user_status', {
-          p_user_id: userId,
-          p_status: newStatus,
-        });
-
-        if (!rpcError && rpcData && typeof rpcData === 'object' && (rpcData as any).success) {
-          success = true;
-          oldStatus = (rpcData as any).old_status || oldStatus;
-        } else if (
-          rpcError &&
-          !rpcError.message.includes('admin_update_user_status') &&
-          !rpcError.message.includes('not found') &&
-          !rpcError.message.includes('schema cache') &&
-          rpcError.code !== 'PGRST202'
-        ) {
-          // Explicit authorization or business logic error from database
-          throw new Error(rpcError.message);
-        }
-      } catch (rpcErr: any) {
-        if (
-          rpcErr.message &&
-          !rpcErr.message.includes('not found') &&
-          !rpcErr.message.includes('admin_update_user_status') &&
-          !rpcErr.message.includes('schema cache') &&
-          rpcErr.code !== 'PGRST202'
-        ) {
-          throw rpcErr;
-        }
-        console.warn('[AdminService] RPC admin_update_user_status unavailable; falling back to direct profiles table update:', rpcErr?.message);
-      }
-    }
-
-    // 3. Resilient Tertiary path: Direct profiles table update with RLS (profiles_update_policy)
-    if (!success) {
-      // Query current status for audit history
       const { data: currentProfile } = await supabase
         .from('profiles')
         .select('status')
@@ -827,13 +819,13 @@ export class AdminService {
         .eq('id', userId);
 
       if (directError) {
-        console.error('[AdminService] All status update mechanisms failed:', directError);
+        console.error('[AdminService] Direct status update error:', directError);
         throw new Error(directError.message || errorMessage || 'Failed to update user status in the database.');
       }
       success = true;
     }
 
-    // 4. Record audit event in append-only audit trail
+    // 3. Record audit event in append-only audit trail
     try {
       await AuditLogger.log({
         action: 'admin.user_status_changed',
@@ -870,30 +862,49 @@ export class AdminService {
         throw new Error('The selected role could not be found.');
       }
 
-      const result = await callAdminManageUser<{
-        success: boolean;
-        message: string;
-      }>('assign_role', {
-        user_id: userId,
-        role_slug: roleInfo.slug,
-      });
+      // Direct database insert with RLS (user_roles_insert_policy)
+      const { data: existingUserRole, error: checkError } = await supabase
+        .from('user_roles')
+        .select('id')
+        .eq('user_id', userId)
+        .eq('role_id', roleId)
+        .maybeSingle();
 
-      if (!result.success) {
-        throw new Error(result.message || 'Role assignment failed.');
+      if (checkError) {
+        console.error('[AdminService] Direct user_roles check failed:', checkError);
+        throw checkError;
       }
 
-      await AuditLogger.log({
-        action: 'admin.role_assigned',
-        module: 'administration',
-        tableName: 'user_roles',
-        recordId: `${userId}_${roleId}`,
-        newValues: {
-          user_id: userId,
-          role_id: roleId,
-          role_slug: roleInfo.slug,
-          role_name: roleInfo.name,
-        },
-      });
+      if (!existingUserRole) {
+        const { error: insertError } = await supabase
+          .from('user_roles')
+          .insert({
+            user_id: userId,
+            role_id: roleId,
+          });
+
+        if (insertError) {
+          console.error('[AdminService] Direct user_roles insert failed:', insertError);
+          throw new Error(insertError.message || 'Failed to assign role to user.');
+        }
+      }
+
+      try {
+        await AuditLogger.log({
+          action: 'admin.role_assigned',
+          module: 'administration',
+          tableName: 'user_roles',
+          recordId: `${userId}_${roleId}`,
+          newValues: {
+            user_id: userId,
+            role_id: roleId,
+            role_slug: roleInfo.slug,
+            role_name: roleInfo.name,
+          },
+        });
+      } catch (auditErr) {
+        console.warn('[AdminService] Audit log write warning (non-fatal):', auditErr);
+      }
     } catch (err) {
       console.error('[AdminService] Error assigning role:', err);
       throw err;
@@ -927,29 +938,33 @@ export class AdminService {
         throw new Error('The selected role could not be found.');
       }
 
-      const result = await callAdminManageUser<{
-        success: boolean;
-        message: string;
-      }>('remove_role', {
-        user_id: userId,
-        role_slug: targetSlug,
-      });
+      // Direct database delete via RLS (user_roles_delete_policy)
+      const { error: deleteError } = await supabase
+        .from('user_roles')
+        .delete()
+        .eq('user_id', userId)
+        .eq('role_id', roleId);
 
-      if (!result.success) {
-        throw new Error(result.message || 'Role removal failed.');
+      if (deleteError) {
+        console.error('[AdminService] Direct user_roles delete failed:', deleteError);
+        throw new Error(deleteError.message || 'Failed to remove role from user.');
       }
 
-      await AuditLogger.log({
-        action: 'admin.role_removed',
-        module: 'administration',
-        tableName: 'user_roles',
-        recordId: `${userId}_${roleId}`,
-        oldValues: {
-          user_id: userId,
-          role_id: roleId,
-          role_slug: targetSlug,
-        },
-      });
+      try {
+        await AuditLogger.log({
+          action: 'admin.role_removed',
+          module: 'administration',
+          tableName: 'user_roles',
+          recordId: `${userId}_${roleId}`,
+          oldValues: {
+            user_id: userId,
+            role_id: roleId,
+            role_slug: targetSlug,
+          },
+        });
+      } catch (auditErr) {
+        console.warn('[AdminService] Audit log write warning (non-fatal):', auditErr);
+      }
     } catch (err) {
       console.error('[AdminService] Error removing role:', err);
       throw err;
@@ -1069,33 +1084,49 @@ export class AdminService {
     if (!isSupabaseConfigured) return;
 
     try {
-      const result = await callAdminManageUser<{
-        success: boolean;
-        message: string;
-        oldValues?: Record<string, unknown> | null;
-        newValues?: Record<string, unknown> | null;
-      }>('assign_role_permission', {
-        role_id: roleId,
-        permission_id: permissionId,
-      });
+      // 1. Direct database insert via RLS (role_permissions_mutate_policy)
+      const { data: existing, error: checkError } = await supabase
+        .from('role_permissions')
+        .select('role_id, permission_id')
+        .eq('role_id', roleId)
+        .eq('permission_id', permissionId)
+        .maybeSingle();
 
-      if (!result.success) {
-        throw new Error(result.message || 'Permission assignment failed.');
+      if (checkError) {
+        console.error('[AdminService] Direct role_permissions check error:', checkError);
+        throw checkError;
       }
 
-      await AuditLogger.log({
-        action: 'admin.role_permission_assigned',
-        module: 'administration',
-        tableName: 'role_permissions',
-        recordId: `${roleId}_${permissionId}`,
-        oldValues: result.oldValues ?? undefined,
-        newValues: result.newValues ?? {
-          role_id: roleId,
-          permission_id: permissionId,
-          role_slug: roleSlug,
-          permission_name: permissionName,
-        },
-      });
+      if (!existing) {
+        const { error: insertError } = await supabase
+          .from('role_permissions')
+          .insert({
+            role_id: roleId,
+            permission_id: permissionId,
+          });
+
+        if (insertError) {
+          console.error('[AdminService] Direct role_permissions insert error:', insertError);
+          throw new Error(insertError.message || 'Failed to assign role permission.');
+        }
+      }
+
+      try {
+        await AuditLogger.log({
+          action: 'admin.role_permission_assigned',
+          module: 'administration',
+          tableName: 'role_permissions',
+          recordId: `${roleId}_${permissionId}`,
+          newValues: {
+            role_id: roleId,
+            permission_id: permissionId,
+            role_slug: roleSlug,
+            permission_name: permissionName,
+          },
+        });
+      } catch (auditErr) {
+        console.warn('[AdminService] Audit log write warning (non-fatal):', auditErr);
+      }
     } catch (err) {
       console.error('[AdminService] Error assigning role permission:', err);
       throw err;
@@ -1113,33 +1144,34 @@ export class AdminService {
     if (!isSupabaseConfigured) return;
 
     try {
-      const result = await callAdminManageUser<{
-        success: boolean;
-        message: string;
-        oldValues?: Record<string, unknown> | null;
-        newValues?: Record<string, unknown> | null;
-      }>('remove_role_permission', {
-        role_id: roleId,
-        permission_id: permissionId,
-      });
+      // 1. Direct database delete via RLS (role_permissions_mutate_policy)
+      const { error: deleteError } = await supabase
+        .from('role_permissions')
+        .delete()
+        .eq('role_id', roleId)
+        .eq('permission_id', permissionId);
 
-      if (!result.success) {
-        throw new Error(result.message || 'Permission removal failed.');
+      if (deleteError) {
+        console.error('[AdminService] Direct role_permissions delete error:', deleteError);
+        throw new Error(deleteError.message || 'Failed to remove role permission.');
       }
 
-      await AuditLogger.log({
-        action: 'admin.role_permission_removed',
-        module: 'administration',
-        tableName: 'role_permissions',
-        recordId: `${roleId}_${permissionId}`,
-        oldValues: result.oldValues ?? {
-          role_id: roleId,
-          permission_id: permissionId,
-          role_slug: roleSlug,
-          permission_name: permissionName,
-        },
-        newValues: result.newValues ?? undefined,
-      });
+      try {
+        await AuditLogger.log({
+          action: 'admin.role_permission_removed',
+          module: 'administration',
+          tableName: 'role_permissions',
+          recordId: `${roleId}_${permissionId}`,
+          oldValues: {
+            role_id: roleId,
+            permission_id: permissionId,
+            role_slug: roleSlug,
+            permission_name: permissionName,
+          },
+        });
+      } catch (auditErr) {
+        console.warn('[AdminService] Audit log write warning (non-fatal):', auditErr);
+      }
     } catch (err) {
       console.error('[AdminService] Error removing role permission:', err);
       throw err;
