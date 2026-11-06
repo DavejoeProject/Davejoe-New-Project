@@ -357,7 +357,7 @@ export const ProductivityModule: React.FC<ProductivityModuleProps> = ({ onBackTo
               <thead>
                 <tr className="bg-slate-50/75 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider text-slate-500">
                   <th className="py-3.5 px-4 font-bold">Worker</th>
-                  <th className="py-3.5 px-3 font-bold">Workforce Code</th>
+                  <th className="py-3.5 px-3 font-bold">Staff ID / Code</th>
                   <th className="py-3.5 px-3 font-bold">Project</th>
                   <th className="py-3.5 px-3 font-bold">Work Date</th>
                   <th className="py-3.5 px-3 font-bold">Output / Count</th>
@@ -383,7 +383,7 @@ export const ProductivityModule: React.FC<ProductivityModuleProps> = ({ onBackTo
                           type="button"
                           onClick={() => navigate(`/management/workforce/${rec.workforce_member_id}`)}
                           className="font-bold text-slate-900 hover:text-[#01875F] flex items-center gap-1.5 transition-colors cursor-pointer text-left"
-                          title="Open Workforce Control Centre"
+                          title="Open Staff Control Centre"
                         >
                           <span>{workerName}</span>
                           <ExternalLink className="w-3 h-3 text-slate-400" />

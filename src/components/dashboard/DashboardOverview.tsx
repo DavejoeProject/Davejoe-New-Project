@@ -241,7 +241,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
             </div>
           </div>
 
-          {/* Card 2: Total Workforce */}
+          {/* Card 2: Total Staff */}
           <div
             onClick={() => onSelectModule('workforce')}
             className="bg-white rounded-xl border border-slate-200/80 p-3.5 sm:p-5 shadow-2xs hover:border-slate-300 transition-all cursor-pointer group flex flex-col justify-between"
@@ -251,11 +251,11 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
                 <Users className="w-4 h-4 sm:w-5 sm:h-5" strokeWidth={2} />
               </div>
               <span className="hidden sm:inline text-[11px] font-semibold text-slate-400 group-hover:text-[#01875F] transition-colors">
-                Workforce &rarr;
+                Staff &rarr;
               </span>
             </div>
             <div>
-              <span className="text-[10px] sm:text-xs font-medium text-slate-500 block uppercase tracking-wide">Workforce</span>
+              <span className="text-[10px] sm:text-xs font-medium text-slate-500 block uppercase tracking-wide">Staff</span>
               <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-900 mt-0.5 tracking-tight font-mono">
                 {formatCount(kpis?.data.totalWorkforce)}
               </div>
@@ -520,7 +520,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
                   <Users className="w-4 h-4" />
                 </div>
                 <h2 className="text-base font-bold text-slate-900 tracking-tight">
-                  Workforce
+                  Staff
                 </h2>
               </div>
               <button
@@ -528,7 +528,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
                 onClick={() => onSelectModule('workforce')}
                 className="text-xs font-semibold text-[#01875F] hover:underline cursor-pointer inline-flex items-center gap-1"
               >
-                <span>View Workforce</span>
+                <span>View Staff</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </div>
@@ -540,7 +540,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
                 <div className="space-y-4">
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                     <div className="p-3 bg-slate-50/70 rounded-lg border border-slate-200/70">
-                      <span className="text-[11px] font-medium text-slate-500 block">Active Workforce</span>
+                      <span className="text-[11px] font-medium text-slate-500 block">Active Staff</span>
                       <span className="text-lg font-bold text-slate-900 font-mono mt-0.5 block">
                         {formatCount(workforce?.data.activeWorkforce)}
                       </span>
@@ -577,7 +577,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
 
                   {workforce?.data.activeWorkforce === 0 && (
                     <div className="py-4 text-center">
-                      <p className="text-xs text-slate-400 italic">No workforce records currently stored in database.</p>
+                      <p className="text-xs text-slate-400 italic">No staff records currently stored in database.</p>
                     </div>
                   )}
                 </div>
@@ -591,7 +591,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
               onClick={() => onSelectModule('workforce')}
               className="text-xs font-semibold text-[#01875F] hover:underline cursor-pointer inline-flex items-center gap-1"
             >
-              <span>View Workforce &rarr;</span>
+              <span>View Staff &rarr;</span>
             </button>
           </div>
         </div>
@@ -900,8 +900,8 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
             className="p-3 rounded-lg border border-slate-200 hover:border-[#01875F] hover:bg-slate-50/70 text-left transition-all cursor-pointer group"
           >
             <UserPlus className="w-4 h-4 text-[#01875F] mb-1.5 group-hover:scale-110 transition-transform" />
-            <span className="text-xs font-bold text-slate-900 block">Add Workforce</span>
-            <span className="text-[10.5px] text-slate-400 block mt-0.5">Rosters &amp; artisans</span>
+            <span className="text-xs font-bold text-slate-900 block">Add Staff</span>
+            <span className="text-[10.5px] text-slate-400 block mt-0.5">Rosters &amp; staff</span>
           </button>
 
           <button

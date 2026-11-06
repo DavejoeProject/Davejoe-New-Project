@@ -248,7 +248,7 @@ export const WorkforceControlCentre: React.FC<WorkforceControlCentreProps> = ({
             onClick={onBackToWorkforce}
             className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg transition-colors cursor-pointer"
           >
-            ← Back to Workforce
+            ← Back to Staff
           </button>
           <button
             type="button"
@@ -269,9 +269,9 @@ export const WorkforceControlCentre: React.FC<WorkforceControlCentreProps> = ({
         <div className="w-14 h-14 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mx-auto mb-4 border border-slate-200">
           <Users className="w-7 h-7" />
         </div>
-        <h2 className="text-xl font-bold text-slate-900 tracking-tight">Workforce member not found</h2>
+        <h2 className="text-xl font-bold text-slate-900 tracking-tight">Staff member not found</h2>
         <p className="text-xs sm:text-sm text-slate-500 mt-2 max-w-md mx-auto leading-relaxed">
-          The workforce member you are looking for does not exist or is no longer available.
+          The staff member you are looking for does not exist or is no longer available.
         </p>
         <div className="mt-6 pt-6 border-t border-slate-100 flex justify-center">
           <button
@@ -280,7 +280,7 @@ export const WorkforceControlCentre: React.FC<WorkforceControlCentreProps> = ({
             className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#01875F] hover:bg-[#016f4e] text-white text-xs font-semibold rounded-lg shadow-sm transition-colors cursor-pointer"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
-            <span>Back to Workforce</span>
+            <span>Back to Staff</span>
           </button>
         </div>
       </div>
@@ -324,10 +324,10 @@ export const WorkforceControlCentre: React.FC<WorkforceControlCentreProps> = ({
               className="inline-flex items-center gap-1.5 font-semibold text-[#01875F] hover:underline cursor-pointer"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
-              <span>Back to Workforce</span>
+              <span>Back to Staff</span>
             </button>
             <span className="text-slate-300">/</span>
-            <span className="text-slate-500 font-medium">Workforce Control Centre</span>
+            <span className="text-slate-500 font-medium">Staff Control Centre</span>
             <span className="text-slate-300">/</span>
             <span className="font-semibold text-slate-900">{workerDisplayName}</span>
           </div>
@@ -355,7 +355,7 @@ export const WorkforceControlCentre: React.FC<WorkforceControlCentreProps> = ({
               className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white hover:bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-700 shadow-2xs transition-colors cursor-pointer"
             >
               <Edit3 className="w-3.5 h-3.5 text-slate-500" />
-              <span>Edit Workforce</span>
+              <span>Edit Staff</span>
             </button>
           </div>
         </div>
@@ -522,12 +522,12 @@ export const WorkforceControlCentre: React.FC<WorkforceControlCentreProps> = ({
                 <div className="lg:col-span-7 bg-white rounded-xl border border-slate-200/80 p-5 shadow-2xs space-y-4">
                   <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
                     <Users className="w-3.5 h-3.5 text-[#01875F]" />
-                    <span>Workforce Information</span>
+                    <span>Staff Information</span>
                   </h3>
 
                   <div className="divide-y divide-slate-100 text-xs">
                     <div className="py-2.5 flex justify-between">
-                      <span className="text-slate-500 font-medium">Workforce Code:</span>
+                      <span className="text-slate-500 font-medium">Staff ID / Code:</span>
                       <span className="font-mono font-bold text-slate-800">
                         {member.workforce_code}
                       </span>
@@ -1249,7 +1249,7 @@ export const WorkforceControlCentre: React.FC<WorkforceControlCentreProps> = ({
             <div className="space-y-4">
               <div className="flex items-center justify-between pb-2 border-b border-slate-100">
                 <div>
-                  <h3 className="text-sm font-bold text-slate-900">Workforce Conduct Records</h3>
+                  <h3 className="text-sm font-bold text-slate-900">Staff Conduct Records</h3>
                   <p className="text-xs text-slate-500">
                     Real incident and disciplinary reports retrieved from public.workforce_conduct_records.
                   </p>

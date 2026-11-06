@@ -125,6 +125,60 @@ export interface AssignWorkerPayload {
   notes?: string | null;
 }
 
+export const ALL_NINE_ROLES: Array<{
+  slug: string;
+  name: string;
+  department: string;
+  badgeClasses: string;
+}> = [
+  { slug: 'management', name: 'Management / CEO', department: 'Executive Governance', badgeClasses: 'bg-purple-50 text-purple-700 border-purple-200' },
+  { slug: 'executive_director', name: 'Executive Director', department: 'Strategy & Operations', badgeClasses: 'bg-indigo-50 text-indigo-700 border-indigo-200' },
+  { slug: 'admin', name: 'Admin Coordinator', department: 'Administration', badgeClasses: 'bg-blue-50 text-blue-700 border-blue-200' },
+  { slug: 'technical', name: 'Technical / QC Officer', department: 'Engineering & QC', badgeClasses: 'bg-cyan-50 text-cyan-700 border-cyan-200' },
+  { slug: 'supervisor', name: 'Site Supervisor', department: 'Site Operations', badgeClasses: 'bg-teal-50 text-teal-700 border-teal-200' },
+  { slug: 'procurement', name: 'Procurement & Logistics', department: 'Supply Chain', badgeClasses: 'bg-amber-50 text-amber-700 border-amber-200' },
+  { slug: 'accounts', name: 'Accounts / Finance', department: 'Financial Control', badgeClasses: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
+  { slug: 'artisan', name: 'Artisan / Site Trades', department: 'Field Execution', badgeClasses: 'bg-orange-50 text-orange-700 border-orange-200' },
+  { slug: 'social_media_manager', name: 'Social Media Manager', department: 'Digital Communications', badgeClasses: 'bg-pink-50 text-pink-700 border-pink-200' },
+];
+
+export interface PersonnelRecord {
+  id: string;
+  profileId: string | null;
+  workforceId: string | null;
+  fullName: string;
+  email: string | null;
+  phone: string | null;
+  primaryRoleSlug: string;
+  primaryRoleName: string;
+  department: string;
+  assignedRoles: { id: string; name: string; slug: string }[];
+  status: 'active' | 'inactive' | 'suspended' | 'pending';
+  isWorkforceMember: boolean;
+  workforceCode: string | null;
+  trade: string;
+  createdAt: string;
+  activeAssignment?: ProjectAssignmentItem | null;
+  assignments?: ProjectAssignmentItem[];
+}
+
+export interface PersonnelDirectoryMetrics {
+  totalPersonnel: number;
+  activePersonnel: number;
+  suspendedPersonnel: number;
+  assignedPersonnel: number;
+  availablePersonnel: number;
+  byRoleCount: Record<string, number>;
+}
+
+export interface PersonnelFilter {
+  search?: string;
+  role?: string;
+  status?: string;
+  assignmentStatus?: 'all' | 'assigned' | 'available';
+  trade?: string;
+}
+
 export interface AssignableProject {
   id: string;
   name: string;
@@ -684,4 +738,329 @@ export class WorkforceService {
       return { data: [], error: err?.message || 'Failed to load profiles.' };
     }
   }
+
+  /**
+   * Complete Personnel Directory: Combines all registered users across all nine roles,
+   * application profiles, workforce membership, and project assignments into a single deduplicated roster.
+   */
+  static async getCompletePersonnelDirectory(
+    filter?: PersonnelFilter
+  ): Promise<{
+    data: PersonnelRecord[];
+    metrics: PersonnelDirectoryMetrics;
+    uniqueRoles: { slug: string; name: string }[];
+    uniqueTrades: string[];
+    error: string | null;
+  }> {
+    const emptyResult = {
+      data: [],
+      metrics: {
+        totalPersonnel: 0,
+        activePersonnel: 0,
+        suspendedPersonnel: 0,
+        assignedPersonnel: 0,
+        availablePersonnel: 0,
+        byRoleCount: {
+          management: 0,
+          executive_director: 0,
+          admin: 0,
+          technical: 0,
+          supervisor: 0,
+          procurement: 0,
+          accounts: 0,
+          artisan: 0,
+          social_media_manager: 0,
+        },
+      },
+      uniqueRoles: ALL_NINE_ROLES.map((r) => ({ slug: r.slug, name: r.name })),
+      uniqueTrades: [],
+      error: null,
+    };
+
+    if (!isSupabaseConfigured) {
+      return { ...emptyResult, error: 'Database is not configured.' };
+    }
+
+    try {
+      // 1. Fetch all profiles, user_roles, workforce members and assignments in parallel
+      const [
+        { data: profilesData, error: profilesError },
+        { data: userRolesData, error: userRolesError },
+        { data: workforceData, error: workforceError },
+        { data: assignmentsData, error: assignmentsError },
+      ] = await Promise.all([
+        supabase.from('profiles').select('*').order('created_at', { ascending: false }),
+        supabase.from('user_roles').select('user_id, roles(id, name, slug)'),
+        supabase.from('workforce_members').select('*').order('created_at', { ascending: false }),
+        supabase.from('project_workforce_assignments').select(`
+          id,
+          project_id,
+          workforce_member_id,
+          role_on_project,
+          start_date,
+          end_date,
+          is_active,
+          notes,
+          created_at,
+          projects (
+            id,
+            name,
+            project_code,
+            status
+          )
+        `).order('created_at', { ascending: false }),
+      ]);
+
+      if (profilesError) {
+        return { ...emptyResult, error: `Profiles error: ${profilesError.message}` };
+      }
+
+      // Map roles by user_id
+      const rolesByUser: Record<string, { id: string; name: string; slug: string }[]> = {};
+      if (userRolesData) {
+        for (const item of userRolesData as any[]) {
+          if (!rolesByUser[item.user_id]) rolesByUser[item.user_id] = [];
+          if (item.roles) {
+            rolesByUser[item.user_id].push({
+              id: item.roles.id,
+              name: item.roles.name,
+              slug: item.roles.slug,
+            });
+          }
+        }
+      }
+
+      // Map workforce members by profile_id and by workforce id
+      const workforceByProfileId: Record<string, any> = {};
+      const allWorkforceMembers = workforceData || [];
+      for (const w of allWorkforceMembers) {
+        if (w.profile_id) {
+          workforceByProfileId[w.profile_id] = w;
+        }
+      }
+
+      // Map assignments by workforce_member_id
+      const assignmentsByMemberId: Record<string, ProjectAssignmentItem[]> = {};
+      const activeAssignmentsByMemberId: Record<string, ProjectAssignmentItem> = {};
+      for (const assign of (assignmentsData as unknown as ProjectAssignmentItem[]) || []) {
+        if (!assignmentsByMemberId[assign.workforce_member_id]) {
+          assignmentsByMemberId[assign.workforce_member_id] = [];
+        }
+        assignmentsByMemberId[assign.workforce_member_id].push(assign);
+        if (assign.is_active && !activeAssignmentsByMemberId[assign.workforce_member_id]) {
+          activeAssignmentsByMemberId[assign.workforce_member_id] = assign;
+        }
+      }
+
+      // 2. Build Unified Personnel Records
+      const records: PersonnelRecord[] = [];
+      const processedWorkforceIds = new Set<string>();
+      const tradeSet = new Set<string>();
+
+      // Role configuration lookup
+      const roleConfigMap = new Map(ALL_NINE_ROLES.map((r) => [r.slug, r]));
+
+      for (const prof of profilesData || []) {
+        const uRoles = rolesByUser[prof.id] || [];
+        const wf = workforceByProfileId[prof.id] || null;
+        if (wf) processedWorkforceIds.add(wf.id);
+
+        // Derive primary role slug
+        let primarySlug = 'artisan';
+        let primaryName = 'Artisan / Site Trades';
+        let department = 'Field Execution';
+
+        if (uRoles.length > 0) {
+          // Sort to prioritize leadership roles
+          const priorityOrder = [
+            'management',
+            'executive_director',
+            'admin',
+            'technical',
+            'supervisor',
+            'procurement',
+            'accounts',
+            'social_media_manager',
+            'artisan',
+          ];
+          const bestRole = uRoles.slice().sort((a, b) => {
+            const idxA = priorityOrder.indexOf(a.slug);
+            const idxB = priorityOrder.indexOf(b.slug);
+            return (idxA === -1 ? 99 : idxA) - (idxB === -1 ? 99 : idxB);
+          })[0];
+
+          primarySlug = bestRole.slug;
+          const conf = roleConfigMap.get(bestRole.slug);
+          primaryName = conf?.name || bestRole.name;
+          department = conf?.department || 'Operations';
+        } else if (prof.job_title) {
+          const lowerTitle = prof.job_title.toLowerCase();
+          for (const r of ALL_NINE_ROLES) {
+            if (lowerTitle.includes(r.slug) || lowerTitle.includes(r.name.toLowerCase())) {
+              primarySlug = r.slug;
+              primaryName = r.name;
+              department = r.department;
+              break;
+            }
+          }
+        }
+
+        const trade = wf?.trade || prof.job_title || primaryName;
+        if (trade) tradeSet.add(trade.trim());
+
+        const activeAssignment = wf ? activeAssignmentsByMemberId[wf.id] || null : null;
+        const assignments = wf ? assignmentsByMemberId[wf.id] || [] : [];
+
+        const fullName =
+          prof.display_name?.trim() ||
+          `${prof.first_name || ''} ${prof.last_name || ''}`.trim() ||
+          prof.email?.split('@')[0] ||
+          'Personnel';
+
+        records.push({
+          id: prof.id,
+          profileId: prof.id,
+          workforceId: wf?.id || null,
+          fullName,
+          email: prof.email || null,
+          phone: prof.phone || wf?.phone || null,
+          primaryRoleSlug: primarySlug,
+          primaryRoleName: primaryName,
+          department,
+          assignedRoles: uRoles,
+          status: (prof.status as any) || 'active',
+          isWorkforceMember: Boolean(wf),
+          workforceCode: wf?.workforce_code || null,
+          trade,
+          createdAt: prof.created_at,
+          activeAssignment,
+          assignments,
+        });
+      }
+
+      // Add standalone workforce members (artisans without profile account)
+      for (const wf of allWorkforceMembers) {
+        if (!processedWorkforceIds.has(wf.id)) {
+          const trade = wf.trade || 'General Artisan';
+          if (trade) tradeSet.add(trade.trim());
+
+          const activeAssignment = activeAssignmentsByMemberId[wf.id] || null;
+          const assignments = assignmentsByMemberId[wf.id] || [];
+
+          records.push({
+            id: wf.id,
+            profileId: null,
+            workforceId: wf.id,
+            fullName: wf.emergency_contact_name || `Worker ${wf.workforce_code}`,
+            email: null,
+            phone: wf.phone || wf.emergency_contact_phone || null,
+            primaryRoleSlug: 'artisan',
+            primaryRoleName: 'Artisan / Site Trades',
+            department: 'Field Execution',
+            assignedRoles: [{ id: 'artisan', name: 'Artisan / Workforce', slug: 'artisan' }],
+            status: (wf.status as any) || 'active',
+            isWorkforceMember: true,
+            workforceCode: wf.workforce_code,
+            trade,
+            createdAt: wf.created_at,
+            activeAssignment,
+            assignments,
+          });
+        }
+      }
+
+      // 3. Compute Metrics
+      const totalPersonnel = records.length;
+      let activePersonnel = 0;
+      let suspendedPersonnel = 0;
+      let assignedPersonnel = 0;
+      let availablePersonnel = 0;
+      const byRoleCount: Record<string, number> = {
+        management: 0,
+        executive_director: 0,
+        admin: 0,
+        technical: 0,
+        supervisor: 0,
+        procurement: 0,
+        accounts: 0,
+        artisan: 0,
+        social_media_manager: 0,
+      };
+
+      for (const p of records) {
+        if (p.status === 'active') activePersonnel++;
+        if (p.status === 'suspended') suspendedPersonnel++;
+        if (p.activeAssignment) assignedPersonnel++;
+        if (p.status === 'active' && !p.activeAssignment) availablePersonnel++;
+
+        const slug = p.primaryRoleSlug;
+        byRoleCount[slug] = (byRoleCount[slug] || 0) + 1;
+      }
+
+      // 4. Apply Filters
+      let filtered = records;
+
+      if (filter?.search && filter.search.trim()) {
+        const term = filter.search.trim().toLowerCase();
+        filtered = filtered.filter((p) => {
+          return (
+            p.fullName.toLowerCase().includes(term) ||
+            (p.email || '').toLowerCase().includes(term) ||
+            (p.phone || '').toLowerCase().includes(term) ||
+            (p.workforceCode || '').toLowerCase().includes(term) ||
+            p.trade.toLowerCase().includes(term) ||
+            p.primaryRoleName.toLowerCase().includes(term) ||
+            (p.activeAssignment?.projects?.name || '').toLowerCase().includes(term)
+          );
+        });
+      }
+
+      if (filter?.role && filter.role !== 'all') {
+        const targetRole = filter.role.toLowerCase().trim();
+        filtered = filtered.filter((p) => {
+          if (p.primaryRoleSlug === targetRole) return true;
+          return p.assignedRoles.some((r) => r.slug.toLowerCase().trim() === targetRole);
+        });
+      }
+
+      if (filter?.status && filter.status !== 'all') {
+        const targetStatus = filter.status.toLowerCase().trim();
+        filtered = filtered.filter((p) => p.status.toLowerCase().trim() === targetStatus);
+      }
+
+      if (filter?.assignmentStatus && filter.assignmentStatus !== 'all') {
+        if (filter.assignmentStatus === 'assigned') {
+          filtered = filtered.filter((p) => Boolean(p.activeAssignment));
+        } else if (filter.assignmentStatus === 'available') {
+          filtered = filtered.filter((p) => !p.activeAssignment && p.status === 'active');
+        }
+      }
+
+      if (filter?.trade && filter.trade !== 'all') {
+        filtered = filtered.filter((p) => p.trade.toLowerCase().trim() === filter.trade?.toLowerCase().trim());
+      }
+
+      return {
+        data: filtered,
+        metrics: {
+          totalPersonnel,
+          activePersonnel,
+          suspendedPersonnel,
+          assignedPersonnel,
+          availablePersonnel,
+          byRoleCount,
+        },
+        uniqueRoles: ALL_NINE_ROLES.map((r) => ({ slug: r.slug, name: r.name })),
+        uniqueTrades: Array.from(tradeSet).sort(),
+        error: null,
+      };
+    } catch (err: any) {
+      console.error('[WorkforceService] getCompletePersonnelDirectory error:', err);
+      return {
+        ...emptyResult,
+        error: err?.message || 'Failed to fetch complete workforce roster.',
+      };
+    }
+  }
 }
+

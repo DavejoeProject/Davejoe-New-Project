@@ -502,7 +502,7 @@ export const ProjectControlCentre: React.FC<ProjectControlCentreProps> = ({
         <div className="flex border-b border-slate-200 px-3 sm:px-6 bg-slate-50/50 overflow-x-auto custom-scrollbar">
           {[
             { key: 'overview', label: 'Overview', icon: Building2 },
-            { key: 'workforce', label: 'Workforce', icon: Users },
+            { key: 'workforce', label: 'Staff', icon: Users },
             { key: 'materials', label: 'Materials', icon: Package },
             { key: 'procurement', label: 'Procurement', icon: ShoppingBag },
             { key: 'financials', label: 'Financial Control', icon: CircleDollarSign },
@@ -559,7 +559,7 @@ export const ProjectControlCentre: React.FC<ProjectControlCentreProps> = ({
                 <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
                   <div className="p-3.5 bg-slate-50/70 border border-slate-200/70 rounded-xl">
                     <span className="text-[10.5px] font-bold text-slate-400 uppercase block">
-                      Workforce
+                      Staff
                     </span>
                     <span className="text-xl font-bold font-mono text-slate-900 mt-1 block">
                       {metrics?.assignedWorkforce ?? 0}
@@ -767,7 +767,7 @@ export const ProjectControlCentre: React.FC<ProjectControlCentreProps> = ({
           <div className="p-5 sm:p-8 space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
-                <h3 className="text-base font-bold text-slate-900 tracking-tight">Assigned Workforce</h3>
+                <h3 className="text-base font-bold text-slate-900 tracking-tight">Assigned Staff</h3>
                 <p className="text-xs text-slate-500">
                   Active artisans and workers assigned to this project via project_workforce_assignments.
                 </p>
@@ -789,7 +789,7 @@ export const ProjectControlCentre: React.FC<ProjectControlCentreProps> = ({
                   className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[#01875F] hover:bg-[#016f4e] text-white text-xs font-bold rounded-lg shadow-sm transition-colors cursor-pointer"
                 >
                   <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
-                  <span>+ Assign Workforce</span>
+                  <span>+ Assign Staff</span>
                 </button>
               </div>
             </div>
@@ -830,7 +830,7 @@ export const ProjectControlCentre: React.FC<ProjectControlCentreProps> = ({
                     className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#01875F] text-white text-xs font-bold rounded-lg shadow-sm hover:bg-[#016f4e] cursor-pointer"
                   >
                     <Plus className="w-4 h-4" />
-                    <span>+ Assign Workforce</span>
+                    <span>+ Assign Staff</span>
                   </button>
                 </div>
               </div>
@@ -840,7 +840,7 @@ export const ProjectControlCentre: React.FC<ProjectControlCentreProps> = ({
                   <thead className="bg-slate-50 border-b border-slate-200 text-[10.5px] font-bold uppercase text-slate-500">
                     <tr>
                       <th className="py-3 px-4">Worker</th>
-                      <th className="py-3 px-3">Workforce Code</th>
+                      <th className="py-3 px-3">Staff Code</th>
                       <th className="py-3 px-3">Trade</th>
                       <th className="py-3 px-3">Type</th>
                       <th className="py-3 px-3">Status</th>

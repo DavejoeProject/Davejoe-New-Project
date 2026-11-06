@@ -35,6 +35,9 @@ import {
   Wrench,
   ClipboardList,
   CalendarCheck,
+  Boxes,
+  Package,
+  FileQuestion,
 } from 'lucide-react';
 import { DailyAttendanceWidget } from '../attendance/DailyAttendanceWidget';
 import { ProjectMaterialRemnantsModule } from '../remnants/ProjectMaterialRemnantsModule';
@@ -42,6 +45,11 @@ import { ToolsEquipmentModule } from '../tools/ToolsEquipmentModule';
 import { TaskInstructionsPanel } from '../tasks/TaskInstructionsPanel';
 import { ProjectsModule } from '../dashboard/ProjectsModule';
 import { AttendanceModule } from '../dashboard/AttendanceModule';
+import { WorkforceModule } from '../dashboard/WorkforceModule';
+import { ServiceRequestsModule } from './ServiceRequestsModule';
+import { MaterialsDirectoryModule } from '../dashboard/MaterialsDirectoryModule';
+import { AddMaterialModal } from '../dashboard/AddMaterialModal';
+import { UnifiedInventoryModule } from '../inventory/UnifiedInventoryModule';
 
 type AdminTab =
   | 'dashboard'
@@ -56,7 +64,10 @@ type AdminTab =
   | 'settings'
   | 'remnants'
   | 'tools'
-  | 'tasks';
+  | 'tasks'
+  | 'service-requests'
+  | 'materials'
+  | 'inventory';
 
 export const AdminDashboard: React.FC = () => {
   const { user, profile, logout } = useAuth();
@@ -77,6 +88,9 @@ export const AdminDashboard: React.FC = () => {
     if (path.includes('/admin/remnants')) return 'remnants';
     if (path.includes('/admin/tools')) return 'tools';
     if (path.includes('/admin/tasks')) return 'tasks';
+    if (path.includes('/admin/service-requests')) return 'service-requests';
+    if (path.includes('/admin/materials')) return 'materials';
+    if (path.includes('/admin/inventory')) return 'inventory';
     return 'dashboard';
   };
 
@@ -86,6 +100,7 @@ export const AdminDashboard: React.FC = () => {
   const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isAddMaterialModalOpen, setIsAddMaterialModalOpen] = useState(false);
 
   const toggleSection = (title: string) => {
     setCollapsedSections((prev) => ({ ...prev, [title]: !prev[title] }));
@@ -179,11 +194,24 @@ export const AdminDashboard: React.FC = () => {
         { key: 'dashboard' as AdminTab, label: 'Control Centre', icon: LayoutDashboard },
         { key: 'projects' as AdminTab, label: 'Projects', icon: FolderKanban, count: metrics.projectsCount },
         { key: 'tasks' as AdminTab, label: 'Task Specifications', icon: ClipboardList },
-        { key: 'workforce' as AdminTab, label: 'Workforce', icon: HardHat, count: metrics.workforceCount },
+        { key: 'workforce' as AdminTab, label: 'Staff', icon: Users, count: metrics.workforceCount },
         { key: 'attendance' as AdminTab, label: 'Attendance Muster', icon: CalendarCheck },
-        { key: 'tools' as AdminTab, label: 'Tools & Equipment', icon: Wrench },
-        { key: 'remnants' as AdminTab, label: 'Material Remnants', icon: RotateCcw },
         { key: 'clients' as AdminTab, label: 'Clients', icon: Building2 },
+      ],
+    },
+    {
+      title: 'COMMERCIAL & INTAKE',
+      items: [
+        { key: 'service-requests' as AdminTab, label: 'Service Requests', icon: FileQuestion },
+        { key: 'inventory' as AdminTab, label: 'Inventory & Sales', icon: Package },
+      ],
+    },
+    {
+      title: 'MATERIALS & LOGISTICS',
+      items: [
+        { key: 'materials' as AdminTab, label: 'Materials Directory', icon: Boxes },
+        { key: 'remnants' as AdminTab, label: 'Material Remnants', icon: RotateCcw },
+        { key: 'tools' as AdminTab, label: 'Tools & Equipment', icon: Wrench },
       ],
     },
     {
@@ -399,13 +427,16 @@ export const AdminDashboard: React.FC = () => {
                 {activeTab === 'roles' && 'Roles & Permissions'}
                 {activeTab === 'audit-logs' && 'Audit Logs'}
                 {activeTab === 'settings' && 'Administration Settings'}
-                {activeTab === 'workforce' && 'Workforce Registry'}
+                {activeTab === 'workforce' && 'Staff Directory'}
                 {activeTab === 'projects' && 'Enterprise Projects'}
                 {activeTab === 'clients' && 'Client Management'}
                 {activeTab === 'photos' && 'Job Completion Photos'}
                 {activeTab === 'tasks' && 'Task Instructions & Specifications'}
                 {activeTab === 'tools' && 'Company Tools & Equipment Register'}
                 {activeTab === 'remnants' && 'Project Material Remnants & Recovery'}
+                {activeTab === 'service-requests' && 'Customer Service Requests'}
+                {activeTab === 'materials' && 'Materials Directory'}
+                {activeTab === 'inventory' && 'Commercial Inventory & Sales'}
               </h1>
             <p className="text-xs text-slate-500 hidden sm:block">
               {activeTab === 'dashboard' && 'Manage users, access, system configuration and administrative operations.'}
@@ -413,17 +444,31 @@ export const AdminDashboard: React.FC = () => {
               {activeTab === 'roles' && 'Role-Based Access Control configuration, permissions and security boundaries.'}
               {activeTab === 'audit-logs' && 'Read-only security logs and chronological operational history.'}
               {activeTab === 'settings' && 'System configuration, live Supabase connectivity and diagnostics.'}
-              {activeTab === 'workforce' && 'Artisans and workforce members configured in Davejoe.'}
+              {activeTab === 'workforce' && 'All registered persons, roles, and profiles across Davejoe.'}
               {activeTab === 'projects' && 'Enterprise construction and civil engineering projects.'}
               {activeTab === 'clients' && 'Corporate and residential client accounts.'}
               {activeTab === 'tasks' && 'Issue mandatory specifications, PPE, deliverables, and verify task handovers.'}
               {activeTab === 'tools' && 'Track tool assignments, dispatch custody, returns, and damage condition audits.'}
               {activeTab === 'remnants' && 'Account for surplus materials on site, transfer custody, and verify store returns.'}
+              {activeTab === 'service-requests' && 'Register and manage walk-in customer service requests, site visits, and project conversion.'}
+              {activeTab === 'materials' && 'Comprehensive catalogue of construction materials, prices, specifications, and suppliers.'}
+              {activeTab === 'inventory' && 'Commercial inventory, sales checkout, material issuance tracking, and Rehab Global paints.'}
             </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5 sm:gap-3">
+            <button
+              type="button"
+              onClick={() => setIsAddMaterialModalOpen(true)}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#18b892] hover:bg-[#139c7b] text-white rounded-lg text-xs font-bold transition-colors shadow-2xs cursor-pointer"
+              title="Add New Material to Master Directory"
+            >
+              <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+              <span className="hidden sm:inline">Add Material</span>
+              <span className="sm:hidden">Material</span>
+            </button>
+
             <button
               type="button"
               onClick={handleRefresh}
@@ -432,7 +477,7 @@ export const AdminDashboard: React.FC = () => {
               className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-lg text-xs font-semibold transition-colors shadow-2xs cursor-pointer disabled:opacity-60"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-[#01875F]' : ''}`} />
-              <span>Refresh</span>
+              <span className="hidden sm:inline">Refresh</span>
             </button>
 
             <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-50 text-[#01875F] border border-emerald-200">
@@ -533,6 +578,86 @@ export const AdminDashboard: React.FC = () => {
                     <span>Supabase RLS active</span>
                     <ArrowRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-[#01875F] group-hover:translate-x-0.5 transition-all" />
                   </p>
+                </div>
+              </div>
+
+              {/* Commercial & Operational Fast-Actions */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div
+                  onClick={() => handleSelectTab('service-requests')}
+                  className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-2xs hover:border-[#18b892]/60 hover:shadow-sm transition-all cursor-pointer group"
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-bold text-slate-700 uppercase tracking-wider group-hover:text-[#18b892] transition-colors">
+                      Walk-In Service Requests
+                    </span>
+                    <div className="w-8 h-8 rounded-lg bg-teal-50 text-[#18b892] flex items-center justify-center">
+                      <FileQuestion className="w-4 h-4" />
+                    </div>
+                  </div>
+                  <p className="text-xs text-slate-500 mb-3">
+                    Register walk-in client briefs, location, contact, budget, and route for Executive review.
+                  </p>
+                  <div className="flex items-center text-xs font-bold text-[#18b892] gap-1 group-hover:translate-x-1 transition-transform">
+                    <span>Open Service Requests</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </div>
+                </div>
+
+                <div
+                  onClick={() => handleSelectTab('materials')}
+                  className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-2xs hover:border-[#18b892]/60 hover:shadow-sm transition-all cursor-pointer group"
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-bold text-slate-700 uppercase tracking-wider group-hover:text-[#18b892] transition-colors">
+                      Materials Directory
+                    </span>
+                    <div className="w-8 h-8 rounded-lg bg-emerald-50 text-[#18b892] flex items-center justify-center">
+                      <Boxes className="w-4 h-4" />
+                    </div>
+                  </div>
+                  <p className="text-xs text-slate-500 mb-3">
+                    Management-assigned materials catalogue, base prices, specifications, and project inventory.
+                  </p>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center text-xs font-bold text-[#18b892] gap-1 group-hover:translate-x-1 transition-transform">
+                      <span>Access Materials</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setIsAddMaterialModalOpen(true);
+                      }}
+                      className="inline-flex items-center gap-1 px-2.5 py-1 bg-[#18b892] hover:bg-[#139c7b] text-white text-[11px] font-bold rounded-lg shadow-xs transition-colors cursor-pointer"
+                      title="Add new material directly"
+                    >
+                      <Plus className="w-3 h-3 stroke-[2.5]" />
+                      <span>+ Add Material</span>
+                    </button>
+                  </div>
+                </div>
+
+                <div
+                  onClick={() => handleSelectTab('inventory')}
+                  className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-2xs hover:border-[#18b892]/60 hover:shadow-sm transition-all cursor-pointer group"
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-bold text-slate-700 uppercase tracking-wider group-hover:text-[#18b892] transition-colors">
+                      Commercial Inventory & Sales
+                    </span>
+                    <div className="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                      <Package className="w-4 h-4" />
+                    </div>
+                  </div>
+                  <p className="text-xs text-slate-500 mb-3">
+                    Sell paint, tools, screeding, diffusers, vases. Track issuance, sales checkout, and enquiries.
+                  </p>
+                  <div className="flex items-center text-xs font-bold text-indigo-600 gap-1 group-hover:translate-x-1 transition-transform">
+                    <span>Manage Inventory</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </div>
                 </div>
               </div>
 
@@ -650,51 +775,31 @@ export const AdminDashboard: React.FC = () => {
           {/* TAB 5: 9.7D SETTINGS */}
           {activeTab === 'settings' && <SystemSettingsView />}
 
-          {/* TAB 6: WORKFORCE */}
+          {/* TAB 6: COMPLETE WORKFORCE DIRECTORY (ALL 9 ROLES) */}
           {activeTab === 'workforce' && (
-            <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs p-6 space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="text-base font-bold text-slate-900">Workforce Registry</h2>
-                  <p className="text-xs text-slate-500">
-                    Artisans and workforce members configured in Davejoe.
-                  </p>
-                </div>
-                <span className="text-xs font-semibold text-slate-400">
-                  Total: {metrics.workforceCount}
-                </span>
-              </div>
+            <div className="space-y-4">
+              <WorkforceModule onBackToDashboard={() => setActiveTab('dashboard')} />
+            </div>
+          )}
 
-              {workforceList.length === 0 ? (
-                <div className="py-12 text-center text-sm text-slate-400 border border-dashed border-slate-200 rounded-xl">
-                  No workforce members registered yet.
-                </div>
-              ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left text-xs">
-                    <thead>
-                      <tr className="border-b border-slate-100 text-slate-400 font-semibold uppercase tracking-wider">
-                        <th className="py-2.5 px-3">Name</th>
-                        <th className="py-2.5 px-3">Trade / Role</th>
-                        <th className="py-2.5 px-3">Status</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100">
-                      {workforceList.map((w) => (
-                        <tr key={w.id} className="hover:bg-slate-50/50">
-                          <td className="py-3 px-3 font-semibold text-slate-800">{w.name || w.full_name}</td>
-                          <td className="py-3 px-3 text-slate-600">{w.trade || w.role || 'General'}</td>
-                          <td className="py-3 px-3">
-                            <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-blue-50 text-blue-700">
-                              {w.status || 'Available'}
-                            </span>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
+          {/* TAB: WALK-IN SERVICE REQUESTS */}
+          {activeTab === 'service-requests' && (
+            <div className="space-y-4">
+              <ServiceRequestsModule onBackToDashboard={() => setActiveTab('dashboard')} />
+            </div>
+          )}
+
+          {/* TAB: MATERIALS DIRECTORY */}
+          {activeTab === 'materials' && (
+            <div className="space-y-4">
+              <MaterialsDirectoryModule onBackToDashboard={() => setActiveTab('dashboard')} />
+            </div>
+          )}
+
+          {/* TAB: UNIFIED COMMERCIAL INVENTORY & SALES */}
+          {activeTab === 'inventory' && (
+            <div className="space-y-4">
+              <UnifiedInventoryModule onBackToDashboard={() => setActiveTab('dashboard')} />
             </div>
           )}
 
@@ -737,6 +842,16 @@ export const AdminDashboard: React.FC = () => {
           {activeTab === 'remnants' && <ProjectMaterialRemnantsModule />}
         </div>
       </main>
+
+      {/* Admin Add Material Modal */}
+      <AddMaterialModal
+        isOpen={isAddMaterialModalOpen}
+        onClose={() => setIsAddMaterialModalOpen(false)}
+        onMaterialCreated={() => {
+          setIsAddMaterialModalOpen(false);
+          handleSelectTab('materials');
+        }}
+      />
     </div>
   );
 };

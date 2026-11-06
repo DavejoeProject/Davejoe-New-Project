@@ -342,7 +342,7 @@ export const UserControlCentre: React.FC<UserControlCentreProps> = ({
                 <div className="p-3 bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-between text-xs">
                   <div className="flex items-center gap-2">
                     <HardHat className="w-4 h-4 text-[#01875F]" />
-                    <span className="font-semibold text-slate-800">Linked to Workforce Registry</span>
+                    <span className="font-semibold text-slate-800">Linked to Staff Registry</span>
                   </div>
                   <span className="px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-100 text-[#01875F]">
                     {user.workforce.trade} ({user.workforce.workforce_code || 'No code'})

@@ -33,7 +33,7 @@ export const WorkforceNavTabs: React.FC<WorkforceNavTabsProps> = ({ activeTab })
   }> = [
     {
       key: 'directory',
-      label: 'Directory',
+      label: 'Staff Directory',
       path: '/management/workforce',
       icon: Users,
     },

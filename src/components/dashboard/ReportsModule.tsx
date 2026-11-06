@@ -553,7 +553,7 @@ export const ReportsModule: React.FC<ReportsModuleProps> = ({
                         <th className="py-3.5 px-3 text-right">Contract Value</th>
                         <th className="py-3.5 px-3 text-right">Procurement Committed</th>
                         <th className="py-3.5 px-3 text-right">Material Usage</th>
-                        <th className="py-3.5 px-3 text-center">Workforce</th>
+                        <th className="py-3.5 px-3 text-center">Staff</th>
                         <th className="py-3.5 px-3 text-center">Deliveries</th>
                         <th className="py-3.5 px-4 text-right print:hidden">Action</th>
                       </tr>

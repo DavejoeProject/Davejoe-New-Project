@@ -78,7 +78,7 @@ export const AddWorkforceModal: React.FC<AddWorkforceModalProps> = ({
     setErrorMessage(null);
 
     if (!workforceCode.trim()) {
-      setErrorMessage('Workforce Code is required (e.g. WF-101).');
+      setErrorMessage('Staff Code is required (e.g. STF-101 or ART-042).');
       return;
     }
 
@@ -105,7 +105,7 @@ export const AddWorkforceModal: React.FC<AddWorkforceModalProps> = ({
     if (res.error) {
       setErrorMessage(res.error);
     } else {
-      onCreated(`Workforce member ${workforceCode.trim().toUpperCase()} registered successfully.`);
+      onCreated(`Staff member ${workforceCode.trim().toUpperCase()} registered successfully.`);
       onClose();
     }
   };
@@ -121,7 +121,7 @@ export const AddWorkforceModal: React.FC<AddWorkforceModalProps> = ({
             </div>
             <div>
               <h2 className="text-base font-bold text-slate-900 tracking-tight">
-                Add Workforce Member
+                Add Staff Member
               </h2>
               <p className="text-xs text-slate-500">
                 Register an artisan or field personnel to the organization roster.
@@ -156,12 +156,12 @@ export const AddWorkforceModal: React.FC<AddWorkforceModalProps> = ({
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                  Workforce Code <span className="text-red-500">*</span>
+                  Staff ID / Code <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   required
-                  placeholder="e.g. WF-101 or ART-042"
+                  placeholder="e.g. STF-101 or ART-042"
                   value={workforceCode}
                   onChange={(e) => setWorkforceCode(e.target.value)}
                   className="w-full h-9 px-3 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-[#01875F] uppercase font-mono"
@@ -345,7 +345,7 @@ export const AddWorkforceModal: React.FC<AddWorkforceModalProps> = ({
                   <span>Saving to Database...</span>
                 </>
               ) : (
-                <span>Register Workforce Member</span>
+                <span>Register Staff Member</span>
               )}
             </button>
           </div>

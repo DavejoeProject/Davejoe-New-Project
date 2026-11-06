@@ -138,7 +138,7 @@ export const AssignWorkerModal: React.FC<AssignWorkerModalProps> = ({
             <div className="p-4 text-center text-xs text-slate-500">Loading available projects...</div>
           ) : projects.length === 0 ? (
             <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-800">
-              No projects exist in the database. Please create a project first before assigning workforce members.
+              No projects exist in the database. Please create a project first before assigning staff members.
             </div>
           ) : (
             <>

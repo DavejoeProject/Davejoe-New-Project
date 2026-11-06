@@ -225,7 +225,7 @@ export const CreateDailyReportModal: React.FC<CreateDailyReportModalProps> = ({
             </div>
 
             <div>
-              <label className="block font-semibold text-slate-700 mb-1">Workforce Present</label>
+              <label className="block font-semibold text-slate-700 mb-1">Staff Present</label>
               <input
                 type="number"
                 min="0"

@@ -54,6 +54,8 @@ import { ProjectMaterialRemnantsModule } from '../remnants/ProjectMaterialRemnan
 import { ToolsEquipmentModule } from '../tools/ToolsEquipmentModule';
 import { TaskInstructionsPanel } from '../tasks/TaskInstructionsPanel';
 import { ProjectPlanningModule } from '../planning/ProjectPlanningModule';
+import { ServiceRequestsModule } from '../admin/ServiceRequestsModule';
+import { UnifiedInventoryModule } from '../inventory/UnifiedInventoryModule';
 
 interface CeoDashboardProps {
   initialModule?: DashboardNavKey;
@@ -77,6 +79,12 @@ export const CeoDashboard: React.FC<CeoDashboardProps> = ({ initialModule = 'ove
   );
 
   const getModuleFromPath = (): DashboardNavKey => {
+    if (location.pathname === '/management/service-requests' || location.pathname.startsWith('/management/service-requests/')) {
+      return 'service-requests';
+    }
+    if (location.pathname === '/management/inventory' || location.pathname.startsWith('/management/inventory/')) {
+      return 'inventory';
+    }
     if (location.pathname === '/management/planning' || location.pathname.startsWith('/management/planning/')) {
       return 'planning';
     }
@@ -272,7 +280,15 @@ export const CeoDashboard: React.FC<CeoDashboardProps> = ({ initialModule = 'ove
 
   const handleSelectModule = (mod: DashboardNavKey) => {
     setCurrentModule(mod);
-    if (mod === 'planning') {
+    if (mod === 'service-requests') {
+      if (location.pathname !== '/management/service-requests') {
+        navigate('/management/service-requests');
+      }
+    } else if (mod === 'inventory') {
+      if (location.pathname !== '/management/inventory') {
+        navigate('/management/inventory');
+      }
+    } else if (mod === 'planning') {
       if (location.pathname !== '/management/planning') {
         navigate('/management/planning');
       }
@@ -537,6 +553,14 @@ export const CeoDashboard: React.FC<CeoDashboardProps> = ({ initialModule = 'ove
                   onSelectModule={handleSelectModule}
                   userName={userName}
                   userRole={userRole}
+                />
+              ) : currentModule === 'service-requests' ? (
+                <ServiceRequestsModule
+                  onBackToDashboard={() => handleSelectModule('overview')}
+                />
+              ) : currentModule === 'inventory' ? (
+                <UnifiedInventoryModule
+                  onBackToDashboard={() => handleSelectModule('overview')}
                 />
               ) : currentModule === 'planning' ? (
                 <ProjectPlanningModule

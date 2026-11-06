@@ -258,7 +258,7 @@ export const SupervisorDashboard: React.FC = () => {
           <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-2xs">
             <div className="flex items-center justify-between mb-2">
               <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-600">
-                Workforce On Site
+                Staff On Site
               </span>
               <UserCheck className="w-4 h-4 text-emerald-600" />
             </div>
@@ -593,7 +593,7 @@ export const SupervisorDashboard: React.FC = () => {
                         <div className="grid grid-cols-3 gap-2 mt-4 pt-4 border-t border-slate-100 text-center">
                           <div className="bg-slate-50 p-2 rounded-xl">
                             <span className="text-[10px] text-slate-400 font-bold uppercase block">
-                              Workforce
+                              Staff
                             </span>
                             <span className="text-sm font-bold text-slate-800 font-mono">
                               {proj.workforce_count}

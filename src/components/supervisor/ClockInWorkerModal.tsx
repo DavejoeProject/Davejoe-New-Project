@@ -196,11 +196,11 @@ export const ClockInWorkerModal: React.FC<ClockInWorkerModalProps> = ({
             </label>
             {isLoadingWorkers ? (
               <div className="py-3 px-4 rounded-xl border border-slate-200 bg-slate-50 text-xs text-slate-500">
-                Loading project workforce...
+                Loading project staff...
               </div>
             ) : workers.length === 0 ? (
               <div className="py-3 px-4 rounded-xl border border-amber-200 bg-amber-50 text-xs text-amber-800">
-                No active workers assigned to this project yet. Please assign artisans first in the Workforce module.
+                No active workers assigned to this project yet. Please assign artisans first in the Staff module.
               </div>
             ) : (
               <select

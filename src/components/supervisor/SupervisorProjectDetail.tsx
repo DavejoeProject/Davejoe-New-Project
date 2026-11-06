@@ -344,7 +344,7 @@ export const SupervisorProjectDetail: React.FC<SupervisorProjectDetailProps> = (
           { key: 'overview', label: 'Overview', icon: FolderKanban },
           { key: 'reports', label: `Daily Reports (${dailyReports.length})`, icon: FileText },
           { key: 'tasks', label: `Tasks (${tasks.length})`, icon: CheckCircle2 },
-          { key: 'workforce', label: `Workforce (${workforce.length})`, icon: Users },
+          { key: 'workforce', label: `Staff (${workforce.length})`, icon: Users },
           { key: 'attendance', label: `Attendance (${attendanceRecords.length})`, icon: Clock },
           { key: 'productivity', label: `Productivity (${productivityRecords.length})`, icon: TrendingUp },
           { key: 'materials', label: 'Materials', icon: Package },
@@ -615,7 +615,7 @@ export const SupervisorProjectDetail: React.FC<SupervisorProjectDetailProps> = (
         <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-2xs space-y-4">
           <div className="flex items-center justify-between pb-3 border-b border-slate-100">
             <div>
-              <h3 className="text-base font-bold text-slate-900">Assigned Site Workforce</h3>
+              <h3 className="text-base font-bold text-slate-900">Assigned Site Staff</h3>
               <p className="text-xs text-slate-500">Artisans and trades allocated to this project</p>
             </div>
             <button
@@ -1181,7 +1181,7 @@ export const SupervisorProjectDetail: React.FC<SupervisorProjectDetailProps> = (
         <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-2xs space-y-4">
           <div className="pb-3 border-b border-slate-100">
             <h3 className="text-base font-bold text-slate-900">Project Activity Timeline</h3>
-            <p className="text-xs text-slate-500">Audit trail of material movements, workforce muster, and site updates</p>
+            <p className="text-xs text-slate-500">Audit trail of material movements, staff muster, and site updates</p>
           </div>
 
           {activityHistory.length === 0 ? (

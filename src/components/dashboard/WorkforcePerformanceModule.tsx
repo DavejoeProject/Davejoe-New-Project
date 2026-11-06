@@ -119,15 +119,15 @@ export const WorkforcePerformanceModule: React.FC<WorkforcePerformanceModuleProp
           <div>
             <div className="flex items-center gap-2 mb-1">
               <span className="text-[10.5px] font-bold uppercase tracking-wider text-slate-400">
-                WORKFORCE CONTROL
+                STAFF CONTROL
               </span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight flex items-center gap-2.5">
               <TrendingUp className="w-7 h-7 text-[#01875F]" />
-              <span>Workforce Performance Control</span>
+              <span>Staff Performance Control</span>
             </h1>
             <p className="text-xs sm:text-sm text-slate-500 mt-1">
-              Organization-wide workforce performance, deployment, and operational exceptions.
+              Organization-wide staff performance, deployment, and operational exceptions.
             </p>
           </div>
 
@@ -353,11 +353,11 @@ export const WorkforcePerformanceModule: React.FC<WorkforcePerformanceModuleProp
                     onClick={() => navigate('/management/workforce')}
                     className="text-[11px] font-bold text-[#01875F] hover:underline cursor-pointer"
                   >
-                    Workforce Directory
+                    Staff Directory
                   </button>
                 </div>
                 {summaryData.exceptions.availableWorkers.length === 0 ? (
-                  <p className="text-xs text-slate-400 italic">All active workforce members are currently assigned.</p>
+                  <p className="text-xs text-slate-400 italic">All active staff members are currently assigned.</p>
                 ) : (
                   <div className="space-y-1.5 divide-y divide-slate-50 text-xs">
                     {summaryData.exceptions.availableWorkers.slice(0, 3).map((w) => (
@@ -391,7 +391,7 @@ export const WorkforcePerformanceModule: React.FC<WorkforcePerformanceModuleProp
                 <span>Performance &amp; Deployment by Project</span>
               </h2>
               <p className="text-xs text-slate-500 mt-0.5">
-                Workforce density, muster records, and operational logs aggregated by construction site.
+                Staff density, muster records, and operational logs aggregated by construction site.
               </p>
             </div>
 
@@ -404,7 +404,7 @@ export const WorkforcePerformanceModule: React.FC<WorkforcePerformanceModuleProp
                     <tr className="bg-slate-50/75 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider text-slate-500">
                       <th className="py-3.5 px-4 font-bold">Project</th>
                       <th className="py-3.5 px-3 font-bold">Project Code</th>
-                      <th className="py-3.5 px-3 font-bold text-center">Assigned Workforce</th>
+                      <th className="py-3.5 px-3 font-bold text-center">Assigned Staff</th>
                       <th className="py-3.5 px-3 font-bold text-center">Attendance Logs</th>
                       <th className="py-3.5 px-3 font-bold text-center">Output Records</th>
                       <th className="py-3.5 px-3 font-bold text-center">Pending Overtime</th>
@@ -470,10 +470,10 @@ export const WorkforcePerformanceModule: React.FC<WorkforcePerformanceModuleProp
               <div>
                 <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
                   <Users className="w-4 h-4 text-[#01875F]" />
-                  <span>Workforce Member Performance Overview</span>
+                  <span>Staff Member Performance Overview</span>
                 </h2>
                 <p className="text-xs text-slate-500 mt-0.5">
-                  Factual operational counts per registered workforce member.
+                  Factual operational counts per registered staff member.
                 </p>
               </div>
               <button
@@ -481,13 +481,13 @@ export const WorkforcePerformanceModule: React.FC<WorkforcePerformanceModuleProp
                 onClick={() => navigate('/management/workforce')}
                 className="text-xs font-bold text-[#01875F] hover:underline cursor-pointer"
               >
-                Workforce Directory →
+                Staff Directory →
               </button>
             </div>
 
             {summaryData.workerBreakdown.length === 0 ? (
               <div className="p-8 text-center text-xs text-slate-500">
-                No workforce members registered in the database yet.
+                No staff members registered in the database yet.
               </div>
             ) : (
               <div className="overflow-x-auto">
@@ -512,7 +512,7 @@ export const WorkforcePerformanceModule: React.FC<WorkforcePerformanceModuleProp
                             type="button"
                             onClick={() => navigate(`/management/workforce/${w.workforceId}`)}
                             className="font-bold text-slate-900 hover:text-[#01875F] flex items-center gap-1.5 transition-colors cursor-pointer text-left"
-                            title="Open Workforce Control Centre"
+                            title="Open Staff Control Centre"
                           >
                             <span>{w.workerName}</span>
                             <ExternalLink className="w-3 h-3 text-slate-400" />

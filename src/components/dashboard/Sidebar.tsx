@@ -38,6 +38,7 @@ import {
   Wrench,
   ClipboardList,
   Calculator,
+  FileQuestion,
 } from 'lucide-react';
 import { PWAInstallButton } from '../pwa/PWAInstallButton';
 import { BRAND_ASSETS } from '../../config/branding';
@@ -47,6 +48,8 @@ export type DashboardNavKey =
   | 'overview'
   | 'approvals'
   | 'alerts'
+  // COMMERCIAL & SERVICE REQUESTS
+  | 'service-requests'
   // PROJECT PLANNING & PROJECTIONS
   | 'planning'
   // PROJECTS
@@ -64,6 +67,7 @@ export type DashboardNavKey =
   | 'conduct'
   // MATERIALS & TOOLS
   | 'materials'
+  | 'inventory'
   | 'materials-directory'
   | 'material-requests'
   | 'procurement'
@@ -110,6 +114,12 @@ export const SIDEBAR_SECTIONS: NavSectionConfig[] = [
     ],
   },
   {
+    title: 'COMMERCIAL & INTAKE',
+    items: [
+      { key: 'service-requests', label: 'Service Requests', icon: FileQuestion },
+    ],
+  },
+  {
     title: 'PROJECT PLANNING',
     items: [
       { key: 'planning', label: 'Planning & Projections', icon: Calculator },
@@ -126,9 +136,9 @@ export const SIDEBAR_SECTIONS: NavSectionConfig[] = [
     ],
   },
   {
-    title: 'WORKFORCE',
+    title: 'STAFF',
     items: [
-      { key: 'workforce', label: 'Workforce', icon: Users },
+      { key: 'workforce', label: 'Staff', icon: Users },
       { key: 'workforce-performance', label: 'Performance', icon: TrendingUp },
       { key: 'attendance', label: 'Attendance', icon: CalendarCheck },
       { key: 'productivity', label: 'Productivity', icon: Activity },
@@ -139,6 +149,7 @@ export const SIDEBAR_SECTIONS: NavSectionConfig[] = [
   {
     title: 'MATERIALS & ASSETS',
     items: [
+      { key: 'inventory', label: 'Commercial Inventory', icon: Boxes },
       { key: 'materials', label: 'Materials Overview', icon: Package },
       { key: 'material-requests', label: 'Material Requests', icon: FileText },
       { key: 'procurement', label: 'Procurement', icon: ShoppingCart },
@@ -162,7 +173,7 @@ export const SIDEBAR_SECTIONS: NavSectionConfig[] = [
     title: 'REPORTS',
     items: [
       { key: 'project-reports', label: 'Project Reports', icon: FileBarChart },
-      { key: 'workforce-reports', label: 'Workforce Reports', icon: FileSpreadsheet },
+      { key: 'workforce-reports', label: 'Staff Reports', icon: FileSpreadsheet },
       { key: 'material-reports', label: 'Material Reports', icon: ScrollText },
       { key: 'management-reports', label: 'Management Reports', icon: Briefcase },
     ],

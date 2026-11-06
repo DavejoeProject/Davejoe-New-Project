@@ -65,6 +65,9 @@ import { ToolsEquipmentModule } from '../tools/ToolsEquipmentModule';
 import { TaskInstructionsPanel } from '../tasks/TaskInstructionsPanel';
 import { ProjectPlanningModule } from '../planning/ProjectPlanningModule';
 import { AttendanceModule } from '../dashboard/AttendanceModule';
+import { WorkforceModule } from '../dashboard/WorkforceModule';
+import { ServiceRequestsModule } from '../admin/ServiceRequestsModule';
+import { UnifiedInventoryModule } from '../inventory/UnifiedInventoryModule';
 
 export type ExecutiveModuleKey =
   | 'overview'
@@ -90,7 +93,7 @@ export type ExecutiveModuleKey =
 export const ExecutiveDashboard: React.FC = () => {
   const { user, profile, logout } = useAuth();
   const [activeModule, setActiveModule] = useState<ExecutiveModuleKey>('overview');
-  const [workforceSubTab, setWorkforceSubTab] = useState<'attendance' | 'directory'>('attendance');
+  const [workforceSubTab, setWorkforceSubTab] = useState<'attendance' | 'directory'>('directory');
   const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
@@ -323,9 +326,9 @@ export const ExecutiveDashboard: React.FC = () => {
       ],
     },
     {
-      title: 'WORKFORCE & TEAMS',
+      title: 'STAFF & TEAMS',
       items: [
-        { key: 'workforce' as ExecutiveModuleKey, label: 'Workforce & Productivity', icon: Users, count: workforceList.length },
+        { key: 'workforce' as ExecutiveModuleKey, label: 'Staff', icon: Users, count: workforceList.length },
         { key: 'staff' as ExecutiveModuleKey, label: 'Staff Performance', icon: Award, count: conductList.length },
         { key: 'artisans' as ExecutiveModuleKey, label: 'Artisan Network', icon: HardHat, count: workforceList.length },
       ],
@@ -886,7 +889,7 @@ export const ExecutiveDashboard: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Department 3: Workforce and Productivity */}
+                  {/* Department 3: Staff and Productivity */}
                   <div
                     onClick={() => setActiveModule('workforce')}
                     className="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-2xs hover:border-[#01875F]/60 transition-colors cursor-pointer group flex flex-col justify-between"
@@ -896,7 +899,7 @@ export const ExecutiveDashboard: React.FC = () => {
                         <div className="flex items-center gap-2">
                           <Users className="w-4 h-4 text-[#01875F]" />
                           <h3 className="font-bold text-xs text-slate-900 group-hover:text-[#01875F] transition-colors">
-                            Workforce & Productivity
+                            Staff & Productivity
                           </h3>
                         </div>
                         <span className="px-1.5 py-0.2 rounded text-[10px] font-semibold bg-emerald-50 text-[#01875F]">
@@ -904,11 +907,11 @@ export const ExecutiveDashboard: React.FC = () => {
                         </span>
                       </div>
                       <p className="text-[11px] text-slate-500 leading-relaxed">
-                        Daily site attendance, labor utilization efficiency, productivity metrics, and overtime tracking.
+                        All registered personnel across all 9 roles, deployment status, daily site attendance, and productivity.
                       </p>
                     </div>
                     <div className="pt-3 mt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-[#01875F] font-semibold">
-                      <span>Review Productivity &rarr;</span>
+                      <span>View Staff Directory &rarr;</span>
                       <span className="text-slate-700 font-bold">{workforceList.length} Personnel</span>
                     </div>
                   </div>
@@ -1161,55 +1164,10 @@ export const ExecutiveDashboard: React.FC = () => {
           )}
 
           {/* ========================================================================= */}
-          {/* VIEW 2: BUSINESS DEVELOPMENT AND LEADS (DRILL-DOWN)                       */}
+          {/* VIEW 2: COMMERCIAL INTAKE & SERVICE REQUESTS                               */}
           {/* ========================================================================= */}
           {activeModule === 'leads' && (
-            <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs p-6 space-y-6">
-              <div className="flex items-center justify-between pb-4 border-b border-slate-100">
-                <div>
-                  <h2 className="text-base font-bold text-slate-900">Business Development & Leads</h2>
-                  <p className="text-xs text-slate-500">
-                    Commercial intake, client leads, quotes, proposals and strategic pipeline.
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setActiveModule('overview')}
-                  className="text-xs font-semibold text-[#01875F] hover:underline cursor-pointer"
-                >
-                  &larr; Back to Overview
-                </button>
-              </div>
-
-              {/* Status Note on Schema State */}
-              <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 space-y-1">
-                <div className="flex items-center gap-2 font-bold">
-                  <Info className="w-4 h-4 text-amber-700" />
-                  <span>Module Status: Schema Provisioning Pending</span>
-                </div>
-                <p className="text-[11px] text-amber-800 leading-relaxed">
-                  The <code className="font-mono bg-white/70 px-1 py-0.5 rounded">leads</code> and <code className="font-mono bg-white/70 px-1 py-0.5 rounded">quotes</code> tables have not yet been provisioned in the Supabase database. The system displays verified zero-states in compliance with strict real-data policies.
-                </p>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="p-4 rounded-xl bg-slate-50 border border-slate-100">
-                  <span className="text-[11px] text-slate-400 block font-medium">Active Leads</span>
-                  <span className="text-2xl font-bold text-slate-900">0</span>
-                  <span className="text-[10px] text-slate-400 block mt-1">No leads recorded in database</span>
-                </div>
-                <div className="p-4 rounded-xl bg-slate-50 border border-slate-100">
-                  <span className="text-[11px] text-slate-400 block font-medium">Pending Quotes</span>
-                  <span className="text-2xl font-bold text-slate-900">0</span>
-                  <span className="text-[10px] text-slate-400 block mt-1">No quotes awaiting submission</span>
-                </div>
-                <div className="p-4 rounded-xl bg-slate-50 border border-slate-100">
-                  <span className="text-[11px] text-slate-400 block font-medium">Pipeline Value</span>
-                  <span className="text-2xl font-bold text-slate-900">₦0.00</span>
-                  <span className="text-[10px] text-slate-400 block mt-1">No bids currently evaluated</span>
-                </div>
-              </div>
-            </div>
+            <ServiceRequestsModule onBackToDashboard={() => setActiveModule('overview')} />
           )}
 
           {/* ========================================================================= */}
@@ -1293,6 +1251,17 @@ export const ExecutiveDashboard: React.FC = () => {
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
+                    onClick={() => setWorkforceSubTab('directory')}
+                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
+                      workforceSubTab === 'directory'
+                        ? 'bg-[#01875F] text-white shadow-xs'
+                        : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                    }`}
+                  >
+                    Staff Directory ({workforceList.length})
+                  </button>
+                  <button
+                    type="button"
                     onClick={() => setWorkforceSubTab('attendance')}
                     className={`px-4 py-2 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
                       workforceSubTab === 'attendance'
@@ -1301,17 +1270,6 @@ export const ExecutiveDashboard: React.FC = () => {
                     }`}
                   >
                     Daily Attendance Muster &amp; Shifts
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setWorkforceSubTab('directory')}
-                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
-                      workforceSubTab === 'directory'
-                        ? 'bg-[#01875F] text-white shadow-xs'
-                        : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
-                    }`}
-                  >
-                    Workforce Personnel Directory ({workforceList.length})
                   </button>
                 </div>
                 <button
@@ -1326,54 +1284,7 @@ export const ExecutiveDashboard: React.FC = () => {
               {workforceSubTab === 'attendance' ? (
                 <AttendanceModule onBackToDashboard={() => setActiveModule('overview')} />
               ) : (
-                <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs p-6 space-y-4">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-slate-100">
-                    <div>
-                      <h2 className="text-base font-bold text-slate-900">Workforce Deployment Directory</h2>
-                      <p className="text-xs text-slate-500">
-                        Artisans, site engineers, supervisors, and trade specialists deployed across sites.
-                      </p>
-                    </div>
-                    <span className="text-xs font-semibold text-slate-500">
-                      Total: {workforceList.length}
-                    </span>
-                  </div>
-
-                  {workforceList.length === 0 ? (
-                    <div className="py-16 text-center text-xs text-slate-400 border border-dashed border-slate-200 rounded-xl">
-                      No workforce members registered yet.
-                    </div>
-                  ) : (
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-left text-xs">
-                        <thead>
-                          <tr className="border-b border-slate-100 bg-slate-50/50 text-slate-400 font-semibold uppercase tracking-wider text-[11px]">
-                            <th className="py-3 px-4">Name</th>
-                            <th className="py-3 px-4">Trade / Specialization</th>
-                            <th className="py-3 px-4">Code</th>
-                            <th className="py-3 px-4">Status</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-100">
-                          {workforceList.map((w) => (
-                            <tr key={w.id} className="hover:bg-slate-50/60 transition-colors">
-                              <td className="py-3.5 px-4 font-bold text-slate-900">{w.name || w.full_name}</td>
-                              <td className="py-3.5 px-4 text-slate-600">{w.trade || w.role || 'General Artisan'}</td>
-                              <td className="py-3.5 px-4 font-mono text-[11px] text-slate-400">
-                                {w.workforce_code || '—'}
-                              </td>
-                              <td className="py-3.5 px-4">
-                                <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-blue-50 text-blue-700 border border-blue-200">
-                                  {w.status || 'Active'}
-                                </span>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
-                </div>
+                <WorkforceModule onBackToDashboard={() => setActiveModule('overview')} />
               )}
             </div>
           )}
@@ -1787,7 +1698,7 @@ export const ExecutiveDashboard: React.FC = () => {
                       <tr className="border-b border-slate-100 bg-slate-50/50 text-slate-400 font-semibold uppercase tracking-wider text-[11px]">
                         <th className="py-3 px-4">Artisan Name</th>
                         <th className="py-3 px-4">Trade</th>
-                        <th className="py-3 px-4">Workforce Code</th>
+                        <th className="py-3 px-4">Staff ID / Code</th>
                         <th className="py-3 px-4">Status</th>
                       </tr>
                     </thead>
@@ -1877,7 +1788,7 @@ export const ExecutiveDashboard: React.FC = () => {
                 <div>
                   <h2 className="text-base font-bold text-slate-900">Strategic Performance Reports</h2>
                   <p className="text-xs text-slate-500">
-                    Executive summaries across operations, project milestones, procurement volume, and workforce.
+                    Executive summaries across operations, project milestones, procurement volume, and staff.
                   </p>
                 </div>
                 <button
@@ -1906,7 +1817,7 @@ export const ExecutiveDashboard: React.FC = () => {
                 <div className="p-4 rounded-xl bg-slate-50 border border-slate-100 space-y-2">
                   <div className="flex items-center gap-2">
                     <Users className="w-4 h-4 text-[#01875F]" />
-                    <span className="font-bold text-slate-900">Workforce Productivity Index</span>
+                    <span className="font-bold text-slate-900">Staff Productivity Index</span>
                   </div>
                   <p className="text-[11px] text-slate-500 leading-relaxed">
                     Productivity rates, attendance compliance, and labor allocation efficiency across contracting teams.

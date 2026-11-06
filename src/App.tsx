@@ -447,6 +447,22 @@ export default function App() {
               </ManagementRouteGuard>
             }
           />
+          <Route
+            path="/management/service-requests"
+            element={
+              <ManagementRouteGuard>
+                <CeoDashboard initialModule="service-requests" />
+              </ManagementRouteGuard>
+            }
+          />
+          <Route
+            path="/management/inventory"
+            element={
+              <ManagementRouteGuard>
+                <CeoDashboard initialModule="inventory" />
+              </ManagementRouteGuard>
+            }
+          />
 
           {/* Phase 9.2: Technical Inspection & Quality Control Workspace */}
           <Route

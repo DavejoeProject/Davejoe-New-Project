@@ -586,7 +586,7 @@ export const UserManagementView: React.FC<UserManagementViewProps> = ({
                     <th className="py-3 px-4">Job Title / Email</th>
                     <th className="py-3 px-4">Assigned Roles</th>
                     <th className="py-3 px-4">Status</th>
-                    <th className="py-3 px-4">Workforce</th>
+                    <th className="py-3 px-4">Staff ID</th>
                     <th className="py-3 px-4">Created</th>
                     <th className="py-3 px-4 text-right">Actions</th>
                   </tr>
