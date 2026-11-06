@@ -69,18 +69,26 @@ type AdminTab =
   | 'materials'
   | 'inventory';
 
-export const AdminDashboard: React.FC = () => {
+export interface AdminDashboardProps {
+  initialTab?: AdminTab | 'staff';
+}
+
+export const AdminDashboard: React.FC<AdminDashboardProps> = ({ initialTab }) => {
   const { user, profile, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
 
   // Resolve active tab from URL path
   const resolveTabFromPath = (path: string): AdminTab => {
+    if (initialTab) {
+      if (initialTab === 'staff') return 'workforce';
+      return initialTab;
+    }
     if (path.includes('/admin/users')) return 'users';
     if (path.includes('/admin/roles')) return 'roles';
     if (path.includes('/admin/audit-logs')) return 'audit-logs';
     if (path.includes('/admin/settings')) return 'settings';
-    if (path.includes('/admin/workforce')) return 'workforce';
+    if (path.includes('/admin/workforce') || path.includes('/admin/staff') || path.includes('/staff')) return 'workforce';
     if (path.includes('/admin/attendance')) return 'attendance';
     if (path.includes('/admin/projects')) return 'projects';
     if (path.includes('/admin/clients')) return 'clients';
@@ -89,8 +97,8 @@ export const AdminDashboard: React.FC = () => {
     if (path.includes('/admin/tools')) return 'tools';
     if (path.includes('/admin/tasks')) return 'tasks';
     if (path.includes('/admin/service-requests')) return 'service-requests';
-    if (path.includes('/admin/materials')) return 'materials';
-    if (path.includes('/admin/inventory')) return 'inventory';
+    if (path.includes('/admin/materials') || path.includes('/materials')) return 'materials';
+    if (path.includes('/admin/inventory') || path.includes('/inventory')) return 'inventory';
     return 'dashboard';
   };
 

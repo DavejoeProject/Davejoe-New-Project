@@ -281,6 +281,62 @@ export default function App() {
               </ManagementRouteGuard>
             }
           />
+          <Route
+            path="/management/staff"
+            element={
+              <ManagementRouteGuard>
+                <CeoDashboard initialModule="workforce" />
+              </ManagementRouteGuard>
+            }
+          />
+          <Route
+            path="/management/staff/performance"
+            element={
+              <ManagementRouteGuard>
+                <CeoDashboard initialModule="workforce-performance" />
+              </ManagementRouteGuard>
+            }
+          />
+          <Route
+            path="/management/staff/attendance"
+            element={
+              <ManagementRouteGuard>
+                <CeoDashboard initialModule="attendance" />
+              </ManagementRouteGuard>
+            }
+          />
+          <Route
+            path="/management/staff/productivity"
+            element={
+              <ManagementRouteGuard>
+                <CeoDashboard initialModule="productivity" />
+              </ManagementRouteGuard>
+            }
+          />
+          <Route
+            path="/management/staff/overtime"
+            element={
+              <ManagementRouteGuard>
+                <CeoDashboard initialModule="overtime" />
+              </ManagementRouteGuard>
+            }
+          />
+          <Route
+            path="/management/staff/conduct"
+            element={
+              <ManagementRouteGuard>
+                <CeoDashboard initialModule="conduct" />
+              </ManagementRouteGuard>
+            }
+          />
+          <Route
+            path="/management/staff/:staffId"
+            element={
+              <ManagementRouteGuard>
+                <CeoDashboard initialModule="workforce" />
+              </ManagementRouteGuard>
+            }
+          />
 
           {/* Materials Module Foundation Routes */}
           <Route
@@ -650,8 +706,74 @@ export default function App() {
             }
           />
 
+          {/* Top-Level Shortcut Routes */}
+          <Route
+            path="/staff"
+            element={
+              <ProtectedRoute allowedRoles={['management', 'executive_director', 'admin', 'supervisor']}>
+                <AdminDashboard initialTab="staff" />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/staff/*"
+            element={
+              <ProtectedRoute allowedRoles={['management', 'executive_director', 'admin', 'supervisor']}>
+                <AdminDashboard initialTab="staff" />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/inventory"
+            element={
+              <ProtectedRoute allowedRoles={['management', 'executive_director', 'admin', 'procurement']}>
+                <CeoDashboard initialModule="inventory" />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/inventory/*"
+            element={
+              <ProtectedRoute allowedRoles={['management', 'executive_director', 'admin', 'procurement']}>
+                <CeoDashboard initialModule="inventory" />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/service-requests"
+            element={
+              <ProtectedRoute allowedRoles={['management', 'executive_director', 'admin', 'supervisor']}>
+                <CeoDashboard initialModule="service-requests" />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/service-requests/*"
+            element={
+              <ProtectedRoute allowedRoles={['management', 'executive_director', 'admin', 'supervisor']}>
+                <CeoDashboard initialModule="service-requests" />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/materials"
+            element={
+              <ProtectedRoute allowedRoles={['management', 'executive_director', 'admin', 'supervisor', 'procurement']}>
+                <CeoDashboard initialModule="materials" />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/materials/*"
+            element={
+              <ProtectedRoute allowedRoles={['management', 'executive_director', 'admin', 'supervisor', 'procurement']}>
+                <CeoDashboard initialModule="materials" />
+              </ProtectedRoute>
+            }
+          />
+
           {/* Unknown routes redirect */}
-          <Route path="*" element={<Navigate to="/login" replace />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
 
         {/* Progressive Web App Support: Install Prompt, Service Worker Update Toast, Offline Status */}
