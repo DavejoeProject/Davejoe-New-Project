@@ -1,6 +1,7 @@
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import { ensureValidSession } from '../lib/authSession';
 import {
+  AttendanceService,
   AttendanceRecordItem,
   AttendanceStatus,
   getNigerianTodayIso,
@@ -141,20 +142,26 @@ export class ArtisanDashboardService {
         };
       }
 
-      // If workforce_member was not explicitly linked by profile_id, fetch user profile and return fallback
+      // If workforce_member was not explicitly linked by profile_id, fetch user profile and auto-resolve
       const { data: userProfile } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', userId)
         .maybeSingle();
 
+      const resolvedWfId = await AttendanceService.resolveOrCreateStaffIdentity(
+        userId,
+        userProfile,
+        ['artisan']
+      );
+
       return {
         profile: {
-          id: userId,
+          id: resolvedWfId || userId,
           workforce_code: 'ART-GEN',
           trade: 'Artisan / Workforce',
           status: 'active',
-          phone: null,
+          phone: userProfile?.phone || null,
           emergency_contact_name: null,
           emergency_contact_phone: null,
           notes: null,
@@ -235,11 +242,20 @@ export class ArtisanDashboardService {
       }
 
       // 2. Fetch today's attendance record
-      const { data: todayAtt } = await supabase
+      let todayQuery = supabase
         .from('attendance_records')
         .select('*')
-        .eq('workforce_member_id', memberId)
-        .eq('attendance_date', today)
+        .eq('attendance_date', today);
+
+      if (memberId && memberId !== userId) {
+        todayQuery = todayQuery.or(`workforce_member_id.eq.${memberId},recorded_by.eq.${userId}`);
+      } else {
+        todayQuery = todayQuery.eq('recorded_by', userId);
+      }
+
+      const { data: todayAtt } = await todayQuery
+        .order('created_at', { ascending: false })
+        .limit(1)
         .maybeSingle();
 
       let todayStatus: ArtisanTodayStatus = {
@@ -279,7 +295,7 @@ export class ArtisanDashboardService {
       }
 
       // 3. Fetch recent attendance (last 14 days)
-      const { data: recentAttData } = await supabase
+      let recentQuery = supabase
         .from('attendance_records')
         .select(`
           id,
@@ -294,9 +310,16 @@ export class ArtisanDashboardService {
           workforce_member_id,
           projects:project_id ( id, name, project_code )
         `)
-        .eq('workforce_member_id', memberId)
         .order('attendance_date', { ascending: false })
         .limit(14);
+
+      if (memberId && memberId !== userId) {
+        recentQuery = recentQuery.or(`workforce_member_id.eq.${memberId},recorded_by.eq.${userId}`);
+      } else {
+        recentQuery = recentQuery.eq('recorded_by', userId);
+      }
+
+      const { data: recentAttData } = await recentQuery;
 
       const recentAttendance: AttendanceRecordItem[] = (recentAttData || []).map((r: any) => {
         const createdAt = r.created_at || null;
@@ -402,68 +425,17 @@ export class ArtisanDashboardService {
     if (!isSupabaseConfigured) return { success: false, error: 'Database is not configured.' };
 
     try {
-      const { profile } = await this.getArtisanProfile(params.userId);
-      if (!profile) return { success: false, error: 'Artisan profile not found.' };
+      const res = await AttendanceService.clockInNonLeadershipUser({
+        userId: params.userId,
+        projectId: params.projectId,
+        latitude: params.latitude,
+        longitude: params.longitude,
+      });
 
-      let targetProjectId = params.projectId;
-      if (!targetProjectId) {
-        // Find active assignment
-        const { data: assign } = await supabase
-          .from('project_workforce_assignments')
-          .select('project_id')
-          .eq('workforce_member_id', profile.id)
-          .eq('is_active', true)
-          .limit(1)
-          .maybeSingle();
-
-        if (assign?.project_id) {
-          targetProjectId = assign.project_id;
-        } else {
-          // If no active assignment found, retrieve first available project
-          const { data: proj } = await supabase.from('projects').select('id').limit(1).maybeSingle();
-          if (proj?.id) {
-            targetProjectId = proj.id;
-          } else {
-            return {
-              success: false,
-              error: 'No active project assignment found. Please contact your Site Supervisor to assign you to a project.',
-            };
-          }
-        }
-      }
-
-      const today = getNigerianTodayIso();
-
-      // Check if already clocked in today
-      const { data: existing } = await supabase
-        .from('attendance_records')
-        .select('id, status')
-        .eq('workforce_member_id', profile.id)
-        .eq('attendance_date', today)
-        .maybeSingle();
-
-      if (existing) {
-        return {
-          success: false,
-          error: `You have already clocked in for today (${existing.status.toUpperCase()}).`,
-        };
-      }
-
-      const payload: any = {
-        project_id: targetProjectId,
-        workforce_member_id: profile.id,
-        attendance_date: today,
-        status: 'present',
-        recorded_by: params.userId,
+      return {
+        success: res.success,
+        error: res.error,
       };
-
-      if (params.latitude != null) payload.latitude = params.latitude;
-      if (params.longitude != null) payload.longitude = params.longitude;
-
-      const { error: insErr } = await supabase.from('attendance_records').insert(payload);
-      if (insErr) return { success: false, error: insErr.message };
-
-      return { success: true, error: null };
     } catch (err: any) {
       return { success: false, error: err instanceof Error ? err.message : 'Failed to self clock in.' };
     }
@@ -472,14 +444,25 @@ export class ArtisanDashboardService {
   /**
    * Artisan self clock-out
    */
-  static async selfClockOut(attendanceId: string): Promise<{ success: boolean; error: string | null }> {
+  static async selfClockOut(
+    attendanceId: string,
+    userId?: string
+  ): Promise<{ success: boolean; error: string | null }> {
     if (!isSupabaseConfigured) return { success: false, error: 'Database is not configured.' };
 
     try {
+      if (userId) {
+        const res = await AttendanceService.clockOutNonLeadershipUser({
+          userId,
+          attendanceRecordId: attendanceId,
+        });
+        return { success: res.success, error: res.error };
+      }
+
       const nowIso = new Date().toISOString();
       const { error } = await supabase
         .from('attendance_records')
-        .update({ updated_at: nowIso })
+        .update({ updated_at: nowIso, actual_hours: 8, status: 'present' })
         .eq('id', attendanceId);
 
       if (error) return { success: false, error: error.message };

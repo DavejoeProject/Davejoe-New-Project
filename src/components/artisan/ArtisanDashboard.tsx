@@ -120,7 +120,7 @@ export const ArtisanDashboard: React.FC = () => {
     setErrorMessage(null);
     setClockActionMessage(null);
 
-    const res = await ArtisanDashboardService.selfClockOut(data.todayStatus.attendanceId);
+    const res = await ArtisanDashboardService.selfClockOut(data.todayStatus.attendanceId, user?.id);
     setIsClocking(false);
 
     if (res.error) {
