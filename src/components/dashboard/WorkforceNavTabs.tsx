@@ -25,6 +25,22 @@ export const WorkforceNavTabs: React.FC<WorkforceNavTabsProps> = ({ activeTab })
   const navigate = useNavigate();
   const location = useLocation();
 
+  const isManagement = location.pathname.startsWith('/management');
+  const isExecutive = location.pathname.startsWith('/executive');
+  const isAdmin = location.pathname.startsWith('/admin');
+
+  const baseDirectoryPath = isManagement
+    ? '/management/workforce'
+    : isExecutive
+    ? '/executive/workforce'
+    : '/admin/workforce';
+
+  const baseAttendancePath = isManagement
+    ? '/management/workforce/attendance'
+    : isExecutive
+    ? '/executive/attendance'
+    : '/admin/attendance';
+
   const tabs: Array<{
     key: WorkforceTabKey;
     label: string;
@@ -34,37 +50,37 @@ export const WorkforceNavTabs: React.FC<WorkforceNavTabsProps> = ({ activeTab })
     {
       key: 'directory',
       label: 'Staff Directory',
-      path: '/management/workforce',
+      path: baseDirectoryPath,
       icon: Users,
     },
     {
       key: 'performance',
       label: 'Performance Overview',
-      path: '/management/workforce/performance',
+      path: isManagement ? '/management/workforce/performance' : baseDirectoryPath,
       icon: TrendingUp,
     },
     {
       key: 'attendance',
       label: 'Attendance',
-      path: '/management/workforce/attendance',
+      path: baseAttendancePath,
       icon: CalendarCheck,
     },
     {
       key: 'productivity',
       label: 'Productivity',
-      path: '/management/workforce/productivity',
+      path: isManagement ? '/management/workforce/productivity' : baseDirectoryPath,
       icon: Activity,
     },
     {
       key: 'overtime',
       label: 'Overtime',
-      path: '/management/workforce/overtime',
+      path: isManagement ? '/management/workforce/overtime' : baseDirectoryPath,
       icon: Clock,
     },
     {
       key: 'conduct',
       label: 'Conduct & Safety',
-      path: '/management/workforce/conduct',
+      path: isManagement ? '/management/workforce/conduct' : baseDirectoryPath,
       icon: ShieldAlert,
     },
   ];

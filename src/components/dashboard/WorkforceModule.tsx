@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
   Users,
   Search,
@@ -41,6 +41,16 @@ interface WorkforceModuleProps {
 
 export const WorkforceModule: React.FC<WorkforceModuleProps> = ({ onBackToDashboard }) => {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const isManagementRoute = location.pathname.startsWith('/management');
+  const isExecutiveRoute = location.pathname.startsWith('/executive');
+  const baseStaffPath = isManagementRoute
+    ? '/management/workforce'
+    : isExecutiveRoute
+    ? '/executive/workforce'
+    : '/admin/workforce';
+
   const [personnel, setPersonnel] = useState<PersonnelRecord[]>([]);
   const [metrics, setMetrics] = useState<PersonnelDirectoryMetrics>({
     totalPersonnel: 0,
@@ -481,7 +491,7 @@ export const WorkforceModule: React.FC<WorkforceModuleProps> = ({ onBackToDashbo
                       className="hover:bg-slate-50/80 transition-colors group cursor-pointer"
                       onClick={() => {
                         if (person.workforceId) {
-                          navigate(`/management/workforce/${person.workforceId}`);
+                          navigate(`${baseStaffPath}/${person.workforceId}`);
                         }
                       }}
                     >
@@ -584,7 +594,7 @@ export const WorkforceModule: React.FC<WorkforceModuleProps> = ({ onBackToDashbo
                           {person.workforceId ? (
                             <button
                               type="button"
-                              onClick={() => navigate(`/management/workforce/${person.workforceId}`)}
+                              onClick={() => navigate(`${baseStaffPath}/${person.workforceId}`)}
                               className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-[#18b892]/10 hover:bg-[#18b892]/20 text-[#18b892] text-[11px] font-bold transition-colors cursor-pointer border border-[#18b892]/20"
                               title="Open Staff Control Centre"
                             >

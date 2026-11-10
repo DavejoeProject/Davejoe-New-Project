@@ -515,10 +515,32 @@ export class AdminService {
     const to = from + limit - 1;
 
     try {
-      // 1. Query profiles with optional status filter
+      // 1. If filtering by role, first get all user_ids matching that role
+      let userIdsForRole: string[] | null = null;
+      if (params?.roleSlug && params.roleSlug !== 'all') {
+        const { data: roleUsers, error: roleError } = await supabase
+          .from('user_roles')
+          .select('user_id, roles!inner(slug)')
+          .eq('roles.slug', params.roleSlug);
+
+        if (roleError) {
+          console.warn('[AdminService] Role filter query warning:', roleError);
+        } else if (roleUsers) {
+          userIdsForRole = roleUsers.map((ru: any) => ru.user_id);
+          if (userIdsForRole.length === 0) {
+            return { users: [], totalCount: 0 };
+          }
+        }
+      }
+
+      // 2. Query profiles with optional status and role filter
       let query = supabase
         .from('profiles')
         .select('*', { count: 'exact' });
+
+      if (userIdsForRole) {
+        query = query.in('id', userIdsForRole);
+      }
 
       if (params?.status && params.status !== 'all') {
         query = query.eq('status', params.status);

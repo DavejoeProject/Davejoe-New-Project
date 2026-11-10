@@ -41,6 +41,8 @@ export const UserManagementView: React.FC<UserManagementViewProps> = ({
   const { user, currentRoleKey } = useAuth();
   const isAuthorizedLeadership =
     currentRoleKey === 'management' || currentRoleKey === 'executive_director';
+  const isAuthorizedUser =
+    isAuthorizedLeadership || currentRoleKey === 'admin';
 
   const [users, setUsers] = useState<AdminUserListItem[]>([]);
   const [totalCount, setTotalCount] = useState<number>(0);
@@ -228,13 +230,13 @@ export const UserManagementView: React.FC<UserManagementViewProps> = ({
     }
   };
 
-  if (!isAuthorizedLeadership) {
+  if (!isAuthorizedUser) {
     return (
       <div className="bg-amber-50 border border-amber-200 rounded-2xl p-8 text-center space-y-3">
         <ShieldAlert className="w-10 h-10 text-amber-600 mx-auto" />
-        <h3 className="text-base font-bold text-amber-900">Restricted Leadership Workspace</h3>
+        <h3 className="text-base font-bold text-amber-900">Restricted Administration Workspace</h3>
         <p className="text-xs text-amber-700 max-w-md mx-auto">
-          User directory and personnel role assignments are strictly restricted to Management / CEO and Executive Director — Business Operations & Strategy.
+          User directory and personnel governance are restricted to authorized Administration and Executive Leadership.
         </p>
       </div>
     );

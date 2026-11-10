@@ -47,6 +47,8 @@ import { ProjectsModule } from '../dashboard/ProjectsModule';
 import { ProjectControlCentre } from '../dashboard/ProjectControlCentre';
 import { AttendanceModule } from '../dashboard/AttendanceModule';
 import { WorkforceModule } from '../dashboard/WorkforceModule';
+import { WorkforceControlCentre } from '../dashboard/WorkforceControlCentre';
+import { WorkforceService } from '../../services/workforceService';
 import { ServiceRequestsModule } from './ServiceRequestsModule';
 import { MaterialsDirectoryModule } from '../dashboard/MaterialsDirectoryModule';
 import { AddMaterialModal } from '../dashboard/AddMaterialModal';
@@ -116,6 +118,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ initialTab }) =>
     ? location.pathname.split('/admin/projects/')[1]?.split('/')[0]?.split('?')[0] || null
     : null;
 
+  // Check if a workforce ID is present in the admin path e.g. /admin/workforce/:workforceId
+  const routeWorkforceId = location.pathname.startsWith('/admin/workforce/')
+    ? location.pathname.split('/admin/workforce/')[1]?.split('/')[0]?.split('?')[0] || null
+    : null;
+
   const toggleSection = (title: string) => {
     setCollapsedSections((prev) => ({ ...prev, [title]: !prev[title] }));
   };
@@ -163,17 +170,21 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ initialTab }) =>
         { count: pCount, data: pData },
         { count: rCount, data: rData },
         { count: aCount, data: aData },
+        personnelRes,
       ] = await Promise.all([
         supabase.from('profiles').select('*', { count: 'exact' }).limit(10),
         supabase.from('workforce_members').select('*', { count: 'exact' }).limit(10),
         supabase.from('projects').select('*', { count: 'exact' }).limit(10),
         supabase.from('roles').select('*', { count: 'exact' }).limit(20),
         supabase.from('audit_logs').select('*', { count: 'exact' }).order('created_at', { ascending: false }).limit(6),
+        WorkforceService.getCompletePersonnelDirectory().catch(() => null),
       ]);
+
+      const totalStaff = personnelRes?.metrics?.totalPersonnel || uCount || (wData ? wData.length : 0);
 
       setMetrics({
         usersCount: uCount || (uData ? uData.length : 0),
-        workforceCount: wCount || (wData ? wData.length : 0),
+        workforceCount: totalStaff,
         projectsCount: pCount || (pData ? pData.length : 0),
         rolesCount: rCount || (rData ? rData.length : 0),
         recentAuditCount: aCount || (aData ? aData.length : 0),
@@ -511,23 +522,23 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ initialTab }) =>
               {/* Metric KPI Cards */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div
-                  onClick={() => handleSelectTab('users')}
-                  className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-2xs hover:border-[#01875F]/50 transition-colors cursor-pointer group"
+                  onClick={() => handleSelectTab('workforce')}
+                  className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-2xs hover:border-[#18b892]/50 transition-colors cursor-pointer group"
                 >
                   <div className="flex items-center justify-between mb-3">
-                    <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider group-hover:text-[#01875F] transition-colors">
-                      User Accounts
+                    <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider group-hover:text-[#18b892] transition-colors">
+                      Registered Staff
                     </span>
-                    <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
+                    <div className="w-8 h-8 rounded-lg bg-teal-50 text-[#18b892] flex items-center justify-center">
                       <Users className="w-4 h-4" />
                     </div>
                   </div>
                   <div className="text-2xl font-bold text-slate-900">
-                    {isLoading ? '...' : metrics.usersCount}
+                    {isLoading ? '...' : metrics.workforceCount}
                   </div>
                   <p className="text-[11px] text-slate-400 mt-1 flex items-center justify-between">
-                    <span>Authenticated profiles</span>
-                    <ArrowRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-[#01875F] group-hover:translate-x-0.5 transition-all" />
+                    <span>Staff directory across 9 roles</span>
+                    <ArrowRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-[#18b892] group-hover:translate-x-0.5 transition-all" />
                   </p>
                 </div>
 
@@ -792,7 +803,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ initialTab }) =>
           {/* TAB 6: COMPLETE WORKFORCE DIRECTORY (ALL 9 ROLES) */}
           {activeTab === 'workforce' && (
             <div className="space-y-4">
-              <WorkforceModule onBackToDashboard={() => setActiveTab('dashboard')} />
+              {routeWorkforceId ? (
+                <WorkforceControlCentre
+                  workforceId={routeWorkforceId}
+                  onBackToWorkforce={() => navigate('/admin/workforce')}
+                />
+              ) : (
+                <WorkforceModule onBackToDashboard={() => setActiveTab('dashboard')} />
+              )}
             </div>
           )}
 
