@@ -69,11 +69,31 @@ export interface ProjectMaterialRequirementItem {
   estimated_unit_cost: number | null;
   estimated_total_cost: number | null;
   purpose: string | null;
+  notes?: string | null;
+  status?: string | null;
+  assigned_by?: string | null;
+  created_at?: string | null;
   materials?: {
     id: string;
     name: string;
+    material_code?: string | null;
+    category?: string | null;
+    brand?: string | null;
     unit_of_measure: string | null;
+    current_stock?: number | null;
   } | null;
+}
+
+export interface AssignMaterialPayload {
+  projectId: string;
+  materialId: string;
+  requiredQuantity: number;
+  approvedQuantity?: number | null;
+  estimatedUnitCost?: number | null;
+  estimatedTotalCost?: number | null;
+  purpose?: string | null;
+  notes?: string | null;
+  assignedBy?: string | null;
 }
 
 export interface ProjectMaterialRequestItem {
@@ -546,6 +566,154 @@ export class ProjectControlService {
   }
 
   /**
+   * Assigns a material from the master materials catalog to a specific project.
+   * Invokes the atomic RPC assign_material_to_project with fallback to direct Supabase insert.
+   */
+  static async assignMaterialToProject(
+    payload: AssignMaterialPayload
+  ): Promise<{ data: any | null; error: string | null }> {
+    if (!isSupabaseConfigured) {
+      return { data: null, error: 'Database is not configured.' };
+    }
+
+    const unitCost = Number(payload.estimatedUnitCost || 0);
+    const requiredQty = Number(payload.requiredQuantity || 1);
+    const totalCost = Number(payload.estimatedTotalCost || (requiredQty * unitCost));
+    const approvedQty = payload.approvedQuantity != null ? Number(payload.approvedQuantity) : requiredQty;
+
+    try {
+      // 1. Try atomic PostgreSQL RPC
+      try {
+        const { data: rpcData, error: rpcError } = await supabase.rpc('assign_material_to_project', {
+          p_project_id: payload.projectId,
+          p_material_id: payload.materialId,
+          p_required_quantity: requiredQty,
+          p_approved_quantity: approvedQty,
+          p_estimated_unit_cost: unitCost,
+          p_estimated_total_cost: totalCost,
+          p_purpose: payload.purpose?.trim() || null,
+          p_notes: payload.notes?.trim() || null,
+          p_assigned_by: payload.assignedBy || null,
+        });
+
+        if (!rpcError && rpcData) {
+          return { data: rpcData, error: null };
+        }
+        if (rpcError) {
+          console.warn('[ProjectControlService] RPC assign_material_to_project not available or failed, falling back to direct insert:', rpcError.message);
+        }
+      } catch (rpcErr) {
+        console.warn('[ProjectControlService] RPC exception, falling back to direct insert:', rpcErr);
+      }
+
+      // 2. Direct table insert fallback
+      const { data: insertData, error: insertError } = await supabase
+        .from('project_material_requirements')
+        .insert({
+          project_id: payload.projectId,
+          material_id: payload.materialId,
+          required_quantity: requiredQty,
+          approved_quantity: approvedQty,
+          estimated_unit_cost: unitCost,
+          estimated_total_cost: totalCost,
+          purpose: payload.purpose?.trim() || null,
+          notes: payload.notes?.trim() || null,
+          status: 'assigned',
+          assigned_by: payload.assignedBy || null,
+        })
+        .select('*, materials(id, name, unit_of_measure, material_code, category)')
+        .single();
+
+      if (insertError) {
+        return { data: null, error: insertError.message };
+      }
+
+      // 3. Best-effort audit logging
+      try {
+        if (payload.assignedBy) {
+          await supabase.from('audit_logs').insert({
+            actor_id: payload.assignedBy,
+            action: 'assign_material',
+            module: 'project_control',
+            table_name: 'project_material_requirements',
+            record_id: insertData?.id,
+            new_values: {
+              project_id: payload.projectId,
+              material_id: payload.materialId,
+              required_quantity: requiredQty,
+              approved_quantity: approvedQty,
+              estimated_total_cost: totalCost,
+              purpose: payload.purpose,
+            },
+          });
+        }
+      } catch {
+        // Audit log table optional or RLS restricted
+      }
+
+      return { data: insertData, error: null };
+    } catch (err: any) {
+      return { data: null, error: err?.message || 'Failed to assign material to project.' };
+    }
+  }
+
+  /**
+   * Updates an existing material requirement / assignment
+   */
+  static async updateProjectMaterialRequirement(
+    id: string,
+    updates: Partial<{
+      required_quantity: number;
+      approved_quantity: number;
+      estimated_unit_cost: number;
+      estimated_total_cost: number;
+      purpose: string | null;
+      notes: string | null;
+      status: string;
+    }>
+  ): Promise<{ error: string | null }> {
+    if (!isSupabaseConfigured) {
+      return { error: 'Database is not configured.' };
+    }
+
+    try {
+      const { error } = await supabase
+        .from('project_material_requirements')
+        .update({
+          ...updates,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', id);
+
+      if (error) return { error: error.message };
+      return { error: null };
+    } catch (err: any) {
+      return { error: err?.message || 'Failed to update material requirement.' };
+    }
+  }
+
+  /**
+   * Deletes a material requirement / assignment from the project
+   */
+  static async deleteProjectMaterialRequirement(id: string): Promise<{ error: string | null }> {
+    if (!isSupabaseConfigured) {
+      return { error: 'Database is not configured.' };
+    }
+
+    try {
+      const { error } = await supabase
+        .from('project_material_requirements')
+        .delete()
+        .eq('id', id);
+
+      if (error) return { error: error.message };
+      return { error: null };
+    } catch (err: any) {
+      return { error: err?.message || 'Failed to remove material requirement.' };
+    }
+  }
+
+  /**
    * Fetches all materials-related real data for this project
    */
   static async getProjectMaterialsData(projectId: string): Promise<{
@@ -576,8 +744,9 @@ export class ProjectControlService {
       const [reqs, requests, dels, usages, rets, losses, recons] = await Promise.all([
         supabase
           .from('project_material_requirements')
-          .select('id, project_id, required_quantity, approved_quantity, estimated_unit_cost, estimated_total_cost, purpose, materials(id, name, unit_of_measure)')
-          .eq('project_id', projectId),
+          .select('id, project_id, material_id, required_quantity, approved_quantity, estimated_unit_cost, estimated_total_cost, purpose, notes, status, assigned_by, created_at, materials(id, name, material_code, category, brand, unit_of_measure, current_stock)')
+          .eq('project_id', projectId)
+          .order('created_at', { ascending: false }),
         supabase
           .from('material_requests')
           .select('id, project_id, status, request_code, priority, requested_by, requested_date, approved_at, notes, created_at, material_request_items(id, requested_quantity, approved_quantity, unit_cost, notes, materials(id, name, unit_of_measure))')

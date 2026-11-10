@@ -904,7 +904,9 @@ export class AttendanceService {
 
   /**
    * Resolves or dynamically ensures a workforce_members identity for any corporate or field user.
-   * Employs a 7-phase fallback to guarantee that clock-in never fails on RLS or missing DB triggers.
+   * Covers all 9 enterprise and operational roles:
+   * Management/CEO, Executive Director, Admin, Site Supervisor, Technical QC,
+   * Procurement & Logistics, Accounts & Finance, Artisan, Social Media Manager.
    */
   static async resolveOrCreateStaffIdentity(
     userId: string,
@@ -913,66 +915,20 @@ export class AttendanceService {
   ): Promise<string | null> {
     if (!isSupabaseConfigured || !userId) return null;
 
-    // Phase 1: Check if already explicitly linked by profile_id
-    try {
-      const { data: existingWf, error: existingErr } = await supabase
-        .from('workforce_members')
-        .select('id, workforce_code')
-        .eq('profile_id', userId)
-        .maybeSingle();
-
-      if (!existingErr && existingWf?.id) {
-        return existingWf.id;
-      }
-    } catch (err) {
-      console.warn('[AttendanceService] Error checking profile_id on workforce_members:', err);
-    }
-
-    // Phase 2: Call SECURITY DEFINER RPC ensure_user_workforce_member
-    // Supports multiple parameter signatures (p_user_id, user_id, or default auth.uid())
-    const rpcAttempts = [
-      { name: 'ensure_user_workforce_member', args: { p_user_id: userId } },
-      { name: 'ensure_user_workforce_member', args: { user_id: userId } },
-      { name: 'ensure_user_workforce_member', args: {} },
-    ];
-
-    for (const attempt of rpcAttempts) {
+    // Resolve assigned roles if not provided
+    let activeSlugs = [...assignedSlugs];
+    if (activeSlugs.length === 0) {
       try {
-        const { data: rpcWfId, error: rpcErr } = await supabase.rpc(attempt.name, attempt.args);
-        if (!rpcErr && rpcWfId && typeof rpcWfId === 'string' && rpcWfId.length > 10) {
-          return rpcWfId;
+        const { assignedSlugs: fetchedSlugs } = await AuthService.getUserRolesDetailed(userId);
+        if (fetchedSlugs && fetchedSlugs.length > 0) {
+          activeSlugs = fetchedSlugs;
         }
-      } catch {
-        // Continue to next attempt
+      } catch (rolesErr) {
+        console.warn('[AttendanceService] Could not pre-fetch user roles for identity resolution:', rolesErr);
       }
     }
 
-    // Phase 3: Match with an existing unlinked workforce_member record (by phone)
-    try {
-      const phone = profile?.phone?.trim();
-      if (phone) {
-        const { data: matchedPhoneWf } = await supabase
-          .from('workforce_members')
-          .select('id, profile_id')
-          .eq('phone', phone)
-          .maybeSingle();
-
-        if (matchedPhoneWf?.id) {
-          if (!matchedPhoneWf.profile_id) {
-            await supabase
-              .from('workforce_members')
-              .update({ profile_id: userId })
-              .eq('id', matchedPhoneWf.id);
-          }
-          return matchedPhoneWf.id;
-        }
-      }
-    } catch {
-      // Non-blocking
-    }
-
-    // Phase 4: Direct insertion into public.workforce_members
-    const primaryRole = assignedSlugs[0] || 'staff';
+    const primaryRole = activeSlugs[0] || 'staff';
     const rolePrefixes: Record<string, string> = {
       supervisor: 'SUP',
       technical: 'QC',
@@ -996,11 +952,73 @@ export class AttendanceService {
       artisan: 'Site Artisan',
       social_media_manager: 'Social Media & Communications Manager',
       admin: 'Admin & Workforce Coordinator',
-      management: 'Management / Executive',
+      management: 'Management / CEO',
       executive_director: 'Executive Director',
     };
-    const tradeLabel = roleTrades[primaryRole] || profile?.job_title || 'Enterprise Staff';
+    const tradeLabel = profile?.job_title || roleTrades[primaryRole] || 'Enterprise Staff';
 
+    // Phase 1: Check if already explicitly linked by profile_id
+    try {
+      const { data: existingWf, error: existingErr } = await supabase
+        .from('workforce_members')
+        .select('id, workforce_code, trade')
+        .eq('profile_id', userId)
+        .maybeSingle();
+
+      if (!existingErr && existingWf?.id) {
+        return existingWf.id;
+      }
+    } catch (err) {
+      console.warn('[AttendanceService] Phase 1 check error:', err);
+    }
+
+    // Phase 2: Call SECURITY DEFINER RPC ensure_user_workforce_member
+    // Supports parameter signatures: { p_user_id: userId }, { user_id: userId }, or parameterless {}
+    const rpcAttempts = [
+      { name: 'ensure_user_workforce_member', args: { p_user_id: userId } },
+      { name: 'ensure_user_workforce_member', args: { user_id: userId } },
+      { name: 'ensure_user_workforce_member', args: {} },
+    ];
+
+    for (const attempt of rpcAttempts) {
+      try {
+        const { data: rpcWfId, error: rpcErr } = await supabase.rpc(attempt.name, attempt.args);
+        if (!rpcErr && rpcWfId && typeof rpcWfId === 'string' && rpcWfId.length > 10) {
+          return rpcWfId;
+        }
+        if (rpcErr) {
+          console.warn(`[AttendanceService] Phase 2 RPC attempt (${JSON.stringify(attempt.args)}) returned:`, rpcErr.message);
+        }
+      } catch (rpcEx) {
+        console.warn('[AttendanceService] Phase 2 RPC exception:', rpcEx);
+      }
+    }
+
+    // Phase 3: Match with an existing unlinked workforce_member record (by phone)
+    try {
+      const phone = profile?.phone?.trim();
+      if (phone) {
+        const { data: matchedPhoneWf } = await supabase
+          .from('workforce_members')
+          .select('id, profile_id')
+          .eq('phone', phone)
+          .maybeSingle();
+
+        if (matchedPhoneWf?.id) {
+          if (!matchedPhoneWf.profile_id) {
+            await supabase
+              .from('workforce_members')
+              .update({ profile_id: userId, status: 'active' })
+              .eq('id', matchedPhoneWf.id);
+          }
+          return matchedPhoneWf.id;
+        }
+      }
+    } catch (phoneErr) {
+      console.warn('[AttendanceService] Phase 3 phone link warning:', phoneErr);
+    }
+
+    // Phase 4: Direct client-side insertion into public.workforce_members
     const insertPayload: any = {
       workforce_code: generatedCode,
       trade: tradeLabel,
@@ -1008,7 +1026,7 @@ export class AttendanceService {
       profile_id: userId,
       phone: profile?.phone?.trim() || null,
       created_by: userId,
-      notes: `Staff profile auto-enrolled for ${tradeLabel} daily operational attendance`,
+      notes: `Staff profile enrolled for ${tradeLabel} daily operational attendance`,
     };
 
     try {
@@ -1023,13 +1041,13 @@ export class AttendanceService {
       }
 
       if (insertErr) {
-        console.warn('[AttendanceService] Direct insert into workforce_members returned:', insertErr.message);
+        console.warn('[AttendanceService] Phase 4 direct insert returned:', insertErr.message);
       }
     } catch (err) {
-      console.warn('[AttendanceService] Direct insert exception:', err);
+      console.warn('[AttendanceService] Phase 4 direct insert exception:', err);
     }
 
-    // Phase 5: Re-check if another trigger or parallel action created the record
+    // Phase 5: Re-check if parallel action or DB trigger created the record
     try {
       const { data: recheckedWf } = await supabase
         .from('workforce_members')
@@ -1044,58 +1062,13 @@ export class AttendanceService {
       // Non-blocking
     }
 
-    // Phase 6: Look for any unlinked workforce member in the database that can be claimed
-    try {
-      const { data: unlinkedMembers } = await supabase
-        .from('workforce_members')
-        .select('id, profile_id, trade, workforce_code')
-        .is('profile_id', null)
-        .limit(10);
-
-      if (unlinkedMembers && unlinkedMembers.length > 0) {
-        const matchedByTrade =
-          unlinkedMembers.find((m) => m.trade?.toLowerCase() === tradeLabel.toLowerCase()) ||
-          unlinkedMembers[0];
-
-        if (matchedByTrade?.id) {
-          await supabase
-            .from('workforce_members')
-            .update({ profile_id: userId })
-            .eq('id', matchedByTrade.id);
-
-          return matchedByTrade.id;
-        }
-      }
-    } catch {
-      // Non-blocking
-    }
-
-    // Phase 7: Guaranteed fallback anchor
-    // If strict RLS prevented client from inserting into workforce_members and no unlinked row exists,
-    // retrieve ANY valid workforce_members record ID from the database to satisfy the foreign key constraint
-    // on attendance_records(workforce_member_id), while recorded_by is ALWAYS preserved as the real userId.
-    try {
-      const { data: fallbackRecords } = await supabase
-        .from('workforce_members')
-        .select('id')
-        .order('created_at', { ascending: false })
-        .limit(1);
-
-      if (fallbackRecords && fallbackRecords.length > 0 && fallbackRecords[0].id) {
-        console.info('[AttendanceService] Using verified database workforce member anchor for attendance FK integrity.');
-        return fallbackRecords[0].id;
-      }
-    } catch (err) {
-      console.warn('[AttendanceService] Fallback anchor lookup error:', err);
-    }
-
     return null;
   }
 
   /**
-   * Universal Clock-In for ALL Active Non-Leadership Roles:
-   * Admin, Technical QC, Site Supervisor, Procurement, Accounts, Artisan, Social Media Manager.
-   * Excludes Management / CEO and Executive Director.
+   * Universal Clock-In for ALL Active Authorized Staff Roles:
+   * Site Supervisor, Technical QC, Procurement & Logistics, Accounts & Finance,
+   * Artisan, Social Media Manager, Admin, Management / CEO, and Executive Director.
    */
   static async clockInNonLeadershipUser(params: {
     userId: string;
@@ -1331,6 +1304,28 @@ export class AttendanceService {
       console.error('[AttendanceService] clockOutNonLeadershipUser error:', err);
       return { success: false, actualHours: 0, error: err.message || 'Failed to process clock-out.' };
     }
+  }
+
+  /**
+   * Universal Clock-In alias for all authorized staff roles
+   */
+  static async clockInStaffUser(params: {
+    userId: string;
+    projectId?: string;
+    latitude?: number;
+    longitude?: number;
+  }) {
+    return AttendanceService.clockInNonLeadershipUser(params);
+  }
+
+  /**
+   * Universal Clock-Out alias for all authorized staff roles
+   */
+  static async clockOutStaffUser(params: {
+    userId: string;
+    attendanceRecordId?: string;
+  }) {
+    return AttendanceService.clockOutNonLeadershipUser(params);
   }
 
   /**

@@ -44,6 +44,7 @@ import { ProjectMaterialRemnantsModule } from '../remnants/ProjectMaterialRemnan
 import { ToolsEquipmentModule } from '../tools/ToolsEquipmentModule';
 import { TaskInstructionsPanel } from '../tasks/TaskInstructionsPanel';
 import { ProjectsModule } from '../dashboard/ProjectsModule';
+import { ProjectControlCentre } from '../dashboard/ProjectControlCentre';
 import { AttendanceModule } from '../dashboard/AttendanceModule';
 import { WorkforceModule } from '../dashboard/WorkforceModule';
 import { ServiceRequestsModule } from './ServiceRequestsModule';
@@ -109,6 +110,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ initialTab }) =>
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isAddMaterialModalOpen, setIsAddMaterialModalOpen] = useState(false);
+
+  // Check if a project ID is present in the admin path e.g. /admin/projects/:projectId
+  const routeProjectId = location.pathname.startsWith('/admin/projects/')
+    ? location.pathname.split('/admin/projects/')[1]?.split('/')[0]?.split('?')[0] || null
+    : null;
 
   const toggleSection = (title: string) => {
     setCollapsedSections((prev) => ({ ...prev, [title]: !prev[title] }));
@@ -814,7 +820,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ initialTab }) =>
           {/* TAB 7: PROJECTS */}
           {activeTab === 'projects' && (
             <div className="space-y-4">
-              <ProjectsModule onBackToDashboard={() => setActiveTab('dashboard')} />
+              {routeProjectId ? (
+                <ProjectControlCentre
+                  projectId={routeProjectId}
+                  onBackToProjects={() => navigate('/admin/projects')}
+                />
+              ) : (
+                <ProjectsModule onBackToDashboard={() => setActiveTab('dashboard')} />
+              )}
             </div>
           )}
 

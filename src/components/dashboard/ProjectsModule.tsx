@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
   FolderKanban,
   Search,
@@ -30,6 +30,16 @@ interface ProjectsModuleProps {
 
 export const ProjectsModule: React.FC<ProjectsModuleProps> = ({ onBackToDashboard }) => {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const handleOpenProject = (id: string) => {
+    if (location.pathname.startsWith('/admin')) {
+      navigate(`/admin/projects/${id}`);
+    } else {
+      navigate(`/management/projects/${id}`);
+    }
+  };
+
   const [projects, setProjects] = useState<ProjectRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -253,7 +263,7 @@ export const ProjectsModule: React.FC<ProjectsModuleProps> = ({ onBackToDashboar
               return (
                 <div
                   key={proj.id}
-                  onClick={() => navigate(`/management/projects/${proj.id}`)}
+                  onClick={() => handleOpenProject(proj.id)}
                   className="p-4 hover:bg-slate-50/70 transition-colors cursor-pointer space-y-3"
                 >
                   <div className="flex items-start justify-between gap-2">
@@ -305,7 +315,7 @@ export const ProjectsModule: React.FC<ProjectsModuleProps> = ({ onBackToDashboar
                   <div className="flex items-center gap-2 pt-1" onClick={(e) => e.stopPropagation()}>
                     <button
                       type="button"
-                      onClick={() => navigate(`/management/projects/${proj.id}`)}
+                      onClick={() => handleOpenProject(proj.id)}
                       className="flex-1 inline-flex items-center justify-center gap-1.5 py-2 px-3 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-lg text-xs font-semibold transition-colors cursor-pointer min-h-[38px]"
                     >
                       <Eye className="w-3.5 h-3.5 text-slate-500" />
@@ -353,7 +363,7 @@ export const ProjectsModule: React.FC<ProjectsModuleProps> = ({ onBackToDashboar
                   return (
                     <tr
                       key={proj.id}
-                      onClick={() => navigate(`/management/projects/${proj.id}`)}
+                      onClick={() => handleOpenProject(proj.id)}
                       className="hover:bg-slate-50/80 transition-colors group cursor-pointer"
                     >
                       {/* Project Name & Description */}
@@ -418,7 +428,7 @@ export const ProjectsModule: React.FC<ProjectsModuleProps> = ({ onBackToDashboar
                         <div className="flex items-center justify-end gap-1.5">
                           <button
                             type="button"
-                            onClick={() => navigate(`/management/projects/${proj.id}`)}
+                            onClick={() => handleOpenProject(proj.id)}
                             className="inline-flex items-center gap-1 px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-xs font-semibold transition-colors cursor-pointer"
                             title="Open Project Control Centre"
                           >

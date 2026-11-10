@@ -19,6 +19,7 @@ import {
 } from '../../services/workforcePerformanceService';
 import { formatDateNigerian } from '../../services/dashboardService';
 import { WorkforceNavTabs } from './WorkforceNavTabs';
+import { DailyAttendanceWidget } from '../attendance/DailyAttendanceWidget';
 
 interface AttendanceModuleProps {
   onBackToDashboard?: () => void;
@@ -157,6 +158,9 @@ export const AttendanceModule: React.FC<AttendanceModuleProps> = ({ onBackToDash
 
       {/* Navigation Sub-Tabs */}
       <WorkforceNavTabs activeTab="attendance" />
+
+      {/* Personal Daily Attendance Clock-In & Shift Status Widget */}
+      <DailyAttendanceWidget onAttendanceChanged={() => fetchAttendance(true)} />
 
       {/* Summary KPI Cards Row */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">

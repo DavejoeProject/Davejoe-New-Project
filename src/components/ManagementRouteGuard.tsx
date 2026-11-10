@@ -118,8 +118,18 @@ export const ManagementRouteGuard: React.FC<ManagementRouteGuardProps> = ({ chil
           (name) => normalizeRoleKey(name) === 'executive_director'
         );
 
-        // Management / CEO and Executive Director share equal leadership authority
-        const isAuthorized = !isSuspended && (hasManagementSlug || hasManagementName || hasExecutiveSlug || hasExecutiveName);
+        const isAdmin = assignedSlugs.some((s) => s.toLowerCase().trim() === 'admin') || assignedNames.some((n) => normalizeRoleKey(n) === 'admin');
+        const isProjectRoute = location.pathname.includes('/projects');
+
+        // Management / CEO and Executive Director share equal leadership authority.
+        // Admin also has full authorization over project control and materials assignment.
+        const isAuthorized = !isSuspended && (
+          hasManagementSlug ||
+          hasManagementName ||
+          hasExecutiveSlug ||
+          hasExecutiveName ||
+          (isAdmin && isProjectRoute)
+        );
 
         // Check if user has an alternative valid role (e.g. executive_director, admin, supervisor, artisan)
         let alternativeRole: string | null = null;
