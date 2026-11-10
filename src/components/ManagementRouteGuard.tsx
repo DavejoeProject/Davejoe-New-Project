@@ -189,7 +189,7 @@ export const ManagementRouteGuard: React.FC<ManagementRouteGuardProps> = ({ chil
   if (authState.isLoading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-[#f8faf9]">
-        <div className="w-10 h-10 border-3 border-[#01875F]/20 border-t-[#01875F] rounded-full animate-spin mb-3" />
+        <div className="w-10 h-10 border-3 border-[#18b892]/20 border-t-[#18b892] rounded-full animate-spin mb-3" />
         <p className="text-xs font-medium text-slate-500 tracking-wide">
           Verifying Management / CEO authorization...
         </p>

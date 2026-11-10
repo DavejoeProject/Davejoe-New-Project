@@ -136,7 +136,7 @@ export const FinancialControlModule: React.FC<FinancialControlModuleProps> = ({
               </span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight flex items-center gap-2.5">
-              <CircleDollarSign className="w-7 h-7 text-[#01875F]" />
+              <CircleDollarSign className="w-7 h-7 text-[#18b892]" />
               <span>Project Costs & Financial Control</span>
             </h1>
             <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-2xl leading-relaxed">
@@ -152,7 +152,7 @@ export const FinancialControlModule: React.FC<FinancialControlModuleProps> = ({
             title="Refresh Financials"
           >
             <RefreshCw
-              className={`w-3.5 h-3.5 text-[#01875F] ${isRefreshing ? 'animate-spin' : ''}`}
+              className={`w-3.5 h-3.5 text-[#18b892] ${isRefreshing ? 'animate-spin' : ''}`}
             />
             <span>{isRefreshing ? 'Refreshing...' : 'Refresh'}</span>
           </button>
@@ -165,7 +165,7 @@ export const FinancialControlModule: React.FC<FinancialControlModuleProps> = ({
           <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">
             TOTAL CONTRACT VALUE
           </span>
-          <span className="text-xl sm:text-2xl font-bold text-[#01875F] mt-1 block font-mono">
+          <span className="text-xl sm:text-2xl font-bold text-[#18b892] mt-1 block font-mono">
             {isLoading && !summary ? '...' : formatNaira(summary?.totalContractValue ?? 0)}
           </span>
           <span className="text-[11px] text-slate-500">Agreed project contract sums</span>
@@ -218,7 +218,7 @@ export const FinancialControlModule: React.FC<FinancialControlModuleProps> = ({
               onClick={() => setActiveTab(tab.key as FinancialTab)}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap cursor-pointer ${
                 isActive
-                  ? 'bg-[#01875F] text-white shadow-2xs'
+                  ? 'bg-[#18b892] text-white shadow-2xs'
                   : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
               }`}
             >
@@ -231,7 +231,7 @@ export const FinancialControlModule: React.FC<FinancialControlModuleProps> = ({
 
       {/* 4. Accounting Standard Notification */}
       <div className="bg-slate-50 border border-slate-200/80 rounded-xl p-3.5 flex items-start gap-2.5 text-xs text-slate-600 leading-relaxed">
-        <Info className="w-4 h-4 text-[#01875F] shrink-0 mt-0.5" />
+        <Info className="w-4 h-4 text-[#18b892] shrink-0 mt-0.5" />
         <div>
           <strong className="text-slate-900">Accounting & Audit Integrity Notice:</strong> All figures are strictly derived from verified Supabase records. Agreed contract values and BOQ material estimates are recorded baseline figures; procurement commitments represent authorized purchase orders. When separate budget line items are not defined, unrecorded figures are transparently noted rather than manufactured.
         </div>
@@ -247,7 +247,7 @@ export const FinancialControlModule: React.FC<FinancialControlModuleProps> = ({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search by project code or project name..."
-              className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#01875F] focus:border-[#01875F] transition-all"
+              className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#18b892] focus:border-[#18b892] transition-all"
             />
           </div>
 
@@ -255,7 +255,7 @@ export const FinancialControlModule: React.FC<FinancialControlModuleProps> = ({
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-700 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#01875F] focus:border-[#01875F] transition-all"
+              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-700 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#18b892] focus:border-[#18b892] transition-all"
             >
               <option value="all">All Project Statuses</option>
               <option value="in_progress">In Progress</option>
@@ -275,7 +275,7 @@ export const FinancialControlModule: React.FC<FinancialControlModuleProps> = ({
             <button
               type="button"
               onClick={handleClearFilters}
-              className="inline-flex items-center gap-1 text-[#01875F] font-semibold hover:underline cursor-pointer"
+              className="inline-flex items-center gap-1 text-[#18b892] font-semibold hover:underline cursor-pointer"
             >
               <X className="w-3.5 h-3.5" />
               <span>Clear Filters</span>
@@ -304,14 +304,14 @@ export const FinancialControlModule: React.FC<FinancialControlModuleProps> = ({
           <button
             type="button"
             onClick={() => fetchData()}
-            className="px-4 py-2 bg-[#01875F] hover:bg-[#016f4e] text-white text-xs font-semibold rounded-lg shadow-2xs transition-colors cursor-pointer"
+            className="px-4 py-2 bg-[#18b892] hover:bg-[#016f4e] text-white text-xs font-semibold rounded-lg shadow-2xs transition-colors cursor-pointer"
           >
             Retry
           </button>
         </div>
       ) : projectsList.length === 0 ? (
         <div className="bg-white rounded-xl border border-slate-200/80 shadow-2xs p-12 text-center max-w-xl mx-auto">
-          <div className="w-12 h-12 rounded-full bg-[#E6F4EA] text-[#01875F] flex items-center justify-center mx-auto mb-3 border border-[#01875F]/20">
+          <div className="w-12 h-12 rounded-full bg-[#E6F4EA] text-[#18b892] flex items-center justify-center mx-auto mb-3 border border-[#18b892]/20">
             <CircleDollarSign className="w-6 h-6" />
           </div>
           <h3 className="text-base font-bold text-slate-900">
@@ -326,7 +326,7 @@ export const FinancialControlModule: React.FC<FinancialControlModuleProps> = ({
             <button
               type="button"
               onClick={handleClearFilters}
-              className="mt-4 px-4 py-2 bg-[#01875F] text-white text-xs font-semibold rounded-lg shadow-2xs hover:bg-[#016f4e] transition-colors cursor-pointer"
+              className="mt-4 px-4 py-2 bg-[#18b892] text-white text-xs font-semibold rounded-lg shadow-2xs hover:bg-[#016f4e] transition-colors cursor-pointer"
             >
               Clear Filters
             </button>
@@ -366,7 +366,7 @@ export const FinancialControlModule: React.FC<FinancialControlModuleProps> = ({
                           className="hover:bg-slate-50/80 transition-colors cursor-pointer group"
                         >
                           <td className="py-3.5 px-4">
-                            <div className="font-bold text-slate-900 group-hover:text-[#01875F] transition-colors">
+                            <div className="font-bold text-slate-900 group-hover:text-[#18b892] transition-colors">
                               {p.projectName}
                             </div>
                             <div className="font-mono text-[10.5px] text-slate-400">
@@ -382,7 +382,7 @@ export const FinancialControlModule: React.FC<FinancialControlModuleProps> = ({
                             </span>
                           </td>
 
-                          <td className="py-3.5 px-3 text-right font-mono font-bold text-[#01875F]">
+                          <td className="py-3.5 px-3 text-right font-mono font-bold text-[#18b892]">
                             {p.contractValue != null ? formatNaira(p.contractValue) : 'Not recorded'}
                           </td>
 
@@ -409,14 +409,14 @@ export const FinancialControlModule: React.FC<FinancialControlModuleProps> = ({
                               <button
                                 type="button"
                                 onClick={() => setSelectedProject(p)}
-                                className="p-1.5 text-slate-500 hover:text-[#01875F] hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+                                className="p-1.5 text-slate-500 hover:text-[#18b892] hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
                                 title="Inspect Project Financial Details"
                               >
                                 <Eye className="w-4 h-4" />
                               </button>
                               <Link
                                 to={`/management/projects/${p.projectId}`}
-                                className="p-1.5 text-slate-500 hover:text-[#01875F] hover:bg-slate-100 rounded-lg transition-colors inline-block"
+                                className="p-1.5 text-slate-500 hover:text-[#18b892] hover:bg-slate-100 rounded-lg transition-colors inline-block"
                                 title="Open Project Control Centre"
                               >
                                 <ExternalLink className="w-4 h-4" />
@@ -477,7 +477,7 @@ export const FinancialControlModule: React.FC<FinancialControlModuleProps> = ({
                               </span>
                             </td>
 
-                            <td className="py-3.5 px-3 text-right font-mono font-bold text-[#01875F]">
+                            <td className="py-3.5 px-3 text-right font-mono font-bold text-[#18b892]">
                               {cv != null ? formatNaira(cv) : 'Not recorded'}
                             </td>
 
@@ -570,7 +570,7 @@ export const FinancialControlModule: React.FC<FinancialControlModuleProps> = ({
                             {s.ordersCount === 1 ? '' : 's'}
                           </span>
                         </div>
-                        <div className="font-mono font-bold text-[#01875F] text-sm">
+                        <div className="font-mono font-bold text-[#18b892] text-sm">
                           {formatNaira(s.totalCommitted)}
                         </div>
                       </div>
@@ -593,7 +593,7 @@ export const FinancialControlModule: React.FC<FinancialControlModuleProps> = ({
             {/* Header */}
             <div className="px-6 py-5 bg-white border-b border-slate-100 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-emerald-50 text-[#01875F] flex items-center justify-center shrink-0 border border-emerald-200">
+                <div className="w-10 h-10 rounded-xl bg-emerald-50 text-[#18b892] flex items-center justify-center shrink-0 border border-emerald-200">
                   <CircleDollarSign className="w-5 h-5" />
                 </div>
                 <div>
@@ -622,7 +622,7 @@ export const FinancialControlModule: React.FC<FinancialControlModuleProps> = ({
                   <span className="text-[10px] uppercase font-bold text-slate-400 block">
                     Agreed Contract Value
                   </span>
-                  <div className="text-lg font-bold font-mono text-[#01875F] mt-1">
+                  <div className="text-lg font-bold font-mono text-[#18b892] mt-1">
                     {selectedProject.contractValue != null
                       ? formatNaira(selectedProject.contractValue)
                       : 'Not recorded in database'}
@@ -668,7 +668,7 @@ export const FinancialControlModule: React.FC<FinancialControlModuleProps> = ({
                 <div className="flex flex-col sm:flex-row gap-2">
                   <Link
                     to={`/management/projects/${selectedProject.projectId}`}
-                    className="inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-[#01875F] text-white rounded-lg text-xs font-semibold hover:bg-[#016f4e] transition-colors"
+                    className="inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-[#18b892] text-white rounded-lg text-xs font-semibold hover:bg-[#016f4e] transition-colors"
                   >
                     <span>Open Project Control Centre</span>
                     <ExternalLink className="w-3.5 h-3.5" />

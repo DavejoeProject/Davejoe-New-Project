@@ -19,17 +19,17 @@ export const SocialMediaDashboard: React.FC = () => {
     hasRole('executive_director');
 
   return (
-    <div className="min-h-screen bg-[#F8FAFB] text-slate-800 font-sans selection:bg-[#01875F]/20 selection:text-[#01875F]">
+    <div className="min-h-screen bg-[#F8FAFB] text-slate-800 font-sans selection:bg-[#18b892]/20 selection:text-[#18b892]">
       <header className="sticky top-0 z-30 border-b border-slate-200/80 bg-white px-5 py-4 sm:px-8 shadow-2xs">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#01875F]/10 text-[#01875F]">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#18b892]/10 text-[#18b892]">
               <Images className="h-5 w-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
                 <h1 className="text-base font-bold text-slate-900 tracking-tight">Davejoe Management Tool</h1>
-                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-[#01875F] border border-emerald-200">
+                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-[#18b892] border border-emerald-200">
                   Social Media &amp; Brand
                 </span>
               </div>
@@ -62,7 +62,7 @@ export const SocialMediaDashboard: React.FC = () => {
 
         <section className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2 text-xs text-[#01875F] font-bold mb-1">
+            <div className="flex items-center gap-2 text-xs text-[#18b892] font-bold mb-1">
               <Sparkles className="w-3.5 h-3.5" />
               <span>Visual Showcase &amp; Verification</span>
             </div>
@@ -75,7 +75,7 @@ export const SocialMediaDashboard: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
-            <span className="px-3 py-1 rounded-full text-xs font-semibold bg-[#E6F4EA] text-[#01875F] border border-[#01875F]/20">
+            <span className="px-3 py-1 rounded-full text-xs font-semibold bg-[#E6F4EA] text-[#18b892] border border-[#18b892]/20">
               Verified Assets
             </span>
           </div>

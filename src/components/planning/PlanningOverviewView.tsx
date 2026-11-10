@@ -99,7 +99,7 @@ export const PlanningOverviewView: React.FC<PlanningOverviewViewProps> = ({
           <button
             type="button"
             onClick={onOpenCreateModal}
-            className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#01875F] hover:bg-[#01704f] text-white text-xs sm:text-sm font-semibold rounded-xl shadow-sm transition-all hover:scale-[1.02] cursor-pointer"
+            className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#18b892] hover:bg-[#01704f] text-white text-xs sm:text-sm font-semibold rounded-xl shadow-sm transition-all hover:scale-[1.02] cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             Create New Projection
@@ -138,7 +138,7 @@ export const PlanningOverviewView: React.FC<PlanningOverviewViewProps> = ({
         <div className="bg-white p-5 rounded-xl border border-slate-200/90 shadow-2xs">
           <div className="flex items-center justify-between text-slate-500 mb-2">
             <span className="text-xs font-semibold uppercase tracking-wider">Projected Gross Profit</span>
-            <div className="w-8 h-8 rounded-lg bg-emerald-50 text-[#01875F] flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-emerald-50 text-[#18b892] flex items-center justify-center">
               <TrendingUp className="w-4 h-4" />
             </div>
           </div>
@@ -170,7 +170,7 @@ export const PlanningOverviewView: React.FC<PlanningOverviewViewProps> = ({
       {/* Planning Pipeline Stages */}
       <div className="bg-white p-6 rounded-2xl border border-slate-200/90 shadow-2xs">
         <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4 flex items-center gap-2">
-          <FolderKanban className="w-4 h-4 text-[#01875F]" />
+          <FolderKanban className="w-4 h-4 text-[#18b892]" />
           Projection Lifecycle Pipeline
         </h3>
 
@@ -227,8 +227,8 @@ export const PlanningOverviewView: React.FC<PlanningOverviewViewProps> = ({
             onClick={() => onNavigateSection('converted-projects')}
             className="p-3.5 bg-emerald-100/60 hover:bg-emerald-200/60 rounded-xl border border-emerald-300 transition-colors cursor-pointer text-center"
           >
-            <span className="text-2xl font-bold text-[#01875F] block">{converted}</span>
-            <span className="text-xs font-bold text-[#01875F] mt-0.5 block">7. Converted</span>
+            <span className="text-2xl font-bold text-[#18b892] block">{converted}</span>
+            <span className="text-xs font-bold text-[#18b892] mt-0.5 block">7. Converted</span>
           </div>
         </div>
       </div>
@@ -290,13 +290,13 @@ export const PlanningOverviewView: React.FC<PlanningOverviewViewProps> = ({
         <div className="lg:col-span-7 bg-white p-6 rounded-2xl border border-slate-200/90 shadow-2xs">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
-              <Clock className="w-4 h-4 text-[#01875F]" />
+              <Clock className="w-4 h-4 text-[#18b892]" />
               Recent Planning Pipeline
             </h3>
             <button
               type="button"
               onClick={() => onNavigateSection('all-projections')}
-              className="text-xs font-semibold text-[#01875F] hover:text-[#01704f] transition-colors"
+              className="text-xs font-semibold text-[#18b892] hover:text-[#01704f] transition-colors"
             >
               View All ({projections.length})
             </button>

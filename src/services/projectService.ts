@@ -36,9 +36,9 @@ export const PROJECT_STATUS_CONFIG: Record<
   },
   in_progress: {
     label: 'In Progress',
-    badgeClass: 'bg-[#E6F4EA] text-[#01875F] border-[#01875F]/30 font-semibold',
-    bgClass: 'bg-[#E6F4EA]',
-    textClass: 'text-[#01875F]',
+    badgeClass: 'bg-[#18b892]/10 text-[#18b892] border-[#18b892]/30 font-semibold',
+    bgClass: 'bg-[#18b892]/10',
+    textClass: 'text-[#18b892]',
   },
   snagging: {
     label: 'Snagging',

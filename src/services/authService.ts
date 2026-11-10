@@ -229,7 +229,7 @@ export class AuthService {
     const isError = report.classification !== 'SUCCESS';
     const headerStyle = isError
       ? 'background: #EF4444; color: white; padding: 2px 6px; border-radius: 4px; font-weight: bold;'
-      : 'background: #01875F; color: white; padding: 2px 6px; border-radius: 4px; font-weight: bold;';
+      : 'background: #18b892; color: white; padding: 2px 6px; border-radius: 4px; font-weight: bold;';
 
     console.groupCollapsed(
       `%c[Davejoe Auth Diagnostics] %c${report.classification}: ${report.explanation}`,

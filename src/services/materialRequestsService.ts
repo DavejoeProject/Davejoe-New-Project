@@ -54,7 +54,7 @@ export const REQUEST_STATUS_CONFIG: Record<
   approved: {
     label: 'Approved',
     badgeClasses: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-    dotClasses: 'bg-[#01875F]',
+    dotClasses: 'bg-[#18b892]',
   },
   rejected: {
     label: 'Rejected',

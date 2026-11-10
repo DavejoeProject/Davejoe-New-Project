@@ -267,14 +267,14 @@ export const SupervisorProjectDetail: React.FC<SupervisorProjectDetailProps> = (
               disabled={isRefreshing}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 rounded-xl text-xs font-semibold shadow-2xs transition-colors cursor-pointer"
             >
-              <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-[#01875F]' : ''}`} />
+              <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-[#18b892]' : ''}`} />
               <span>Sync</span>
             </button>
 
             <button
               type="button"
               onClick={() => setIsDailyReportOpen(true)}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[#01875F] hover:bg-[#016f4e] text-white rounded-xl text-xs font-bold shadow-2xs transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[#18b892] hover:bg-[#016f4e] text-white rounded-xl text-xs font-bold shadow-2xs transition-colors cursor-pointer"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>New Daily Report</span>
@@ -361,7 +361,7 @@ export const SupervisorProjectDetail: React.FC<SupervisorProjectDetailProps> = (
               onClick={() => setActiveTab(t.key as any)}
               className={`flex items-center gap-1.5 px-3 py-2 rounded-xl font-bold whitespace-nowrap transition-colors cursor-pointer ${
                 isActive
-                  ? 'bg-[#01875F] text-white shadow-2xs'
+                  ? 'bg-[#18b892] text-white shadow-2xs'
                   : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
               }`}
             >
@@ -390,7 +390,7 @@ export const SupervisorProjectDetail: React.FC<SupervisorProjectDetailProps> = (
             </div>
             <div className="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-2xs">
               <span className="text-[11px] font-bold uppercase text-slate-400 block mb-1">Daily Reports Filed</span>
-              <span className="text-2xl font-bold font-mono text-[#01875F]">{dailyReports.length}</span>
+              <span className="text-2xl font-bold font-mono text-[#18b892]">{dailyReports.length}</span>
               <span className="text-[10px] text-slate-500 block mt-1">Verified site logs</span>
             </div>
             <div className="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-2xs">
@@ -422,7 +422,7 @@ export const SupervisorProjectDetail: React.FC<SupervisorProjectDetailProps> = (
                 <button
                   type="button"
                   onClick={() => setActiveTab('reports')}
-                  className="text-xs font-semibold text-[#01875F] hover:underline"
+                  className="text-xs font-semibold text-[#18b892] hover:underline"
                 >
                   View All &rarr;
                 </button>
@@ -453,7 +453,7 @@ export const SupervisorProjectDetail: React.FC<SupervisorProjectDetailProps> = (
                 <button
                   type="button"
                   onClick={() => setActiveTab('tasks')}
-                  className="text-xs font-semibold text-[#01875F] hover:underline"
+                  className="text-xs font-semibold text-[#18b892] hover:underline"
                 >
                   View All &rarr;
                 </button>
@@ -496,7 +496,7 @@ export const SupervisorProjectDetail: React.FC<SupervisorProjectDetailProps> = (
             <button
               type="button"
               onClick={() => setIsDailyReportOpen(true)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#01875F] hover:bg-[#016f4e] text-white text-xs font-bold rounded-xl"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#18b892] hover:bg-[#016f4e] text-white text-xs font-bold rounded-xl"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>Submit Report</span>
@@ -620,7 +620,7 @@ export const SupervisorProjectDetail: React.FC<SupervisorProjectDetailProps> = (
             </div>
             <button
               onClick={() => setIsClockInOpen(true)}
-              className="px-3 py-1.5 bg-[#01875F] text-white rounded-xl text-xs font-bold"
+              className="px-3 py-1.5 bg-[#18b892] text-white rounded-xl text-xs font-bold"
             >
               Clock In Worker
             </button>
@@ -653,7 +653,7 @@ export const SupervisorProjectDetail: React.FC<SupervisorProjectDetailProps> = (
                         <td className="py-3 px-4 text-slate-600">{m?.trade || 'Artisan'}</td>
                         <td className="py-3 px-4 text-slate-500">{w.notes || 'Site Artisan'}</td>
                         <td className="py-3 px-4">
-                          <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-[#01875F]">
+                          <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-[#18b892]">
                             {m?.status || 'Active'}
                           </span>
                         </td>
@@ -677,7 +677,7 @@ export const SupervisorProjectDetail: React.FC<SupervisorProjectDetailProps> = (
             </div>
             <button
               onClick={() => setIsClockInOpen(true)}
-              className="px-3 py-1.5 bg-[#01875F] text-white rounded-xl text-xs font-bold"
+              className="px-3 py-1.5 bg-[#18b892] text-white rounded-xl text-xs font-bold"
             >
               Clock In Worker
             </button>
@@ -878,7 +878,7 @@ export const SupervisorProjectDetail: React.FC<SupervisorProjectDetailProps> = (
               </div>
               <button
                 onClick={() => setIsRequestMatOpen(true)}
-                className="px-4 py-2 bg-[#01875F] hover:bg-[#00704e] text-white rounded-xl text-xs font-bold shadow-xs transition-colors self-start sm:self-auto cursor-pointer"
+                className="px-4 py-2 bg-[#18b892] hover:bg-[#139c7b] text-white rounded-xl text-xs font-bold shadow-xs transition-colors self-start sm:self-auto cursor-pointer"
               >
                 + Request Material
               </button>
@@ -890,7 +890,7 @@ export const SupervisorProjectDetail: React.FC<SupervisorProjectDetailProps> = (
                 Authoritative Inventory Reconciliation Formula
               </div>
               <div className="font-mono text-xs text-slate-800 font-semibold flex flex-wrap items-center gap-1.5">
-                <span className="px-2 py-0.5 rounded bg-emerald-100 text-[#01875F] font-bold">Project Balance</span>
+                <span className="px-2 py-0.5 rounded bg-emerald-100 text-[#18b892] font-bold">Project Balance</span>
                 <span>=</span>
                 <span className="text-blue-700">Total Store Issues/Receipts</span>
                 <span>−</span>
@@ -925,8 +925,8 @@ export const SupervisorProjectDetail: React.FC<SupervisorProjectDetailProps> = (
                 <div className="text-[10px] text-teal-600">{totalReturned} ret, {totalLosses} waste</div>
               </div>
               <div className="p-3.5 rounded-xl border border-emerald-200 bg-emerald-50/50 col-span-2 sm:col-span-1">
-                <div className="text-[10px] uppercase font-bold text-[#01875F]">Live Site Balance</div>
-                <div className="text-lg font-bold font-mono text-[#01875F] mt-1">{netProjectBalance}</div>
+                <div className="text-[10px] uppercase font-bold text-[#18b892]">Live Site Balance</div>
+                <div className="text-lg font-bold font-mono text-[#18b892] mt-1">{netProjectBalance}</div>
                 <div className="text-[10px] text-emerald-700">Currently on site</div>
               </div>
             </div>
@@ -1192,7 +1192,7 @@ export const SupervisorProjectDetail: React.FC<SupervisorProjectDetailProps> = (
             <div className="space-y-3 text-xs">
               {activityHistory.map((a) => (
                 <div key={a.id} className="p-3 rounded-xl border border-slate-100 bg-slate-50/50 flex items-start gap-3">
-                  <div className="w-2 h-2 rounded-full bg-[#01875F] mt-1.5 shrink-0" />
+                  <div className="w-2 h-2 rounded-full bg-[#18b892] mt-1.5 shrink-0" />
                   <div className="flex-1">
                     <span className="font-bold text-slate-900 block">{a.title}</span>
                     <span className="text-slate-500 text-[11px] block">{a.subtitle}</span>

@@ -270,7 +270,7 @@ export const TaskInstructionsPanel: React.FC<TaskInstructionsPanelProps> = ({
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <div className="flex items-center gap-2">
-              <ClipboardList className="w-6 h-6 text-[#01875F]" />
+              <ClipboardList className="w-6 h-6 text-[#18b892]" />
               <h2 className="text-xl font-bold text-gray-900">Task Instructions & Handover</h2>
             </div>
             <p className="text-sm text-gray-500 mt-1">
@@ -280,7 +280,7 @@ export const TaskInstructionsPanel: React.FC<TaskInstructionsPanelProps> = ({
           {canCreateOrReview && (
             <button
               onClick={() => setShowCreateModal(true)}
-              className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-[#01875F] hover:bg-[#01704e] text-white text-sm font-medium rounded-lg shadow-sm transition-colors"
+              className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-[#18b892] hover:bg-[#01704e] text-white text-sm font-medium rounded-lg shadow-sm transition-colors"
             >
               <Plus className="w-4 h-4" />
               Issue New Task Instruction
@@ -297,7 +297,7 @@ export const TaskInstructionsPanel: React.FC<TaskInstructionsPanelProps> = ({
               placeholder="Search deliverables, specs, or task title..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#01875F] focus:outline-none"
+              className="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#18b892] focus:outline-none"
             />
           </div>
           <div className="flex items-center gap-2">
@@ -305,7 +305,7 @@ export const TaskInstructionsPanel: React.FC<TaskInstructionsPanelProps> = ({
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="border border-gray-300 rounded-lg text-sm px-3 py-2 bg-white text-gray-700 focus:ring-2 focus:ring-[#01875F] focus:outline-none"
+              className="border border-gray-300 rounded-lg text-sm px-3 py-2 bg-white text-gray-700 focus:ring-2 focus:ring-[#18b892] focus:outline-none"
             >
               <option value="all">All Statuses</option>
               <option value="todo">Pending (To Do)</option>
@@ -328,7 +328,7 @@ export const TaskInstructionsPanel: React.FC<TaskInstructionsPanelProps> = ({
       <div className="space-y-4">
         {loading ? (
           <div className="bg-white border border-gray-200 rounded-xl p-8 text-center text-gray-500">
-            <Clock className="w-8 h-8 animate-spin mx-auto text-[#01875F] mb-2" />
+            <Clock className="w-8 h-8 animate-spin mx-auto text-[#18b892] mb-2" />
             Loading task instructions and specifications...
           </div>
         ) : filteredTasks.length === 0 ? (
@@ -537,7 +537,7 @@ export const TaskInstructionsPanel: React.FC<TaskInstructionsPanelProps> = ({
                             }}
                             className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 transition-colors"
                           >
-                            <ShieldCheck className="w-3.5 h-3.5 text-[#01875F]" />
+                            <ShieldCheck className="w-3.5 h-3.5 text-[#18b892]" />
                             Review & Verify Task
                           </button>
                         )}
@@ -557,7 +557,7 @@ export const TaskInstructionsPanel: React.FC<TaskInstructionsPanelProps> = ({
           <div className="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-xl my-8">
             <div className="flex items-center justify-between pb-4 border-b border-gray-100">
               <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                <ClipboardList className="w-5 h-5 text-[#01875F]" />
+                <ClipboardList className="w-5 h-5 text-[#18b892]" />
                 Issue Mandatory Task Instruction
               </h3>
               <button
@@ -585,7 +585,7 @@ export const TaskInstructionsPanel: React.FC<TaskInstructionsPanelProps> = ({
                     required
                     value={createForm.project_id}
                     onChange={(e) => setCreateForm({ ...createForm, project_id: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:ring-2 focus:ring-[#01875F] focus:outline-none"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:ring-2 focus:ring-[#18b892] focus:outline-none"
                   >
                     <option value="">Select a Project</option>
                     {availableProjects.map((p) => (
@@ -612,7 +612,7 @@ export const TaskInstructionsPanel: React.FC<TaskInstructionsPanelProps> = ({
                   placeholder="e.g. Master Bedroom Engineered Parquet Flooring"
                   value={createForm.title}
                   onChange={(e) => setCreateForm({ ...createForm, title: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#01875F] focus:outline-none"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#18b892] focus:outline-none"
                 />
               </div>
 
@@ -625,7 +625,7 @@ export const TaskInstructionsPanel: React.FC<TaskInstructionsPanelProps> = ({
                   placeholder="Detailed description of the task requirements..."
                   value={createForm.description || ''}
                   onChange={(e) => setCreateForm({ ...createForm, description: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#01875F] focus:outline-none"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#18b892] focus:outline-none"
                 />
               </div>
 
@@ -637,7 +637,7 @@ export const TaskInstructionsPanel: React.FC<TaskInstructionsPanelProps> = ({
                   <select
                     value={createForm.priority}
                     onChange={(e) => setCreateForm({ ...createForm, priority: e.target.value as TaskPriority })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:ring-2 focus:ring-[#01875F] focus:outline-none"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:ring-2 focus:ring-[#18b892] focus:outline-none"
                   >
                     <option value="low">Low</option>
                     <option value="medium">Medium</option>
@@ -654,7 +654,7 @@ export const TaskInstructionsPanel: React.FC<TaskInstructionsPanelProps> = ({
                     placeholder="e.g. Flush herringbone pattern with perimeter cork joints"
                     value={createForm.deliverable || ''}
                     onChange={(e) => setCreateForm({ ...createForm, deliverable: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#01875F] focus:outline-none"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#18b892] focus:outline-none"
                   />
                 </div>
               </div>
@@ -669,7 +669,7 @@ export const TaskInstructionsPanel: React.FC<TaskInstructionsPanelProps> = ({
                     placeholder="Specific items, grades, brands required"
                     value={createForm.required_materials || ''}
                     onChange={(e) => setCreateForm({ ...createForm, required_materials: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#01875F] focus:outline-none"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#18b892] focus:outline-none"
                   />
                 </div>
                 <div>
@@ -681,7 +681,7 @@ export const TaskInstructionsPanel: React.FC<TaskInstructionsPanelProps> = ({
                     placeholder="Required tools (e.g. drop saw, moisture meter)"
                     value={createForm.required_tools || ''}
                     onChange={(e) => setCreateForm({ ...createForm, required_tools: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#01875F] focus:outline-none"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#18b892] focus:outline-none"
                   />
                 </div>
               </div>
@@ -696,7 +696,7 @@ export const TaskInstructionsPanel: React.FC<TaskInstructionsPanelProps> = ({
                     placeholder="e.g. Max 2mm deviation over 3m edge"
                     value={createForm.technical_specifications || ''}
                     onChange={(e) => setCreateForm({ ...createForm, technical_specifications: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#01875F] focus:outline-none"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#18b892] focus:outline-none"
                   />
                 </div>
                 <div>
@@ -708,7 +708,7 @@ export const TaskInstructionsPanel: React.FC<TaskInstructionsPanelProps> = ({
                     placeholder="e.g. FFP2 mask, eye shield, ventilated space"
                     value={createForm.safety_instructions || ''}
                     onChange={(e) => setCreateForm({ ...createForm, safety_instructions: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#01875F] focus:outline-none"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#18b892] focus:outline-none"
                   />
                 </div>
               </div>
@@ -722,7 +722,7 @@ export const TaskInstructionsPanel: React.FC<TaskInstructionsPanelProps> = ({
                   placeholder="e.g. 3 photos of joint alignment + QC signoff"
                   value={createForm.completion_evidence_required || ''}
                   onChange={(e) => setCreateForm({ ...createForm, completion_evidence_required: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#01875F] focus:outline-none"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#18b892] focus:outline-none"
                 />
               </div>
 
@@ -737,7 +737,7 @@ export const TaskInstructionsPanel: React.FC<TaskInstructionsPanelProps> = ({
                 <button
                   type="submit"
                   disabled={actionLoading}
-                  className="px-5 py-2 bg-[#01875F] hover:bg-[#01704e] text-white rounded-lg text-sm font-medium shadow-sm transition-colors"
+                  className="px-5 py-2 bg-[#18b892] hover:bg-[#01704e] text-white rounded-lg text-sm font-medium shadow-sm transition-colors"
                 >
                   {actionLoading ? 'Issuing...' : 'Issue Task Instruction'}
                 </button>
@@ -798,7 +798,7 @@ export const TaskInstructionsPanel: React.FC<TaskInstructionsPanelProps> = ({
         <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl">
             <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2 mb-2">
-              <ShieldCheck className="w-5 h-5 text-[#01875F]" />
+              <ShieldCheck className="w-5 h-5 text-[#18b892]" />
               Quality Inspection & Task Review
             </h3>
             <p className="text-xs text-gray-500 mb-3">
@@ -818,7 +818,7 @@ export const TaskInstructionsPanel: React.FC<TaskInstructionsPanelProps> = ({
               placeholder="State inspection findings, tolerance measurements, or reasons for return..."
               value={reviewNotes}
               onChange={(e) => setReviewNotes(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#01875F] focus:outline-none mb-4"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#18b892] focus:outline-none mb-4"
             />
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-2">
               <button
@@ -848,7 +848,7 @@ export const TaskInstructionsPanel: React.FC<TaskInstructionsPanelProps> = ({
                 type="button"
                 onClick={() => handleReviewSubmit('verified')}
                 disabled={actionLoading}
-                className="px-4 py-2 bg-[#01875F] hover:bg-[#01704e] text-white rounded-lg text-xs font-semibold transition-colors"
+                className="px-4 py-2 bg-[#18b892] hover:bg-[#01704e] text-white rounded-lg text-xs font-semibold transition-colors"
               >
                 Approve & Verify
               </button>

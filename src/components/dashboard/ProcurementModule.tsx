@@ -176,7 +176,7 @@ export const ProcurementModule: React.FC<ProcurementModuleProps> = () => {
               </span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight flex items-center gap-2.5">
-              <ShoppingCart className="w-7 h-7 text-[#01875F]" />
+              <ShoppingCart className="w-7 h-7 text-[#18b892]" />
               <span>Procurement</span>
             </h1>
             <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-2xl leading-relaxed">
@@ -193,7 +193,7 @@ export const ProcurementModule: React.FC<ProcurementModuleProps> = () => {
               title="Refresh"
             >
               <RefreshCw
-                className={`w-3.5 h-3.5 text-[#01875F] ${isRefreshing ? 'animate-spin' : ''}`}
+                className={`w-3.5 h-3.5 text-[#18b892] ${isRefreshing ? 'animate-spin' : ''}`}
               />
               <span>{isRefreshing ? 'Refreshing...' : 'Refresh'}</span>
             </button>
@@ -201,7 +201,7 @@ export const ProcurementModule: React.FC<ProcurementModuleProps> = () => {
             <button
               type="button"
               onClick={() => setIsCreateModalOpen(true)}
-              className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#01875F] hover:bg-[#016f4e] text-white text-xs font-semibold rounded-lg shadow-2xs transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#18b892] hover:bg-[#016f4e] text-white text-xs font-semibold rounded-lg shadow-2xs transition-colors cursor-pointer"
             >
               <Plus className="w-4 h-4" />
               <span>Create Purchase Order</span>
@@ -243,7 +243,7 @@ export const ProcurementModule: React.FC<ProcurementModuleProps> = () => {
           <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">
             COMMITTED VALUE
           </span>
-          <span className="text-2xl font-bold text-[#01875F] mt-1 block font-mono">
+          <span className="text-2xl font-bold text-[#18b892] mt-1 block font-mono">
             {isLoading && !summary ? '...' : formatNaira(summary?.procurementCommitted ?? 0)}
           </span>
           <span className="text-[11px] text-slate-500">Total active commitments</span>
@@ -271,7 +271,7 @@ export const ProcurementModule: React.FC<ProcurementModuleProps> = () => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search by code, supplier, or project..."
-              className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#01875F] focus:border-[#01875F] transition-all"
+              className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#18b892] focus:border-[#18b892] transition-all"
             />
           </div>
 
@@ -280,7 +280,7 @@ export const ProcurementModule: React.FC<ProcurementModuleProps> = () => {
             <select
               value={projectFilter}
               onChange={(e) => setProjectFilter(e.target.value)}
-              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-700 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#01875F] focus:border-[#01875F] transition-all"
+              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-700 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#18b892] focus:border-[#18b892] transition-all"
             >
               <option value="all">All Projects</option>
               {projects.map((p) => (
@@ -296,7 +296,7 @@ export const ProcurementModule: React.FC<ProcurementModuleProps> = () => {
             <select
               value={supplierFilter}
               onChange={(e) => setSupplierFilter(e.target.value)}
-              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-700 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#01875F] focus:border-[#01875F] transition-all"
+              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-700 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#18b892] focus:border-[#18b892] transition-all"
             >
               <option value="all">All Suppliers</option>
               {suppliers.map((s) => (
@@ -312,7 +312,7 @@ export const ProcurementModule: React.FC<ProcurementModuleProps> = () => {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-700 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#01875F] focus:border-[#01875F] transition-all"
+              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-700 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#18b892] focus:border-[#18b892] transition-all"
             >
               <option value="all">All Statuses</option>
               {ALL_PURCHASE_ORDER_STATUSES.map((st) => (
@@ -332,7 +332,7 @@ export const ProcurementModule: React.FC<ProcurementModuleProps> = () => {
             <button
               type="button"
               onClick={handleClearFilters}
-              className="inline-flex items-center gap-1 text-[#01875F] font-semibold hover:underline cursor-pointer"
+              className="inline-flex items-center gap-1 text-[#18b892] font-semibold hover:underline cursor-pointer"
             >
               <X className="w-3.5 h-3.5" />
               <span>Clear Filters</span>
@@ -361,14 +361,14 @@ export const ProcurementModule: React.FC<ProcurementModuleProps> = () => {
           <button
             type="button"
             onClick={() => fetchData()}
-            className="px-4 py-2 bg-[#01875F] hover:bg-[#016f4e] text-white text-xs font-semibold rounded-lg shadow-2xs transition-colors cursor-pointer"
+            className="px-4 py-2 bg-[#18b892] hover:bg-[#016f4e] text-white text-xs font-semibold rounded-lg shadow-2xs transition-colors cursor-pointer"
           >
             Retry
           </button>
         </div>
       ) : orders.length === 0 ? (
         <div className="bg-white rounded-xl border border-slate-200/80 shadow-2xs p-12 text-center max-w-xl mx-auto">
-          <div className="w-12 h-12 rounded-full bg-[#E6F4EA] text-[#01875F] flex items-center justify-center mx-auto mb-3 border border-[#01875F]/20">
+          <div className="w-12 h-12 rounded-full bg-[#E6F4EA] text-[#18b892] flex items-center justify-center mx-auto mb-3 border border-[#18b892]/20">
             <Boxes className="w-6 h-6" />
           </div>
           <h3 className="text-base font-bold text-slate-900">
@@ -384,7 +384,7 @@ export const ProcurementModule: React.FC<ProcurementModuleProps> = () => {
               <button
                 type="button"
                 onClick={handleClearFilters}
-                className="px-4 py-2 bg-[#01875F] text-white text-xs font-semibold rounded-lg shadow-2xs hover:bg-[#016f4e] transition-colors cursor-pointer"
+                className="px-4 py-2 bg-[#18b892] text-white text-xs font-semibold rounded-lg shadow-2xs hover:bg-[#016f4e] transition-colors cursor-pointer"
               >
                 Clear Filters
               </button>
@@ -392,7 +392,7 @@ export const ProcurementModule: React.FC<ProcurementModuleProps> = () => {
               <button
                 type="button"
                 onClick={() => setIsCreateModalOpen(true)}
-                className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#01875F] text-white text-xs font-semibold rounded-lg shadow-2xs hover:bg-[#016f4e] transition-colors cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#18b892] text-white text-xs font-semibold rounded-lg shadow-2xs hover:bg-[#016f4e] transition-colors cursor-pointer"
               >
                 <Plus className="w-4 h-4" />
                 <span>+ Create Purchase Order</span>
@@ -434,7 +434,7 @@ export const ProcurementModule: React.FC<ProcurementModuleProps> = () => {
                     >
                       {/* Purchase Order Code */}
                       <td className="py-3.5 px-4">
-                        <div className="font-mono font-bold text-slate-900 group-hover:text-[#01875F] transition-colors">
+                        <div className="font-mono font-bold text-slate-900 group-hover:text-[#18b892] transition-colors">
                           {po.purchase_code}
                         </div>
                         {po.items && (
@@ -452,7 +452,7 @@ export const ProcurementModule: React.FC<ProcurementModuleProps> = () => {
                         {po.projects ? (
                           <Link
                             to={`/management/projects/${po.project_id}`}
-                            className="font-medium text-slate-800 hover:text-[#01875F] hover:underline"
+                            className="font-medium text-slate-800 hover:text-[#18b892] hover:underline"
                           >
                             <span className="font-mono text-[11px] text-slate-500 mr-1">
                               {po.projects.project_code}
@@ -507,7 +507,7 @@ export const ProcurementModule: React.FC<ProcurementModuleProps> = () => {
                               <button
                                 type="button"
                                 onClick={() => setSelectedApproveOrder(po)}
-                                className="p-1.5 text-[#01875F] hover:bg-emerald-50 rounded-lg transition-colors cursor-pointer"
+                                className="p-1.5 text-[#18b892] hover:bg-emerald-50 rounded-lg transition-colors cursor-pointer"
                                 title="Approve Purchase Order"
                               >
                                 <CheckCircle2 className="w-4 h-4" />
@@ -525,7 +525,7 @@ export const ProcurementModule: React.FC<ProcurementModuleProps> = () => {
                           <button
                             type="button"
                             onClick={() => navigate(`/management/materials/procurement/${po.id}`)}
-                            className="p-1.5 text-slate-500 hover:text-[#01875F] hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+                            className="p-1.5 text-slate-500 hover:text-[#18b892] hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
                             title="Open Procurement Control Centre"
                           >
                             <Eye className="w-4 h-4" />

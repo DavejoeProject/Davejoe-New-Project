@@ -166,7 +166,7 @@ export const LogProductivityModal: React.FC<LogProductivityModalProps> = ({
               value={projectId}
               onChange={(e) => setProjectId(e.target.value)}
               disabled={isSubmitting}
-              className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#01875F]/20 focus:border-[#01875F] transition-all"
+              className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#18b892]/20 focus:border-[#18b892] transition-all"
             >
               {projects.length === 0 ? (
                 <option value="">No assigned projects available</option>
@@ -198,7 +198,7 @@ export const LogProductivityModal: React.FC<LogProductivityModalProps> = ({
                 value={selectedWorkerId}
                 onChange={(e) => setSelectedWorkerId(e.target.value)}
                 disabled={isSubmitting}
-                className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#01875F]/20 focus:border-[#01875F] transition-all"
+                className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#18b892]/20 focus:border-[#18b892] transition-all"
               >
                 {workers.map((w) => (
                   <option key={w.id} value={w.id}>
@@ -220,7 +220,7 @@ export const LogProductivityModal: React.FC<LogProductivityModalProps> = ({
                 value={workDate}
                 onChange={(e) => setWorkDate(e.target.value)}
                 disabled={isSubmitting}
-                className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#01875F]/20 focus:border-[#01875F] transition-all"
+                className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#18b892]/20 focus:border-[#18b892] transition-all"
               />
             </div>
 
@@ -236,13 +236,13 @@ export const LogProductivityModal: React.FC<LogProductivityModalProps> = ({
                   value={count}
                   onChange={(e) => setCount(e.target.value)}
                   disabled={isSubmitting}
-                  className="w-2/3 px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#01875F]/20 focus:border-[#01875F] transition-all"
+                  className="w-2/3 px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#18b892]/20 focus:border-[#18b892] transition-all"
                 />
                 <select
                   value={unitOfMeasure}
                   onChange={(e) => setUnitOfMeasure(e.target.value)}
                   disabled={isSubmitting}
-                  className="w-1/3 px-2 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#01875F]/20 focus:border-[#01875F] transition-all"
+                  className="w-1/3 px-2 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#18b892]/20 focus:border-[#18b892] transition-all"
                 >
                   <option value="m²">m²</option>
                   <option value="m">linear m</option>
@@ -267,7 +267,7 @@ export const LogProductivityModal: React.FC<LogProductivityModalProps> = ({
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               disabled={isSubmitting}
-              className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#01875F]/20 focus:border-[#01875F] transition-all resize-none"
+              className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#18b892]/20 focus:border-[#18b892] transition-all resize-none"
             />
           </div>
 
@@ -284,7 +284,7 @@ export const LogProductivityModal: React.FC<LogProductivityModalProps> = ({
             <button
               type="submit"
               disabled={isSubmitting || workers.length === 0}
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#01875F] hover:bg-[#016f4e] text-white text-xs font-bold rounded-xl shadow-sm transition-all disabled:opacity-50 cursor-pointer"
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#18b892] hover:bg-[#016f4e] text-white text-xs font-bold rounded-xl shadow-sm transition-all disabled:opacity-50 cursor-pointer"
             >
               <TrendingUp className="w-4 h-4" />
               <span>{isSubmitting ? 'Logging Output...' : 'Save Output'}</span>

@@ -127,9 +127,9 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
                           className="px-3 py-2 rounded-lg hover:bg-slate-50 flex items-center justify-between cursor-pointer group transition-colors"
                         >
                           <div className="flex items-center gap-3">
-                            <Icon className="w-4 h-4 text-[#01875F]" />
+                            <Icon className="w-4 h-4 text-[#18b892]" />
                             <div>
-                              <span className="text-xs font-bold text-slate-900 group-hover:text-[#01875F]">
+                              <span className="text-xs font-bold text-slate-900 group-hover:text-[#18b892]">
                                 {m.label}
                               </span>
                               <span className="text-[11px] text-slate-400 ml-2">
@@ -137,7 +137,7 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
                               </span>
                             </div>
                           </div>
-                          <ArrowRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-[#01875F]" />
+                          <ArrowRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-[#18b892]" />
                         </div>
                       );
                     })}
@@ -163,9 +163,9 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
                         className="px-3 py-2 rounded-lg hover:bg-slate-50 flex items-center justify-between cursor-pointer group transition-colors"
                       >
                         <div className="flex items-center gap-3">
-                          <FolderKanban className="w-4 h-4 text-[#01875F]" />
+                          <FolderKanban className="w-4 h-4 text-[#18b892]" />
                           <div>
-                            <span className="text-xs font-bold text-slate-900 group-hover:text-[#01875F]">
+                            <span className="text-xs font-bold text-slate-900 group-hover:text-[#18b892]">
                               {p.name}
                             </span>
                             <span className="text-[11px] text-slate-400 ml-2">{p.location}</span>

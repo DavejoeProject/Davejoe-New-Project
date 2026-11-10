@@ -166,7 +166,7 @@ export const UserManagementView: React.FC<UserManagementViewProps> = ({
     switch (status) {
       case 'active':
         return (
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-[#01875F] border border-emerald-200">
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-[#18b892] border border-emerald-200">
             <CheckCircle2 className="w-3 h-3" />
             Active
           </span>
@@ -247,24 +247,24 @@ export const UserManagementView: React.FC<UserManagementViewProps> = ({
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2">
-            <h2 className="text-lg font-bold text-slate-900 tracking-tight">User Management & Role Governance</h2>
-            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-[#01875F] border border-emerald-200">
-              Leadership Access
+          <div className="flex items-center gap-2.5">
+            <h2 className="text-xl font-bold text-slate-900 tracking-tight">User Management &amp; Access Governance</h2>
+            <span className="px-2.5 py-0.5 rounded-lg text-xs font-bold bg-emerald-50 text-[#18b892] border border-[#18b892]/25">
+              {isAuthorizedLeadership ? 'Leadership Access' : 'Admin Access'}
             </span>
           </div>
-          <p className="text-xs text-slate-500 mt-0.5">
+          <p className="text-sm text-slate-600 mt-1 max-w-2xl leading-relaxed">
             Manage user accounts, assign database roles, configure profile details, and govern system access.
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2.5 shrink-0">
           <button
             type="button"
             onClick={() => setCreateUserModalOpen(true)}
-            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[#01875F] hover:bg-[#00704e] text-white rounded-xl text-xs font-semibold transition-colors shadow-2xs cursor-pointer"
+            className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#18b892] hover:bg-[#139c7b] text-white rounded-xl text-sm font-bold transition-all shadow-xs cursor-pointer whitespace-nowrap"
           >
-            <UserPlus className="w-3.5 h-3.5" />
+            <UserPlus className="w-4 h-4 shrink-0" />
             <span>Create User Account</span>
           </button>
 
@@ -275,30 +275,30 @@ export const UserManagementView: React.FC<UserManagementViewProps> = ({
               setAssignError(null);
               setAssignSuccess(null);
             }}
-            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-semibold transition-colors shadow-2xs cursor-pointer"
+            className="inline-flex items-center gap-2 px-3.5 py-2.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl text-sm font-semibold transition-colors shadow-2xs cursor-pointer whitespace-nowrap"
           >
-            <UserCheck className="w-3.5 h-3.5 text-[#01875F]" />
-            <span>Assign Role to Person</span>
+            <UserCheck className="w-4 h-4 text-[#18b892] shrink-0" />
+            <span>Assign Role</span>
           </button>
 
           <button
             type="button"
             onClick={handleRefresh}
             disabled={isRefreshing}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-semibold transition-colors shadow-2xs cursor-pointer disabled:opacity-60"
+            className="inline-flex items-center gap-2 px-3.5 py-2.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl text-sm font-semibold transition-colors shadow-2xs cursor-pointer disabled:opacity-60 whitespace-nowrap"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-[#01875F]' : ''}`} />
+            <RefreshCw className={`w-4 h-4 shrink-0 ${isRefreshing ? 'animate-spin text-[#18b892]' : 'text-slate-500'}`} />
             <span>Refresh</span>
           </button>
         </div>
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-2xs space-y-3">
+      <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/90 shadow-2xs space-y-3.5">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
           {/* Search Box */}
           <div className="md:col-span-5 relative">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <Search className="w-4.5 h-4.5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
             <input
               type="text"
               value={searchQuery}
@@ -307,7 +307,7 @@ export const UserManagementView: React.FC<UserManagementViewProps> = ({
                 setCurrentPage(1);
               }}
               placeholder="Search by name, job title, or email..."
-              className="w-full pl-9 pr-3 h-9 bg-slate-50/60 border border-slate-200 rounded-xl text-xs text-slate-800 placeholder-slate-400 outline-none focus:bg-white focus:border-[#01875F] focus:ring-1 focus:ring-[#01875F] transition-all"
+              className="w-full pl-10 pr-4 h-10 bg-slate-50/70 border border-slate-200 rounded-xl text-sm text-slate-900 placeholder-slate-400 outline-none focus:bg-white focus:border-[#18b892] focus:ring-1 focus:ring-[#18b892] transition-all"
             />
           </div>
 
@@ -319,7 +319,7 @@ export const UserManagementView: React.FC<UserManagementViewProps> = ({
                 setSelectedRole(e.target.value);
                 setCurrentPage(1);
               }}
-              className="w-full h-9 px-3 bg-slate-50/60 border border-slate-200 rounded-xl text-xs text-slate-700 outline-none focus:bg-white focus:border-[#01875F] transition-all cursor-pointer"
+              className="w-full h-10 px-3 bg-slate-50/70 border border-slate-200 rounded-xl text-sm text-slate-700 outline-none focus:bg-white focus:border-[#18b892] transition-all cursor-pointer"
             >
               <option value="all">All Roles</option>
               {allRoles.map((r) => (
@@ -338,7 +338,7 @@ export const UserManagementView: React.FC<UserManagementViewProps> = ({
                 setSelectedStatus(e.target.value);
                 setCurrentPage(1);
               }}
-              className="w-full h-9 px-3 bg-slate-50/60 border border-slate-200 rounded-xl text-xs text-slate-700 outline-none focus:bg-white focus:border-[#01875F] transition-all cursor-pointer"
+              className="w-full h-10 px-3 bg-slate-50/70 border border-slate-200 rounded-xl text-sm text-slate-700 outline-none focus:bg-white focus:border-[#18b892] transition-all cursor-pointer"
             >
               <option value="all">All Statuses</option>
               <option value="active">Active</option>
@@ -353,7 +353,7 @@ export const UserManagementView: React.FC<UserManagementViewProps> = ({
             <select
               value={sortField}
               onChange={(e) => setSortField(e.target.value as any)}
-              className="flex-1 h-9 px-2.5 bg-slate-50/60 border border-slate-200 rounded-xl text-xs text-slate-700 outline-none focus:bg-white focus:border-[#01875F] transition-all cursor-pointer"
+              className="flex-1 h-10 px-3 bg-slate-50/70 border border-slate-200 rounded-xl text-sm text-slate-700 outline-none focus:bg-white focus:border-[#18b892] transition-all cursor-pointer"
             >
               <option value="created_at">Date Created</option>
               <option value="name">Full Name</option>
@@ -363,9 +363,9 @@ export const UserManagementView: React.FC<UserManagementViewProps> = ({
               type="button"
               onClick={() => setSortDirection((d) => (d === 'asc' ? 'desc' : 'asc'))}
               title={`Sorting: ${sortDirection.toUpperCase()}`}
-              className="h-9 w-9 bg-slate-50/60 hover:bg-slate-100 border border-slate-200 rounded-xl text-slate-600 flex items-center justify-center transition-colors cursor-pointer shrink-0"
+              className="h-10 w-10 bg-slate-50/70 hover:bg-slate-100 border border-slate-200 rounded-xl text-slate-600 flex items-center justify-center transition-colors cursor-pointer shrink-0"
             >
-              <ArrowUpDown className="w-3.5 h-3.5" />
+              <ArrowUpDown className="w-4 h-4" />
             </button>
           </div>
         </div>
@@ -417,7 +417,7 @@ export const UserManagementView: React.FC<UserManagementViewProps> = ({
                 setSelectedRole('all');
                 setSelectedStatus('all');
               }}
-              className="text-[#01875F] hover:underline text-[11px] font-semibold ml-auto cursor-pointer"
+              className="text-[#18b892] hover:underline text-[11px] font-semibold ml-auto cursor-pointer"
             >
               Reset filters
             </button>
@@ -427,9 +427,9 @@ export const UserManagementView: React.FC<UserManagementViewProps> = ({
 
       {/* Status Success Notice */}
       {statusSuccessToast && (
-        <div className="p-3.5 bg-emerald-50 border border-emerald-200 rounded-2xl text-xs text-[#01875F] font-semibold flex items-center justify-between animate-fadeIn">
+        <div className="p-3.5 bg-emerald-50 border border-emerald-200 rounded-2xl text-xs text-[#18b892] font-semibold flex items-center justify-between animate-fadeIn">
           <div className="flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-[#01875F] shrink-0" />
+            <CheckCircle2 className="w-4 h-4 text-[#18b892] shrink-0" />
             <span>{statusSuccessToast}</span>
           </div>
           <button
@@ -463,7 +463,7 @@ export const UserManagementView: React.FC<UserManagementViewProps> = ({
       <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs overflow-hidden">
         {isLoading ? (
           <div className="py-20 flex flex-col items-center justify-center gap-3">
-            <div className="w-8 h-8 border-2 border-[#01875F]/20 border-t-[#01875F] rounded-full animate-spin" />
+            <div className="w-8 h-8 border-2 border-[#18b892]/20 border-t-[#18b892] rounded-full animate-spin" />
             <p className="text-xs font-semibold text-slate-500">Loading user directory from Supabase...</p>
           </div>
         ) : users.length === 0 ? (
@@ -495,7 +495,7 @@ export const UserManagementView: React.FC<UserManagementViewProps> = ({
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-10 h-10 rounded-full bg-[#01875F]/10 text-[#01875F] flex items-center justify-center font-bold text-sm shrink-0 border border-[#01875F]/20">
+                        <div className="w-10 h-10 rounded-full bg-[#18b892]/10 text-[#18b892] flex items-center justify-center font-bold text-sm shrink-0 border border-[#18b892]/20">
                           {initial}
                         </div>
                         <div className="min-w-0">
@@ -522,7 +522,7 @@ export const UserManagementView: React.FC<UserManagementViewProps> = ({
                               r.slug === 'admin'
                                 ? 'bg-purple-50 text-purple-700 border border-purple-200'
                                 : r.slug === 'management'
-                                ? 'bg-emerald-50 text-[#01875F] border border-emerald-200'
+                                ? 'bg-emerald-50 text-[#18b892] border border-emerald-200'
                                 : 'bg-slate-100 text-slate-700 border border-slate-200'
                             }`}
                           >
@@ -545,7 +545,7 @@ export const UserManagementView: React.FC<UserManagementViewProps> = ({
                                 type="button"
                                 disabled={updatingStatusUserId === u.id}
                                 onClick={() => handleQuickStatusChange(u.id, 'active')}
-                                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-[#01875F] hover:bg-[#00704e] text-white text-[11px] font-semibold transition-colors cursor-pointer min-h-[34px]"
+                                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-[#18b892] hover:bg-[#139c7b] text-white text-[11px] font-semibold transition-colors cursor-pointer min-h-[34px]"
                               >
                                 <Check className="w-3 h-3" />
                                 <span>{u.status === 'pending' ? 'Activate' : 'Reactivate'}</span>
@@ -568,7 +568,7 @@ export const UserManagementView: React.FC<UserManagementViewProps> = ({
                       <button
                         type="button"
                         onClick={() => setSelectedUser(u)}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-[#01875F] hover:text-white text-slate-700 text-xs font-semibold transition-colors cursor-pointer min-h-[34px]"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-[#18b892] hover:text-white text-slate-700 text-xs font-semibold transition-colors cursor-pointer min-h-[34px]"
                       >
                         <Edit className="w-3.5 h-3.5" />
                         <span>Manage</span>
@@ -581,16 +581,16 @@ export const UserManagementView: React.FC<UserManagementViewProps> = ({
 
             {/* Desktop Table (hidden md:block) */}
             <div className="hidden md:block overflow-x-auto">
-              <table className="w-full text-left text-xs">
+              <table className="w-full text-left text-sm">
                 <thead>
-                  <tr className="border-b border-slate-100 bg-slate-50/50 text-slate-400 font-semibold uppercase tracking-wider text-[11px]">
-                    <th className="py-3 px-4">User</th>
-                    <th className="py-3 px-4">Job Title / Email</th>
-                    <th className="py-3 px-4">Assigned Roles</th>
-                    <th className="py-3 px-4">Status</th>
-                    <th className="py-3 px-4">Staff ID</th>
-                    <th className="py-3 px-4">Created</th>
-                    <th className="py-3 px-4 text-right">Actions</th>
+                  <tr className="border-b border-slate-200 bg-slate-50/80 text-slate-500 font-bold uppercase tracking-wider text-xs">
+                    <th className="py-3.5 px-4 min-w-[200px]">User</th>
+                    <th className="py-3.5 px-4 min-w-[180px]">Job Title / Email</th>
+                    <th className="py-3.5 px-4 min-w-[180px]">Assigned Roles</th>
+                    <th className="py-3.5 px-4 min-w-[130px]">Status</th>
+                    <th className="py-3.5 px-4 min-w-[130px]">Staff Link</th>
+                    <th className="py-3.5 px-4 min-w-[110px]">Created</th>
+                    <th className="py-3.5 px-4 text-right min-w-[110px]">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -602,20 +602,20 @@ export const UserManagementView: React.FC<UserManagementViewProps> = ({
                     return (
                       <tr
                         key={u.id}
-                        className="hover:bg-slate-50/60 transition-colors group cursor-pointer"
+                        className="hover:bg-slate-50/70 transition-colors group cursor-pointer"
                         onClick={() => setSelectedUser(u)}
                       >
                         {/* User Identity */}
-                        <td className="py-3.5 px-4">
+                        <td className="py-4 px-4">
                           <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full bg-[#01875F]/10 text-[#01875F] flex items-center justify-center font-bold text-xs shrink-0 border border-[#01875F]/20">
+                            <div className="w-10 h-10 rounded-xl bg-[#18b892]/10 text-[#18b892] flex items-center justify-center font-bold text-sm shrink-0 border border-[#18b892]/25">
                               {initial}
                             </div>
                             <div className="min-w-0">
-                              <span className="font-bold text-slate-900 block truncate group-hover:text-[#01875F] transition-colors">
+                              <span className="font-bold text-slate-900 block truncate group-hover:text-[#18b892] transition-colors">
                                 {fullName}
                               </span>
-                              <span className="font-mono text-[10px] text-slate-400 block truncate select-all">
+                              <span className="font-mono text-xs text-slate-400 block truncate select-all">
                                 {u.id.slice(0, 8)}...
                               </span>
                             </div>
@@ -623,33 +623,33 @@ export const UserManagementView: React.FC<UserManagementViewProps> = ({
                         </td>
 
                         {/* Title & Email */}
-                        <td className="py-3.5 px-4">
+                        <td className="py-4 px-4">
                           <div className="min-w-0">
-                            <span className="font-medium text-slate-800 block truncate">
+                            <span className="font-semibold text-slate-800 block truncate text-sm">
                               {u.job_title || 'No Job Title'}
                             </span>
-                            <span className="text-[11px] text-slate-400 block truncate">
+                            <span className="text-xs text-slate-500 block truncate mt-0.5">
                               {u.email || '—'}
                             </span>
                           </div>
                         </td>
 
                         {/* Roles */}
-                        <td className="py-3.5 px-4">
-                          <div className="flex flex-wrap gap-1">
+                        <td className="py-4 px-4">
+                          <div className="flex flex-wrap gap-1.5">
                             {u.roles.length === 0 ? (
-                              <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-amber-50 text-amber-700 border border-amber-200">
+                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-lg text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200">
                                 None assigned
                               </span>
                             ) : (
                               u.roles.map((r) => (
                                 <span
                                   key={r.id}
-                                  className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold ${
+                                  className={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold ${
                                     r.slug === 'admin'
                                       ? 'bg-purple-50 text-purple-700 border border-purple-200'
                                       : r.slug === 'management'
-                                      ? 'bg-emerald-50 text-[#01875F] border border-emerald-200'
+                                      ? 'bg-emerald-50 text-[#18b892] border border-[#18b892]/30'
                                       : 'bg-slate-100 text-slate-700 border border-slate-200'
                                   }`}
                                 >
@@ -662,14 +662,14 @@ export const UserManagementView: React.FC<UserManagementViewProps> = ({
 
                         {/* Status with Quick Controls */}
                         <td
-                          className="py-3.5 px-4"
+                          className="py-4 px-4"
                           onClick={(e) => e.stopPropagation()}
                         >
                           <div className="flex flex-col gap-1.5 items-start">
                             <div className="flex items-center gap-1.5">
                               {getStatusBadge(u.status)}
                               {updatingStatusUserId === u.id && (
-                                <div className="w-3 h-3 border-2 border-[#01875F]/30 border-t-[#01875F] rounded-full animate-spin shrink-0" />
+                                <div className="w-3.5 h-3.5 border-2 border-[#18b892]/30 border-t-[#18b892] rounded-full animate-spin shrink-0" />
                               )}
                             </div>
 
@@ -680,10 +680,10 @@ export const UserManagementView: React.FC<UserManagementViewProps> = ({
                                     type="button"
                                     disabled={updatingStatusUserId === u.id}
                                     onClick={() => handleQuickStatusChange(u.id, 'active')}
-                                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#01875F] hover:bg-[#00704e] text-white text-[10px] font-semibold transition-colors cursor-pointer disabled:opacity-50 shadow-2xs"
+                                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-[#18b892] hover:bg-[#139c7b] text-white text-xs font-semibold transition-colors cursor-pointer disabled:opacity-50 shadow-2xs whitespace-nowrap"
                                     title="Activate account workspace access"
                                   >
-                                    <Check className="w-2.5 h-2.5" />
+                                    <Check className="w-3 h-3" />
                                     <span>{u.status === 'pending' ? 'Activate' : 'Reactivate'}</span>
                                   </button>
                                 )}
@@ -692,7 +692,7 @@ export const UserManagementView: React.FC<UserManagementViewProps> = ({
                                     type="button"
                                     disabled={updatingStatusUserId === u.id || user?.id === u.id}
                                     onClick={() => handleQuickStatusChange(u.id, 'suspended')}
-                                    className="inline-flex items-center px-1.5 py-0.5 rounded-md bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 text-[10px] font-medium transition-colors cursor-pointer disabled:opacity-50"
+                                    className="inline-flex items-center px-2 py-1 rounded-md bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 text-xs font-medium transition-colors cursor-pointer disabled:opacity-50 whitespace-nowrap"
                                     title="Suspend user account"
                                   >
                                     Suspend
@@ -703,7 +703,7 @@ export const UserManagementView: React.FC<UserManagementViewProps> = ({
                                     type="button"
                                     disabled={updatingStatusUserId === u.id || user?.id === u.id}
                                     onClick={() => handleQuickStatusChange(u.id, 'inactive')}
-                                    className="inline-flex items-center px-1.5 py-0.5 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 text-[10px] font-medium transition-colors cursor-pointer disabled:opacity-50"
+                                    className="inline-flex items-center px-2 py-1 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 text-xs font-medium transition-colors cursor-pointer disabled:opacity-50 whitespace-nowrap"
                                     title="Deactivate user account"
                                   >
                                     Inactive
@@ -715,33 +715,33 @@ export const UserManagementView: React.FC<UserManagementViewProps> = ({
                         </td>
 
                         {/* Workforce Link */}
-                        <td className="py-3.5 px-4">
+                        <td className="py-4 px-4">
                           {u.workforce ? (
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-medium bg-blue-50 text-blue-700 border border-blue-200">
-                              <HardHat className="w-3 h-3" />
-                              {u.workforce.trade}
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200 whitespace-nowrap">
+                              <HardHat className="w-3.5 h-3.5" />
+                              <span>{u.workforce.trade}</span>
                             </span>
                           ) : (
-                            <span className="text-[11px] text-slate-400">—</span>
+                            <span className="text-xs text-slate-400 italic">None</span>
                           )}
                         </td>
 
                         {/* Created Date */}
-                        <td className="py-3.5 px-4 text-[11px] text-slate-500 whitespace-nowrap">
+                        <td className="py-4 px-4 text-xs font-mono text-slate-500 whitespace-nowrap">
                           {u.created_at ? new Date(u.created_at).toLocaleDateString() : '—'}
                         </td>
 
                         {/* Actions */}
-                        <td className="py-3.5 px-4 text-right">
+                        <td className="py-4 px-4 text-right">
                           <button
                             type="button"
                             onClick={(e) => {
                               e.stopPropagation();
                               setSelectedUser(u);
                             }}
-                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-[#01875F] hover:text-white text-slate-700 text-xs font-semibold transition-colors cursor-pointer"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-[#18b892] hover:text-white text-slate-700 text-xs font-bold transition-all cursor-pointer whitespace-nowrap"
                           >
-                            <Edit className="w-3 h-3" />
+                            <Edit className="w-3.5 h-3.5" />
                             <span>Manage</span>
                           </button>
                         </td>
@@ -812,7 +812,7 @@ export const UserManagementView: React.FC<UserManagementViewProps> = ({
           <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xl max-w-md w-full p-6 space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-emerald-50 text-[#01875F] flex items-center justify-center">
+                <div className="w-8 h-8 rounded-lg bg-emerald-50 text-[#18b892] flex items-center justify-center">
                   <UserCheck className="w-4 h-4" />
                 </div>
                 <div>
@@ -837,7 +837,7 @@ export const UserManagementView: React.FC<UserManagementViewProps> = ({
             )}
 
             {assignSuccess && (
-              <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-[#01875F] flex items-center gap-2">
+              <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-[#18b892] flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 shrink-0" />
                 <span>{assignSuccess}</span>
               </div>
@@ -852,7 +852,7 @@ export const UserManagementView: React.FC<UserManagementViewProps> = ({
                   value={targetUserId}
                   onChange={(e) => setTargetUserId(e.target.value)}
                   required
-                  className="w-full h-10 px-3 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 outline-none focus:border-[#01875F] focus:ring-1 focus:ring-[#01875F] transition-all cursor-pointer"
+                  className="w-full h-10 px-3 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 outline-none focus:border-[#18b892] focus:ring-1 focus:ring-[#18b892] transition-all cursor-pointer"
                 >
                   <option value="">Select a user account...</option>
                   {users.map((u) => {
@@ -875,7 +875,7 @@ export const UserManagementView: React.FC<UserManagementViewProps> = ({
                   value={targetRoleId}
                   onChange={(e) => setTargetRoleId(e.target.value)}
                   required
-                  className="w-full h-10 px-3 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 outline-none focus:border-[#01875F] focus:ring-1 focus:ring-[#01875F] transition-all cursor-pointer"
+                  className="w-full h-10 px-3 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 outline-none focus:border-[#18b892] focus:ring-1 focus:ring-[#18b892] transition-all cursor-pointer"
                 >
                   <option value="">Select database role...</option>
                   {allRoles.map((r) => (
@@ -900,7 +900,7 @@ export const UserManagementView: React.FC<UserManagementViewProps> = ({
                 <button
                   type="submit"
                   disabled={isSubmittingRole || !targetUserId || !targetRoleId}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#01875F] hover:bg-[#00704e] text-white text-xs font-semibold rounded-xl transition-colors cursor-pointer disabled:opacity-50 shadow-xs"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#18b892] hover:bg-[#139c7b] text-white text-xs font-semibold rounded-xl transition-colors cursor-pointer disabled:opacity-50 shadow-xs"
                 >
                   <Check className="w-3.5 h-3.5" />
                   <span>{isSubmittingRole ? 'Assigning Role...' : 'Confirm Role Assignment'}</span>

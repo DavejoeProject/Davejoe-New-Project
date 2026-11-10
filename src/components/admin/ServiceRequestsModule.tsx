@@ -197,28 +197,33 @@ export const ServiceRequestsModule: React.FC<ServiceRequestsModuleProps> = ({
       )}
 
       {/* Header Banner */}
+      {/* Header Banner */}
       <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <span className="text-[10.5px] font-bold uppercase tracking-wider text-[#18b892] block mb-1">
-            CUSTOMER COMMERCIAL INTAKE
-          </span>
-          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight flex items-center gap-2.5">
-            <FileQuestion className="w-7 h-7 text-[#18b892]" />
-            <span>Walk-In Service Requests</span>
-          </h1>
-          <p className="text-xs sm:text-sm text-slate-500 mt-1">
-            Register and track walk-in client enquiries, technical scoping, management review, and project conversions.
-          </p>
+        <div className="flex items-start sm:items-center gap-3">
+          <div className="w-12 h-12 rounded-xl bg-[#18b892]/10 text-[#18b892] flex items-center justify-center shrink-0 border border-[#18b892]/20">
+            <FileQuestion className="w-6 h-6 stroke-[2]" />
+          </div>
+          <div>
+            <span className="text-xs font-bold uppercase tracking-wider text-[#18b892] block mb-0.5">
+              CUSTOMER COMMERCIAL INTAKE
+            </span>
+            <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
+              Walk-In Service Requests
+            </h1>
+            <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+              Register and track walk-in client enquiries, technical scoping, management review, and project conversions.
+            </p>
+          </div>
         </div>
 
-        <div className="flex items-center gap-2.5 self-start sm:self-center">
+        <div className="flex items-center gap-2.5 self-start sm:self-center shrink-0">
           <button
             type="button"
             onClick={() => loadRequests(true)}
             disabled={isRefreshing}
-            className="inline-flex items-center gap-1.5 px-3 py-2 bg-white hover:bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-700 shadow-2xs transition-colors cursor-pointer"
+            className="inline-flex items-center gap-2 h-10 px-4 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-700 shadow-2xs transition-colors cursor-pointer whitespace-nowrap disabled:opacity-60"
           >
-            <RefreshCw className={`w-3.5 h-3.5 text-[#18b892] ${isRefreshing ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`w-4 h-4 text-[#18b892] shrink-0 ${isRefreshing ? 'animate-spin' : ''}`} />
             <span>{isRefreshing ? 'Refreshing...' : 'Refresh'}</span>
           </button>
 
@@ -226,9 +231,9 @@ export const ServiceRequestsModule: React.FC<ServiceRequestsModuleProps> = ({
             <button
               type="button"
               onClick={() => setIsCreateModalOpen(true)}
-              className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#18b892] hover:bg-[#139c7b] text-white text-xs font-bold rounded-lg shadow-sm transition-colors cursor-pointer"
+              className="inline-flex items-center gap-2 h-10 px-4 bg-[#18b892] hover:bg-[#139c7b] text-white text-xs sm:text-sm font-bold rounded-xl shadow-sm transition-colors cursor-pointer whitespace-nowrap"
             >
-              <Plus className="w-4 h-4 stroke-[2.5]" />
+              <Plus className="w-4 h-4 stroke-[2.5] shrink-0" />
               <span>+ New Service Request</span>
             </button>
           )}
@@ -238,24 +243,24 @@ export const ServiceRequestsModule: React.FC<ServiceRequestsModuleProps> = ({
       {/* Filter and Search Bar */}
       <div className="bg-white p-4 rounded-xl border border-slate-200/80 shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-3">
         <div className="relative flex-1 max-w-md">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none shrink-0" />
           <input
             type="text"
             placeholder="Search by customer name, phone, request code, or address..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full h-9 pl-9 pr-3.5 bg-slate-50 hover:bg-slate-100/70 focus:bg-white border border-slate-200 rounded-lg text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#18b892] transition-all"
+            className="w-full h-10 pl-10 pr-4 bg-slate-50 hover:bg-slate-100/70 focus:bg-white border border-slate-200 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#18b892] transition-all"
           />
         </div>
 
-        <div className="flex flex-wrap items-center gap-2.5">
-          <div className="flex items-center gap-1.5">
-            <Filter className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-            <span className="text-xs font-semibold text-slate-500">Status:</span>
+        <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+          <div className="flex items-center gap-2">
+            <Filter className="w-4 h-4 text-slate-400 shrink-0" />
+            <span className="text-xs sm:text-sm font-semibold text-slate-600 shrink-0">Status:</span>
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="h-9 px-2.5 bg-white border border-slate-200 rounded-lg text-xs font-medium text-slate-800 focus:outline-none focus:border-[#18b892] cursor-pointer"
+              className="h-10 px-3 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-medium text-slate-800 focus:outline-none focus:border-[#18b892] cursor-pointer"
             >
               <option value="all">All Statuses ({requests.length})</option>
               {SERVICE_REQUEST_STATUSES.map((st) => (
@@ -266,12 +271,12 @@ export const ServiceRequestsModule: React.FC<ServiceRequestsModuleProps> = ({
             </select>
           </div>
 
-          <div className="flex items-center gap-1.5">
-            <span className="text-xs font-semibold text-slate-500">Service:</span>
+          <div className="flex items-center gap-2">
+            <span className="text-xs sm:text-sm font-semibold text-slate-600 shrink-0">Service:</span>
             <select
               value={serviceTypeFilter}
               onChange={(e) => setServiceTypeFilter(e.target.value)}
-              className="h-9 px-2.5 bg-white border border-slate-200 rounded-lg text-xs font-medium text-slate-800 focus:outline-none focus:border-[#18b892] cursor-pointer"
+              className="h-10 px-3 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-medium text-slate-800 focus:outline-none focus:border-[#18b892] cursor-pointer"
             >
               <option value="all">All Services</option>
               <option value="Interior Design & Fit-out">Interior Design &amp; Fit-out</option>
@@ -297,11 +302,11 @@ export const ServiceRequestsModule: React.FC<ServiceRequestsModuleProps> = ({
         </div>
       ) : requests.length === 0 ? (
         <div className="bg-white rounded-2xl border border-slate-200/80 p-12 shadow-2xs text-center max-w-xl mx-auto">
-          <div className="w-14 h-14 rounded-2xl bg-emerald-50 text-[#18b892] flex items-center justify-center mx-auto mb-4 border border-[#18b892]/20">
-            <FileQuestion className="w-7 h-7" />
+          <div className="w-14 h-14 rounded-2xl bg-[#18b892]/10 text-[#18b892] flex items-center justify-center mx-auto mb-4 border border-[#18b892]/20">
+            <FileQuestion className="w-7 h-7 shrink-0" />
           </div>
           <h2 className="text-xl font-bold text-slate-900">No Service Requests Recorded</h2>
-          <p className="text-xs text-slate-500 mt-1.5 leading-relaxed">
+          <p className="text-xs sm:text-sm text-slate-500 mt-1.5 leading-relaxed">
             Walk-in client enquiries and technical inspection requests registered by the Admin will appear here for review.
           </p>
           {isAdmin && (
@@ -309,28 +314,28 @@ export const ServiceRequestsModule: React.FC<ServiceRequestsModuleProps> = ({
               <button
                 type="button"
                 onClick={() => setIsCreateModalOpen(true)}
-                className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#18b892] hover:bg-[#139c7b] text-white text-xs font-bold rounded-lg shadow-sm transition-colors cursor-pointer"
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#18b892] hover:bg-[#139c7b] text-white text-xs sm:text-sm font-bold rounded-xl shadow-sm transition-colors cursor-pointer"
               >
-                <Plus className="w-4 h-4 stroke-[2.5]" />
+                <Plus className="w-4 h-4 stroke-[2.5] shrink-0" />
                 <span>+ Register First Walk-In Request</span>
               </button>
             </div>
           )}
         </div>
       ) : (
-        <div className="bg-white rounded-xl border border-slate-200/80 shadow-2xs overflow-hidden">
+        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
+            <table className="w-full text-left text-sm border-collapse">
               <thead>
-                <tr className="bg-slate-50/75 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider text-slate-500">
-                  <th className="py-3.5 px-4">Request Code</th>
-                  <th className="py-3.5 px-3">Customer &amp; Contact</th>
-                  <th className="py-3.5 px-3">Requested Service</th>
-                  <th className="py-3.5 px-3">Location / Address</th>
-                  <th className="py-3.5 px-3">Enquiry Date</th>
-                  <th className="py-3.5 px-3">Status</th>
-                  <th className="py-3.5 px-3">Assigned Personnel</th>
-                  <th className="py-3.5 px-4 text-right">Action</th>
+                <tr className="bg-slate-50/75 border-b border-slate-200 text-xs font-bold uppercase tracking-wider text-slate-500">
+                  <th className="py-3.5 px-4 min-w-[130px]">Request Code</th>
+                  <th className="py-3.5 px-3 min-w-[180px]">Customer &amp; Contact</th>
+                  <th className="py-3.5 px-3 min-w-[170px]">Requested Service</th>
+                  <th className="py-3.5 px-3 min-w-[180px]">Location / Address</th>
+                  <th className="py-3.5 px-3 min-w-[120px]">Enquiry Date</th>
+                  <th className="py-3.5 px-3 min-w-[130px]">Status</th>
+                  <th className="py-3.5 px-3 min-w-[150px]">Assigned Personnel</th>
+                  <th className="py-3.5 px-4 text-right min-w-[120px]">Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -348,57 +353,58 @@ export const ServiceRequestsModule: React.FC<ServiceRequestsModuleProps> = ({
                       className="hover:bg-slate-50/80 transition-colors cursor-pointer group"
                     >
                       <td className="py-3.5 px-4">
-                        <span className="font-mono font-bold text-slate-900 group-hover:text-[#18b892] transition-colors">
+                        <span className="font-mono font-bold text-slate-800 bg-slate-100/90 px-2.5 py-1 rounded-md border border-slate-200/80 text-xs whitespace-nowrap group-hover:text-[#18b892] group-hover:border-[#18b892]/30 transition-colors">
                           {req.request_number}
                         </span>
                       </td>
                       <td className="py-3.5 px-3">
-                        <div className="font-bold text-slate-900">{req.customer_name}</div>
-                        <div className="text-[11px] text-slate-500 font-mono flex items-center gap-1">
-                          <Phone className="w-3 h-3 text-slate-400" />
+                        <div className="font-bold text-slate-900 text-sm">{req.customer_name}</div>
+                        <div className="text-xs text-slate-500 font-mono flex items-center gap-1 mt-0.5">
+                          <Phone className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                           <span>{req.phone}</span>
                         </div>
                       </td>
                       <td className="py-3.5 px-3">
-                        <span className="font-medium text-slate-800">{req.service_type}</span>
+                        <span className="font-medium text-slate-800 text-sm">{req.service_type}</span>
                         {req.estimated_budget && (
-                          <div className="text-[10.5px] text-[#18b892] font-semibold">
+                          <div className="text-xs text-[#18b892] font-mono font-bold mt-0.5">
                             Est: ₦{Number(req.estimated_budget).toLocaleString()}
                           </div>
                         )}
                       </td>
                       <td className="py-3.5 px-3">
-                        <div className="text-slate-600 truncate max-w-[180px]" title={req.project_address}>
+                        <div className="text-slate-600 truncate max-w-[200px] text-xs sm:text-sm" title={req.project_address}>
                           {req.project_address}
                         </div>
                       </td>
-                      <td className="py-3.5 px-3 font-mono text-slate-500">
+                      <td className="py-3.5 px-3 font-mono text-slate-600 text-xs">
                         {req.enquiry_date}
                       </td>
                       <td className="py-3.5 px-3">
                         <span
-                          className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10.5px] font-bold border ${statusObj.badgeClasses}`}
+                          className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border whitespace-nowrap ${statusObj.badgeClasses}`}
                         >
                           {statusObj.label}
                         </span>
                       </td>
                       <td className="py-3.5 px-3">
                         {req.assignee ? (
-                          <div className="flex items-center gap-1.5 text-slate-800 font-medium">
-                            <UserCheck className="w-3.5 h-3.5 text-[#18b892]" />
-                            <span>{req.assignee.display_name || 'Staff Member'}</span>
+                          <div className="flex items-center gap-1.5 text-slate-800 font-medium text-xs sm:text-sm">
+                            <UserCheck className="w-4 h-4 text-[#18b892] shrink-0" />
+                            <span className="truncate max-w-[140px]">{req.assignee.display_name || 'Staff Member'}</span>
                           </div>
                         ) : (
-                          <span className="text-slate-400 italic">Unassigned</span>
+                          <span className="text-slate-400 italic text-xs">Unassigned</span>
                         )}
                       </td>
                       <td className="py-3.5 px-4 text-right" onClick={(e) => e.stopPropagation()}>
                         <button
                           type="button"
                           onClick={() => handleOpenDetail(req)}
-                          className="px-2.5 py-1 text-[11px] font-bold text-[#18b892] hover:bg-[#18b892]/10 rounded-md transition-colors cursor-pointer"
+                          className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-[#18b892] bg-[#18b892]/10 hover:bg-[#18b892]/20 rounded-lg transition-colors cursor-pointer whitespace-nowrap"
                         >
-                          Review &rarr;
+                          <span>Review</span>
+                          <span className="shrink-0">&rarr;</span>
                         </button>
                       </td>
                     </tr>
@@ -406,6 +412,15 @@ export const ServiceRequestsModule: React.FC<ServiceRequestsModuleProps> = ({
                 })}
               </tbody>
             </table>
+          </div>
+
+          <div className="p-4 bg-slate-50/70 border-t border-slate-100 text-xs sm:text-sm text-slate-500 flex items-center justify-between">
+            <span>
+              Showing <strong className="text-slate-800">{requests.length}</strong> request{requests.length === 1 ? '' : 's'}
+            </span>
+            <span className="text-xs text-slate-400 font-medium">
+              Davejoe Client Commercial Intake
+            </span>
           </div>
         </div>
       )}

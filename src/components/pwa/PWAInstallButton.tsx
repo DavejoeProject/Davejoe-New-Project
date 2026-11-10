@@ -56,9 +56,9 @@ export const PWAInstallButton: React.FC<PWAInstallButtonProps> = ({
 
   let variantStyle = 'border border-slate-200 text-slate-700 hover:bg-slate-50';
   if (variant === 'solid') {
-    variantStyle = 'bg-[#01875F] text-white hover:bg-[#00704e] shadow-xs';
+    variantStyle = 'bg-[#18b892] text-white hover:bg-[#139c7b] shadow-xs';
   } else if (variant === 'minimal') {
-    variantStyle = 'text-slate-600 hover:text-[#01875F] hover:bg-emerald-50/50';
+    variantStyle = 'text-slate-600 hover:text-[#18b892] hover:bg-emerald-50/50';
   }
 
   return (
@@ -123,7 +123,7 @@ export const PWAInstallButton: React.FC<PWAInstallButtonProps> = ({
                 <div className="flex-1">
                   Tap the <strong className="text-slate-900">Share</strong> button in Safari's toolbar.
                   <div className="mt-1 flex items-center gap-1.5 text-slate-500">
-                    <Share className="w-3.5 h-3.5 text-[#01875F]" />
+                    <Share className="w-3.5 h-3.5 text-[#18b892]" />
                     <span>Bottom bar on iPhone, top on iPad</span>
                   </div>
                 </div>
@@ -136,7 +136,7 @@ export const PWAInstallButton: React.FC<PWAInstallButtonProps> = ({
                 <div className="flex-1">
                   Choose <strong className="text-slate-900">Add to Home Screen</strong>.
                   <div className="mt-1 flex items-center gap-1.5 text-slate-500">
-                    <PlusSquare className="w-3.5 h-3.5 text-[#01875F]" />
+                    <PlusSquare className="w-3.5 h-3.5 text-[#18b892]" />
                   </div>
                 </div>
               </div>
@@ -154,7 +154,7 @@ export const PWAInstallButton: React.FC<PWAInstallButtonProps> = ({
             <button
               type="button"
               onClick={() => setShowIOSModal(false)}
-              className="w-full h-9 rounded-lg bg-[#01875F] hover:bg-[#00704e] text-white text-xs font-semibold flex items-center justify-center transition-colors cursor-pointer"
+              className="w-full h-9 rounded-lg bg-[#18b892] hover:bg-[#139c7b] text-white text-xs font-semibold flex items-center justify-center transition-colors cursor-pointer"
             >
               Done
             </button>

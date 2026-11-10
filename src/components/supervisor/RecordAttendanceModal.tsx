@@ -121,7 +121,7 @@ export const RecordAttendanceModal: React.FC<RecordAttendanceModalProps> = ({
         {/* Modal Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/50">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-[#E6F4EA] text-[#01875F] flex items-center justify-center border border-[#01875F]/20">
+            <div className="w-9 h-9 rounded-xl bg-[#E6F4EA] text-[#18b892] flex items-center justify-center border border-[#18b892]/20">
               <CalendarCheck className="w-5 h-5" />
             </div>
             <div>
@@ -163,7 +163,7 @@ export const RecordAttendanceModal: React.FC<RecordAttendanceModalProps> = ({
               value={projectId}
               onChange={(e) => setProjectId(e.target.value)}
               disabled={isSubmitting}
-              className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#01875F]/20 focus:border-[#01875F] transition-all"
+              className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#18b892]/20 focus:border-[#18b892] transition-all"
             >
               {projects.length === 0 ? (
                 <option value="">No assigned projects available</option>
@@ -195,7 +195,7 @@ export const RecordAttendanceModal: React.FC<RecordAttendanceModalProps> = ({
                 value={selectedWorkerId}
                 onChange={(e) => setSelectedWorkerId(e.target.value)}
                 disabled={isSubmitting}
-                className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#01875F]/20 focus:border-[#01875F] transition-all"
+                className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#18b892]/20 focus:border-[#18b892] transition-all"
               >
                 {workers.map((w) => (
                   <option key={w.id} value={w.id}>
@@ -216,7 +216,7 @@ export const RecordAttendanceModal: React.FC<RecordAttendanceModalProps> = ({
               value={attendanceDate}
               onChange={(e) => setAttendanceDate(e.target.value)}
               disabled={isSubmitting}
-              className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#01875F]/20 focus:border-[#01875F] transition-all"
+              className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#18b892]/20 focus:border-[#18b892] transition-all"
             />
           </div>
 
@@ -236,7 +236,7 @@ export const RecordAttendanceModal: React.FC<RecordAttendanceModalProps> = ({
                     onClick={() => setStatus(st)}
                     className={`py-2 px-3 rounded-xl border text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                       isSelected
-                        ? 'bg-[#E6F4EA] border-[#01875F] text-[#01875F] ring-1 ring-[#01875F]'
+                        ? 'bg-[#E6F4EA] border-[#18b892] text-[#18b892] ring-1 ring-[#18b892]'
                         : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
                     }`}
                   >
@@ -261,7 +261,7 @@ export const RecordAttendanceModal: React.FC<RecordAttendanceModalProps> = ({
             <button
               type="submit"
               disabled={isSubmitting || workers.length === 0}
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#01875F] hover:bg-[#016f4e] text-white text-xs font-bold rounded-xl shadow-sm transition-all disabled:opacity-50 cursor-pointer"
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#18b892] hover:bg-[#016f4e] text-white text-xs font-bold rounded-xl shadow-sm transition-all disabled:opacity-50 cursor-pointer"
             >
               <CalendarCheck className="w-4 h-4" />
               <span>{isSubmitting ? 'Saving Attendance...' : 'Save Attendance'}</span>

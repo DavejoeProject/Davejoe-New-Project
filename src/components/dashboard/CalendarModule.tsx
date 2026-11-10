@@ -16,13 +16,13 @@ export const CalendarModule: React.FC<CalendarModuleProps> = ({ onBackToDashboar
         <div>
           <button
             onClick={onBackToDashboard}
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#01875F] hover:underline mb-1 cursor-pointer"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#18b892] hover:underline mb-1 cursor-pointer"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>Back to Dashboard</span>
           </button>
           <h1 className="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2.5">
-            <CalendarIcon className="w-6 h-6 text-[#01875F]" />
+            <CalendarIcon className="w-6 h-6 text-[#18b892]" />
             <span>Operational Schedule & Site Milestones</span>
           </h1>
           <p className="text-xs sm:text-sm text-slate-500">
@@ -30,7 +30,7 @@ export const CalendarModule: React.FC<CalendarModuleProps> = ({ onBackToDashboar
           </p>
         </div>
 
-        <button className="px-3.5 py-2 bg-[#01875F] hover:bg-[#016f4e] text-white text-xs font-semibold rounded-lg shadow-xs flex items-center gap-2 cursor-pointer transition-colors">
+        <button className="px-3.5 py-2 bg-[#18b892] hover:bg-[#016f4e] text-white text-xs font-semibold rounded-lg shadow-xs flex items-center gap-2 cursor-pointer transition-colors">
           <Plus className="w-4 h-4" />
           <span>Schedule Site Event</span>
         </button>
@@ -51,7 +51,7 @@ export const CalendarModule: React.FC<CalendarModuleProps> = ({ onBackToDashboar
           {events.map((ev) => (
             <div key={ev.id} className="p-4 sm:p-5 flex items-center justify-between hover:bg-slate-50/60 transition-colors">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-[#E6F4EA] text-[#01875F] flex flex-col items-center justify-center font-bold shrink-0">
+                <div className="w-12 h-12 rounded-xl bg-[#E6F4EA] text-[#18b892] flex flex-col items-center justify-center font-bold shrink-0">
                   <span className="text-base leading-none">{ev.day}</span>
                   <span className="text-[10px] tracking-wider uppercase mt-0.5">{ev.month}</span>
                 </div>

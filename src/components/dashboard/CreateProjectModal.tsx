@@ -168,7 +168,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
         {/* Header */}
         <div className="px-4 sm:px-6 py-3.5 sm:py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50 shrink-0">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-[#E6F4EA] text-[#01875F] flex items-center justify-center font-bold shrink-0">
+            <div className="w-8 h-8 rounded-lg bg-[#E6F4EA] text-[#18b892] flex items-center justify-center font-bold shrink-0">
               <Building2 className="w-4 h-4" />
             </div>
             <div className="min-w-0">
@@ -212,7 +212,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
                 value={projectCode}
                 onChange={(e) => setProjectCode(e.target.value)}
                 placeholder="e.g. PRJ-001"
-                className="w-full h-10 px-3.5 bg-white border border-slate-200 rounded-lg text-xs font-mono font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#01875F] focus:ring-2 focus:ring-[#01875F]/20"
+                className="w-full h-10 px-3.5 bg-white border border-slate-200 rounded-lg text-xs font-mono font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#18b892] focus:ring-2 focus:ring-[#18b892]/20"
               />
               <span className="text-[10.5px] text-slate-400 mt-1 block">Unique project code identifier</span>
             </div>
@@ -227,7 +227,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="e.g. Davejoe Corporate Renovation"
-                className="w-full h-10 px-3.5 bg-white border border-slate-200 rounded-lg text-xs font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#01875F] focus:ring-2 focus:ring-[#01875F]/20"
+                className="w-full h-10 px-3.5 bg-white border border-slate-200 rounded-lg text-xs font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#18b892] focus:ring-2 focus:ring-[#18b892]/20"
               />
             </div>
           </div>
@@ -242,7 +242,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
                 <button
                   type="button"
                   onClick={() => setIsAddingClient(true)}
-                  className="text-xs font-semibold text-[#01875F] hover:underline cursor-pointer inline-flex items-center gap-1"
+                  className="text-xs font-semibold text-[#18b892] hover:underline cursor-pointer inline-flex items-center gap-1"
                 >
                   <UserPlus className="w-3.5 h-3.5" />
                   <span>Quick Add Client</span>
@@ -266,7 +266,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
                 required
                 value={clientId}
                 onChange={(e) => setClientId(e.target.value)}
-                className="w-full h-10 px-3.5 bg-white border border-slate-200 rounded-lg text-xs font-medium text-slate-900 focus:outline-none focus:border-[#01875F] focus:ring-2 focus:ring-[#01875F]/20"
+                className="w-full h-10 px-3.5 bg-white border border-slate-200 rounded-lg text-xs font-medium text-slate-900 focus:outline-none focus:border-[#18b892] focus:ring-2 focus:ring-[#18b892]/20"
               >
                 <option value="" disabled>
                   Select client organization
@@ -327,7 +327,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
                     type="button"
                     onClick={handleQuickAddClient}
                     disabled={isSubmittingClient}
-                    className="px-3 py-1 bg-[#01875F] text-white rounded text-xs font-semibold hover:bg-[#016f4e] disabled:opacity-60 cursor-pointer"
+                    className="px-3 py-1 bg-[#18b892] text-white rounded text-xs font-semibold hover:bg-[#016f4e] disabled:opacity-60 cursor-pointer"
                   >
                     {isSubmittingClient ? 'Saving...' : 'Save & Select Client'}
                   </button>
@@ -345,7 +345,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
               <select
                 value={status}
                 onChange={(e) => setStatus(e.target.value as ProjectStatus)}
-                className="w-full h-10 px-3.5 bg-white border border-slate-200 rounded-lg text-xs font-medium text-slate-900 focus:outline-none focus:border-[#01875F]"
+                className="w-full h-10 px-3.5 bg-white border border-slate-200 rounded-lg text-xs font-medium text-slate-900 focus:outline-none focus:border-[#18b892]"
               >
                 {ALL_PROJECT_STATUSES.map((st) => (
                   <option key={st} value={st}>
@@ -364,7 +364,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
                 value={projectType}
                 onChange={(e) => setProjectType(e.target.value)}
                 placeholder="e.g. Commercial Fit-Out"
-                className="w-full h-10 px-3.5 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#01875F]"
+                className="w-full h-10 px-3.5 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#18b892]"
               />
             </div>
 
@@ -379,7 +379,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
                 value={contractValue}
                 onChange={(e) => setContractValue(e.target.value)}
                 placeholder="₦ e.g. 25000000"
-                className="w-full h-10 px-3.5 bg-white border border-slate-200 rounded-lg text-xs font-mono text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#01875F]"
+                className="w-full h-10 px-3.5 bg-white border border-slate-200 rounded-lg text-xs font-mono text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#18b892]"
               />
             </div>
           </div>
@@ -394,7 +394,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
                 type="date"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
-                className="w-full h-10 px-3.5 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-[#01875F]"
+                className="w-full h-10 px-3.5 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-[#18b892]"
               />
             </div>
 
@@ -406,7 +406,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
                 type="date"
                 value={expectedCompletionDate}
                 onChange={(e) => setExpectedCompletionDate(e.target.value)}
-                className="w-full h-10 px-3.5 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-[#01875F]"
+                className="w-full h-10 px-3.5 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-[#18b892]"
               />
             </div>
           </div>
@@ -422,7 +422,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
                 placeholder="e.g. 14 Marina Street"
-                className="w-full h-10 px-3.5 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#01875F]"
+                className="w-full h-10 px-3.5 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#18b892]"
               />
             </div>
 
@@ -435,7 +435,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
                 value={city}
                 onChange={(e) => setCity(e.target.value)}
                 placeholder="e.g. Lagos"
-                className="w-full h-10 px-3.5 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#01875F]"
+                className="w-full h-10 px-3.5 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#18b892]"
               />
             </div>
 
@@ -448,7 +448,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
                 value={state}
                 onChange={(e) => setState(e.target.value)}
                 placeholder="e.g. Lagos State"
-                className="w-full h-10 px-3.5 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#01875F]"
+                className="w-full h-10 px-3.5 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#18b892]"
               />
             </div>
           </div>
@@ -463,7 +463,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Outline project brief, design requirements, and architectural scope..."
-              className="w-full p-3 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#01875F]"
+              className="w-full p-3 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#18b892]"
             />
           </div>
 
@@ -481,7 +481,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
             <button
               type="submit"
               disabled={isSubmitting}
-              className="min-h-[44px] px-5 py-2.5 bg-[#01875F] hover:bg-[#016f4e] text-white text-xs font-bold rounded-lg shadow-sm transition-colors disabled:opacity-60 cursor-pointer flex items-center gap-1.5"
+              className="min-h-[44px] px-5 py-2.5 bg-[#18b892] hover:bg-[#016f4e] text-white text-xs font-bold rounded-lg shadow-sm transition-colors disabled:opacity-60 cursor-pointer flex items-center gap-1.5"
             >
               {isSubmitting ? 'Saving Project...' : 'Save & Create Project'}
             </button>

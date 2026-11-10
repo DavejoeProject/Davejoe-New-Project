@@ -192,7 +192,7 @@ export const RecordMaterialUsageModal: React.FC<RecordMaterialUsageModalProps> =
               required
               value={projectId}
               onChange={(e) => setProjectId(e.target.value)}
-              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#01875F]"
+              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#18b892]"
             >
               <option value="">Select Project</option>
               {projects.map((p) => (
@@ -211,7 +211,7 @@ export const RecordMaterialUsageModal: React.FC<RecordMaterialUsageModalProps> =
               required
               value={materialId}
               onChange={(e) => setMaterialId(e.target.value)}
-              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#01875F]"
+              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#18b892]"
             >
               <option value="">Select Material</option>
               {materials.map((m) => (
@@ -236,7 +236,7 @@ export const RecordMaterialUsageModal: React.FC<RecordMaterialUsageModalProps> =
                   value={quantityUsed}
                   onChange={(e) => setQuantityUsed(e.target.value)}
                   placeholder="0"
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#01875F]"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#18b892]"
                 />
                 <span className="text-[11px] text-slate-400 shrink-0">
                   {selectedMaterial?.unit_of_measure || 'units'}
@@ -254,7 +254,7 @@ export const RecordMaterialUsageModal: React.FC<RecordMaterialUsageModalProps> =
                 required
                 value={usageDate}
                 onChange={(e) => setUsageDate(e.target.value)}
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#01875F]"
+                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#18b892]"
               />
             </div>
           </div>
@@ -267,7 +267,7 @@ export const RecordMaterialUsageModal: React.FC<RecordMaterialUsageModalProps> =
             <select
               value={workforceMemberId}
               onChange={(e) => setWorkforceMemberId(e.target.value)}
-              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#01875F]"
+              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#18b892]"
             >
               <option value="">Site Team / Unassigned</option>
               {workforceMembers.map((w) => (
@@ -286,7 +286,7 @@ export const RecordMaterialUsageModal: React.FC<RecordMaterialUsageModalProps> =
                 value={purpose}
                 onChange={(e) => setPurpose(e.target.value)}
                 placeholder="e.g. 1st Floor Slab casting"
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#01875F]"
+                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#18b892]"
               />
             </div>
 
@@ -300,7 +300,7 @@ export const RecordMaterialUsageModal: React.FC<RecordMaterialUsageModalProps> =
                 value={workArea}
                 onChange={(e) => setWorkArea(e.target.value)}
                 placeholder="e.g. Grid Line A-D, Sector 2"
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#01875F]"
+                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#18b892]"
               />
             </div>
           </div>
@@ -312,7 +312,7 @@ export const RecordMaterialUsageModal: React.FC<RecordMaterialUsageModalProps> =
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="Batch quality notes or execution conditions..."
-              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#01875F]"
+              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#18b892]"
             />
           </div>
 
@@ -328,7 +328,7 @@ export const RecordMaterialUsageModal: React.FC<RecordMaterialUsageModalProps> =
             <button
               type="submit"
               disabled={isSubmitting}
-              className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#01875F] text-white hover:bg-[#016f4e] text-xs font-semibold rounded-lg shadow-2xs transition-colors cursor-pointer disabled:opacity-60"
+              className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#18b892] text-white hover:bg-[#016f4e] text-xs font-semibold rounded-lg shadow-2xs transition-colors cursor-pointer disabled:opacity-60"
             >
               {isSubmitting ? (
                 <>

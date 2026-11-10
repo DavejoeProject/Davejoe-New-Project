@@ -21,7 +21,7 @@ export const PurchaseOrderDetailModal: React.FC<PurchaseOrderDetailModalProps> =
       <div className="bg-white rounded-2xl border border-slate-200/90 shadow-2xl max-w-2xl w-full overflow-hidden my-8 animate-in fade-in zoom-in-95 duration-150">
         <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/60">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-[#E6F4EA] text-[#01875F] flex items-center justify-center font-bold">
+            <div className="w-8 h-8 rounded-lg bg-[#E6F4EA] text-[#18b892] flex items-center justify-center font-bold">
               <ShoppingBag className="w-4 h-4" />
             </div>
             <div>
@@ -130,7 +130,7 @@ export const PurchaseOrderDetailModal: React.FC<PurchaseOrderDetailModalProps> =
             </div>
             <div className="flex justify-between font-bold text-slate-900 pt-2 border-t border-slate-200 text-sm">
               <span>Total Cost:</span>
-              <span className="font-mono text-[#01875F]">
+              <span className="font-mono text-[#18b892]">
                 {order.total_cost != null ? formatNaira(order.total_cost) : '—'}
               </span>
             </div>

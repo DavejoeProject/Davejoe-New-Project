@@ -125,7 +125,7 @@ export const AuditLogsView: React.FC = () => {
           disabled={isRefreshing}
           className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-semibold transition-colors shadow-2xs cursor-pointer self-start sm:self-auto disabled:opacity-60"
         >
-          <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-[#01875F]' : ''}`} />
+          <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-[#18b892]' : ''}`} />
           <span>Refresh Logs</span>
         </button>
       </div>
@@ -144,7 +144,7 @@ export const AuditLogsView: React.FC = () => {
                 setCurrentPage(1);
               }}
               placeholder="Search action, module, table, record ID..."
-              className="w-full pl-9 pr-3 h-9 bg-slate-50/60 border border-slate-200 rounded-xl text-xs text-slate-800 placeholder-slate-400 outline-none focus:bg-white focus:border-[#01875F] focus:ring-1 focus:ring-[#01875F] transition-all"
+              className="w-full pl-9 pr-3 h-9 bg-slate-50/60 border border-slate-200 rounded-xl text-xs text-slate-800 placeholder-slate-400 outline-none focus:bg-white focus:border-[#18b892] focus:ring-1 focus:ring-[#18b892] transition-all"
             />
           </div>
 
@@ -156,7 +156,7 @@ export const AuditLogsView: React.FC = () => {
                 setSelectedModule(e.target.value);
                 setCurrentPage(1);
               }}
-              className="w-full h-9 px-3 bg-slate-50/60 border border-slate-200 rounded-xl text-xs text-slate-700 outline-none focus:bg-white focus:border-[#01875F] transition-all cursor-pointer"
+              className="w-full h-9 px-3 bg-slate-50/60 border border-slate-200 rounded-xl text-xs text-slate-700 outline-none focus:bg-white focus:border-[#18b892] transition-all cursor-pointer"
             >
               <option value="all">All Modules</option>
               {modulesList.map((m) => (
@@ -175,7 +175,7 @@ export const AuditLogsView: React.FC = () => {
                 setSelectedAction(e.target.value);
                 setCurrentPage(1);
               }}
-              className="w-full h-9 px-3 bg-slate-50/60 border border-slate-200 rounded-xl text-xs text-slate-700 outline-none focus:bg-white focus:border-[#01875F] transition-all cursor-pointer"
+              className="w-full h-9 px-3 bg-slate-50/60 border border-slate-200 rounded-xl text-xs text-slate-700 outline-none focus:bg-white focus:border-[#18b892] transition-all cursor-pointer"
             >
               <option value="all">All Actions</option>
               {actionsList.map((a) => (
@@ -196,7 +196,7 @@ export const AuditLogsView: React.FC = () => {
                 setCurrentPage(1);
               }}
               title="Date from"
-              className="w-full h-9 px-2.5 bg-slate-50/60 border border-slate-200 rounded-xl text-xs text-slate-700 outline-none focus:bg-white focus:border-[#01875F] transition-all"
+              className="w-full h-9 px-2.5 bg-slate-50/60 border border-slate-200 rounded-xl text-xs text-slate-700 outline-none focus:bg-white focus:border-[#18b892] transition-all"
             />
           </div>
 
@@ -210,7 +210,7 @@ export const AuditLogsView: React.FC = () => {
                 setCurrentPage(1);
               }}
               title="Date to"
-              className="w-full h-9 px-2.5 bg-slate-50/60 border border-slate-200 rounded-xl text-xs text-slate-700 outline-none focus:bg-white focus:border-[#01875F] transition-all"
+              className="w-full h-9 px-2.5 bg-slate-50/60 border border-slate-200 rounded-xl text-xs text-slate-700 outline-none focus:bg-white focus:border-[#18b892] transition-all"
             />
           </div>
         </div>
@@ -248,7 +248,7 @@ export const AuditLogsView: React.FC = () => {
                 setDateFrom('');
                 setDateTo('');
               }}
-              className="text-[#01875F] hover:underline text-[11px] font-semibold ml-auto cursor-pointer"
+              className="text-[#18b892] hover:underline text-[11px] font-semibold ml-auto cursor-pointer"
             >
               Reset all filters
             </button>
@@ -277,7 +277,7 @@ export const AuditLogsView: React.FC = () => {
       <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs overflow-hidden">
         {isLoading ? (
           <div className="py-20 flex flex-col items-center justify-center gap-3">
-            <div className="w-8 h-8 border-2 border-[#01875F]/20 border-t-[#01875F] rounded-full animate-spin" />
+            <div className="w-8 h-8 border-2 border-[#18b892]/20 border-t-[#18b892] rounded-full animate-spin" />
             <p className="text-xs font-semibold text-slate-500">Querying public.audit_logs...</p>
           </div>
         ) : logs.length === 0 ? (
@@ -323,7 +323,7 @@ export const AuditLogsView: React.FC = () => {
 
                         {/* Action */}
                         <td className="py-3 px-4">
-                          <span className="font-semibold text-slate-800 group-hover:text-[#01875F] transition-colors block">
+                          <span className="font-semibold text-slate-800 group-hover:text-[#18b892] transition-colors block">
                             {log.action}
                           </span>
                         </td>
@@ -373,7 +373,7 @@ export const AuditLogsView: React.FC = () => {
                               e.stopPropagation();
                               setSelectedLog(log);
                             }}
-                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-[#01875F] hover:text-white text-slate-700 text-xs font-semibold transition-colors cursor-pointer"
+                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-[#18b892] hover:text-white text-slate-700 text-xs font-semibold transition-colors cursor-pointer"
                           >
                             <Eye className="w-3 h-3" />
                             <span>Details</span>
@@ -541,11 +541,11 @@ export const AuditLogsView: React.FC = () => {
                         'all_payload'
                       )
                     }
-                    className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#01875F] hover:underline cursor-pointer"
+                    className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#18b892] hover:underline cursor-pointer"
                   >
                     {copiedKey === 'all_payload' ? (
                       <>
-                        <Check className="w-3 h-3 text-[#01875F]" />
+                        <Check className="w-3 h-3 text-[#18b892]" />
                         <span>Copied JSON</span>
                       </>
                     ) : (

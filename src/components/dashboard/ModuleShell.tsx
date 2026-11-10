@@ -49,7 +49,7 @@ export const ModuleShell: React.FC<ModuleShellProps> = ({
             <button
               type="button"
               onClick={onBackToOverview}
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#01875F] hover:underline mb-2 cursor-pointer"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#18b892] hover:underline mb-2 cursor-pointer"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>Back to Overview</span>
@@ -60,7 +60,7 @@ export const ModuleShell: React.FC<ModuleShellProps> = ({
               </span>
             </div>
             <h1 className="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2.5">
-              <UserCog className="w-6 h-6 text-[#01875F]" />
+              <UserCog className="w-6 h-6 text-[#18b892]" />
               <span>Users Management</span>
             </h1>
             <p className="text-xs sm:text-sm text-slate-500 mt-1">
@@ -80,7 +80,7 @@ export const ModuleShell: React.FC<ModuleShellProps> = ({
           <div className="pt-4 divide-y divide-slate-100">
             <div className="py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-[#01875F] text-white flex items-center justify-center font-bold text-sm shrink-0 shadow-2xs">
+                <div className="w-10 h-10 rounded-full bg-[#18b892] text-white flex items-center justify-center font-bold text-sm shrink-0 shadow-2xs">
                   M
                 </div>
                 <div>
@@ -90,7 +90,7 @@ export const ModuleShell: React.FC<ModuleShellProps> = ({
               </div>
 
               <div className="flex items-center gap-3 self-start sm:self-center">
-                <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-[#E6F4EA] text-[#01875F] border border-[#01875F]/20">
+                <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-[#E6F4EA] text-[#18b892] border border-[#18b892]/20">
                   {userRole}
                 </span>
                 <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
@@ -112,7 +112,7 @@ export const ModuleShell: React.FC<ModuleShellProps> = ({
           <button
             type="button"
             onClick={onBackToOverview}
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#01875F] hover:underline mb-2 cursor-pointer"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#18b892] hover:underline mb-2 cursor-pointer"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>Back to Overview</span>
@@ -125,12 +125,12 @@ export const ModuleShell: React.FC<ModuleShellProps> = ({
 
         <div className="bg-white rounded-xl border border-slate-200/80 shadow-2xs p-6 max-w-xl">
           <div className="flex items-center gap-4 pb-6 border-b border-slate-100">
-            <div className="w-16 h-16 rounded-full bg-[#01875F] text-white flex items-center justify-center font-bold text-2xl shadow-sm">
+            <div className="w-16 h-16 rounded-full bg-[#18b892] text-white flex items-center justify-center font-bold text-2xl shadow-sm">
               M
             </div>
             <div>
               <h2 className="text-lg font-bold text-slate-900">{userName}</h2>
-              <span className="inline-block mt-0.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#E6F4EA] text-[#01875F] border border-[#01875F]/20">
+              <span className="inline-block mt-0.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#E6F4EA] text-[#18b892] border border-[#18b892]/20">
                 {userRole}
               </span>
             </div>
@@ -147,7 +147,7 @@ export const ModuleShell: React.FC<ModuleShellProps> = ({
             </div>
             <div className="flex items-center justify-between py-2 border-b border-slate-100">
               <span className="text-slate-500 font-medium">Authorization Scope:</span>
-              <span className="font-semibold text-[#01875F]">Executive Authority (Wildcard *)</span>
+              <span className="font-semibold text-[#18b892]">Executive Authority (Wildcard *)</span>
             </div>
             <div className="flex items-center justify-between py-2">
               <span className="text-slate-500 font-medium">Account Status:</span>
@@ -187,7 +187,7 @@ export const ModuleShell: React.FC<ModuleShellProps> = ({
         <button
           type="button"
           onClick={onBackToOverview}
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#01875F] hover:underline mb-2 cursor-pointer"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#18b892] hover:underline mb-2 cursor-pointer"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
           <span>Back to Overview</span>
@@ -198,7 +198,7 @@ export const ModuleShell: React.FC<ModuleShellProps> = ({
           </span>
         </div>
         <h1 className="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2.5">
-          <ItemIcon className="w-6 h-6 text-[#01875F]" />
+          <ItemIcon className="w-6 h-6 text-[#18b892]" />
           <span>{itemLabel}</span>
         </h1>
         <p className="text-xs sm:text-sm text-slate-500 mt-1">
@@ -208,7 +208,7 @@ export const ModuleShell: React.FC<ModuleShellProps> = ({
 
       {/* Main Empty State / Enterprise Container */}
       <div className="bg-white rounded-xl border border-slate-200/80 shadow-2xs p-8 sm:p-12 text-center max-w-2xl mx-auto">
-        <div className="w-14 h-14 rounded-2xl bg-[#E6F4EA] text-[#01875F] flex items-center justify-center mx-auto mb-4 border border-[#01875F]/20">
+        <div className="w-14 h-14 rounded-2xl bg-[#E6F4EA] text-[#18b892] flex items-center justify-center mx-auto mb-4 border border-[#18b892]/20">
           <ItemIcon className="w-7 h-7" strokeWidth={1.8} />
         </div>
 
@@ -221,7 +221,7 @@ export const ModuleShell: React.FC<ModuleShellProps> = ({
           <button
             type="button"
             onClick={onBackToOverview}
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 bg-[#01875F] hover:bg-[#016f4e] text-white text-xs font-semibold rounded-lg shadow-2xs transition-colors cursor-pointer"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 bg-[#18b892] hover:bg-[#016f4e] text-white text-xs font-semibold rounded-lg shadow-2xs transition-colors cursor-pointer"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>Return to Overview</span>

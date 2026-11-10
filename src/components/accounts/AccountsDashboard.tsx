@@ -85,7 +85,7 @@ export const AccountsDashboard: React.FC = () => {
     'Finance Officer';
 
   return (
-    <div className="min-h-screen bg-[#F8FAFB] flex flex-col text-slate-800 font-sans selection:bg-[#01875F]/20 selection:text-[#01875F]">
+    <div className="min-h-screen bg-[#F8FAFB] flex flex-col text-slate-800 font-sans selection:bg-[#18b892]/20 selection:text-[#18b892]">
       {/* Top Header */}
       <header className="h-16 px-3 sm:px-8 border-b border-slate-200/80 bg-white flex items-center justify-between sticky top-0 z-30 shadow-2xs">
         <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
@@ -96,7 +96,7 @@ export const AccountsDashboard: React.FC = () => {
             <span className="font-bold text-slate-900 tracking-tight text-xs sm:text-base block leading-tight truncate">
               Davejoe Accounts & Financial Control
             </span>
-            <span className="text-[9.5px] sm:text-[10px] font-semibold text-[#01875F] tracking-wider uppercase block truncate">
+            <span className="text-[9.5px] sm:text-[10px] font-semibold text-[#18b892] tracking-wider uppercase block truncate">
               Financial Ledgers & Project Costing
             </span>
           </div>
@@ -109,7 +109,7 @@ export const AccountsDashboard: React.FC = () => {
             disabled={isRefreshing}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-semibold transition-colors cursor-pointer disabled:opacity-60"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-[#01875F]' : ''}`} />
+            <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-[#18b892]' : ''}`} />
             <span className="hidden sm:inline">Refresh</span>
           </button>
 
@@ -138,7 +138,7 @@ export const AccountsDashboard: React.FC = () => {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2.5">
-              <CircleDollarSign className="w-5 h-5 sm:w-6 sm:h-6 text-[#01875F]" />
+              <CircleDollarSign className="w-5 h-5 sm:w-6 sm:h-6 text-[#18b892]" />
               <span>Accounts & Financial Command</span>
             </h1>
             <p className="text-xs sm:text-sm text-slate-500 mt-1">
@@ -146,7 +146,7 @@ export const AccountsDashboard: React.FC = () => {
             </p>
           </div>
 
-          <div className="flex items-center gap-2 bg-emerald-50 text-[#01875F] border border-emerald-200 px-3.5 py-1.5 rounded-xl text-xs font-semibold self-start sm:self-auto">
+          <div className="flex items-center gap-2 bg-emerald-50 text-[#18b892] border border-emerald-200 px-3.5 py-1.5 rounded-xl text-xs font-semibold self-start sm:self-auto">
             <ShieldCheck className="w-4 h-4" />
             <span>Fiscal Audit Stream Active</span>
           </div>
@@ -158,7 +158,7 @@ export const AccountsDashboard: React.FC = () => {
             type="button"
             onClick={() => setActiveTab('overview')}
             className={`min-h-[42px] px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-colors cursor-pointer ${
-              activeTab === 'overview' ? 'bg-[#01875F] text-white shadow-xs' : 'text-slate-600 hover:bg-slate-100'
+              activeTab === 'overview' ? 'bg-[#18b892] text-white shadow-xs' : 'text-slate-600 hover:bg-slate-100'
             }`}
           >
             Financial Overview
@@ -167,7 +167,7 @@ export const AccountsDashboard: React.FC = () => {
             type="button"
             onClick={() => setActiveTab('projects')}
             className={`min-h-[42px] px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-colors cursor-pointer ${
-              activeTab === 'projects' ? 'bg-[#01875F] text-white shadow-xs' : 'text-slate-600 hover:bg-slate-100'
+              activeTab === 'projects' ? 'bg-[#18b892] text-white shadow-xs' : 'text-slate-600 hover:bg-slate-100'
             }`}
           >
             Project Ledgers
@@ -176,7 +176,7 @@ export const AccountsDashboard: React.FC = () => {
             type="button"
             onClick={() => setActiveTab('budget')}
             className={`min-h-[42px] px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-colors cursor-pointer ${
-              activeTab === 'budget' ? 'bg-[#01875F] text-white shadow-xs' : 'text-slate-600 hover:bg-slate-100'
+              activeTab === 'budget' ? 'bg-[#18b892] text-white shadow-xs' : 'text-slate-600 hover:bg-slate-100'
             }`}
           >
             Budget vs Actual
@@ -185,7 +185,7 @@ export const AccountsDashboard: React.FC = () => {
             type="button"
             onClick={() => setActiveTab('commitments')}
             className={`min-h-[42px] px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-colors cursor-pointer ${
-              activeTab === 'commitments' ? 'bg-[#01875F] text-white shadow-xs' : 'text-slate-600 hover:bg-slate-100'
+              activeTab === 'commitments' ? 'bg-[#18b892] text-white shadow-xs' : 'text-slate-600 hover:bg-slate-100'
             }`}
           >
             Purchase Commitments ({purchaseOrders.length})
@@ -194,7 +194,7 @@ export const AccountsDashboard: React.FC = () => {
             type="button"
             onClick={() => setActiveTab('remnants')}
             className={`min-h-[42px] px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-colors cursor-pointer ${
-              activeTab === 'remnants' ? 'bg-[#01875F] text-white shadow-xs' : 'text-slate-600 hover:bg-slate-100'
+              activeTab === 'remnants' ? 'bg-[#18b892] text-white shadow-xs' : 'text-slate-600 hover:bg-slate-100'
             }`}
           >
             Remnants Reconciliation Value
@@ -203,7 +203,7 @@ export const AccountsDashboard: React.FC = () => {
             type="button"
             onClick={() => setActiveTab('attendance')}
             className={`min-h-[42px] px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-colors cursor-pointer ${
-              activeTab === 'attendance' ? 'bg-[#01875F] text-white shadow-xs' : 'text-slate-600 hover:bg-slate-100'
+              activeTab === 'attendance' ? 'bg-[#18b892] text-white shadow-xs' : 'text-slate-600 hover:bg-slate-100'
             }`}
           >
             Payroll Attendance Muster
@@ -220,7 +220,7 @@ export const AccountsDashboard: React.FC = () => {
                   <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
                     Total Enterprise Budget
                   </span>
-                  <div className="w-8 h-8 rounded-lg bg-emerald-50 text-[#01875F] flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-lg bg-emerald-50 text-[#18b892] flex items-center justify-center">
                     <CircleDollarSign className="w-4 h-4" />
                   </div>
                 </div>
@@ -269,7 +269,7 @@ export const AccountsDashboard: React.FC = () => {
                     <TrendingUp className="w-4 h-4" />
                   </div>
                 </div>
-                <div className="text-2xl font-bold text-[#01875F]">
+                <div className="text-2xl font-bold text-[#18b892]">
                   {isLoading
                     ? '...'
                     : formatNaira(
@@ -289,7 +289,7 @@ export const AccountsDashboard: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setActiveTab('commitments')}
-                  className="text-xs font-semibold text-[#01875F] hover:underline"
+                  className="text-xs font-semibold text-[#18b892] hover:underline"
                 >
                   View all commitments &rarr;
                 </button>
@@ -319,7 +319,7 @@ export const AccountsDashboard: React.FC = () => {
                           <td className="py-3 px-3 text-slate-600">{po.supplier?.name || 'Vendor'}</td>
                           <td className="py-3 px-3 text-right font-bold text-slate-900">{formatNaira(po.total_amount)}</td>
                           <td className="py-3 px-3">
-                            <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-[#01875F] border border-emerald-200 capitalize">
+                            <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-[#18b892] border border-emerald-200 capitalize">
                               {po.status || 'Active'}
                             </span>
                           </td>
@@ -375,7 +375,7 @@ export const AccountsDashboard: React.FC = () => {
                         <td className="py-3 px-3 text-slate-600">{po.supplier?.name || 'Vendor'}</td>
                         <td className="py-3 px-3 text-right font-bold text-slate-900">{formatNaira(po.total_amount)}</td>
                         <td className="py-3 px-3">
-                          <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-[#01875F] border border-emerald-200 capitalize">
+                          <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-[#18b892] border border-emerald-200 capitalize">
                             {po.status || 'Active'}
                           </span>
                         </td>

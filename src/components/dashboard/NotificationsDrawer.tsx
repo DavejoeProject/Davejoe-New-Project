@@ -36,7 +36,7 @@ export const NotificationsDrawer: React.FC<NotificationsDrawerProps> = ({
         {/* Header */}
         <div className="p-4 border-b border-slate-100 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Bell className="w-4 h-4 text-[#01875F]" />
+            <Bell className="w-4 h-4 text-[#18b892]" />
             <h3 className="text-sm font-bold text-slate-900">Notifications</h3>
             {unreadCount > 0 && (
               <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-red-100 text-red-600">
@@ -50,7 +50,7 @@ export const NotificationsDrawer: React.FC<NotificationsDrawerProps> = ({
               <button
                 type="button"
                 onClick={onMarkAllRead}
-                className="text-[11px] font-semibold text-[#01875F] hover:underline cursor-pointer"
+                className="text-[11px] font-semibold text-[#18b892] hover:underline cursor-pointer"
               >
                 Mark all read
               </button>
@@ -87,7 +87,7 @@ export const NotificationsDrawer: React.FC<NotificationsDrawerProps> = ({
                     onClose();
                   }}
                   className={`py-3 px-2 rounded-lg cursor-pointer transition-colors ${
-                    item.unread ? 'bg-[#01875F]/5' : 'hover:bg-slate-50'
+                    item.unread ? 'bg-[#18b892]/5' : 'hover:bg-slate-50'
                   }`}
                 >
                   <div className="flex items-start justify-between gap-2">

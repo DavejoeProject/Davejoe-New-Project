@@ -360,7 +360,7 @@ export const ProjectionDetailModal: React.FC<ProjectionDetailModalProps> = ({
               onClick={() => setActiveTab(tab.id as any)}
               className={`py-3 px-2.5 sm:px-3.5 border-b-2 whitespace-nowrap transition-colors cursor-pointer min-h-[44px] flex items-center ${
                 activeTab === tab.id
-                  ? 'border-[#01875F] text-[#01875F] font-bold'
+                  ? 'border-[#18b892] text-[#18b892] font-bold'
                   : 'border-transparent text-slate-500 hover:text-slate-800'
               }`}
             >
@@ -521,7 +521,7 @@ export const ProjectionDetailModal: React.FC<ProjectionDetailModalProps> = ({
                   <button
                     type="button"
                     onClick={() => setShowAddLineItem(!showAddLineItem)}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-[#01875F] text-white rounded-lg hover:bg-[#01704f] transition-colors"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-[#18b892] text-white rounded-lg hover:bg-[#01704f] transition-colors"
                   >
                     <Plus className="w-3.5 h-3.5" />
                     Add BOQ Item
@@ -602,7 +602,7 @@ export const ProjectionDetailModal: React.FC<ProjectionDetailModalProps> = ({
                       type="button"
                       disabled={loading}
                       onClick={handleAddBOQLine}
-                      className="px-3 py-1.5 text-xs font-semibold bg-[#01875F] text-white rounded hover:bg-[#01704f]"
+                      className="px-3 py-1.5 text-xs font-semibold bg-[#18b892] text-white rounded hover:bg-[#01704f]"
                     >
                       Save Item
                     </button>
@@ -733,7 +733,7 @@ export const ProjectionDetailModal: React.FC<ProjectionDetailModalProps> = ({
                   <button
                     type="button"
                     onClick={() => setShowRequestContrib(!showRequestContrib)}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-[#01875F] text-white rounded-lg hover:bg-[#01704f] transition-colors"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-[#18b892] text-white rounded-lg hover:bg-[#01704f] transition-colors"
                   >
                     <Plus className="w-3.5 h-3.5" />
                     Request Contribution
@@ -780,7 +780,7 @@ export const ProjectionDetailModal: React.FC<ProjectionDetailModalProps> = ({
                     <button
                       type="submit"
                       disabled={loading}
-                      className="px-3 py-1.5 text-xs font-semibold bg-[#01875F] text-white rounded hover:bg-[#01704f]"
+                      className="px-3 py-1.5 text-xs font-semibold bg-[#18b892] text-white rounded hover:bg-[#01704f]"
                     >
                       Send Request
                     </button>
@@ -971,7 +971,7 @@ export const ProjectionDetailModal: React.FC<ProjectionDetailModalProps> = ({
                     type="button"
                     disabled={loading}
                     onClick={handleQuotationSave}
-                    className="px-4 py-2 text-xs font-semibold bg-[#01875F] text-white rounded-lg hover:bg-[#01704f] transition-colors"
+                    className="px-4 py-2 text-xs font-semibold bg-[#18b892] text-white rounded-lg hover:bg-[#01704f] transition-colors"
                   >
                     Save Quotation Updates
                   </button>
@@ -1011,7 +1011,7 @@ export const ProjectionDetailModal: React.FC<ProjectionDetailModalProps> = ({
                             name="reviewDecision"
                             checked={reviewDecision === 'approved'}
                             onChange={() => setReviewDecision('approved')}
-                            className="accent-[#01875F]"
+                            className="accent-[#18b892]"
                           />
                           <span className="text-xs font-semibold text-emerald-800">Approve Commercials</span>
                         </label>
@@ -1056,7 +1056,7 @@ export const ProjectionDetailModal: React.FC<ProjectionDetailModalProps> = ({
                       <button
                         type="submit"
                         disabled={loading || !canApproveOrConvert}
-                        className="px-4 py-2 text-xs font-semibold bg-[#01875F] text-white rounded-lg hover:bg-[#01704f] disabled:opacity-50"
+                        className="px-4 py-2 text-xs font-semibold bg-[#18b892] text-white rounded-lg hover:bg-[#01704f] disabled:opacity-50"
                       >
                         Submit Management Decision
                       </button>
@@ -1120,7 +1120,7 @@ export const ProjectionDetailModal: React.FC<ProjectionDetailModalProps> = ({
                         type="button"
                         disabled={loading || !canApproveOrConvert}
                         onClick={handleConvertToProject}
-                        className="inline-flex items-center gap-2 px-5 py-2.5 text-xs font-bold bg-[#01875F] text-white hover:bg-[#01704f] rounded-xl shadow-xs transition-all hover:scale-[1.02] cursor-pointer disabled:opacity-50"
+                        className="inline-flex items-center gap-2 px-5 py-2.5 text-xs font-bold bg-[#18b892] text-white hover:bg-[#01704f] rounded-xl shadow-xs transition-all hover:scale-[1.02] cursor-pointer disabled:opacity-50"
                       >
                         <ExternalLink className="w-4 h-4" />
                         Convert to Active Project

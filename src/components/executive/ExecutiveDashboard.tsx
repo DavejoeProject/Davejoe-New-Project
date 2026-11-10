@@ -379,7 +379,7 @@ export const ExecutiveDashboard: React.FC = () => {
                 <span className="font-bold text-slate-900 tracking-tight text-[15px] leading-tight truncate">
                   Davejoe
                 </span>
-                <span className="text-[10px] font-semibold text-[#01875F] tracking-wider uppercase leading-tight truncate">
+                <span className="text-[10px] font-semibold text-[#18b892] tracking-wider uppercase leading-tight truncate">
                   Executive Director
                 </span>
               </div>
@@ -445,7 +445,7 @@ export const ExecutiveDashboard: React.FC = () => {
                           title={sidebarCollapsed && !isMobile ? item.label : undefined}
                           className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold transition-colors cursor-pointer text-left ${
                             isActive
-                              ? 'bg-[#01875F] text-white shadow-xs'
+                              ? 'bg-[#18b892] text-white shadow-xs'
                               : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                           } ${sidebarCollapsed && !isMobile ? 'justify-center px-0' : ''}`}
                         >
@@ -490,21 +490,21 @@ export const ExecutiveDashboard: React.FC = () => {
       <div className="p-3 border-t border-slate-100 space-y-2 bg-slate-50/50">
         {!sidebarCollapsed || isMobile ? (
           <div className="px-3 py-2 bg-white rounded-xl border border-slate-200/80 flex items-center gap-2.5 shadow-2xs">
-            <div className="w-8 h-8 rounded-full bg-[#01875F] text-white flex items-center justify-center text-xs font-bold shrink-0 shadow-2xs">
+            <div className="w-8 h-8 rounded-full bg-[#18b892] text-white flex items-center justify-center text-xs font-bold shrink-0 shadow-2xs">
               {executiveDisplayName[0]?.toUpperCase() || 'O'}
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-xs font-bold text-slate-900 truncate leading-tight uppercase tracking-tight">
                 {executiveDisplayName}
               </p>
-              <p className="text-[10px] text-[#01875F] font-semibold truncate leading-tight mt-0.5">
+              <p className="text-[10px] text-[#18b892] font-semibold truncate leading-tight mt-0.5">
                 Executive Director
               </p>
             </div>
           </div>
         ) : (
           <div className="flex justify-center py-1">
-            <div className="w-8 h-8 rounded-full bg-[#01875F] text-white flex items-center justify-center text-xs font-bold shadow-2xs">
+            <div className="w-8 h-8 rounded-full bg-[#18b892] text-white flex items-center justify-center text-xs font-bold shadow-2xs">
               {executiveDisplayName[0]?.toUpperCase() || 'O'}
             </div>
           </div>
@@ -532,7 +532,7 @@ export const ExecutiveDashboard: React.FC = () => {
   );
 
   return (
-    <div className="min-h-screen bg-[#F8FAFB] flex flex-col md:flex-row text-slate-800 font-sans selection:bg-[#01875F]/20 selection:text-[#01875F]">
+    <div className="min-h-screen bg-[#F8FAFB] flex flex-col md:flex-row text-slate-800 font-sans selection:bg-[#18b892]/20 selection:text-[#18b892]">
       {/* Desktop Left Collapsible Sidebar */}
       <aside
         className={`hidden md:flex ${
@@ -572,15 +572,15 @@ export const ExecutiveDashboard: React.FC = () => {
               <h1 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight uppercase truncate">
                 {executiveDisplayName}
               </h1>
-              <p className="text-xs font-semibold text-[#01875F] tracking-wide uppercase mt-0.5 truncate">
+              <p className="text-xs font-semibold text-[#18b892] tracking-wide uppercase mt-0.5 truncate">
                 {executiveRoleTitle}
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-2.5 shrink-0">
-            <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-emerald-50 text-[#01875F] border border-emerald-200">
-              <ShieldCheck className="w-3.5 h-3.5 text-[#01875F]" />
+            <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-emerald-50 text-[#18b892] border border-emerald-200">
+              <ShieldCheck className="w-3.5 h-3.5 text-[#18b892]" />
               Executive Control Active
             </span>
 
@@ -591,7 +591,7 @@ export const ExecutiveDashboard: React.FC = () => {
               title="Refresh Data"
               className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-lg text-xs font-semibold transition-colors shadow-2xs cursor-pointer disabled:opacity-60"
             >
-              <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-[#01875F]' : ''}`} />
+              <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-[#18b892]' : ''}`} />
               <span className="hidden sm:inline">Refresh</span>
             </button>
           </div>
@@ -600,7 +600,7 @@ export const ExecutiveDashboard: React.FC = () => {
         {/* Oversight Security Notice */}
         <div className="bg-emerald-50/50 border-b border-emerald-100/80 px-6 sm:px-8 py-2.5 flex items-center justify-between text-xs text-slate-600">
           <div className="flex items-center gap-2">
-            <Info className="w-4 h-4 text-[#01875F] shrink-0" />
+            <Info className="w-4 h-4 text-[#18b892] shrink-0" />
             <span>
               Company-wide Strategic Oversight Active: Read access to projects, operations, materials, workforce and management performance.
             </span>
@@ -650,10 +650,10 @@ export const ExecutiveDashboard: React.FC = () => {
                   {/* KPI 1: Active Projects */}
                   <div
                     onClick={() => setActiveModule('projects')}
-                    className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-2xs hover:border-[#01875F]/60 transition-colors cursor-pointer group"
+                    className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-2xs hover:border-[#18b892]/60 transition-colors cursor-pointer group"
                   >
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider group-hover:text-[#01875F] transition-colors">
+                      <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider group-hover:text-[#18b892] transition-colors">
                         Active Projects
                       </span>
                       <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
@@ -665,17 +665,17 @@ export const ExecutiveDashboard: React.FC = () => {
                     </div>
                     <p className="text-[11px] text-slate-400 mt-1 flex items-center justify-between">
                       <span>Ongoing site operations</span>
-                      <ArrowUpRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-[#01875F] transition-colors" />
+                      <ArrowUpRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-[#18b892] transition-colors" />
                     </p>
                   </div>
 
                   {/* KPI 2: New Leads */}
                   <div
                     onClick={() => setActiveModule('leads')}
-                    className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-2xs hover:border-[#01875F]/60 transition-colors cursor-pointer group"
+                    className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-2xs hover:border-[#18b892]/60 transition-colors cursor-pointer group"
                   >
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider group-hover:text-[#01875F] transition-colors">
+                      <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider group-hover:text-[#18b892] transition-colors">
                         New Leads
                       </span>
                       <div className="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
@@ -687,17 +687,17 @@ export const ExecutiveDashboard: React.FC = () => {
                     </div>
                     <p className="text-[11px] text-amber-600/90 mt-1 flex items-center justify-between font-medium">
                       <span>Unsupported (No CRM table)</span>
-                      <ArrowUpRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-[#01875F] transition-colors" />
+                      <ArrowUpRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-[#18b892] transition-colors" />
                     </p>
                   </div>
 
                   {/* KPI 3: Pending Quotes */}
                   <div
                     onClick={() => setActiveModule('leads')}
-                    className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-2xs hover:border-[#01875F]/60 transition-colors cursor-pointer group"
+                    className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-2xs hover:border-[#18b892]/60 transition-colors cursor-pointer group"
                   >
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider group-hover:text-[#01875F] transition-colors">
+                      <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider group-hover:text-[#18b892] transition-colors">
                         Pending Quotes
                       </span>
                       <div className="w-8 h-8 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center">
@@ -709,20 +709,20 @@ export const ExecutiveDashboard: React.FC = () => {
                     </div>
                     <p className="text-[11px] text-purple-600 mt-1 flex items-center justify-between font-medium">
                       <span>Unsupported (No quotes table)</span>
-                      <ArrowUpRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-[#01875F] transition-colors" />
+                      <ArrowUpRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-[#18b892] transition-colors" />
                     </p>
                   </div>
 
                   {/* KPI 4: Outstanding Receivables */}
                   <div
                     onClick={() => setActiveModule('finance')}
-                    className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-2xs hover:border-[#01875F]/60 transition-colors cursor-pointer group"
+                    className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-2xs hover:border-[#18b892]/60 transition-colors cursor-pointer group"
                   >
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider group-hover:text-[#01875F] transition-colors">
+                      <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider group-hover:text-[#18b892] transition-colors">
                         Outstanding Receivables
                       </span>
-                      <div className="w-8 h-8 rounded-lg bg-emerald-50 text-[#01875F] flex items-center justify-center">
+                      <div className="w-8 h-8 rounded-lg bg-emerald-50 text-[#18b892] flex items-center justify-center">
                         <DollarSign className="w-4 h-4" />
                       </div>
                     </div>
@@ -731,17 +731,17 @@ export const ExecutiveDashboard: React.FC = () => {
                     </div>
                     <p className="text-[11px] text-slate-500 mt-1 flex items-center justify-between font-medium">
                       <span>Unsupported (No invoices table)</span>
-                      <ArrowUpRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-[#01875F] transition-colors" />
+                      <ArrowUpRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-[#18b892] transition-colors" />
                     </p>
                   </div>
 
                   {/* KPI 5: Manpower Shortages */}
                   <div
                     onClick={() => setActiveModule('workforce')}
-                    className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-2xs hover:border-[#01875F]/60 transition-colors cursor-pointer group"
+                    className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-2xs hover:border-[#18b892]/60 transition-colors cursor-pointer group"
                   >
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider group-hover:text-[#01875F] transition-colors">
+                      <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider group-hover:text-[#18b892] transition-colors">
                         Manpower Shortages
                       </span>
                       <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
@@ -753,17 +753,17 @@ export const ExecutiveDashboard: React.FC = () => {
                     </div>
                     <p className="text-[11px] text-emerald-600 mt-1 flex items-center justify-between font-medium">
                       <span>Site requisitions staffed</span>
-                      <ArrowUpRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-[#01875F] transition-colors" />
+                      <ArrowUpRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-[#18b892] transition-colors" />
                     </p>
                   </div>
 
                   {/* KPI 6: QC Failures */}
                   <div
                     onClick={() => setActiveModule('qc')}
-                    className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-2xs hover:border-[#01875F]/60 transition-colors cursor-pointer group"
+                    className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-2xs hover:border-[#18b892]/60 transition-colors cursor-pointer group"
                   >
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider group-hover:text-[#01875F] transition-colors">
+                      <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider group-hover:text-[#18b892] transition-colors">
                         QC Failures
                       </span>
                       <div className="w-8 h-8 rounded-lg bg-red-50 text-red-600 flex items-center justify-center">
@@ -775,17 +775,17 @@ export const ExecutiveDashboard: React.FC = () => {
                     </div>
                     <p className="text-[11px] text-slate-400 mt-1 flex items-center justify-between">
                       <span>Audit failure exceptions</span>
-                      <ArrowUpRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-[#01875F] transition-colors" />
+                      <ArrowUpRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-[#18b892] transition-colors" />
                     </p>
                   </div>
 
                   {/* KPI 7: Material Exceptions */}
                   <div
                     onClick={() => setActiveModule('materials')}
-                    className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-2xs hover:border-[#01875F]/60 transition-colors cursor-pointer group"
+                    className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-2xs hover:border-[#18b892]/60 transition-colors cursor-pointer group"
                   >
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider group-hover:text-[#01875F] transition-colors">
+                      <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider group-hover:text-[#18b892] transition-colors">
                         Material Exceptions
                       </span>
                       <div className="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
@@ -797,7 +797,7 @@ export const ExecutiveDashboard: React.FC = () => {
                     </div>
                     <p className="text-[11px] text-slate-400 mt-1 flex items-center justify-between">
                       <span>Losses & stock warnings</span>
-                      <ArrowUpRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-[#01875F] transition-colors" />
+                      <ArrowUpRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-[#18b892] transition-colors" />
                     </p>
                   </div>
 
@@ -838,13 +838,13 @@ export const ExecutiveDashboard: React.FC = () => {
                   {/* Department 1: Business Development & Leads */}
                   <div
                     onClick={() => setActiveModule('leads')}
-                    className="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-2xs hover:border-[#01875F]/60 transition-colors cursor-pointer group flex flex-col justify-between"
+                    className="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-2xs hover:border-[#18b892]/60 transition-colors cursor-pointer group flex flex-col justify-between"
                   >
                     <div>
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
-                          <Briefcase className="w-4 h-4 text-[#01875F]" />
-                          <h3 className="font-bold text-xs text-slate-900 group-hover:text-[#01875F] transition-colors">
+                          <Briefcase className="w-4 h-4 text-[#18b892]" />
+                          <h3 className="font-bold text-xs text-slate-900 group-hover:text-[#18b892] transition-colors">
                             Business Development & Leads
                           </h3>
                         </div>
@@ -856,7 +856,7 @@ export const ExecutiveDashboard: React.FC = () => {
                         Client acquisition pipeline, bidding proposals, pending customer quotes, and commercial intake.
                       </p>
                     </div>
-                    <div className="pt-3 mt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-[#01875F] font-semibold">
+                    <div className="pt-3 mt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-[#18b892] font-semibold">
                       <span>View Pipeline &rarr;</span>
                       <span className="text-slate-400 font-normal">0 Active Leads</span>
                     </div>
@@ -865,17 +865,17 @@ export const ExecutiveDashboard: React.FC = () => {
                   {/* Department 2: Projects */}
                   <div
                     onClick={() => setActiveModule('projects')}
-                    className="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-2xs hover:border-[#01875F]/60 transition-colors cursor-pointer group flex flex-col justify-between"
+                    className="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-2xs hover:border-[#18b892]/60 transition-colors cursor-pointer group flex flex-col justify-between"
                   >
                     <div>
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
-                          <FolderKanban className="w-4 h-4 text-[#01875F]" />
-                          <h3 className="font-bold text-xs text-slate-900 group-hover:text-[#01875F] transition-colors">
+                          <FolderKanban className="w-4 h-4 text-[#18b892]" />
+                          <h3 className="font-bold text-xs text-slate-900 group-hover:text-[#18b892] transition-colors">
                             Projects & Civil Operations
                           </h3>
                         </div>
-                        <span className="px-1.5 py-0.2 rounded text-[10px] font-semibold bg-emerald-50 text-[#01875F]">
+                        <span className="px-1.5 py-0.2 rounded text-[10px] font-semibold bg-emerald-50 text-[#18b892]">
                           Active
                         </span>
                       </div>
@@ -883,7 +883,7 @@ export const ExecutiveDashboard: React.FC = () => {
                         Execution velocity, milestone deliverables, project site locations, and client commitments.
                       </p>
                     </div>
-                    <div className="pt-3 mt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-[#01875F] font-semibold">
+                    <div className="pt-3 mt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-[#18b892] font-semibold">
                       <span>Portfolio Oversight &rarr;</span>
                       <span className="text-slate-700 font-bold">{projectsList.length} Projects</span>
                     </div>
@@ -892,17 +892,17 @@ export const ExecutiveDashboard: React.FC = () => {
                   {/* Department 3: Staff and Productivity */}
                   <div
                     onClick={() => setActiveModule('workforce')}
-                    className="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-2xs hover:border-[#01875F]/60 transition-colors cursor-pointer group flex flex-col justify-between"
+                    className="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-2xs hover:border-[#18b892]/60 transition-colors cursor-pointer group flex flex-col justify-between"
                   >
                     <div>
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
-                          <Users className="w-4 h-4 text-[#01875F]" />
-                          <h3 className="font-bold text-xs text-slate-900 group-hover:text-[#01875F] transition-colors">
+                          <Users className="w-4 h-4 text-[#18b892]" />
+                          <h3 className="font-bold text-xs text-slate-900 group-hover:text-[#18b892] transition-colors">
                             Staff & Productivity
                           </h3>
                         </div>
-                        <span className="px-1.5 py-0.2 rounded text-[10px] font-semibold bg-emerald-50 text-[#01875F]">
+                        <span className="px-1.5 py-0.2 rounded text-[10px] font-semibold bg-emerald-50 text-[#18b892]">
                           Active
                         </span>
                       </div>
@@ -910,7 +910,7 @@ export const ExecutiveDashboard: React.FC = () => {
                         All registered personnel across all 9 roles, deployment status, daily site attendance, and productivity.
                       </p>
                     </div>
-                    <div className="pt-3 mt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-[#01875F] font-semibold">
+                    <div className="pt-3 mt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-[#18b892] font-semibold">
                       <span>View Staff Directory &rarr;</span>
                       <span className="text-slate-700 font-bold">{workforceList.length} Personnel</span>
                     </div>
@@ -919,13 +919,13 @@ export const ExecutiveDashboard: React.FC = () => {
                   {/* Department 4: Technical Inspection and QC */}
                   <div
                     onClick={() => setActiveModule('qc')}
-                    className="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-2xs hover:border-[#01875F]/60 transition-colors cursor-pointer group flex flex-col justify-between"
+                    className="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-2xs hover:border-[#18b892]/60 transition-colors cursor-pointer group flex flex-col justify-between"
                   >
                     <div>
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
-                          <ClipboardCheck className="w-4 h-4 text-[#01875F]" />
-                          <h3 className="font-bold text-xs text-slate-900 group-hover:text-[#01875F] transition-colors">
+                          <ClipboardCheck className="w-4 h-4 text-[#18b892]" />
+                          <h3 className="font-bold text-xs text-slate-900 group-hover:text-[#18b892] transition-colors">
                             Technical Inspection & QC
                           </h3>
                         </div>
@@ -937,7 +937,7 @@ export const ExecutiveDashboard: React.FC = () => {
                         Quality assurance audits, structural compliance checks, site defect logs, and QC pass rates.
                       </p>
                     </div>
-                    <div className="pt-3 mt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-[#01875F] font-semibold">
+                    <div className="pt-3 mt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-[#18b892] font-semibold">
                       <span>Audit Quality Log &rarr;</span>
                       <span className="text-slate-700 font-bold">{inspectionsList.length} Audits</span>
                     </div>
@@ -946,17 +946,17 @@ export const ExecutiveDashboard: React.FC = () => {
                   {/* Department 5: Materials */}
                   <div
                     onClick={() => setActiveModule('materials')}
-                    className="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-2xs hover:border-[#01875F]/60 transition-colors cursor-pointer group flex flex-col justify-between"
+                    className="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-2xs hover:border-[#18b892]/60 transition-colors cursor-pointer group flex flex-col justify-between"
                   >
                     <div>
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
-                          <Package className="w-4 h-4 text-[#01875F]" />
-                          <h3 className="font-bold text-xs text-slate-900 group-hover:text-[#01875F] transition-colors">
+                          <Package className="w-4 h-4 text-[#18b892]" />
+                          <h3 className="font-bold text-xs text-slate-900 group-hover:text-[#18b892] transition-colors">
                             Materials Management
                           </h3>
                         </div>
-                        <span className="px-1.5 py-0.2 rounded text-[10px] font-semibold bg-emerald-50 text-[#01875F]">
+                        <span className="px-1.5 py-0.2 rounded text-[10px] font-semibold bg-emerald-50 text-[#18b892]">
                           Active
                         </span>
                       </div>
@@ -964,7 +964,7 @@ export const ExecutiveDashboard: React.FC = () => {
                         Warehouse stock balances, site allocation requests, recorded losses, and material reconciliation.
                       </p>
                     </div>
-                    <div className="pt-3 mt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-[#01875F] font-semibold">
+                    <div className="pt-3 mt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-[#18b892] font-semibold">
                       <span>Inventory Breakdown &rarr;</span>
                       <span className="text-slate-700 font-bold">{materialsList.length} Materials</span>
                     </div>
@@ -973,17 +973,17 @@ export const ExecutiveDashboard: React.FC = () => {
                   {/* Department 6: Procurement and Logistics */}
                   <div
                     onClick={() => setActiveModule('procurement')}
-                    className="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-2xs hover:border-[#01875F]/60 transition-colors cursor-pointer group flex flex-col justify-between"
+                    className="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-2xs hover:border-[#18b892]/60 transition-colors cursor-pointer group flex flex-col justify-between"
                   >
                     <div>
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
-                          <Truck className="w-4 h-4 text-[#01875F]" />
-                          <h3 className="font-bold text-xs text-slate-900 group-hover:text-[#01875F] transition-colors">
+                          <Truck className="w-4 h-4 text-[#18b892]" />
+                          <h3 className="font-bold text-xs text-slate-900 group-hover:text-[#18b892] transition-colors">
                             Procurement & Logistics
                           </h3>
                         </div>
-                        <span className="px-1.5 py-0.2 rounded text-[10px] font-semibold bg-emerald-50 text-[#01875F]">
+                        <span className="px-1.5 py-0.2 rounded text-[10px] font-semibold bg-emerald-50 text-[#18b892]">
                           Active
                         </span>
                       </div>
@@ -991,7 +991,7 @@ export const ExecutiveDashboard: React.FC = () => {
                         Purchase orders issuance, vendor delivery performance, receipts verification, and lead times.
                       </p>
                     </div>
-                    <div className="pt-3 mt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-[#01875F] font-semibold">
+                    <div className="pt-3 mt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-[#18b892] font-semibold">
                       <span>Supply Chain Tracking &rarr;</span>
                       <span className="text-slate-700 font-bold">{purchaseOrdersList.length} Orders</span>
                     </div>
@@ -1000,13 +1000,13 @@ export const ExecutiveDashboard: React.FC = () => {
                   {/* Department 7: Finance and Commercial */}
                   <div
                     onClick={() => setActiveModule('finance')}
-                    className="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-2xs hover:border-[#01875F]/60 transition-colors cursor-pointer group flex flex-col justify-between"
+                    className="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-2xs hover:border-[#18b892]/60 transition-colors cursor-pointer group flex flex-col justify-between"
                   >
                     <div>
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
-                          <DollarSign className="w-4 h-4 text-[#01875F]" />
-                          <h3 className="font-bold text-xs text-slate-900 group-hover:text-[#01875F] transition-colors">
+                          <DollarSign className="w-4 h-4 text-[#18b892]" />
+                          <h3 className="font-bold text-xs text-slate-900 group-hover:text-[#18b892] transition-colors">
                             Finance & Commercial
                           </h3>
                         </div>
@@ -1018,7 +1018,7 @@ export const ExecutiveDashboard: React.FC = () => {
                         Project budget commitments, material costs, cashflow summaries, and commercial expenditure.
                       </p>
                     </div>
-                    <div className="pt-3 mt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-[#01875F] font-semibold">
+                    <div className="pt-3 mt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-[#18b892] font-semibold">
                       <span>Financial Overview &rarr;</span>
                       <span className="text-slate-500 font-medium">Read-Only</span>
                     </div>
@@ -1027,17 +1027,17 @@ export const ExecutiveDashboard: React.FC = () => {
                   {/* Department 8: Client Experience */}
                   <div
                     onClick={() => setActiveModule('clients')}
-                    className="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-2xs hover:border-[#01875F]/60 transition-colors cursor-pointer group flex flex-col justify-between"
+                    className="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-2xs hover:border-[#18b892]/60 transition-colors cursor-pointer group flex flex-col justify-between"
                   >
                     <div>
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
-                          <Building2 className="w-4 h-4 text-[#01875F]" />
-                          <h3 className="font-bold text-xs text-slate-900 group-hover:text-[#01875F] transition-colors">
+                          <Building2 className="w-4 h-4 text-[#18b892]" />
+                          <h3 className="font-bold text-xs text-slate-900 group-hover:text-[#18b892] transition-colors">
                             Client Experience
                           </h3>
                         </div>
-                        <span className="px-1.5 py-0.2 rounded text-[10px] font-semibold bg-emerald-50 text-[#01875F]">
+                        <span className="px-1.5 py-0.2 rounded text-[10px] font-semibold bg-emerald-50 text-[#18b892]">
                           Active
                         </span>
                       </div>
@@ -1045,7 +1045,7 @@ export const ExecutiveDashboard: React.FC = () => {
                         Institutional and private client directories, project sign-offs, and relationship management.
                       </p>
                     </div>
-                    <div className="pt-3 mt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-[#01875F] font-semibold">
+                    <div className="pt-3 mt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-[#18b892] font-semibold">
                       <span>Client Directory &rarr;</span>
                       <span className="text-slate-700 font-bold">{clientsList.length} Accounts</span>
                     </div>
@@ -1054,13 +1054,13 @@ export const ExecutiveDashboard: React.FC = () => {
                   {/* Department 9: Staff Performance */}
                   <div
                     onClick={() => setActiveModule('staff')}
-                    className="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-2xs hover:border-[#01875F]/60 transition-colors cursor-pointer group flex flex-col justify-between"
+                    className="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-2xs hover:border-[#18b892]/60 transition-colors cursor-pointer group flex flex-col justify-between"
                   >
                     <div>
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
-                          <Award className="w-4 h-4 text-[#01875F]" />
-                          <h3 className="font-bold text-xs text-slate-900 group-hover:text-[#01875F] transition-colors">
+                          <Award className="w-4 h-4 text-[#18b892]" />
+                          <h3 className="font-bold text-xs text-slate-900 group-hover:text-[#18b892] transition-colors">
                             Staff Performance & Conduct
                           </h3>
                         </div>
@@ -1072,7 +1072,7 @@ export const ExecutiveDashboard: React.FC = () => {
                         Supervisory reviews, site engineer compliance, disciplinary conduct logs, and staff evaluations.
                       </p>
                     </div>
-                    <div className="pt-3 mt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-[#01875F] font-semibold">
+                    <div className="pt-3 mt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-[#18b892] font-semibold">
                       <span>Conduct & Performance &rarr;</span>
                       <span className="text-slate-700 font-bold">{conductList.length} Records</span>
                     </div>
@@ -1081,17 +1081,17 @@ export const ExecutiveDashboard: React.FC = () => {
                   {/* Department 10: Artisan Network */}
                   <div
                     onClick={() => setActiveModule('artisans')}
-                    className="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-2xs hover:border-[#01875F]/60 transition-colors cursor-pointer group flex flex-col justify-between"
+                    className="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-2xs hover:border-[#18b892]/60 transition-colors cursor-pointer group flex flex-col justify-between"
                   >
                     <div>
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
-                          <HardHat className="w-4 h-4 text-[#01875F]" />
-                          <h3 className="font-bold text-xs text-slate-900 group-hover:text-[#01875F] transition-colors">
+                          <HardHat className="w-4 h-4 text-[#18b892]" />
+                          <h3 className="font-bold text-xs text-slate-900 group-hover:text-[#18b892] transition-colors">
                             Artisan Network
                           </h3>
                         </div>
-                        <span className="px-1.5 py-0.2 rounded text-[10px] font-semibold bg-emerald-50 text-[#01875F]">
+                        <span className="px-1.5 py-0.2 rounded text-[10px] font-semibold bg-emerald-50 text-[#18b892]">
                           Active
                         </span>
                       </div>
@@ -1099,7 +1099,7 @@ export const ExecutiveDashboard: React.FC = () => {
                         Tradesmen roster across masonry, plumbing, electrical, carpentry, iron-bending and steelwork.
                       </p>
                     </div>
-                    <div className="pt-3 mt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-[#01875F] font-semibold">
+                    <div className="pt-3 mt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-[#18b892] font-semibold">
                       <span>Artisan Registry &rarr;</span>
                       <span className="text-slate-700 font-bold">{workforceList.length} Artisans</span>
                     </div>
@@ -1135,17 +1135,17 @@ export const ExecutiveDashboard: React.FC = () => {
                   {/* Department 12: Reports */}
                   <div
                     onClick={() => setActiveModule('reports')}
-                    className="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-2xs hover:border-[#01875F]/60 transition-colors cursor-pointer group flex flex-col justify-between"
+                    className="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-2xs hover:border-[#18b892]/60 transition-colors cursor-pointer group flex flex-col justify-between"
                   >
                     <div>
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
-                          <FileBarChart className="w-4 h-4 text-[#01875F]" />
-                          <h3 className="font-bold text-xs text-slate-900 group-hover:text-[#01875F] transition-colors">
+                          <FileBarChart className="w-4 h-4 text-[#18b892]" />
+                          <h3 className="font-bold text-xs text-slate-900 group-hover:text-[#18b892] transition-colors">
                             Reports & Strategic Analytics
                           </h3>
                         </div>
-                        <span className="px-1.5 py-0.2 rounded text-[10px] font-semibold bg-emerald-50 text-[#01875F]">
+                        <span className="px-1.5 py-0.2 rounded text-[10px] font-semibold bg-emerald-50 text-[#18b892]">
                           Active
                         </span>
                       </div>
@@ -1153,7 +1153,7 @@ export const ExecutiveDashboard: React.FC = () => {
                         Consolidated executive reports, milestone deliverables, materials reconciliation and audits.
                       </p>
                     </div>
-                    <div className="pt-3 mt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-[#01875F] font-semibold">
+                    <div className="pt-3 mt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-[#18b892] font-semibold">
                       <span>Executive Reports &rarr;</span>
                       <span className="text-slate-500 font-medium">Export Ready</span>
                     </div>
@@ -1196,7 +1196,7 @@ export const ExecutiveDashboard: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setActiveModule('overview')}
-                    className="text-xs font-semibold text-[#01875F] hover:underline cursor-pointer"
+                    className="text-xs font-semibold text-[#18b892] hover:underline cursor-pointer"
                   >
                     &larr; Overview
                   </button>
@@ -1226,7 +1226,7 @@ export const ExecutiveDashboard: React.FC = () => {
                           <td className="py-3.5 px-4 text-slate-600">{p.location || '—'}</td>
                           <td className="py-3.5 px-4 text-slate-600">{p.client_name || 'Enterprise Client'}</td>
                           <td className="py-3.5 px-4">
-                            <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-[#01875F] border border-emerald-200">
+                            <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-[#18b892] border border-emerald-200">
                               {p.status || 'Active'}
                             </span>
                           </td>
@@ -1254,7 +1254,7 @@ export const ExecutiveDashboard: React.FC = () => {
                     onClick={() => setWorkforceSubTab('directory')}
                     className={`px-4 py-2 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
                       workforceSubTab === 'directory'
-                        ? 'bg-[#01875F] text-white shadow-xs'
+                        ? 'bg-[#18b892] text-white shadow-xs'
                         : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
                     }`}
                   >
@@ -1265,7 +1265,7 @@ export const ExecutiveDashboard: React.FC = () => {
                     onClick={() => setWorkforceSubTab('attendance')}
                     className={`px-4 py-2 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
                       workforceSubTab === 'attendance'
-                        ? 'bg-[#01875F] text-white shadow-xs'
+                        ? 'bg-[#18b892] text-white shadow-xs'
                         : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
                     }`}
                   >
@@ -1275,7 +1275,7 @@ export const ExecutiveDashboard: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setActiveModule('overview')}
-                  className="text-xs font-semibold text-[#01875F] hover:underline cursor-pointer self-start sm:self-auto"
+                  className="text-xs font-semibold text-[#18b892] hover:underline cursor-pointer self-start sm:self-auto"
                 >
                   &larr; Overview
                 </button>
@@ -1308,7 +1308,7 @@ export const ExecutiveDashboard: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setActiveModule('overview')}
-                    className="text-xs font-semibold text-[#01875F] hover:underline cursor-pointer"
+                    className="text-xs font-semibold text-[#18b892] hover:underline cursor-pointer"
                   >
                     &larr; Overview
                   </button>
@@ -1336,7 +1336,7 @@ export const ExecutiveDashboard: React.FC = () => {
                           <td className="py-3.5 px-4 font-bold text-slate-900">{i.subject || 'Site Audit'}</td>
                           <td className="py-3.5 px-4 text-slate-600">{i.project_name || 'Project'}</td>
                           <td className="py-3.5 px-4">
-                            <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-[#01875F] border border-emerald-200">
+                            <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-[#18b892] border border-emerald-200">
                               {i.status || 'Passed'}
                             </span>
                           </td>
@@ -1371,7 +1371,7 @@ export const ExecutiveDashboard: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setActiveModule('overview')}
-                    className="text-xs font-semibold text-[#01875F] hover:underline cursor-pointer"
+                    className="text-xs font-semibold text-[#18b892] hover:underline cursor-pointer"
                   >
                     &larr; Overview
                   </button>
@@ -1436,7 +1436,7 @@ export const ExecutiveDashboard: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setActiveModule('overview')}
-                    className="text-xs font-semibold text-[#01875F] hover:underline cursor-pointer"
+                    className="text-xs font-semibold text-[#18b892] hover:underline cursor-pointer"
                   >
                     &larr; Overview
                   </button>
@@ -1470,7 +1470,7 @@ export const ExecutiveDashboard: React.FC = () => {
                             {formatNaira(po.total_amount ?? po.amount)}
                           </td>
                           <td className="py-3.5 px-4">
-                            <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-[#01875F] border border-emerald-200">
+                            <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-[#18b892] border border-emerald-200">
                               {po.status || 'Approved'}
                             </span>
                           </td>
@@ -1501,7 +1501,7 @@ export const ExecutiveDashboard: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setActiveModule('overview')}
-                  className="text-xs font-semibold text-[#01875F] hover:underline cursor-pointer"
+                  className="text-xs font-semibold text-[#18b892] hover:underline cursor-pointer"
                 >
                   &larr; Overview
                 </button>
@@ -1509,7 +1509,7 @@ export const ExecutiveDashboard: React.FC = () => {
 
               {/* Read-Only Notice */}
               <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-600 flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-[#01875F] shrink-0" />
+                <ShieldCheck className="w-4 h-4 text-[#18b892] shrink-0" />
                 <span>
                   Strategic Financial Read Access: Sensitive payment disbursement, transaction creation and account mutations are restricted to designated Financial Management roles.
                 </span>
@@ -1561,7 +1561,7 @@ export const ExecutiveDashboard: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setActiveModule('overview')}
-                  className="text-xs font-semibold text-[#01875F] hover:underline cursor-pointer"
+                  className="text-xs font-semibold text-[#18b892] hover:underline cursor-pointer"
                 >
                   &larr; Overview
                 </button>
@@ -1589,7 +1589,7 @@ export const ExecutiveDashboard: React.FC = () => {
                           <td className="py-3.5 px-4 text-slate-600">{c.email || c.phone || '—'}</td>
                           <td className="py-3.5 px-4 text-slate-600">{c.company || '—'}</td>
                           <td className="py-3.5 px-4">
-                            <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-[#01875F]">
+                            <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-[#18b892]">
                               {c.status || 'Active'}
                             </span>
                           </td>
@@ -1617,7 +1617,7 @@ export const ExecutiveDashboard: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setActiveModule('overview')}
-                  className="text-xs font-semibold text-[#01875F] hover:underline cursor-pointer"
+                  className="text-xs font-semibold text-[#18b892] hover:underline cursor-pointer"
                 >
                   &larr; Overview
                 </button>
@@ -1681,7 +1681,7 @@ export const ExecutiveDashboard: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setActiveModule('overview')}
-                  className="text-xs font-semibold text-[#01875F] hover:underline cursor-pointer"
+                  className="text-xs font-semibold text-[#18b892] hover:underline cursor-pointer"
                 >
                   &larr; Overview
                 </button>
@@ -1709,7 +1709,7 @@ export const ExecutiveDashboard: React.FC = () => {
                           <td className="py-3.5 px-4 text-slate-600">{w.trade || 'General'}</td>
                           <td className="py-3.5 px-4 font-mono text-[11px] text-slate-400">{w.workforce_code || '—'}</td>
                           <td className="py-3.5 px-4">
-                            <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-[#01875F]">
+                            <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-[#18b892]">
                               {w.status || 'Active'}
                             </span>
                           </td>
@@ -1737,7 +1737,7 @@ export const ExecutiveDashboard: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setActiveModule('overview')}
-                  className="text-xs font-semibold text-[#01875F] hover:underline cursor-pointer"
+                  className="text-xs font-semibold text-[#18b892] hover:underline cursor-pointer"
                 >
                   &larr; Overview
                 </button>
@@ -1794,7 +1794,7 @@ export const ExecutiveDashboard: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setActiveModule('overview')}
-                  className="text-xs font-semibold text-[#01875F] hover:underline cursor-pointer"
+                  className="text-xs font-semibold text-[#18b892] hover:underline cursor-pointer"
                 >
                   &larr; Overview
                 </button>
@@ -1803,20 +1803,20 @@ export const ExecutiveDashboard: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                 <div className="p-4 rounded-xl bg-slate-50 border border-slate-100 space-y-2">
                   <div className="flex items-center gap-2">
-                    <TrendingUp className="w-4 h-4 text-[#01875F]" />
+                    <TrendingUp className="w-4 h-4 text-[#18b892]" />
                     <span className="font-bold text-slate-900">Project Delivery Milestones</span>
                   </div>
                   <p className="text-[11px] text-slate-500 leading-relaxed">
                     Portfolio schedule analysis and critical path execution tracking across all regional sites.
                   </p>
-                  <span className="inline-block text-[10px] font-semibold text-[#01875F] bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded">
+                  <span className="inline-block text-[10px] font-semibold text-[#18b892] bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded">
                     Real-time Data Stream Active
                   </span>
                 </div>
 
                 <div className="p-4 rounded-xl bg-slate-50 border border-slate-100 space-y-2">
                   <div className="flex items-center gap-2">
-                    <Users className="w-4 h-4 text-[#01875F]" />
+                    <Users className="w-4 h-4 text-[#18b892]" />
                     <span className="font-bold text-slate-900">Staff Productivity Index</span>
                   </div>
                   <p className="text-[11px] text-slate-500 leading-relaxed">

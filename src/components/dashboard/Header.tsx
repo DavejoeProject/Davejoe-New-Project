@@ -45,7 +45,7 @@ export const Header: React.FC<HeaderProps> = ({
           <button
             type="button"
             onClick={onToggleMobileSidebar}
-            className="md:hidden w-10 h-10 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 flex items-center justify-center transition-colors cursor-pointer shrink-0"
+            className="md:hidden w-10 h-10 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 flex items-center justify-center transition-colors cursor-pointer shrink-0"
             aria-label="Toggle navigation menu"
           >
             <Menu className="w-5 h-5 stroke-[2]" />
@@ -55,13 +55,13 @@ export const Header: React.FC<HeaderProps> = ({
         <button
           type="button"
           onClick={onOpenSearch}
-          className="w-full h-10 px-3 sm:px-3.5 bg-slate-50 hover:bg-slate-100/80 border border-slate-200/90 rounded-lg text-left text-sm text-slate-500 flex items-center gap-2 sm:gap-2.5 transition-all cursor-pointer group focus:outline-none focus:ring-2 focus:ring-[#01875F]/20 min-w-0"
+          className="w-full h-10 px-3.5 bg-slate-50 hover:bg-slate-100/80 border border-slate-200/90 rounded-xl text-left text-sm text-slate-500 flex items-center gap-2.5 transition-all cursor-pointer group focus:outline-none focus:ring-2 focus:ring-[#18b892]/20 min-w-0"
         >
           <Search className="w-4 h-4 text-slate-400 group-hover:text-slate-600 shrink-0" />
-          <span className="truncate text-xs sm:text-[13px] text-slate-400 group-hover:text-slate-600">
-            Search projects, materials...
+          <span className="truncate text-xs sm:text-sm text-slate-400 group-hover:text-slate-600">
+            Search projects, materials, staff...
           </span>
-          <span className="hidden sm:inline-block ml-auto text-[11px] font-mono text-slate-400 bg-white border border-slate-200 px-1.5 py-0.5 rounded shadow-2xs">
+          <span className="hidden sm:inline-block ml-auto text-[11px] font-mono text-slate-400 bg-white border border-slate-200 px-2 py-0.5 rounded-md shadow-2xs">
             ⌘K
           </span>
         </button>
@@ -73,13 +73,13 @@ export const Header: React.FC<HeaderProps> = ({
         <button
           type="button"
           onClick={onOpenNotifications}
-          className="relative w-10 h-10 rounded-lg hover:bg-slate-100 flex items-center justify-center text-slate-600 hover:text-slate-900 transition-colors cursor-pointer"
+          className="relative w-10 h-10 rounded-xl hover:bg-slate-100 flex items-center justify-center text-slate-600 hover:text-slate-900 transition-colors cursor-pointer"
           title="Notifications"
           aria-label="View notifications"
         >
           <Bell className="w-[18px] h-[18px]" strokeWidth={1.8} />
           {unreadNotificationsCount > 0 && (
-            <span className="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-red-500 ring-2 ring-white" />
+            <span className="absolute top-2.5 right-2.5 w-2.5 h-2.5 rounded-full bg-red-500 ring-2 ring-white" />
           )}
         </button>
 
@@ -88,36 +88,36 @@ export const Header: React.FC<HeaderProps> = ({
           <button
             type="button"
             onClick={() => setProfileDropdownOpen((prev) => !prev)}
-            className="flex items-center gap-2 p-1 sm:pl-1 sm:pr-2.5 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer focus:outline-none min-h-[40px]"
+            className="flex items-center gap-2.5 p-1 sm:pl-1 sm:pr-2.5 rounded-xl hover:bg-slate-50 transition-colors cursor-pointer focus:outline-none min-h-[40px]"
             aria-expanded={profileDropdownOpen}
           >
             {/* Avatar Initial */}
-            <div className="w-8 h-8 rounded-full bg-[#01875F] text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-2xs">
+            <div className="w-9 h-9 rounded-xl bg-[#18b892] text-white flex items-center justify-center font-bold text-sm shrink-0 shadow-2xs">
               M
             </div>
 
             {/* User Name & Role */}
             <div className="hidden sm:flex flex-col text-left">
-              <span className="text-[13px] font-bold text-slate-900 leading-tight">
+              <span className="text-sm font-bold text-slate-900 leading-tight">
                 {userName}
               </span>
-              <span className="text-[11px] font-semibold text-[#01875F] leading-tight">
+              <span className="text-xs font-semibold text-[#18b892] leading-tight mt-0.5">
                 {userRole}
               </span>
             </div>
 
-            <ChevronDown className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+            <ChevronDown className="w-4 h-4 text-slate-400 shrink-0" />
           </button>
 
           {/* Profile Dropdown Menu */}
           {profileDropdownOpen && (
-            <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-slate-200/90 py-1.5 z-50 animate-in fade-in zoom-in-95 duration-100">
-              <div className="px-3.5 py-2.5 border-b border-slate-100">
-                <p className="text-[10.5px] font-semibold text-slate-400 uppercase tracking-wider">
+            <div className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-slate-200/90 py-1.5 z-50 animate-in fade-in zoom-in-95 duration-100">
+              <div className="px-4 py-3 border-b border-slate-100">
+                <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
                   Signed in as
                 </p>
                 <p className="text-sm font-bold text-slate-800 truncate mt-0.5">{userName}</p>
-                <p className="text-xs font-semibold text-[#01875F]">{userRole}</p>
+                <p className="text-xs font-semibold text-[#18b892]">{userRole}</p>
               </div>
 
               <div className="py-1">
@@ -127,9 +127,9 @@ export const Header: React.FC<HeaderProps> = ({
                     onSelectModule('profile');
                     setProfileDropdownOpen(false);
                   }}
-                  className="w-full px-3.5 py-2 text-left text-xs sm:text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2.5 transition-colors cursor-pointer"
+                  className="w-full px-4 py-2.5 text-left text-xs sm:text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2.5 transition-colors cursor-pointer"
                 >
-                  <User className="w-4 h-4 text-slate-400" />
+                  <User className="w-4 h-4 text-slate-400 shrink-0" />
                   <span>Profile</span>
                 </button>
 
@@ -139,9 +139,9 @@ export const Header: React.FC<HeaderProps> = ({
                     onSelectModule('settings');
                     setProfileDropdownOpen(false);
                   }}
-                  className="w-full px-3.5 py-2 text-left text-xs sm:text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2.5 transition-colors cursor-pointer"
+                  className="w-full px-4 py-2.5 text-left text-xs sm:text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2.5 transition-colors cursor-pointer"
                 >
-                  <Settings className="w-4 h-4 text-slate-400" />
+                  <Settings className="w-4 h-4 text-slate-400 shrink-0" />
                   <span>Settings</span>
                 </button>
               </div>
@@ -153,9 +153,9 @@ export const Header: React.FC<HeaderProps> = ({
                     setProfileDropdownOpen(false);
                     onLogout();
                   }}
-                  className="w-full px-3.5 py-2 text-left text-xs sm:text-sm text-red-600 hover:bg-red-50 flex items-center gap-2.5 transition-colors cursor-pointer font-semibold"
+                  className="w-full px-4 py-2.5 text-left text-xs sm:text-sm text-red-600 hover:bg-red-50 flex items-center gap-2.5 transition-colors cursor-pointer font-semibold"
                 >
-                  <LogOut className="w-4 h-4 text-red-500" />
+                  <LogOut className="w-4 h-4 text-red-500 shrink-0" />
                   <span>Logout</span>
                 </button>
               </div>

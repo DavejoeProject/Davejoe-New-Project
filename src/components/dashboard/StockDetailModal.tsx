@@ -60,7 +60,7 @@ export const StockDetailModal: React.FC<StockDetailModalProps> = ({
       >
         <div className="px-6 py-5 bg-white border-b border-slate-100 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#E6F4EA] text-[#01875F] flex items-center justify-center shrink-0 border border-[#01875F]/20">
+            <div className="w-10 h-10 rounded-xl bg-[#E6F4EA] text-[#18b892] flex items-center justify-center shrink-0 border border-[#18b892]/20">
               <Boxes className="w-5 h-5" />
             </div>
             <div>
@@ -127,7 +127,7 @@ export const StockDetailModal: React.FC<StockDetailModalProps> = ({
               <button
                 type="button"
                 onClick={fetchMovements}
-                className="p-1.5 text-slate-500 hover:text-[#01875F] hover:bg-slate-100 rounded-lg transition-colors"
+                className="p-1.5 text-slate-500 hover:text-[#18b892] hover:bg-slate-100 rounded-lg transition-colors"
                 title="Refresh ledger"
               >
                 <RefreshCw className="w-3.5 h-3.5" />

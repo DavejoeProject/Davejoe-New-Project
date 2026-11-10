@@ -165,12 +165,12 @@ export const AddMaterialModal: React.FC<AddMaterialModalProps> = ({
         {/* Header */}
         <div className="px-6 py-5 bg-white border-b border-slate-100 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#E6F4EA] text-[#01875F] flex items-center justify-center shrink-0 border border-[#01875F]/20">
-              <Package className="w-5 h-5" />
+            <div className="w-12 h-12 rounded-xl bg-[#18b892]/10 text-[#18b892] flex items-center justify-center shrink-0 border border-[#18b892]/20">
+              <Package className="w-6 h-6 stroke-[2]" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-slate-900">Add New Material</h2>
-              <p className="text-xs text-slate-500">
+              <h2 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">Add New Material</h2>
+              <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
                 Register a new inventory item into the master materials catalog.
               </p>
             </div>
@@ -187,9 +187,9 @@ export const AddMaterialModal: React.FC<AddMaterialModalProps> = ({
         </div>
 
         {/* Form Body */}
-        <form onSubmit={handleSubmit} className="overflow-y-auto p-6 space-y-5 text-xs text-slate-700">
+        <form onSubmit={handleSubmit} className="overflow-y-auto p-6 space-y-5 text-sm text-slate-700">
           {errorMessage && (
-            <div className="p-3.5 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 flex items-center gap-2.5">
+            <div className="p-3.5 bg-red-50 border border-red-200 rounded-xl text-xs sm:text-sm text-red-700 flex items-center gap-2.5">
               <AlertCircle className="w-4 h-4 text-red-500 shrink-0" />
               <span>{errorMessage}</span>
             </div>
@@ -198,7 +198,7 @@ export const AddMaterialModal: React.FC<AddMaterialModalProps> = ({
           {/* Row 1: Code & Name */}
           <div className="grid grid-cols-1 sm:grid-cols-12 gap-4">
             <div className="sm:col-span-4 space-y-1.5">
-              <label className="font-semibold text-slate-700 block">
+              <label className="text-xs font-bold uppercase tracking-wider text-slate-600 block">
                 Material Code <span className="text-red-500">*</span>
               </label>
               <input
@@ -207,13 +207,13 @@ export const AddMaterialModal: React.FC<AddMaterialModalProps> = ({
                 value={materialCode}
                 onChange={(e) => setMaterialCode(e.target.value.toUpperCase())}
                 placeholder="e.g. MAT-CEM-001"
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg font-mono text-xs text-slate-800 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#01875F] focus:border-[#01875F]"
+                className="w-full h-10 px-3 bg-slate-50 border border-slate-200 rounded-xl font-mono text-sm text-slate-800 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-[#18b892]"
               />
-              <span className="text-[10px] text-slate-400">Must be unique across catalog</span>
+              <span className="text-xs text-slate-400 font-medium block">Must be unique across catalog</span>
             </div>
 
             <div className="sm:col-span-8 space-y-1.5">
-              <label className="font-semibold text-slate-700 block">
+              <label className="text-xs font-bold uppercase tracking-wider text-slate-600 block">
                 Material Name <span className="text-red-500">*</span>
               </label>
               <input
@@ -222,7 +222,7 @@ export const AddMaterialModal: React.FC<AddMaterialModalProps> = ({
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="e.g. Portland Cement 42.5N"
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#01875F] focus:border-[#01875F]"
+                className="w-full h-10 px-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-[#18b892]"
               />
             </div>
           </div>
@@ -230,12 +230,12 @@ export const AddMaterialModal: React.FC<AddMaterialModalProps> = ({
           {/* Row 2: Category & Brand */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <label className="font-semibold text-slate-700 block">Category</label>
+              <label className="text-xs font-bold uppercase tracking-wider text-slate-600 block">Category</label>
               <div className="space-y-2">
                 <select
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#01875F] focus:border-[#01875F]"
+                  className="w-full h-10 px-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 focus:bg-white focus:outline-none focus:border-[#18b892] font-medium"
                 >
                   <option value="">Select or choose category</option>
                   {MATERIAL_CATEGORIES.map((c) => (
@@ -259,20 +259,20 @@ export const AddMaterialModal: React.FC<AddMaterialModalProps> = ({
                     value={customCategory}
                     onChange={(e) => setCustomCategory(e.target.value)}
                     placeholder="Enter custom category name"
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#01875F] focus:border-[#01875F]"
+                    className="w-full h-10 px-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 focus:bg-white focus:outline-none focus:border-[#18b892]"
                   />
                 )}
               </div>
             </div>
 
             <div className="space-y-1.5">
-              <label className="font-semibold text-slate-700 block">Brand / Manufacturer</label>
+              <label className="text-xs font-bold uppercase tracking-wider text-slate-600 block">Brand / Manufacturer</label>
               <input
                 type="text"
                 value={brand}
                 onChange={(e) => setBrand(e.target.value)}
                 placeholder="e.g. Dangote, BUA, Lafarge"
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#01875F] focus:border-[#01875F]"
+                className="w-full h-10 px-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-[#18b892]"
               />
             </div>
           </div>
@@ -280,14 +280,14 @@ export const AddMaterialModal: React.FC<AddMaterialModalProps> = ({
           {/* Row 3: Unit of Measure & Specification */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <label className="font-semibold text-slate-700 block">
+              <label className="text-xs font-bold uppercase tracking-wider text-slate-600 block">
                 Unit of Measure <span className="text-red-500">*</span>
               </label>
               <div className="space-y-2">
                 <select
                   value={unitOfMeasure}
                   onChange={(e) => setUnitOfMeasure(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#01875F] focus:border-[#01875F]"
+                  className="w-full h-10 px-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 focus:bg-white focus:outline-none focus:border-[#18b892] font-medium"
                 >
                   {COMMON_UNITS.map((u) => (
                     <option key={u} value={u}>
@@ -303,28 +303,28 @@ export const AddMaterialModal: React.FC<AddMaterialModalProps> = ({
                     value={customUnit}
                     onChange={(e) => setCustomUnit(e.target.value)}
                     placeholder="e.g. drums, sheets"
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#01875F] focus:border-[#01875F]"
+                    className="w-full h-10 px-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 focus:bg-white focus:outline-none focus:border-[#18b892]"
                   />
                 )}
               </div>
             </div>
 
             <div className="space-y-1.5">
-              <label className="font-semibold text-slate-700 block">Specification</label>
+              <label className="text-xs font-bold uppercase tracking-wider text-slate-600 block">Specification</label>
               <input
                 type="text"
                 value={specification}
                 onChange={(e) => setSpecification(e.target.value)}
                 placeholder="e.g. 50kg bag, Grade 42.5N, BS EN 197-1"
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#01875F] focus:border-[#01875F]"
+                className="w-full h-10 px-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-[#18b892]"
               />
             </div>
           </div>
 
           {/* Row 4: Pricing & Stock Limits */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 bg-slate-50/80 rounded-xl border border-slate-200/70">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 sm:p-5 bg-slate-50/90 rounded-2xl border border-slate-200/80">
             <div className="space-y-1.5">
-              <label className="font-semibold text-slate-700 block">Standard Cost (₦)</label>
+              <label className="text-xs font-bold uppercase tracking-wider text-slate-600 block">Standard Cost (₦)</label>
               <input
                 type="number"
                 min="0"
@@ -332,13 +332,13 @@ export const AddMaterialModal: React.FC<AddMaterialModalProps> = ({
                 value={standardUnitCost}
                 onChange={(e) => setStandardUnitCost(e.target.value)}
                 placeholder="0.00"
-                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-mono text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#01875F] focus:border-[#01875F]"
+                className="w-full h-10 px-3 bg-white border border-slate-200 rounded-xl text-sm font-mono font-bold text-slate-800 focus:outline-none focus:border-[#18b892]"
               />
-              <span className="text-[10px] text-slate-400">Unit base reference in ₦</span>
+              <span className="text-xs text-slate-400 font-medium block">Unit base reference in ₦</span>
             </div>
 
             <div className="space-y-1.5">
-              <label className="font-semibold text-slate-700 block">Initial Stock</label>
+              <label className="text-xs font-bold uppercase tracking-wider text-slate-600 block">Initial Stock</label>
               <input
                 type="number"
                 min="0"
@@ -346,13 +346,13 @@ export const AddMaterialModal: React.FC<AddMaterialModalProps> = ({
                 value={currentStock}
                 onChange={(e) => setCurrentStock(e.target.value)}
                 placeholder="0"
-                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-mono text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#01875F] focus:border-[#01875F]"
+                className="w-full h-10 px-3 bg-white border border-slate-200 rounded-xl text-sm font-mono font-bold text-slate-800 focus:outline-none focus:border-[#18b892]"
               />
-              <span className="text-[10px] text-slate-400">Opening stock count</span>
+              <span className="text-xs text-slate-400 font-medium block">Opening stock count</span>
             </div>
 
             <div className="space-y-1.5">
-              <label className="font-semibold text-slate-700 block">Reorder Level</label>
+              <label className="text-xs font-bold uppercase tracking-wider text-slate-600 block">Reorder Level</label>
               <input
                 type="number"
                 min="0"
@@ -360,20 +360,20 @@ export const AddMaterialModal: React.FC<AddMaterialModalProps> = ({
                 value={reorderLevel}
                 onChange={(e) => setReorderLevel(e.target.value)}
                 placeholder="0"
-                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-mono text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#01875F] focus:border-[#01875F]"
+                className="w-full h-10 px-3 bg-white border border-slate-200 rounded-xl text-sm font-mono font-bold text-slate-800 focus:outline-none focus:border-[#18b892]"
               />
-              <span className="text-[10px] text-slate-400">Low stock trigger limit</span>
+              <span className="text-xs text-slate-400 font-medium block">Low stock trigger limit</span>
             </div>
           </div>
 
           {/* Row 5: Status & Storage Location */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <label className="font-semibold text-slate-700 block">Catalog Status</label>
+              <label className="text-xs font-bold uppercase tracking-wider text-slate-600 block">Catalog Status</label>
               <select
                 value={status}
                 onChange={(e) => setStatus(e.target.value as MaterialStatus)}
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#01875F] focus:border-[#01875F]"
+                className="w-full h-10 px-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 focus:bg-white focus:outline-none focus:border-[#18b892] font-medium"
               >
                 {ALL_MATERIAL_STATUSES.map((s) => (
                   <option key={s} value={s}>
@@ -384,13 +384,13 @@ export const AddMaterialModal: React.FC<AddMaterialModalProps> = ({
             </div>
 
             <div className="space-y-1.5">
-              <label className="font-semibold text-slate-700 block">Storage Location</label>
+              <label className="text-xs font-bold uppercase tracking-wider text-slate-600 block">Storage Location</label>
               <input
                 type="text"
                 value={storageLocation}
                 onChange={(e) => setStorageLocation(e.target.value)}
                 placeholder="e.g. Central Yard, Shed B, Bin 14"
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#01875F] focus:border-[#01875F]"
+                className="w-full h-10 px-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-[#18b892]"
               />
             </div>
           </div>
@@ -398,24 +398,24 @@ export const AddMaterialModal: React.FC<AddMaterialModalProps> = ({
           {/* Row 6: Description & Notes */}
           <div className="space-y-3">
             <div className="space-y-1.5">
-              <label className="font-semibold text-slate-700 block">Description (Optional)</label>
+              <label className="text-xs font-bold uppercase tracking-wider text-slate-600 block">Description (Optional)</label>
               <textarea
                 rows={2}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="General description of the material and intended construction use..."
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#01875F] focus:border-[#01875F]"
+                className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-[#18b892]"
               />
             </div>
 
             <div className="space-y-1.5">
-              <label className="font-semibold text-slate-700 block">Operational Notes (Optional)</label>
+              <label className="text-xs font-bold uppercase tracking-wider text-slate-600 block">Operational Notes (Optional)</label>
               <textarea
                 rows={2}
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="Special handling rules, storage guidelines, or safety reminders..."
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#01875F] focus:border-[#01875F]"
+                className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-[#18b892]"
               />
             </div>
           </div>
@@ -426,23 +426,23 @@ export const AddMaterialModal: React.FC<AddMaterialModalProps> = ({
               type="button"
               disabled={isSubmitting}
               onClick={onClose}
-              className="px-4 py-2 bg-white hover:bg-slate-100 border border-slate-200 text-xs font-semibold text-slate-700 rounded-lg transition-colors cursor-pointer shadow-2xs disabled:opacity-60"
+              className="px-4 py-2.5 bg-white hover:bg-slate-100 border border-slate-200 text-xs sm:text-sm font-semibold text-slate-700 rounded-xl transition-colors cursor-pointer shadow-2xs disabled:opacity-60"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#01875F] text-white hover:bg-[#016f4e] text-xs font-semibold rounded-lg shadow-2xs transition-colors cursor-pointer disabled:opacity-60"
+              className="inline-flex items-center gap-2 h-10 px-5 bg-[#18b892] text-white hover:bg-[#139c7b] text-xs sm:text-sm font-bold rounded-xl shadow-sm transition-colors cursor-pointer disabled:opacity-60 whitespace-nowrap"
             >
               {isSubmitting ? (
                 <>
-                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  <Loader2 className="w-4 h-4 animate-spin shrink-0" />
                   <span>Saving...</span>
                 </>
               ) : (
                 <>
-                  <Package className="w-3.5 h-3.5" />
+                  <Package className="w-4 h-4 shrink-0" />
                   <span>Register Material</span>
                 </>
               )}

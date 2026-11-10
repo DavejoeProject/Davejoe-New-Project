@@ -158,7 +158,7 @@ export const AssignWorkforceModal: React.FC<AssignWorkforceModalProps> = ({
       <div className="bg-white rounded-2xl border border-slate-200/90 shadow-2xl max-w-lg w-full overflow-hidden my-8 animate-in fade-in zoom-in-95 duration-150">
         <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/60">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-[#E6F4EA] text-[#01875F] flex items-center justify-center font-bold">
+            <div className="w-8 h-8 rounded-lg bg-[#E6F4EA] text-[#18b892] flex items-center justify-center font-bold">
               <UserPlus className="w-4 h-4" />
             </div>
             <div>
@@ -187,7 +187,7 @@ export const AssignWorkforceModal: React.FC<AssignWorkforceModalProps> = ({
 
           {successToast && (
             <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-[#01875F] shrink-0" />
+              <CheckCircle2 className="w-4 h-4 text-[#18b892] shrink-0" />
               <span>{successToast}</span>
             </div>
           )}
@@ -204,7 +204,7 @@ export const AssignWorkforceModal: React.FC<AssignWorkforceModalProps> = ({
                 placeholder="Search by worker name, code, or trade..."
                 value={searchFilter}
                 onChange={(e) => setSearchFilter(e.target.value)}
-                className="w-full h-9 pl-8 pr-3 bg-white border border-slate-200 rounded-xl text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#01875F]"
+                className="w-full h-9 pl-8 pr-3 bg-white border border-slate-200 rounded-xl text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#18b892]"
               />
             </div>
           </div>
@@ -229,7 +229,7 @@ export const AssignWorkforceModal: React.FC<AssignWorkforceModalProps> = ({
                 required
                 value={selectedWorkerId}
                 onChange={(e) => setSelectedWorkerId(e.target.value)}
-                className="w-full h-10 px-3 bg-white border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:border-[#01875F]"
+                className="w-full h-10 px-3 bg-white border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:border-[#18b892]"
               >
                 {filteredWorkers.map((w) => {
                   const isAssigned = activeAssignedWorkerIds.has(w.id);
@@ -252,7 +252,7 @@ export const AssignWorkforceModal: React.FC<AssignWorkforceModalProps> = ({
                 type="date"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
-                className="w-full h-9 px-3 bg-white border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:border-[#01875F]"
+                className="w-full h-9 px-3 bg-white border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:border-[#18b892]"
               />
             </div>
             <div>
@@ -263,7 +263,7 @@ export const AssignWorkforceModal: React.FC<AssignWorkforceModalProps> = ({
                 type="date"
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
-                className="w-full h-9 px-3 bg-white border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:border-[#01875F]"
+                className="w-full h-9 px-3 bg-white border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:border-[#18b892]"
               />
             </div>
           </div>
@@ -275,7 +275,7 @@ export const AssignWorkforceModal: React.FC<AssignWorkforceModalProps> = ({
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="e.g. Lead structural carpenter for roof framing stage..."
-              className="w-full p-2.5 bg-white border border-slate-200 rounded-xl text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#01875F]"
+              className="w-full p-2.5 bg-white border border-slate-200 rounded-xl text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#18b892]"
             />
           </div>
 
@@ -291,7 +291,7 @@ export const AssignWorkforceModal: React.FC<AssignWorkforceModalProps> = ({
               type="button"
               disabled={isSubmitting || loading || workers.length === 0 || activeAssignedWorkerIds.has(selectedWorkerId)}
               onClick={() => performAssignment(true)}
-              className="px-4 py-2 bg-emerald-50 hover:bg-emerald-100 text-[#01875F] border border-emerald-200 text-xs font-bold rounded-xl shadow-2xs transition-colors disabled:opacity-60 cursor-pointer text-center"
+              className="px-4 py-2 bg-emerald-50 hover:bg-emerald-100 text-[#18b892] border border-emerald-200 text-xs font-bold rounded-xl shadow-2xs transition-colors disabled:opacity-60 cursor-pointer text-center"
             >
               {isSubmitting ? 'Assigning...' : 'Assign & Add Another'}
             </button>
@@ -299,7 +299,7 @@ export const AssignWorkforceModal: React.FC<AssignWorkforceModalProps> = ({
               type="button"
               disabled={isSubmitting || loading || workers.length === 0 || activeAssignedWorkerIds.has(selectedWorkerId)}
               onClick={() => performAssignment(false)}
-              className="px-4 py-2 bg-[#01875F] hover:bg-[#00704e] text-white text-xs font-bold rounded-xl shadow-sm transition-colors disabled:opacity-60 cursor-pointer text-center"
+              className="px-4 py-2 bg-[#18b892] hover:bg-[#139c7b] text-white text-xs font-bold rounded-xl shadow-sm transition-colors disabled:opacity-60 cursor-pointer text-center"
             >
               {isSubmitting ? 'Assigning...' : 'Assign & Close'}
             </button>

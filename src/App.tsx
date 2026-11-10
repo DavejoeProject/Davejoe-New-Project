@@ -31,7 +31,7 @@ const RootRedirect: React.FC = () => {
   if (isLoading || !isInitialized) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-[#f8faf9] gap-3">
-        <div className="w-10 h-10 border-3 border-[#01875F]/20 border-t-[#01875F] rounded-full animate-spin" />
+        <div className="w-10 h-10 border-3 border-[#18b892]/20 border-t-[#18b892] rounded-full animate-spin" />
         <p className="text-xs font-semibold text-slate-500 tracking-wide">
           Loading your workspace...
         </p>

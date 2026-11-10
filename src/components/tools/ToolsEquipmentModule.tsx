@@ -227,7 +227,7 @@ export const ToolsEquipmentModule: React.FC<ToolsEquipmentModuleProps> = ({ onRe
       <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-2xs flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">
-            <Wrench className="w-4 h-4 text-[#01875F]" />
+            <Wrench className="w-4 h-4 text-[#18b892]" />
             <span>Company Assets & Equipment Deployment</span>
           </div>
           <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
@@ -245,14 +245,14 @@ export const ToolsEquipmentModule: React.FC<ToolsEquipmentModuleProps> = ({ onRe
             disabled={isRefreshing}
             className="inline-flex items-center gap-1.5 px-3 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-semibold transition-colors cursor-pointer disabled:opacity-50"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-[#01875F]' : ''}`} />
+            <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-[#18b892]' : ''}`} />
             <span>Refresh</span>
           </button>
 
           <button
             type="button"
             onClick={() => setRegisterModalOpen(true)}
-            className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#01875F] hover:bg-[#00704e] text-white rounded-xl text-xs font-bold shadow-2xs transition-all cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#18b892] hover:bg-[#139c7b] text-white rounded-xl text-xs font-bold shadow-2xs transition-all cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span>Register New Tool</span>
@@ -302,7 +302,7 @@ export const ToolsEquipmentModule: React.FC<ToolsEquipmentModuleProps> = ({ onRe
             type="button"
             onClick={() => setActiveTab('register')}
             className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
-              activeTab === 'register' ? 'bg-[#01875F] text-white shadow-2xs' : 'text-slate-600 hover:bg-slate-100'
+              activeTab === 'register' ? 'bg-[#18b892] text-white shadow-2xs' : 'text-slate-600 hover:bg-slate-100'
             }`}
           >
             Asset Catalogue ({tools.length})
@@ -311,7 +311,7 @@ export const ToolsEquipmentModule: React.FC<ToolsEquipmentModuleProps> = ({ onRe
             type="button"
             onClick={() => setActiveTab('assignments')}
             className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
-              activeTab === 'assignments' ? 'bg-[#01875F] text-white shadow-2xs' : 'text-slate-600 hover:bg-slate-100'
+              activeTab === 'assignments' ? 'bg-[#18b892] text-white shadow-2xs' : 'text-slate-600 hover:bg-slate-100'
             }`}
           >
             Active Assignments ({assignments.length})
@@ -326,7 +326,7 @@ export const ToolsEquipmentModule: React.FC<ToolsEquipmentModuleProps> = ({ onRe
               placeholder="Search tag or equipment..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-[#01875F]"
+              className="w-full pl-9 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-[#18b892]"
             />
           </div>
 
@@ -334,7 +334,7 @@ export const ToolsEquipmentModule: React.FC<ToolsEquipmentModuleProps> = ({ onRe
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-[#01875F]"
+              className="px-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-[#18b892]"
             >
               <option value="all">All Statuses</option>
               <option value="available">Available</option>
@@ -370,7 +370,7 @@ export const ToolsEquipmentModule: React.FC<ToolsEquipmentModuleProps> = ({ onRe
                   {filteredTools.map((t) => (
                     <tr key={t.id} className="hover:bg-slate-50/80 transition-colors">
                       <td className="py-3.5 px-4">
-                        <span className="font-mono text-[11px] font-bold text-[#01875F] bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200 mr-2">
+                        <span className="font-mono text-[11px] font-bold text-[#18b892] bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200 mr-2">
                           {t.asset_tag}
                         </span>
                         <span className="font-bold text-slate-900">{t.name}</span>
@@ -426,7 +426,7 @@ export const ToolsEquipmentModule: React.FC<ToolsEquipmentModuleProps> = ({ onRe
                               setSelectedToolForAssign(t);
                               setAssignModalOpen(true);
                             }}
-                            className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-[#01875F] text-white hover:bg-[#00704e] transition-colors cursor-pointer"
+                            className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-[#18b892] text-white hover:bg-[#139c7b] transition-colors cursor-pointer"
                           >
                             Assign Tool
                           </button>
@@ -463,7 +463,7 @@ export const ToolsEquipmentModule: React.FC<ToolsEquipmentModuleProps> = ({ onRe
                     <tr key={a.id} className="hover:bg-slate-50/80 transition-colors">
                       <td className="py-3.5 px-4">
                         <div className="font-bold text-slate-900">{a.tool?.name || 'Equipment Item'}</div>
-                        <div className="font-mono text-[11px] text-[#01875F]">{a.tool?.asset_tag}</div>
+                        <div className="font-mono text-[11px] text-[#18b892]">{a.tool?.asset_tag}</div>
                       </td>
 
                       <td className="py-3.5 px-4">
@@ -517,7 +517,7 @@ export const ToolsEquipmentModule: React.FC<ToolsEquipmentModuleProps> = ({ onRe
           <div className="bg-white rounded-3xl border border-slate-200 shadow-2xl w-full max-w-lg overflow-hidden animate-in zoom-in-95 duration-200">
             <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-[#01875F]/10 text-[#01875F] flex items-center justify-center font-bold">
+                <div className="w-9 h-9 rounded-xl bg-[#18b892]/10 text-[#18b892] flex items-center justify-center font-bold">
                   <Wrench className="w-5 h-5" />
                 </div>
                 <div>
@@ -655,7 +655,7 @@ export const ToolsEquipmentModule: React.FC<ToolsEquipmentModuleProps> = ({ onRe
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="px-5 py-2 text-xs font-bold text-white bg-[#01875F] hover:bg-[#00704e] rounded-xl shadow-xs transition-colors cursor-pointer disabled:opacity-50"
+                  className="px-5 py-2 text-xs font-bold text-white bg-[#18b892] hover:bg-[#139c7b] rounded-xl shadow-xs transition-colors cursor-pointer disabled:opacity-50"
                 >
                   {submitting ? 'Registering...' : 'Save to Asset Register'}
                 </button>
@@ -671,7 +671,7 @@ export const ToolsEquipmentModule: React.FC<ToolsEquipmentModuleProps> = ({ onRe
           <div className="bg-white rounded-3xl border border-slate-200 shadow-2xl w-full max-w-lg overflow-hidden animate-in zoom-in-95 duration-200">
             <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-[#01875F]/10 text-[#01875F] flex items-center justify-center font-bold">
+                <div className="w-9 h-9 rounded-xl bg-[#18b892]/10 text-[#18b892] flex items-center justify-center font-bold">
                   <ArrowRight className="w-5 h-5" />
                 </div>
                 <div>
@@ -768,7 +768,7 @@ export const ToolsEquipmentModule: React.FC<ToolsEquipmentModuleProps> = ({ onRe
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="px-5 py-2 text-xs font-bold text-white bg-[#01875F] hover:bg-[#00704e] rounded-xl shadow-xs transition-colors cursor-pointer disabled:opacity-50"
+                  className="px-5 py-2 text-xs font-bold text-white bg-[#18b892] hover:bg-[#139c7b] rounded-xl shadow-xs transition-colors cursor-pointer disabled:opacity-50"
                 >
                   {submitting ? 'Dispatching...' : 'Confirm Custody Issue'}
                 </button>
@@ -878,7 +878,7 @@ export const ToolsEquipmentModule: React.FC<ToolsEquipmentModuleProps> = ({ onRe
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="px-5 py-2 text-xs font-bold text-white bg-[#01875F] hover:bg-[#00704e] rounded-xl shadow-xs transition-colors cursor-pointer disabled:opacity-50"
+                  className="px-5 py-2 text-xs font-bold text-white bg-[#18b892] hover:bg-[#139c7b] rounded-xl shadow-xs transition-colors cursor-pointer disabled:opacity-50"
                 >
                   {submitting ? 'Inspecting...' : 'Confirm Return & Inspection'}
                 </button>

@@ -79,13 +79,13 @@ export const MaterialsModule: React.FC<MaterialsModuleProps> = ({ onBackToDashbo
         <div>
           <button
             onClick={onBackToDashboard}
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#01875F] hover:underline mb-1 cursor-pointer"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#18b892] hover:underline mb-1 cursor-pointer"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>Back to Dashboard</span>
           </button>
           <h1 className="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2.5">
-            <Package className="w-6 h-6 text-[#01875F]" />
+            <Package className="w-6 h-6 text-[#18b892]" />
             <span>Materials & Procurement Command</span>
           </h1>
           <p className="text-xs sm:text-sm text-slate-500">
@@ -114,7 +114,7 @@ export const MaterialsModule: React.FC<MaterialsModuleProps> = ({ onBackToDashbo
         <div className="bg-white rounded-xl border border-slate-200/80 p-4 shadow-2xs">
           <span className="text-xs text-slate-500 font-medium">Material Stock Value</span>
           <div className="text-xl font-bold text-slate-900 font-mono mt-1">{formatNaira(totalStockValue)}</div>
-          <span className="text-[11px] text-[#01875F] font-semibold mt-1 inline-flex items-center gap-1">
+          <span className="text-[11px] text-[#18b892] font-semibold mt-1 inline-flex items-center gap-1">
             <TrendingUp className="w-3 h-3" />
             Audited physical stock
           </span>
@@ -139,7 +139,7 @@ export const MaterialsModule: React.FC<MaterialsModuleProps> = ({ onBackToDashbo
           onClick={() => setActiveTab('inventory')}
           className={`pb-2.5 text-xs sm:text-sm font-semibold border-b-2 cursor-pointer transition-colors ${
             activeTab === 'inventory'
-              ? 'border-[#01875F] text-[#01875F]'
+              ? 'border-[#18b892] text-[#18b892]'
               : 'border-transparent text-slate-500 hover:text-slate-800'
           }`}
         >
@@ -149,7 +149,7 @@ export const MaterialsModule: React.FC<MaterialsModuleProps> = ({ onBackToDashbo
           onClick={() => setActiveTab('requests')}
           className={`pb-2.5 text-xs sm:text-sm font-semibold border-b-2 cursor-pointer transition-colors ${
             activeTab === 'requests'
-              ? 'border-[#01875F] text-[#01875F]'
+              ? 'border-[#18b892] text-[#18b892]'
               : 'border-transparent text-slate-500 hover:text-slate-800'
           }`}
         >
@@ -236,7 +236,7 @@ export const MaterialsModule: React.FC<MaterialsModuleProps> = ({ onBackToDashbo
             >
               <div>
                 <div className="flex items-center gap-2 mb-1.5">
-                  <span className="font-mono text-xs font-bold text-[#01875F] bg-[#01875F]/10 px-2 py-0.5 rounded">
+                  <span className="font-mono text-xs font-bold text-[#18b892] bg-[#18b892]/10 px-2 py-0.5 rounded">
                     REQ-{req.id.slice(0, 6)}
                   </span>
                   <span className="text-xs font-semibold text-slate-800">
@@ -253,7 +253,7 @@ export const MaterialsModule: React.FC<MaterialsModuleProps> = ({ onBackToDashbo
                 </p>
                 {req.estimated_cost && (
                   <div className="mt-2 text-sm font-mono font-bold text-slate-900">
-                    Estimated Value: <span className="text-[#01875F]">{formatNaira(req.estimated_cost)}</span>
+                    Estimated Value: <span className="text-[#18b892]">{formatNaira(req.estimated_cost)}</span>
                   </div>
                 )}
               </div>
@@ -262,7 +262,7 @@ export const MaterialsModule: React.FC<MaterialsModuleProps> = ({ onBackToDashbo
                 <button
                   type="button"
                   onClick={() => handleApprove(req.id)}
-                  className="px-4 py-2 bg-[#01875F] hover:bg-[#016f4e] text-white text-xs font-semibold rounded-lg shadow-2xs transition-colors cursor-pointer flex items-center gap-1.5"
+                  className="px-4 py-2 bg-[#18b892] hover:bg-[#016f4e] text-white text-xs font-semibold rounded-lg shadow-2xs transition-colors cursor-pointer flex items-center gap-1.5"
                 >
                   <CheckCircle2 className="w-3.5 h-3.5" />
                   <span>Authorize & Approve</span>

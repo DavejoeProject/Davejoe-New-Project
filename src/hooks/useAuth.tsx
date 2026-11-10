@@ -95,7 +95,7 @@ export async function traceAuthDatabaseFetch(explicitUserId?: string): Promise<A
 
   console.group(
     '%c[Davejoe Auth Diagnostics] 🔍 Tracing Supabase Database Role Authorization',
-    'color: #01875F; font-weight: bold; font-size: 13px; padding: 2px 4px;'
+    'color: #18b892; font-weight: bold; font-size: 13px; padding: 2px 4px;'
   );
 
   console.log('%cAuthenticated User ID:%c ' + (targetUserId || 'NONE'), 'font-weight: bold;', 'color: #0284c7;');
@@ -201,7 +201,7 @@ export async function traceAuthDatabaseFetch(explicitUserId?: string): Promise<A
   // -------------------------------------------------------------------------
   // 3. Trace PostgREST JOIN Query: user_roles -> roles
   // -------------------------------------------------------------------------
-  console.group('%c3. PostgREST JOIN: user_roles ⟕ roles', 'color: #01875F; font-weight: bold;');
+  console.group('%c3. PostgREST JOIN: user_roles ⟕ roles', 'color: #18b892; font-weight: bold;');
   try {
     const { data: joinData, error: joinError } = await supabase
       .from('user_roles')
@@ -344,9 +344,9 @@ export async function traceAuthDatabaseFetch(explicitUserId?: string): Promise<A
         JSON.stringify(uniqueSlugs) +
         '\nAssigned Names: ' +
         JSON.stringify(uniqueNames),
-      'background: #E6F4EA; color: #01875F; font-weight: bold; padding: 4px 8px; border-radius: 4px;',
+      'background: rgba(24, 184, 146, 0.1); color: #18b892; font-weight: bold; padding: 4px 8px; border-radius: 4px;',
       'color: inherit;',
-      'color: #01875F; font-weight: bold;',
+      'color: #18b892; font-weight: bold;',
       'color: inherit;'
     );
   } else if (uniqueSlugs.length > 0) {

@@ -116,7 +116,7 @@ export const SystemSettingsView: React.FC = () => {
           disabled={isRunningDiagnostics}
           className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-semibold transition-colors shadow-2xs cursor-pointer self-start sm:self-auto disabled:opacity-60"
         >
-          <RefreshCw className={`w-3.5 h-3.5 ${isRunningDiagnostics ? 'animate-spin text-[#01875F]' : ''}`} />
+          <RefreshCw className={`w-3.5 h-3.5 ${isRunningDiagnostics ? 'animate-spin text-[#18b892]' : ''}`} />
           <span>Run Live Health Checks</span>
         </button>
       </div>
@@ -127,7 +127,7 @@ export const SystemSettingsView: React.FC = () => {
           {/* System Identity Card */}
           <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs p-5 space-y-4">
             <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-2">
-              <Cpu className="w-4 h-4 text-[#01875F]" />
+              <Cpu className="w-4 h-4 text-[#18b892]" />
               <span>Application Identity & Runtime</span>
             </h3>
 
@@ -140,8 +140,8 @@ export const SystemSettingsView: React.FC = () => {
               <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
                 <span className="text-slate-400 block text-[11px]">Primary Brand Theme</span>
                 <div className="flex items-center gap-1.5 mt-0.5">
-                  <span className="w-3 h-3 rounded-full bg-[#01875F] inline-block shadow-2xs" />
-                  <span className="font-bold text-[#01875F]">#01875F (Emerald Green)</span>
+                  <span className="w-3 h-3 rounded-full bg-[#18b892] inline-block shadow-2xs" />
+                  <span className="font-bold text-[#18b892]">#18b892 (Emerald Green)</span>
                 </div>
               </div>
 
@@ -163,7 +163,7 @@ export const SystemSettingsView: React.FC = () => {
           <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs p-5 space-y-4">
             <div className="flex items-center justify-between pb-2 border-b border-slate-100">
               <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-2">
-                <Database className="w-4 h-4 text-[#01875F]" />
+                <Database className="w-4 h-4 text-[#18b892]" />
                 <span>Supabase Database Diagnostics</span>
               </h3>
               <span className="text-[11px] font-semibold text-slate-400">
@@ -176,7 +176,7 @@ export const SystemSettingsView: React.FC = () => {
                 <div key={diag.table} className="py-2.5 flex items-center justify-between text-xs">
                   <div className="flex items-center gap-2.5">
                     {diag.status === 'healthy' && (
-                      <CheckCircle2 className="w-4 h-4 text-[#01875F] shrink-0" />
+                      <CheckCircle2 className="w-4 h-4 text-[#18b892] shrink-0" />
                     )}
                     {diag.status === 'warning' && (
                       <AlertCircle className="w-4 h-4 text-amber-500 shrink-0" />
@@ -209,7 +209,7 @@ export const SystemSettingsView: React.FC = () => {
           {/* Authoritative Security Architecture */}
           <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs p-5 space-y-3">
             <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-2">
-              <Shield className="w-4 h-4 text-[#01875F]" />
+              <Shield className="w-4 h-4 text-[#18b892]" />
               <span>Access Control & Role Resolution</span>
             </h3>
 
@@ -219,19 +219,19 @@ export const SystemSettingsView: React.FC = () => {
 
             <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 font-mono text-[11px] text-slate-700 space-y-1">
               <div className="flex items-center gap-1.5 font-bold text-slate-900">
-                <Lock className="w-3 h-3 text-[#01875F]" />
+                <Lock className="w-3 h-3 text-[#18b892]" />
                 <span>auth.users</span>
               </div>
               <div className="text-slate-400 pl-4">&darr; foreign key (user_id)</div>
               <div className="font-bold text-slate-900 pl-4">public.user_roles</div>
               <div className="text-slate-400 pl-8">&darr; foreign key (role_id)</div>
-              <div className="font-bold text-[#01875F] pl-8">public.roles.slug</div>
+              <div className="font-bold text-[#18b892] pl-8">public.roles.slug</div>
             </div>
 
             <div className="p-3 bg-emerald-50/70 border border-emerald-100 rounded-xl text-xs text-slate-700 space-y-1">
-              <span className="font-bold text-[#01875F] block">Admin Authorization Key:</span>
+              <span className="font-bold text-[#18b892] block">Admin Authorization Key:</span>
               <p className="text-[11px] text-slate-600">
-                Role slug <code className="bg-white px-1.5 py-0.5 rounded font-mono font-bold text-[#01875F]">admin</code> routes to <code className="bg-white px-1 py-0.5 rounded font-mono">/admin</code>.
+                Role slug <code className="bg-white px-1.5 py-0.5 rounded font-mono font-bold text-[#18b892]">admin</code> routes to <code className="bg-white px-1 py-0.5 rounded font-mono">/admin</code>.
               </p>
               <p className="text-[11px] text-slate-600">
                 Role slug <code className="bg-white px-1.5 py-0.5 rounded font-mono font-bold text-emerald-700">management</code> routes to <code className="bg-white px-1 py-0.5 rounded font-mono">/management</code>.
@@ -242,7 +242,7 @@ export const SystemSettingsView: React.FC = () => {
           {/* Progressive Web App (PWA) Status */}
           <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs p-5 space-y-3">
             <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-2">
-              <Smartphone className="w-4 h-4 text-[#01875F]" />
+              <Smartphone className="w-4 h-4 text-[#18b892]" />
               <span>Progressive Web App (PWA)</span>
             </h3>
 
@@ -257,7 +257,7 @@ export const SystemSettingsView: React.FC = () => {
                 <span
                   className={`px-2 py-0.5 rounded text-[10px] font-semibold ${
                     isStandalone
-                      ? 'bg-emerald-100 text-[#01875F]'
+                      ? 'bg-emerald-100 text-[#18b892]'
                       : 'bg-slate-200 text-slate-600'
                   }`}
                 >
@@ -270,7 +270,7 @@ export const SystemSettingsView: React.FC = () => {
                   <span className="font-semibold text-slate-800 block">Service Worker & Caching</span>
                   <span className="text-[11px] text-slate-400">vite-plugin-pwa Workbox</span>
                 </div>
-                <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-100 text-[#01875F]">
+                <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-100 text-[#18b892]">
                   Active
                 </span>
               </div>
@@ -280,7 +280,7 @@ export const SystemSettingsView: React.FC = () => {
                   <span className="font-semibold text-slate-800 block">PWA Manifest</span>
                   <span className="text-[11px] text-slate-400">/manifest.webmanifest</span>
                 </div>
-                <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-100 text-[#01875F]">
+                <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-100 text-[#18b892]">
                   Configured
                 </span>
               </div>
@@ -290,7 +290,7 @@ export const SystemSettingsView: React.FC = () => {
           {/* Audit Retention Policy */}
           <div className="bg-slate-50 rounded-2xl border border-slate-200/80 p-4 text-xs text-slate-600 space-y-2">
             <div className="flex items-center gap-2 text-slate-800 font-bold">
-              <HardDrive className="w-4 h-4 text-[#01875F]" />
+              <HardDrive className="w-4 h-4 text-[#18b892]" />
               <span>Audit Logging Policy</span>
             </div>
             <p className="text-[11px] text-slate-500 leading-relaxed">

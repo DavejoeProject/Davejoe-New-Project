@@ -21,7 +21,7 @@ export const ATTENDANCE_STATUS_CONFIG: Record<
   present: {
     label: 'Present',
     badgeClasses: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-    dotClasses: 'bg-[#01875F]',
+    dotClasses: 'bg-[#18b892]',
   },
   late: {
     label: 'Late',

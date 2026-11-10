@@ -31,6 +31,6 @@ export const BRAND_INFO = {
   productName: 'Digital Operating System',
   fullTitle: 'Davejoe Interiors — Digital Operating System',
   tagline: 'One centralized system for managing people, projects, operations and performance.',
-  themeColor: '#01875F',
+  themeColor: '#18b892',
   backgroundColor: '#F8FAFB',
 } as const;

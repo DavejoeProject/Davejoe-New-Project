@@ -78,7 +78,7 @@ export const MaterialDetailModal: React.FC<MaterialDetailModalProps> = ({
         {/* Header */}
         <div className="px-6 py-5 bg-white border-b border-slate-100 flex items-start justify-between gap-4">
           <div className="flex items-start gap-3.5">
-            <div className="w-11 h-11 rounded-xl bg-[#E6F4EA] text-[#01875F] flex items-center justify-center shrink-0 border border-[#01875F]/20 mt-0.5">
+            <div className="w-11 h-11 rounded-xl bg-[#E6F4EA] text-[#18b892] flex items-center justify-center shrink-0 border border-[#18b892]/20 mt-0.5">
               <Package className="w-6 h-6" />
             </div>
             <div>
@@ -102,7 +102,7 @@ export const MaterialDetailModal: React.FC<MaterialDetailModalProps> = ({
                   {isLowStock ? (
                     <AlertTriangle className="w-3.5 h-3.5 text-amber-600" />
                   ) : (
-                    <CheckCircle2 className="w-3.5 h-3.5 text-[#01875F]" />
+                    <CheckCircle2 className="w-3.5 h-3.5 text-[#18b892]" />
                   )}
                   {stockCondition}
                 </span>
@@ -123,7 +123,7 @@ export const MaterialDetailModal: React.FC<MaterialDetailModalProps> = ({
             <button
               type="button"
               onClick={() => onEdit(material)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#01875F] text-white hover:bg-[#016f4e] text-xs font-semibold rounded-lg shadow-2xs transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#18b892] text-white hover:bg-[#016f4e] text-xs font-semibold rounded-lg shadow-2xs transition-colors cursor-pointer"
             >
               <Edit2 className="w-3.5 h-3.5" />
               <span>Edit</span>
@@ -144,7 +144,7 @@ export const MaterialDetailModal: React.FC<MaterialDetailModalProps> = ({
           {/* Section: Operational Information */}
           <div className="bg-slate-50/80 rounded-xl p-4 border border-slate-200/80 space-y-3">
             <div className="flex items-center gap-2">
-              <Boxes className="w-4 h-4 text-[#01875F]" />
+              <Boxes className="w-4 h-4 text-[#18b892]" />
               <h3 className="font-bold text-xs uppercase tracking-wider text-slate-700">
                 Operational Information
               </h3>
@@ -321,7 +321,7 @@ export const MaterialDetailModal: React.FC<MaterialDetailModalProps> = ({
           <button
             type="button"
             onClick={() => onEdit(material)}
-            className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#01875F] text-white hover:bg-[#016f4e] text-xs font-semibold rounded-lg shadow-2xs transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#18b892] text-white hover:bg-[#016f4e] text-xs font-semibold rounded-lg shadow-2xs transition-colors cursor-pointer"
           >
             <Edit2 className="w-3.5 h-3.5" />
             <span>Edit Material</span>

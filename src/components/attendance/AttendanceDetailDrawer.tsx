@@ -29,7 +29,7 @@ export const AttendanceDetailDrawer: React.FC<AttendanceDetailDrawerProps> = ({
         {/* Drawer Header */}
         <div className="flex items-center justify-between p-5 border-b border-slate-100 bg-slate-50/50">
           <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-full bg-[#E6F4EA] text-[#01875F] flex items-center justify-center font-bold text-sm">
+            <div className="w-10 h-10 rounded-full bg-[#E6F4EA] text-[#18b892] flex items-center justify-center font-bold text-sm">
               {workerName[0] || 'A'}
             </div>
             <div>
@@ -77,7 +77,7 @@ export const AttendanceDetailDrawer: React.FC<AttendanceDetailDrawerProps> = ({
           {/* Timekeeping Section */}
           <div className="space-y-3">
             <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-              <Clock className="w-3.5 h-3.5 text-[#01875F]" />
+              <Clock className="w-3.5 h-3.5 text-[#18b892]" />
               Timekeeping Audit
             </h4>
             <div className="grid grid-cols-2 gap-3 bg-white p-4 rounded-xl border border-slate-200">
@@ -118,7 +118,7 @@ export const AttendanceDetailDrawer: React.FC<AttendanceDetailDrawerProps> = ({
           {/* Project Details */}
           <div className="space-y-3">
             <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-              <Building className="w-3.5 h-3.5 text-[#01875F]" />
+              <Building className="w-3.5 h-3.5 text-[#18b892]" />
               Project Assignment
             </h4>
             <div className="p-4 bg-white rounded-xl border border-slate-200 space-y-2">
@@ -136,7 +136,7 @@ export const AttendanceDetailDrawer: React.FC<AttendanceDetailDrawerProps> = ({
           {/* Audit Ledger */}
           <div className="space-y-3">
             <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-              <ShieldCheck className="w-3.5 h-3.5 text-[#01875F]" />
+              <ShieldCheck className="w-3.5 h-3.5 text-[#18b892]" />
               Audit Verification
             </h4>
             <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 text-xs space-y-2">

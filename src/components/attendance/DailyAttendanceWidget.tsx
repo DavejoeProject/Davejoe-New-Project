@@ -198,32 +198,32 @@ export const DailyAttendanceWidget: React.FC<DailyAttendanceWidgetProps> = ({
     >
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         {/* Left Side: Status & Time */}
-        <div className="flex items-start gap-3.5 min-w-0">
+        <div className="flex items-start gap-4 min-w-0">
           <div
-            className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 shadow-2xs ${
+            className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs ${
               statusData.isClockedIn
-                ? 'bg-[#01875F] text-white animate-pulse'
+                ? 'bg-[#18b892] text-white shadow-[#18b892]/25'
                 : statusData.isClockedOut
                 ? 'bg-slate-100 text-slate-600'
                 : 'bg-amber-50 text-amber-600 border border-amber-200/80'
             }`}
           >
-            <Clock className="w-5 h-5" />
+            <Clock className="w-5 h-5 shrink-0" />
           </div>
 
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2 flex-wrap">
               <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
-                Daily Attendance & Shift
+                Daily Attendance &amp; Shift
               </span>
               <span className="text-slate-300">&bull;</span>
-              <span className="text-xs text-slate-500 font-medium">
+              <span className="text-sm text-slate-600 font-medium">
                 {formatNigerianDate(getNigerianTodayIso())}
               </span>
             </div>
 
-            <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-              <h3 className="text-sm sm:text-base font-bold text-slate-900 tracking-tight">
+            <div className="flex items-center gap-2.5 mt-1 flex-wrap">
+              <h3 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight">
                 {statusData.isClockedIn
                   ? 'Currently on Duty'
                   : statusData.isClockedOut
@@ -232,38 +232,38 @@ export const DailyAttendanceWidget: React.FC<DailyAttendanceWidgetProps> = ({
               </h3>
 
               {statusData.isClockedIn && (
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-[#01875F] border border-emerald-200">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#01875F] animate-ping" />
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-[#18b892] border border-[#18b892]/30 whitespace-nowrap">
+                  <span className="w-2 h-2 rounded-full bg-[#18b892] animate-pulse" />
                   Clocked In: {formatTimeFromIso(statusData.clockInTime)}
                 </span>
               )}
 
               {statusData.isClockedOut && (
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-700 border border-slate-200">
-                  <CheckCircle2 className="w-3 h-3 text-slate-500" />
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200 whitespace-nowrap">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-slate-500 shrink-0" />
                   Total: {statusData.actualHours} hrs
                 </span>
               )}
             </div>
 
             {/* Sub-info: Project & Elapsed */}
-            <div className="flex items-center gap-3 mt-1.5 text-xs text-slate-500 flex-wrap">
+            <div className="flex items-center gap-3.5 mt-2 text-sm text-slate-600 flex-wrap">
               {statusData.projectName && (
-                <div className="flex items-center gap-1 truncate" title={statusData.projectName}>
-                  <Building className="w-3.5 h-3.5 text-[#01875F] shrink-0" />
-                  <span className="truncate">{statusData.projectName}</span>
+                <div className="flex items-center gap-1.5 truncate max-w-xs" title={statusData.projectName}>
+                  <Building className="w-4 h-4 text-[#18b892] shrink-0" />
+                  <span className="truncate font-medium">{statusData.projectName}</span>
                 </div>
               )}
 
               {statusData.isClockedIn && (
-                <div className="flex items-center gap-1 font-semibold text-slate-700">
-                  <Timer className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-                  <span>Elapsed: {hours}h {mins}m</span>
+                <div className="flex items-center gap-1.5 font-semibold text-slate-800 whitespace-nowrap">
+                  <Timer className="w-4 h-4 text-amber-500 shrink-0" />
+                  <span className="font-mono">Elapsed: {hours}h {mins}m</span>
                 </div>
               )}
 
               {statusData.clockOutTime && (
-                <div className="text-slate-400">
+                <div className="text-slate-500 font-mono text-xs whitespace-nowrap">
                   Out at {formatTimeFromIso(statusData.clockOutTime)}
                 </div>
               )}
@@ -276,16 +276,16 @@ export const DailyAttendanceWidget: React.FC<DailyAttendanceWidgetProps> = ({
           <button
             type="button"
             onClick={fetchHistory}
-            className="inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl transition-colors cursor-pointer"
+            className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-semibold rounded-xl transition-colors cursor-pointer whitespace-nowrap"
             title="View personal attendance history"
           >
-            <History className="w-3.5 h-3.5" />
+            <History className="w-4 h-4 shrink-0 text-slate-500" />
             <span className="hidden sm:inline">History</span>
           </button>
 
           {loading ? (
-            <div className="flex items-center gap-2 text-xs text-slate-400 py-2">
-              <RefreshCw className="w-4 h-4 animate-spin text-[#01875F]" />
+            <div className="flex items-center gap-2 text-sm text-slate-400 py-2">
+              <RefreshCw className="w-4 h-4 animate-spin text-[#18b892]" />
               <span>Verifying shift...</span>
             </div>
           ) : !statusData.isClockedIn && !statusData.isClockedOut ? (
@@ -293,9 +293,9 @@ export const DailyAttendanceWidget: React.FC<DailyAttendanceWidgetProps> = ({
               type="button"
               disabled={submitting}
               onClick={handleClockIn}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#01875F] hover:bg-[#00704e] active:scale-[0.98] text-white text-xs font-bold rounded-xl shadow-xs transition-all cursor-pointer disabled:opacity-50 min-h-[44px]"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-[#18b892] hover:bg-[#139c7b] active:scale-[0.98] text-white text-sm font-bold rounded-xl shadow-xs transition-all cursor-pointer disabled:opacity-50 min-h-[44px] whitespace-nowrap"
             >
-              <Clock className="w-4 h-4" />
+              <Clock className="w-4 h-4 shrink-0" />
               <span>{submitting ? 'Clocking In...' : 'Clock In for Today'}</span>
             </button>
           ) : statusData.isClockedIn ? (
@@ -303,14 +303,14 @@ export const DailyAttendanceWidget: React.FC<DailyAttendanceWidgetProps> = ({
               type="button"
               disabled={submitting}
               onClick={handleClockOut}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-rose-600 hover:bg-rose-700 active:scale-[0.98] text-white text-xs font-bold rounded-xl shadow-xs transition-all cursor-pointer disabled:opacity-50 min-h-[44px]"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-rose-600 hover:bg-rose-700 active:scale-[0.98] text-white text-sm font-bold rounded-xl shadow-xs transition-all cursor-pointer disabled:opacity-50 min-h-[44px] whitespace-nowrap"
             >
-              <LogOut className="w-4 h-4" />
+              <LogOut className="w-4 h-4 shrink-0" />
               <span>{submitting ? 'Clocking Out...' : 'Clock Out of Duty'}</span>
             </button>
           ) : (
-            <div className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-500 text-xs font-medium">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+            <div className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-600 text-sm font-medium whitespace-nowrap">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
               <span>Shift Logged</span>
             </div>
           )}
@@ -327,7 +327,7 @@ export const DailyAttendanceWidget: React.FC<DailyAttendanceWidgetProps> = ({
 
       {successMsg && (
         <div className="mt-3 p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-800 flex items-center gap-2">
-          <CheckCircle2 className="w-4 h-4 shrink-0 text-[#01875F]" />
+          <CheckCircle2 className="w-4 h-4 shrink-0 text-[#18b892]" />
           <span>{successMsg}</span>
         </div>
       )}
@@ -338,7 +338,7 @@ export const DailyAttendanceWidget: React.FC<DailyAttendanceWidgetProps> = ({
           <div className="bg-white rounded-2xl border border-slate-200/90 shadow-2xl max-w-lg w-full overflow-hidden animate-in fade-in zoom-in-95 duration-150">
             <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/70">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-emerald-50 text-[#01875F] flex items-center justify-center font-bold">
+                <div className="w-8 h-8 rounded-lg bg-emerald-50 text-[#18b892] flex items-center justify-center font-bold">
                   <Calendar className="w-4 h-4" />
                 </div>
                 <div>
@@ -358,7 +358,7 @@ export const DailyAttendanceWidget: React.FC<DailyAttendanceWidgetProps> = ({
             <div className="p-6 max-h-[60vh] overflow-y-auto">
               {loadingHistory ? (
                 <div className="py-12 text-center text-xs text-slate-400 flex items-center justify-center gap-2">
-                  <RefreshCw className="w-4 h-4 animate-spin text-[#01875F]" />
+                  <RefreshCw className="w-4 h-4 animate-spin text-[#18b892]" />
                   <span>Loading attendance history...</span>
                 </div>
               ) : historyRecords.length === 0 ? (
@@ -387,7 +387,7 @@ export const DailyAttendanceWidget: React.FC<DailyAttendanceWidgetProps> = ({
                         </div>
                       </div>
                       <div className="text-right">
-                        <span className="inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-[#01875F] capitalize">
+                        <span className="inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-[#18b892] capitalize">
                           {rec.status}
                         </span>
                         <div className="font-mono text-[11px] font-bold text-slate-700 mt-1">

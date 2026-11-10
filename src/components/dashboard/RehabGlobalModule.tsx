@@ -158,17 +158,17 @@ export const RehabGlobalModule: React.FC<RehabGlobalModuleProps> = ({ onBackToDa
         <div>
           <button
             onClick={onBackToDashboard}
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#01875F] hover:underline mb-1 cursor-pointer"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#18b892] hover:underline mb-1 cursor-pointer"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>Back to Dashboard</span>
           </button>
           <div className="flex items-center gap-2">
             <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2.5">
-              <Paintbrush className="w-6 h-6 text-[#01875F]" />
+              <Paintbrush className="w-6 h-6 text-[#18b892]" />
               <span>Rehab Global Resources — Paint Production & Distribution</span>
             </h1>
-            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-[#01875F] border border-emerald-200">
+            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-[#18b892] border border-emerald-200">
               Sister Company
             </span>
           </div>
@@ -184,7 +184,7 @@ export const RehabGlobalModule: React.FC<RehabGlobalModuleProps> = ({ onBackToDa
               setProdModalOpen(true);
               setFormError(null);
             }}
-            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[#01875F] hover:bg-[#00704e] text-white rounded-xl text-xs font-semibold transition-colors shadow-2xs cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[#18b892] hover:bg-[#139c7b] text-white rounded-xl text-xs font-semibold transition-colors shadow-2xs cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>Record Production Run</span>
@@ -198,7 +198,7 @@ export const RehabGlobalModule: React.FC<RehabGlobalModuleProps> = ({ onBackToDa
             }}
             className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-semibold transition-colors shadow-2xs cursor-pointer"
           >
-            <Send className="w-3.5 h-3.5 text-[#01875F]" />
+            <Send className="w-3.5 h-3.5 text-[#18b892]" />
             <span>Issue Stock / Transfer</span>
           </button>
 
@@ -209,7 +209,7 @@ export const RehabGlobalModule: React.FC<RehabGlobalModuleProps> = ({ onBackToDa
             className="p-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl text-xs transition-colors cursor-pointer"
             title="Refresh"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-[#01875F]' : ''}`} />
+            <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-[#18b892]' : ''}`} />
           </button>
         </div>
       </div>
@@ -221,7 +221,7 @@ export const RehabGlobalModule: React.FC<RehabGlobalModuleProps> = ({ onBackToDa
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
               Total Stock Volume
             </span>
-            <div className="w-8 h-8 rounded-lg bg-emerald-50 text-[#01875F] flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-emerald-50 text-[#18b892] flex items-center justify-center">
               <Boxes className="w-4 h-4" />
             </div>
           </div>
@@ -284,7 +284,7 @@ export const RehabGlobalModule: React.FC<RehabGlobalModuleProps> = ({ onBackToDa
           onClick={() => setActiveTab('inventory')}
           className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
             activeTab === 'inventory'
-              ? 'bg-[#01875F] text-white shadow-2xs'
+              ? 'bg-[#18b892] text-white shadow-2xs'
               : 'text-slate-600 hover:bg-slate-100'
           }`}
         >
@@ -295,7 +295,7 @@ export const RehabGlobalModule: React.FC<RehabGlobalModuleProps> = ({ onBackToDa
           onClick={() => setActiveTab('production')}
           className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
             activeTab === 'production'
-              ? 'bg-[#01875F] text-white shadow-2xs'
+              ? 'bg-[#18b892] text-white shadow-2xs'
               : 'text-slate-600 hover:bg-slate-100'
           }`}
         >
@@ -306,7 +306,7 @@ export const RehabGlobalModule: React.FC<RehabGlobalModuleProps> = ({ onBackToDa
           onClick={() => setActiveTab('movements')}
           className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
             activeTab === 'movements'
-              ? 'bg-[#01875F] text-white shadow-2xs'
+              ? 'bg-[#18b892] text-white shadow-2xs'
               : 'text-slate-600 hover:bg-slate-100'
           }`}
         >
@@ -360,7 +360,7 @@ export const RehabGlobalModule: React.FC<RehabGlobalModuleProps> = ({ onBackToDa
                         <td className="py-3 px-3 text-right text-slate-600">
                           {formatNaira(p.unit_cost_price)}
                         </td>
-                        <td className="py-3 px-3 text-right text-[#01875F] font-semibold">
+                        <td className="py-3 px-3 text-right text-[#18b892] font-semibold">
                           {formatNaira(p.unit_selling_price)}
                         </td>
                         <td className="py-3 px-3">
@@ -368,7 +368,7 @@ export const RehabGlobalModule: React.FC<RehabGlobalModuleProps> = ({ onBackToDa
                             className={`px-2 py-0.5 rounded text-[10px] font-semibold ${
                               isLow
                                 ? 'bg-amber-50 text-amber-700 border border-amber-200'
-                                : 'bg-emerald-50 text-[#01875F] border border-emerald-200'
+                                : 'bg-emerald-50 text-[#18b892] border border-emerald-200'
                             }`}
                           >
                             {isLow ? 'Low Stock' : 'Available'}
@@ -399,7 +399,7 @@ export const RehabGlobalModule: React.FC<RehabGlobalModuleProps> = ({ onBackToDa
               <button
                 type="button"
                 onClick={() => setProdModalOpen(true)}
-                className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#01875F] text-white rounded-lg text-xs font-semibold cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#18b892] text-white rounded-lg text-xs font-semibold cursor-pointer"
               >
                 <Plus className="w-3.5 h-3.5" />
                 <span>Record First Batch</span>
@@ -428,7 +428,7 @@ export const RehabGlobalModule: React.FC<RehabGlobalModuleProps> = ({ onBackToDa
                         +{Number(r.quantity_produced).toLocaleString()}
                       </td>
                       <td className="py-3 px-3">
-                        <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-[#01875F] border border-emerald-200">
+                        <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-[#18b892] border border-emerald-200">
                           {r.status}
                         </span>
                       </td>
@@ -484,7 +484,7 @@ export const RehabGlobalModule: React.FC<RehabGlobalModuleProps> = ({ onBackToDa
                               isTransfer
                                 ? 'bg-purple-50 text-purple-700 border border-purple-200'
                                 : isSale
-                                  ? 'bg-emerald-50 text-[#01875F] border border-emerald-200'
+                                  ? 'bg-emerald-50 text-[#18b892] border border-emerald-200'
                                   : 'bg-slate-100 text-slate-700'
                             }`}
                           >
@@ -606,7 +606,7 @@ export const RehabGlobalModule: React.FC<RehabGlobalModuleProps> = ({ onBackToDa
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="px-4 py-2 bg-[#01875F] text-white rounded-xl font-semibold disabled:opacity-60"
+                  className="px-4 py-2 bg-[#18b892] text-white rounded-xl font-semibold disabled:opacity-60"
                 >
                   {submitting ? 'Saving...' : 'Save Output'}
                 </button>
@@ -751,7 +751,7 @@ export const RehabGlobalModule: React.FC<RehabGlobalModuleProps> = ({ onBackToDa
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="px-4 py-2 bg-[#01875F] text-white rounded-xl font-semibold disabled:opacity-60"
+                  className="px-4 py-2 bg-[#18b892] text-white rounded-xl font-semibold disabled:opacity-60"
                 >
                   {submitting ? 'Processing...' : 'Confirm Issue'}
                 </button>

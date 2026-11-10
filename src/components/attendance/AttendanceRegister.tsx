@@ -158,7 +158,7 @@ export const AttendanceRegister: React.FC<AttendanceRegisterProps> = ({
               </span>
             </div>
             <h1 className="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2.5">
-              <CalendarCheck className="w-6 h-6 text-[#01875F]" />
+              <CalendarCheck className="w-6 h-6 text-[#18b892]" />
               <span>Attendance &amp; Timekeeping Register</span>
             </h1>
             <p className="text-xs sm:text-sm text-slate-500 mt-1">
@@ -173,14 +173,14 @@ export const AttendanceRegister: React.FC<AttendanceRegisterProps> = ({
               disabled={isRefreshing}
               className="inline-flex items-center gap-1.5 px-3 py-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-xs font-semibold rounded-xl shadow-2xs transition-all cursor-pointer"
             >
-              <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-[#01875F]' : ''}`} />
+              <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-[#18b892]' : ''}`} />
               <span>Refresh</span>
             </button>
 
             <button
               type="button"
               onClick={() => setIsClockInModalOpen(true)}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#01875F] hover:bg-[#016f4e] text-white text-xs font-bold rounded-xl shadow-2xs transition-all cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#18b892] hover:bg-[#016f4e] text-white text-xs font-bold rounded-xl shadow-2xs transition-all cursor-pointer"
             >
               <Clock className="w-3.5 h-3.5" />
               <span>Clock In Worker</span>
@@ -260,10 +260,10 @@ export const AttendanceRegister: React.FC<AttendanceRegisterProps> = ({
         </div>
 
         <div className="bg-white p-4 rounded-xl border border-slate-200/80 shadow-2xs">
-          <span className="text-[10.5px] font-bold uppercase tracking-wider text-[#01875F] block mb-1">
+          <span className="text-[10.5px] font-bold uppercase tracking-wider text-[#18b892] block mb-1">
             On Site Now
           </span>
-          <span className="text-xl font-bold text-[#01875F] font-mono">
+          <span className="text-xl font-bold text-[#18b892] font-mono">
             {metrics.currentlyOnSiteCount}
           </span>
           <span className="text-[10px] text-slate-400 block mt-0.5">Active shift</span>
@@ -316,7 +316,7 @@ export const AttendanceRegister: React.FC<AttendanceRegisterProps> = ({
                 type="date"
                 value={dateFilter}
                 onChange={(e) => setDateFilter(e.target.value)}
-                className="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#01875F]/20 focus:border-[#01875F]"
+                className="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#18b892]/20 focus:border-[#18b892]"
               />
               {dateFilter && (
                 <button
@@ -338,7 +338,7 @@ export const AttendanceRegister: React.FC<AttendanceRegisterProps> = ({
             <select
               value={projectFilter}
               onChange={(e) => setProjectFilter(e.target.value)}
-              className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#01875F]/20 focus:border-[#01875F]"
+              className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#18b892]/20 focus:border-[#18b892]"
             >
               <option value="all">All Projects</option>
               {availableProjects.map((p) => (
@@ -354,7 +354,7 @@ export const AttendanceRegister: React.FC<AttendanceRegisterProps> = ({
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#01875F]/20 focus:border-[#01875F]"
+              className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#18b892]/20 focus:border-[#18b892]"
             >
               <option value="all">All Attendance Statuses</option>
               {ALL_ATTENDANCE_STATUSES.map((st) => (
@@ -373,7 +373,7 @@ export const AttendanceRegister: React.FC<AttendanceRegisterProps> = ({
               placeholder="Search worker, trade, project..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#01875F]/20 focus:border-[#01875F]"
+              className="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#18b892]/20 focus:border-[#18b892]"
             />
           </div>
         </div>
@@ -400,7 +400,7 @@ export const AttendanceRegister: React.FC<AttendanceRegisterProps> = ({
       <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs overflow-hidden">
         {isLoading ? (
           <div className="p-12 text-center">
-            <div className="w-8 h-8 border-2 border-[#01875F]/20 border-t-[#01875F] rounded-full animate-spin mx-auto mb-3" />
+            <div className="w-8 h-8 border-2 border-[#18b892]/20 border-t-[#18b892] rounded-full animate-spin mx-auto mb-3" />
             <p className="text-xs text-slate-500 font-medium">Querying attendance records...</p>
           </div>
         ) : records.length === 0 ? (
@@ -418,7 +418,7 @@ export const AttendanceRegister: React.FC<AttendanceRegisterProps> = ({
               <button
                 type="button"
                 onClick={() => setIsClockInModalOpen(true)}
-                className="px-4 py-2 bg-[#01875F] hover:bg-[#016f4e] text-white text-xs font-bold rounded-xl shadow-2xs transition-colors cursor-pointer"
+                className="px-4 py-2 bg-[#18b892] hover:bg-[#016f4e] text-white text-xs font-bold rounded-xl shadow-2xs transition-colors cursor-pointer"
               >
                 Clock In Worker
               </button>
@@ -456,11 +456,11 @@ export const AttendanceRegister: React.FC<AttendanceRegisterProps> = ({
                     >
                       <td className="py-3 px-4">
                         <div className="flex items-center gap-2.5">
-                          <div className="w-7 h-7 rounded-full bg-[#E6F4EA] text-[#01875F] flex items-center justify-center font-bold text-xs shrink-0">
+                          <div className="w-7 h-7 rounded-full bg-[#E6F4EA] text-[#18b892] flex items-center justify-center font-bold text-xs shrink-0">
                             {name[0] || 'A'}
                           </div>
                           <div>
-                            <span className="font-bold text-slate-900 group-hover:text-[#01875F] transition-colors block">
+                            <span className="font-bold text-slate-900 group-hover:text-[#18b892] transition-colors block">
                               {name}
                             </span>
                           </div>
@@ -517,7 +517,7 @@ export const AttendanceRegister: React.FC<AttendanceRegisterProps> = ({
                             e.stopPropagation();
                             setSelectedRecord(r);
                           }}
-                          className="p-1.5 rounded-lg text-slate-400 hover:text-[#01875F] hover:bg-[#E6F4EA] transition-colors"
+                          className="p-1.5 rounded-lg text-slate-400 hover:text-[#18b892] hover:bg-[#E6F4EA] transition-colors"
                           title="View Details"
                         >
                           <Eye className="w-4 h-4" />

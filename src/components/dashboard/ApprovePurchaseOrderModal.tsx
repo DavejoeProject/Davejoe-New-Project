@@ -56,7 +56,7 @@ export const ApprovePurchaseOrderModal: React.FC<ApprovePurchaseOrderModalProps>
       >
         <div className="px-6 py-5 bg-white border-b border-slate-100 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-emerald-50 text-[#01875F] flex items-center justify-center shrink-0 border border-emerald-200">
+            <div className="w-10 h-10 rounded-xl bg-emerald-50 text-[#18b892] flex items-center justify-center shrink-0 border border-emerald-200">
               <CheckCircle2 className="w-5 h-5" />
             </div>
             <div>
@@ -114,7 +114,7 @@ export const ApprovePurchaseOrderModal: React.FC<ApprovePurchaseOrderModalProps>
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="Commercial sign-off instructions, disbursement voucher reference..."
-              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#01875F] focus:border-[#01875F]"
+              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#18b892] focus:border-[#18b892]"
             />
           </div>
 
@@ -130,7 +130,7 @@ export const ApprovePurchaseOrderModal: React.FC<ApprovePurchaseOrderModalProps>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#01875F] text-white hover:bg-[#016f4e] text-xs font-semibold rounded-lg shadow-2xs transition-colors cursor-pointer disabled:opacity-60"
+              className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#18b892] text-white hover:bg-[#016f4e] text-xs font-semibold rounded-lg shadow-2xs transition-colors cursor-pointer disabled:opacity-60"
             >
               {isSubmitting ? (
                 <>

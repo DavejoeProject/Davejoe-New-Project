@@ -336,7 +336,7 @@ export const ProjectControlCentre: React.FC<ProjectControlCentreProps> = ({
             <button
               type="button"
               onClick={onBackToProjects}
-              className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#01875F] hover:bg-[#016f4e] text-white text-xs font-semibold rounded-lg shadow-sm transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#18b892] hover:bg-[#016f4e] text-white text-xs font-semibold rounded-lg shadow-sm transition-colors cursor-pointer"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>Back to Projects</span>
@@ -372,7 +372,7 @@ export const ProjectControlCentre: React.FC<ProjectControlCentreProps> = ({
       {/* Toast Notification */}
       {toastMessage && (
         <div className="fixed top-20 right-6 z-50 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-2xl flex items-center gap-2.5 text-xs font-semibold animate-in slide-in-from-top-4 duration-200">
-          <CheckCircle2 className="w-4 h-4 text-[#01875F]" />
+          <CheckCircle2 className="w-4 h-4 text-[#18b892]" />
           <span>{toastMessage}</span>
         </div>
       )}
@@ -380,38 +380,38 @@ export const ProjectControlCentre: React.FC<ProjectControlCentreProps> = ({
       {/* ============================================================================== */}
       {/* 1. TOP NAVIGATION / BREADCRUMB                                                 */}
       {/* ============================================================================== */}
-      <div className="bg-white p-4 sm:p-5 rounded-xl border border-slate-200/80 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="bg-white p-4 sm:p-5 rounded-xl border border-slate-200/90 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <button
             type="button"
             onClick={onBackToProjects}
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#01875F] hover:underline mb-1 cursor-pointer"
+            className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#18b892] hover:underline mb-1 cursor-pointer"
           >
-            <ArrowLeft className="w-3.5 h-3.5" />
+            <ArrowLeft className="w-4 h-4 shrink-0" />
             <span>Back to Projects</span>
           </button>
-          <div className="flex items-center gap-2 text-xs font-medium text-slate-400">
+          <div className="flex items-center gap-2 text-sm font-medium text-slate-500">
             <span
               onClick={onBackToProjects}
-              className="hover:text-slate-700 cursor-pointer"
+              className="hover:text-slate-800 cursor-pointer"
             >
               Projects
             </span>
             <span>/</span>
-            <span className="font-bold text-slate-800 truncate max-w-xs">{project.name}</span>
+            <span className="font-bold text-slate-900 truncate max-w-xs">{project.name}</span>
           </div>
         </div>
 
-        <div className="flex items-center gap-2.5 self-start sm:self-center">
+        <div className="flex items-center gap-2.5 self-start sm:self-center shrink-0">
           <button
             type="button"
             onClick={handleFullRefresh}
             disabled={isRefreshing}
-            className="inline-flex items-center gap-1.5 px-3 py-2 bg-white hover:bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-700 shadow-2xs transition-colors cursor-pointer disabled:opacity-60"
+            className="inline-flex items-center gap-2 px-3.5 py-2.5 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 shadow-2xs transition-colors cursor-pointer disabled:opacity-60 whitespace-nowrap"
             title="Refresh database records"
           >
             <RefreshCw
-              className={`w-3.5 h-3.5 text-[#01875F] ${isRefreshing ? 'animate-spin' : ''}`}
+              className={`w-4 h-4 text-[#18b892] shrink-0 ${isRefreshing ? 'animate-spin' : ''}`}
             />
             <span>{isRefreshing ? 'Refreshing...' : 'Refresh'}</span>
           </button>
@@ -419,9 +419,9 @@ export const ProjectControlCentre: React.FC<ProjectControlCentreProps> = ({
           <button
             type="button"
             onClick={() => setIsEditModalOpen(true)}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#01875F] hover:bg-[#016f4e] text-white text-xs font-bold rounded-lg shadow-sm transition-colors cursor-pointer"
+            className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#18b892] hover:bg-[#139c7b] text-white text-sm font-bold rounded-xl shadow-xs transition-colors cursor-pointer whitespace-nowrap"
           >
-            <Edit3 className="w-3.5 h-3.5" />
+            <Edit3 className="w-4 h-4 shrink-0" />
             <span>Edit Project</span>
           </button>
         </div>
@@ -430,10 +430,10 @@ export const ProjectControlCentre: React.FC<ProjectControlCentreProps> = ({
       {/* ============================================================================== */}
       {/* 2. PROJECT HEADER                                                              */}
       {/* ============================================================================== */}
-      <div className="bg-white rounded-xl border border-slate-200/80 shadow-2xs p-5 sm:p-6">
+      <div className="bg-white rounded-xl border border-slate-200/90 shadow-2xs p-5 sm:p-6">
         <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-6 pb-6 border-b border-slate-100">
           <div className="flex items-start gap-4">
-            <div className="w-12 h-12 rounded-xl bg-[#E6F4EA] text-[#01875F] flex items-center justify-center font-bold text-lg shrink-0 border border-[#01875F]/20">
+            <div className="w-12 h-12 rounded-xl bg-[#18b892]/10 text-[#18b892] flex items-center justify-center font-bold text-lg shrink-0 border border-[#18b892]/25">
               <FolderKanban className="w-6 h-6" />
             </div>
             <div>
@@ -467,7 +467,7 @@ export const ProjectControlCentre: React.FC<ProjectControlCentreProps> = ({
             <span className="text-[10.5px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
               CONTRACT VALUE
             </span>
-            <div className="text-xl sm:text-2xl font-bold text-slate-900 font-mono tracking-tight text-[#01875F]">
+            <div className="text-xl sm:text-2xl font-bold text-slate-900 font-mono tracking-tight text-[#18b892]">
               {project.contract_value != null ? formatNaira(project.contract_value) : 'Not provided'}
             </div>
             <span className="text-[11px] text-slate-400 mt-1 block">
@@ -538,13 +538,13 @@ export const ProjectControlCentre: React.FC<ProjectControlCentreProps> = ({
                 key={tab.key}
                 type="button"
                 onClick={() => setActiveTab(tab.key as ProjectControlTab)}
-                className={`flex items-center gap-2 py-3.5 px-3.5 sm:px-4 text-xs font-bold border-b-2 transition-all cursor-pointer whitespace-nowrap ${
+                className={`flex items-center gap-2 py-3.5 px-4 sm:px-5 text-sm font-bold border-b-2 transition-all cursor-pointer whitespace-nowrap ${
                   isActive
-                    ? 'border-[#01875F] text-[#01875F] bg-white'
-                    : 'border-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-100/50'
+                    ? 'border-[#18b892] text-[#18b892] bg-white'
+                    : 'border-transparent text-slate-500 hover:text-slate-900 hover:bg-slate-100/50'
                 }`}
               >
-                <Icon className={`w-4 h-4 ${isActive ? 'text-[#01875F]' : 'text-slate-400'}`} />
+                <Icon className={`w-4.5 h-4.5 shrink-0 ${isActive ? 'text-[#18b892]' : 'text-slate-400'}`} />
                 <span>{tab.label}</span>
               </button>
             );
@@ -558,96 +558,96 @@ export const ProjectControlCentre: React.FC<ProjectControlCentreProps> = ({
           <div className="p-5 sm:p-8 space-y-8">
             {/* Real Project Metrics Row */}
             <div>
-              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3.5">
                 PROJECT RECORD COUNTS
               </h3>
               {loadingMetrics ? (
                 <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3 animate-pulse">
                   {[1, 2, 3, 4, 5, 6, 7].map((i) => (
-                    <div key={i} className="h-20 bg-slate-50 rounded-xl border border-slate-100" />
+                    <div key={i} className="h-24 bg-slate-50 rounded-xl border border-slate-100" />
                   ))}
                 </div>
               ) : metricsError ? (
-                <div className="p-3 bg-red-50 border border-red-200 text-xs text-red-700 rounded-lg flex items-center justify-between">
+                <div className="p-4 bg-red-50 border border-red-200 text-sm text-red-700 rounded-xl flex items-center justify-between">
                   <span>Unable to load metrics: {metricsError}</span>
                   <button
                     type="button"
                     onClick={fetchMetrics}
-                    className="text-xs font-bold underline"
+                    className="text-sm font-bold underline"
                   >
                     Retry
                   </button>
                 </div>
               ) : (
-                <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
-                  <div className="p-3.5 bg-slate-50/70 border border-slate-200/70 rounded-xl">
-                    <span className="text-[10.5px] font-bold text-slate-400 uppercase block">
+                <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3.5">
+                  <div className="p-4 bg-slate-50/80 border border-slate-200/80 rounded-xl">
+                    <span className="text-xs font-bold text-slate-500 uppercase tracking-wide block">
                       Staff
                     </span>
-                    <span className="text-xl font-bold font-mono text-slate-900 mt-1 block">
+                    <span className="text-2xl sm:text-3xl font-bold font-mono text-slate-900 mt-1 block tracking-tight">
                       {metrics?.assignedWorkforce ?? 0}
                     </span>
-                    <span className="text-[10px] text-slate-400">Assigned</span>
+                    <span className="text-xs text-slate-500 font-medium">Assigned</span>
                   </div>
 
-                  <div className="p-3.5 bg-slate-50/70 border border-slate-200/70 rounded-xl">
-                    <span className="text-[10.5px] font-bold text-slate-400 uppercase block">
+                  <div className="p-4 bg-slate-50/80 border border-slate-200/80 rounded-xl">
+                    <span className="text-xs font-bold text-slate-500 uppercase tracking-wide block">
                       Material Reqs
                     </span>
-                    <span className="text-xl font-bold font-mono text-slate-900 mt-1 block">
+                    <span className="text-2xl sm:text-3xl font-bold font-mono text-slate-900 mt-1 block tracking-tight">
                       {metrics?.materialRequests ?? 0}
                     </span>
-                    <span className="text-[10px] text-slate-400">Requisitions</span>
+                    <span className="text-xs text-slate-500 font-medium">Requisitions</span>
                   </div>
 
-                  <div className="p-3.5 bg-slate-50/70 border border-slate-200/70 rounded-xl">
-                    <span className="text-[10.5px] font-bold text-slate-400 uppercase block">
+                  <div className="p-4 bg-slate-50/80 border border-slate-200/80 rounded-xl">
+                    <span className="text-xs font-bold text-slate-500 uppercase tracking-wide block">
                       Orders (PO)
                     </span>
-                    <span className="text-xl font-bold font-mono text-slate-900 mt-1 block">
+                    <span className="text-2xl sm:text-3xl font-bold font-mono text-slate-900 mt-1 block tracking-tight">
                       {metrics?.purchaseOrders ?? 0}
                     </span>
-                    <span className="text-[10px] text-slate-400">Procurement</span>
+                    <span className="text-xs text-slate-500 font-medium">Procurement</span>
                   </div>
 
-                  <div className="p-3.5 bg-slate-50/70 border border-slate-200/70 rounded-xl">
-                    <span className="text-[10.5px] font-bold text-slate-400 uppercase block">
+                  <div className="p-4 bg-slate-50/80 border border-slate-200/80 rounded-xl">
+                    <span className="text-xs font-bold text-slate-500 uppercase tracking-wide block">
                       Deliveries
                     </span>
-                    <span className="text-xl font-bold font-mono text-slate-900 mt-1 block">
+                    <span className="text-2xl sm:text-3xl font-bold font-mono text-slate-900 mt-1 block tracking-tight">
                       {metrics?.materialDeliveries ?? 0}
                     </span>
-                    <span className="text-[10px] text-slate-400">Recorded</span>
+                    <span className="text-xs text-slate-500 font-medium">Recorded</span>
                   </div>
 
-                  <div className="p-3.5 bg-slate-50/70 border border-slate-200/70 rounded-xl">
-                    <span className="text-[10.5px] font-bold text-slate-400 uppercase block">
+                  <div className="p-4 bg-slate-50/80 border border-slate-200/80 rounded-xl">
+                    <span className="text-xs font-bold text-slate-500 uppercase tracking-wide block">
                       Attendance
                     </span>
-                    <span className="text-xl font-bold font-mono text-slate-900 mt-1 block">
+                    <span className="text-2xl sm:text-3xl font-bold font-mono text-slate-900 mt-1 block tracking-tight">
                       {metrics?.attendanceRecords ?? 0}
                     </span>
-                    <span className="text-[10px] text-slate-400">Logs</span>
+                    <span className="text-xs text-slate-500 font-medium">Shift Logs</span>
                   </div>
 
-                  <div className="p-3.5 bg-slate-50/70 border border-slate-200/70 rounded-xl">
-                    <span className="text-[10.5px] font-bold text-slate-400 uppercase block">
+                  <div className="p-4 bg-slate-50/80 border border-slate-200/80 rounded-xl">
+                    <span className="text-xs font-bold text-slate-500 uppercase tracking-wide block">
                       Productivity
                     </span>
-                    <span className="text-xl font-bold font-mono text-slate-900 mt-1 block">
+                    <span className="text-2xl sm:text-3xl font-bold font-mono text-slate-900 mt-1 block tracking-tight">
                       {metrics?.productivityRecords ?? 0}
                     </span>
-                    <span className="text-[10px] text-slate-400">Entries</span>
+                    <span className="text-xs text-slate-500 font-medium">Entries</span>
                   </div>
 
-                  <div className="p-3.5 bg-slate-50/70 border border-slate-200/70 rounded-xl">
-                    <span className="text-[10.5px] font-bold text-slate-400 uppercase block">
+                  <div className="p-4 bg-slate-50/80 border border-slate-200/80 rounded-xl col-span-2 sm:col-span-1">
+                    <span className="text-xs font-bold text-slate-500 uppercase tracking-wide block">
                       Overtime
                     </span>
-                    <span className="text-xl font-bold font-mono text-slate-900 mt-1 block">
+                    <span className="text-2xl sm:text-3xl font-bold font-mono text-slate-900 mt-1 block tracking-tight">
                       {metrics?.overtimeRequests ?? 0}
                     </span>
-                    <span className="text-[10px] text-slate-400">Requests</span>
+                    <span className="text-xs text-slate-500 font-medium">Requests</span>
                   </div>
                 </div>
               )}
@@ -658,7 +658,7 @@ export const ProjectControlCentre: React.FC<ProjectControlCentreProps> = ({
               {/* Project Information */}
               <div className="p-5 sm:p-6 bg-slate-50/60 rounded-xl border border-slate-200/80 space-y-4">
                 <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
-                  <Building2 className="w-4 h-4 text-[#01875F]" />
+                  <Building2 className="w-4 h-4 text-[#18b892]" />
                   <span>Project Information</span>
                 </h4>
 
@@ -701,7 +701,7 @@ export const ProjectControlCentre: React.FC<ProjectControlCentreProps> = ({
               {/* Client Information */}
               <div className="p-5 sm:p-6 bg-slate-50/60 rounded-xl border border-slate-200/80 space-y-4">
                 <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
-                  <Users className="w-4 h-4 text-[#01875F]" />
+                  <Users className="w-4 h-4 text-[#18b892]" />
                   <span>Client Information</span>
                 </h4>
 
@@ -745,7 +745,7 @@ export const ProjectControlCentre: React.FC<ProjectControlCentreProps> = ({
             {/* Project Timeline & Milestone Section */}
             <div className="p-5 sm:p-6 bg-slate-50/60 rounded-xl border border-slate-200/80 space-y-4">
               <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
-                <Calendar className="w-4 h-4 text-[#01875F]" />
+                <Calendar className="w-4 h-4 text-[#18b892]" />
                 <span>Project Timeline &amp; Dates</span>
               </h4>
 
@@ -809,7 +809,7 @@ export const ProjectControlCentre: React.FC<ProjectControlCentreProps> = ({
                 <button
                   type="button"
                   onClick={() => setIsAssignModalOpen(true)}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[#01875F] hover:bg-[#016f4e] text-white text-xs font-bold rounded-lg shadow-sm transition-colors cursor-pointer"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[#18b892] hover:bg-[#016f4e] text-white text-xs font-bold rounded-lg shadow-sm transition-colors cursor-pointer"
                 >
                   <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
                   <span>+ Assign Staff</span>
@@ -850,7 +850,7 @@ export const ProjectControlCentre: React.FC<ProjectControlCentreProps> = ({
                   <button
                     type="button"
                     onClick={() => setIsAssignModalOpen(true)}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#01875F] text-white text-xs font-bold rounded-lg shadow-sm hover:bg-[#016f4e] cursor-pointer"
+                    className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#18b892] text-white text-xs font-bold rounded-lg shadow-sm hover:bg-[#016f4e] cursor-pointer"
                   >
                     <Plus className="w-4 h-4" />
                     <span>+ Assign Staff</span>
@@ -887,7 +887,7 @@ export const ProjectControlCentre: React.FC<ProjectControlCentreProps> = ({
                           className="hover:bg-slate-50/70 transition-colors group cursor-pointer"
                           onClick={() => setSelectedWorkerAssignment(item)}
                         >
-                          <td className="py-3 px-4 font-bold text-slate-900 group-hover:text-[#01875F]">
+                          <td className="py-3 px-4 font-bold text-slate-900 group-hover:text-[#18b892]">
                             {name}
                           </td>
                           <td className="py-3 px-3">
@@ -945,7 +945,7 @@ export const ProjectControlCentre: React.FC<ProjectControlCentreProps> = ({
                 <button
                   type="button"
                   onClick={() => setIsAssignMaterialModalOpen(true)}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[#01875F] hover:bg-[#01704d] text-white rounded-lg text-xs font-semibold shadow-2xs transition-colors cursor-pointer"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[#18b892] hover:bg-[#01704d] text-white rounded-lg text-xs font-semibold shadow-2xs transition-colors cursor-pointer"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   <span>Assign Material</span>
@@ -982,7 +982,7 @@ export const ProjectControlCentre: React.FC<ProjectControlCentreProps> = ({
                   onClick={() => setActiveMaterialsSubTab(sub.key as MaterialsSubTab)}
                   className={`py-2 px-3 font-semibold border-b-2 transition-colors cursor-pointer whitespace-nowrap ${
                     activeMaterialsSubTab === sub.key
-                      ? 'border-[#01875F] text-[#01875F]'
+                      ? 'border-[#18b892] text-[#18b892]'
                       : 'border-transparent text-slate-500 hover:text-slate-800'
                   }`}
                 >
@@ -1013,7 +1013,7 @@ export const ProjectControlCentre: React.FC<ProjectControlCentreProps> = ({
               /* Sub-Tab 1: Material Requirements / Assigned Materials */
               materialsData.requirements.length === 0 ? (
                 <div className="py-12 px-4 text-center border border-dashed border-slate-200 rounded-xl bg-slate-50/50 space-y-3">
-                  <div className="w-12 h-12 rounded-xl bg-[#E6F4EA] text-[#01875F] flex items-center justify-center mx-auto border border-[#01875F]/20">
+                  <div className="w-12 h-12 rounded-xl bg-[#E6F4EA] text-[#18b892] flex items-center justify-center mx-auto border border-[#18b892]/20">
                     <Boxes className="w-6 h-6" />
                   </div>
                   <div>
@@ -1025,7 +1025,7 @@ export const ProjectControlCentre: React.FC<ProjectControlCentreProps> = ({
                   <button
                     type="button"
                     onClick={() => setIsAssignMaterialModalOpen(true)}
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-[#01875F] hover:bg-[#01704d] text-white text-xs font-bold rounded-lg shadow-sm transition-colors cursor-pointer"
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-[#18b892] hover:bg-[#01704d] text-white text-xs font-bold rounded-lg shadow-sm transition-colors cursor-pointer"
                   >
                     <Plus className="w-4 h-4" />
                     <span>Assign First Material</span>
@@ -1041,7 +1041,7 @@ export const ProjectControlCentre: React.FC<ProjectControlCentreProps> = ({
                       <span>·</span>
                       <span className="font-semibold text-slate-700">
                         Total Estimated Cost:{' '}
-                        <strong className="text-[#01875F] font-mono">
+                        <strong className="text-[#18b892] font-mono">
                           {formatNaira(
                             materialsData.requirements.reduce(
                               (sum, r) => sum + (r.estimated_total_cost || 0),
@@ -1055,7 +1055,7 @@ export const ProjectControlCentre: React.FC<ProjectControlCentreProps> = ({
                     <button
                       type="button"
                       onClick={() => setIsAssignMaterialModalOpen(true)}
-                      className="self-start sm:self-center inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#01875F] hover:bg-[#01704d] text-white rounded-lg text-xs font-semibold transition-colors cursor-pointer"
+                      className="self-start sm:self-center inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#18b892] hover:bg-[#01704d] text-white rounded-lg text-xs font-semibold transition-colors cursor-pointer"
                     >
                       <Plus className="w-3.5 h-3.5" />
                       <span>+ Assign Another Material</span>
@@ -1117,7 +1117,7 @@ export const ProjectControlCentre: React.FC<ProjectControlCentreProps> = ({
                               {req.purpose || '—'}
                             </td>
                             <td className="py-3 px-3 text-center">
-                              <span className="inline-block px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#E6F4EA] text-[#01875F] border border-[#01875F]/20 capitalize">
+                              <span className="inline-block px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#E6F4EA] text-[#18b892] border border-[#18b892]/20 capitalize">
                                 {req.status || 'assigned'}
                               </span>
                             </td>
@@ -1536,7 +1536,7 @@ export const ProjectControlCentre: React.FC<ProjectControlCentreProps> = ({
                         <td className="py-3 px-3 text-right font-mono text-slate-600">
                           {po.delivery_cost != null ? formatNaira(po.delivery_cost) : '—'}
                         </td>
-                        <td className="py-3 px-3 text-right font-mono font-bold text-[#01875F]">
+                        <td className="py-3 px-3 text-right font-mono font-bold text-[#18b892]">
                           {po.total_cost != null ? formatNaira(po.total_cost) : '—'}
                         </td>
                         <td className="py-3 px-4 text-right" onClick={(e) => e.stopPropagation()}>
@@ -1613,7 +1613,7 @@ export const ProjectControlCentre: React.FC<ProjectControlCentreProps> = ({
                     <span className="text-[10.5px] font-bold uppercase tracking-wider text-slate-400 block">
                       CONTRACT VALUE
                     </span>
-                    <div className="text-xl font-bold font-mono text-[#01875F] mt-1.5">
+                    <div className="text-xl font-bold font-mono text-[#18b892] mt-1.5">
                       {financials.contractValue != null ? formatNaira(financials.contractValue) : 'Not provided'}
                     </div>
                     <span className="text-[11px] text-slate-400 mt-1 block">
@@ -1720,7 +1720,7 @@ export const ProjectControlCentre: React.FC<ProjectControlCentreProps> = ({
               <div className="relative pl-6 space-y-6 before:absolute before:left-2.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-200">
                 {activities.map((act) => (
                   <div key={act.id} className="relative flex items-start gap-3 text-xs">
-                    <div className="absolute -left-6 top-1 w-3 h-3 rounded-full bg-[#01875F] ring-4 ring-white" />
+                    <div className="absolute -left-6 top-1 w-3 h-3 rounded-full bg-[#18b892] ring-4 ring-white" />
                     <div className="bg-slate-50/70 p-3.5 rounded-xl border border-slate-200/80 w-full">
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-1">
                         <span className="font-bold text-slate-900">{act.title}</span>

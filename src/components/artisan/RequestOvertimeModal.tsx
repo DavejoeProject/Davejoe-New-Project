@@ -114,7 +114,7 @@ export const RequestOvertimeModal: React.FC<RequestOvertimeModalProps> = ({
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               disabled={isSubmitting}
-              className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#01875F]/20 focus:border-[#01875F] transition-all resize-none"
+              className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#18b892]/20 focus:border-[#18b892] transition-all resize-none"
             />
           </div>
 
@@ -130,7 +130,7 @@ export const RequestOvertimeModal: React.FC<RequestOvertimeModalProps> = ({
             <button
               type="submit"
               disabled={isSubmitting || !reason.trim()}
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#01875F] hover:bg-[#016f4e] text-white text-xs font-bold rounded-xl shadow-sm transition-all disabled:opacity-50 cursor-pointer"
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#18b892] hover:bg-[#016f4e] text-white text-xs font-bold rounded-xl shadow-sm transition-all disabled:opacity-50 cursor-pointer"
             >
               <span>{isSubmitting ? 'Submitting...' : 'Submit Request'}</span>
             </button>

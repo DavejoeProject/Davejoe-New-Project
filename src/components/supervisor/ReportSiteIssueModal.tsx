@@ -122,7 +122,7 @@ export const ReportSiteIssueModal: React.FC<ReportSiteIssueModalProps> = ({
               value={projectId}
               onChange={(e) => setProjectId(e.target.value)}
               disabled={isSubmitting}
-              className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#01875F]/20 focus:border-[#01875F] transition-all"
+              className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#18b892]/20 focus:border-[#18b892] transition-all"
             >
               {projects.length === 0 ? (
                 <option value="">No assigned projects available</option>
@@ -147,7 +147,7 @@ export const ReportSiteIssueModal: React.FC<ReportSiteIssueModalProps> = ({
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               disabled={isSubmitting}
-              className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#01875F]/20 focus:border-[#01875F] transition-all"
+              className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#18b892]/20 focus:border-[#18b892] transition-all"
             />
           </div>
 
@@ -161,7 +161,7 @@ export const ReportSiteIssueModal: React.FC<ReportSiteIssueModalProps> = ({
                 value={priority}
                 onChange={(e) => setPriority(e.target.value as any)}
                 disabled={isSubmitting}
-                className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#01875F]/20 focus:border-[#01875F] transition-all"
+                className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#18b892]/20 focus:border-[#18b892] transition-all"
               >
                 <option value="low">Low Priority</option>
                 <option value="medium">Medium Priority</option>
@@ -179,7 +179,7 @@ export const ReportSiteIssueModal: React.FC<ReportSiteIssueModalProps> = ({
                 value={dueDate}
                 onChange={(e) => setDueDate(e.target.value)}
                 disabled={isSubmitting}
-                className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#01875F]/20 focus:border-[#01875F] transition-all"
+                className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#18b892]/20 focus:border-[#18b892] transition-all"
               />
             </div>
           </div>
@@ -195,7 +195,7 @@ export const ReportSiteIssueModal: React.FC<ReportSiteIssueModalProps> = ({
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               disabled={isSubmitting}
-              className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#01875F]/20 focus:border-[#01875F] transition-all resize-none"
+              className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#18b892]/20 focus:border-[#18b892] transition-all resize-none"
             />
           </div>
 
@@ -212,7 +212,7 @@ export const ReportSiteIssueModal: React.FC<ReportSiteIssueModalProps> = ({
             <button
               type="submit"
               disabled={isSubmitting}
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#01875F] hover:bg-[#016f4e] text-white text-xs font-bold rounded-xl shadow-sm transition-all disabled:opacity-50 cursor-pointer"
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#18b892] hover:bg-[#016f4e] text-white text-xs font-bold rounded-xl shadow-sm transition-all disabled:opacity-50 cursor-pointer"
             >
               <AlertTriangle className="w-4 h-4" />
               <span>{isSubmitting ? 'Submitting...' : 'Log Site Issue'}</span>

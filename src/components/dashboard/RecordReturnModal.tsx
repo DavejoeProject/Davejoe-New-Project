@@ -174,7 +174,7 @@ export const RecordReturnModal: React.FC<RecordReturnModalProps> = ({
               required
               value={projectId}
               onChange={(e) => setProjectId(e.target.value)}
-              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#01875F]"
+              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#18b892]"
             >
               <option value="">Select Project</option>
               {projects.map((p) => (
@@ -193,7 +193,7 @@ export const RecordReturnModal: React.FC<RecordReturnModalProps> = ({
               required
               value={materialId}
               onChange={(e) => setMaterialId(e.target.value)}
-              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#01875F]"
+              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#18b892]"
             >
               <option value="">Select Material</option>
               {materials.map((m) => (
@@ -218,7 +218,7 @@ export const RecordReturnModal: React.FC<RecordReturnModalProps> = ({
                   value={quantityReturned}
                   onChange={(e) => setQuantityReturned(e.target.value)}
                   placeholder="0"
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#01875F]"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#18b892]"
                 />
                 <span className="text-[11px] text-slate-400 shrink-0">
                   {selectedMat?.unit_of_measure || 'units'}
@@ -236,7 +236,7 @@ export const RecordReturnModal: React.FC<RecordReturnModalProps> = ({
                 required
                 value={returnDate}
                 onChange={(e) => setReturnDate(e.target.value)}
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#01875F]"
+                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#18b892]"
               />
             </div>
           </div>
@@ -249,7 +249,7 @@ export const RecordReturnModal: React.FC<RecordReturnModalProps> = ({
                 value={condition}
                 onChange={(e) => setCondition(e.target.value)}
                 placeholder="e.g. Good / Unopened bags"
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#01875F]"
+                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#18b892]"
               />
             </div>
 
@@ -263,7 +263,7 @@ export const RecordReturnModal: React.FC<RecordReturnModalProps> = ({
                 value={destination}
                 onChange={(e) => setDestination(e.target.value)}
                 placeholder="e.g. Central Warehouse / Bay 3"
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#01875F]"
+                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#18b892]"
               />
             </div>
           </div>
@@ -275,7 +275,7 @@ export const RecordReturnModal: React.FC<RecordReturnModalProps> = ({
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="Reason for return, surplus balance confirmation..."
-              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#01875F]"
+              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#18b892]"
             />
           </div>
 
@@ -291,7 +291,7 @@ export const RecordReturnModal: React.FC<RecordReturnModalProps> = ({
             <button
               type="submit"
               disabled={isSubmitting}
-              className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#01875F] text-white hover:bg-[#016f4e] text-xs font-semibold rounded-lg shadow-2xs transition-colors cursor-pointer disabled:opacity-60"
+              className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#18b892] text-white hover:bg-[#016f4e] text-xs font-semibold rounded-lg shadow-2xs transition-colors cursor-pointer disabled:opacity-60"
             >
               {isSubmitting ? (
                 <>

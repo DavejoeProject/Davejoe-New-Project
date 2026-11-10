@@ -186,30 +186,32 @@ export const WorkforceModule: React.FC<WorkforceModuleProps> = ({ onBackToDashbo
 
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2 mb-1">
-              <span className="text-[10.5px] font-bold uppercase tracking-wider text-[#18b892]">
+            <div className="flex items-center gap-2 mb-1.5">
+              <span className="text-xs font-bold uppercase tracking-wider text-[#18b892]">
                 ENTERPRISE STAFF &amp; PERSONNEL ROSTER
               </span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight flex items-center gap-2.5">
-              <Users className="w-7 h-7 text-[#18b892]" />
+            <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-[#18b892]/10 text-[#18b892] flex items-center justify-center shrink-0 border border-[#18b892]/20">
+                <Users className="w-5 h-5" />
+              </div>
               <span>Staff Directory</span>
             </h1>
-            <p className="text-xs sm:text-sm text-slate-500 mt-1">
-              Complete visibility across all nine roles, administrative staff, site supervisors, artisans, and deployment records.
+            <p className="text-sm text-slate-600 mt-1 max-w-2xl leading-relaxed">
+              Complete operational directory across all nine roles, administrative personnel, site supervisors, artisans, and active project assignments.
             </p>
           </div>
 
-          <div className="flex items-center gap-2.5 self-start sm:self-center">
+          <div className="flex items-center gap-2.5 self-start sm:self-center shrink-0">
             <button
               type="button"
               onClick={() => fetchPersonnel(true)}
               disabled={isRefreshing}
-              className="inline-flex items-center gap-1.5 px-3 py-2 bg-white hover:bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-700 shadow-2xs transition-colors cursor-pointer disabled:opacity-60"
+              className="inline-flex items-center gap-2 px-3.5 py-2.5 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 shadow-2xs transition-colors cursor-pointer disabled:opacity-60 whitespace-nowrap"
               title="Refresh personnel from database"
             >
               <RefreshCw
-                className={`w-3.5 h-3.5 text-[#18b892] ${isRefreshing ? 'animate-spin' : ''}`}
+                className={`w-4 h-4 text-[#18b892] shrink-0 ${isRefreshing ? 'animate-spin' : ''}`}
               />
               <span>{isRefreshing ? 'Refreshing...' : 'Refresh'}</span>
             </button>
@@ -217,10 +219,10 @@ export const WorkforceModule: React.FC<WorkforceModuleProps> = ({ onBackToDashbo
             <button
               type="button"
               onClick={() => setIsAddModalOpen(true)}
-              className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#18b892] hover:bg-[#139c7b] text-white text-xs font-bold rounded-lg shadow-sm transition-colors cursor-pointer"
+              className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#18b892] hover:bg-[#139c7b] text-white text-sm font-bold rounded-xl shadow-xs transition-all cursor-pointer whitespace-nowrap"
             >
-              <Plus className="w-4 h-4 stroke-[2.5]" />
-              <span>+ Register Staff</span>
+              <Plus className="w-4 h-4 stroke-[2.5] shrink-0" />
+              <span>Register Staff</span>
             </button>
           </div>
         </div>
@@ -230,68 +232,68 @@ export const WorkforceModule: React.FC<WorkforceModuleProps> = ({ onBackToDashbo
       <WorkforceNavTabs activeTab="directory" />
 
       {/* Summary KPI Cards Row */}
-      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 sm:gap-4">
-        <div className="bg-white rounded-xl border border-slate-200/80 p-4 shadow-2xs">
-          <span className="text-[10.5px] text-slate-400 font-bold uppercase tracking-wider block">
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3.5 sm:gap-4">
+        <div className="bg-white rounded-xl border border-slate-200/90 p-4 sm:p-5 shadow-2xs">
+          <span className="text-xs text-slate-500 font-bold uppercase tracking-wider block">
             TOTAL STAFF
           </span>
-          <span className="text-2xl font-bold text-slate-900 mt-1 block font-mono">
+          <span className="text-3xl sm:text-4xl font-bold text-slate-900 mt-1.5 block font-mono tracking-tight">
             {metrics.totalPersonnel}
           </span>
-          <span className="text-[11px] text-slate-500">Across all 9 roles</span>
+          <span className="text-xs text-slate-500 font-medium mt-0.5 block">Across all 9 roles</span>
         </div>
 
-        <div className="bg-white rounded-xl border border-slate-200/80 p-4 shadow-2xs">
-          <span className="text-[10.5px] text-slate-400 font-bold uppercase tracking-wider block">
+        <div className="bg-white rounded-xl border border-slate-200/90 p-4 sm:p-5 shadow-2xs">
+          <span className="text-xs text-slate-500 font-bold uppercase tracking-wider block">
             ACTIVE STAFF
           </span>
-          <span className="text-2xl font-bold text-emerald-700 mt-1 block font-mono">
+          <span className="text-3xl sm:text-4xl font-bold text-emerald-700 mt-1.5 block font-mono tracking-tight">
             {metrics.activePersonnel}
           </span>
-          <span className="text-[11px] text-emerald-600 font-medium">Verified active</span>
+          <span className="text-xs text-emerald-600 font-medium mt-0.5 block">Verified active</span>
         </div>
 
-        <div className="bg-white rounded-xl border border-slate-200/80 p-4 shadow-2xs">
-          <span className="text-[10.5px] text-slate-400 font-bold uppercase tracking-wider block">
+        <div className="bg-white rounded-xl border border-slate-200/90 p-4 sm:p-5 shadow-2xs">
+          <span className="text-xs text-slate-500 font-bold uppercase tracking-wider block">
             ON SITE DEPLOYED
           </span>
-          <span className="text-2xl font-bold text-blue-700 mt-1 block font-mono">
+          <span className="text-3xl sm:text-4xl font-bold text-blue-700 mt-1.5 block font-mono tracking-tight">
             {metrics.assignedPersonnel}
           </span>
-          <span className="text-[11px] text-blue-600 font-medium">Assigned to projects</span>
+          <span className="text-xs text-blue-600 font-medium mt-0.5 block">Assigned to projects</span>
         </div>
 
-        <div className="bg-white rounded-xl border border-slate-200/80 p-4 shadow-2xs">
-          <span className="text-[10.5px] text-slate-400 font-bold uppercase tracking-wider block">
+        <div className="bg-white rounded-xl border border-slate-200/90 p-4 sm:p-5 shadow-2xs">
+          <span className="text-xs text-slate-500 font-bold uppercase tracking-wider block">
             AVAILABLE
           </span>
-          <span className="text-2xl font-bold text-[#18b892] mt-1 block font-mono">
+          <span className="text-3xl sm:text-4xl font-bold text-[#18b892] mt-1.5 block font-mono tracking-tight">
             {metrics.availablePersonnel}
           </span>
-          <span className="text-[11px] text-slate-500">Ready for assignment</span>
+          <span className="text-xs text-slate-500 font-medium mt-0.5 block">Ready for assignment</span>
         </div>
 
-        <div className="bg-white rounded-xl border border-slate-200/80 p-4 shadow-2xs col-span-2 sm:col-span-1">
-          <span className="text-[10.5px] text-slate-400 font-bold uppercase tracking-wider block">
+        <div className="bg-white rounded-xl border border-slate-200/90 p-4 sm:p-5 shadow-2xs col-span-2 sm:col-span-1">
+          <span className="text-xs text-slate-500 font-bold uppercase tracking-wider block">
             SUSPENDED
           </span>
-          <span className="text-2xl font-bold text-rose-600 mt-1 block font-mono">
+          <span className="text-3xl sm:text-4xl font-bold text-rose-600 mt-1.5 block font-mono tracking-tight">
             {metrics.suspendedPersonnel}
           </span>
-          <span className="text-[11px] text-rose-500">Access revoked</span>
+          <span className="text-xs text-rose-500 font-medium mt-0.5 block">Access revoked</span>
         </div>
       </div>
 
       {/* Role Distribution Bar */}
-      <div className="bg-white p-4 rounded-xl border border-slate-200/80 shadow-2xs">
-        <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-2.5">
-          Role Breakdown ({ALL_NINE_ROLES.length} System Roles)
+      <div className="bg-white p-4 sm:p-5 rounded-xl border border-slate-200/90 shadow-2xs">
+        <span className="text-xs font-bold uppercase tracking-wider text-slate-500 block mb-3">
+          Filter by Role ({ALL_NINE_ROLES.length} System Roles)
         </span>
         <div className="flex flex-wrap gap-2">
           <button
             type="button"
             onClick={() => setRoleFilter('all')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+            className={`px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap ${
               roleFilter === 'all'
                 ? 'bg-slate-900 text-white shadow-xs'
                 : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
@@ -307,7 +309,7 @@ export const WorkforceModule: React.FC<WorkforceModuleProps> = ({ onBackToDashbo
                 key={r.slug}
                 type="button"
                 onClick={() => setRoleFilter(r.slug)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer border flex items-center gap-1.5 ${
+                className={`px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer border flex items-center gap-2 whitespace-nowrap ${
                   isSelected
                     ? 'bg-[#18b892] text-white border-[#18b892] shadow-xs'
                     : 'bg-white hover:bg-slate-50 text-slate-700 border-slate-200'
@@ -315,7 +317,7 @@ export const WorkforceModule: React.FC<WorkforceModuleProps> = ({ onBackToDashbo
               >
                 <span>{r.name}</span>
                 <span
-                  className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
+                  className={`text-xs px-2 py-0.5 rounded-full font-mono font-bold ${
                     isSelected ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-600'
                   }`}
                 >
@@ -328,27 +330,27 @@ export const WorkforceModule: React.FC<WorkforceModuleProps> = ({ onBackToDashbo
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="bg-white p-4 rounded-xl border border-slate-200/80 shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-3">
+      <div className="bg-white p-4 sm:p-5 rounded-xl border border-slate-200/90 shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-3.5">
         {/* Search */}
         <div className="relative flex-1 max-w-md">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <Search className="w-4.5 h-4.5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           <input
             type="text"
-            placeholder="Search by name, email, phone, trade, role, code or project..."
+            placeholder="Search by name, email, phone, trade, role, or project..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full h-9 pl-9 pr-3.5 bg-slate-50 hover:bg-slate-100/70 focus:bg-white border border-slate-200 rounded-lg text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#18b892] transition-all"
+            className="w-full h-10 pl-10 pr-4 bg-slate-50 hover:bg-slate-100/70 focus:bg-white border border-slate-200 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#18b892] focus:ring-1 focus:ring-[#18b892] transition-all"
           />
         </div>
 
         {/* Filters */}
-        <div className="flex flex-wrap items-center gap-2.5">
+        <div className="flex flex-wrap items-center gap-3">
           {/* Quick Status Buttons */}
-          <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-lg">
+          <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl">
             <button
               type="button"
               onClick={() => setStatusFilter('all')}
-              className={`px-2.5 py-1 text-xs font-bold rounded-md transition-colors cursor-pointer ${
+              className={`px-3 py-1.5 text-xs sm:text-sm font-bold rounded-lg transition-colors cursor-pointer ${
                 statusFilter === 'all' ? 'bg-white text-slate-900 shadow-2xs' : 'text-slate-600 hover:text-slate-900'
               }`}
             >
@@ -357,7 +359,7 @@ export const WorkforceModule: React.FC<WorkforceModuleProps> = ({ onBackToDashbo
             <button
               type="button"
               onClick={() => setStatusFilter('active')}
-              className={`px-2.5 py-1 text-xs font-bold rounded-md transition-colors cursor-pointer ${
+              className={`px-3 py-1.5 text-xs sm:text-sm font-bold rounded-lg transition-colors cursor-pointer ${
                 statusFilter === 'active' ? 'bg-emerald-600 text-white shadow-2xs' : 'text-slate-600 hover:text-slate-900'
               }`}
             >
@@ -366,7 +368,7 @@ export const WorkforceModule: React.FC<WorkforceModuleProps> = ({ onBackToDashbo
             <button
               type="button"
               onClick={() => setStatusFilter('suspended')}
-              className={`px-2.5 py-1 text-xs font-bold rounded-md transition-colors cursor-pointer ${
+              className={`px-3 py-1.5 text-xs sm:text-sm font-bold rounded-lg transition-colors cursor-pointer ${
                 statusFilter === 'suspended' ? 'bg-rose-600 text-white shadow-2xs' : 'text-slate-600 hover:text-slate-900'
               }`}
             >
@@ -377,11 +379,11 @@ export const WorkforceModule: React.FC<WorkforceModuleProps> = ({ onBackToDashbo
           {/* Trade Filter */}
           {uniqueTrades.length > 0 && (
             <div className="flex items-center gap-1.5">
-              <span className="text-xs font-semibold text-slate-500 shrink-0">Trade:</span>
+              <span className="text-xs sm:text-sm font-semibold text-slate-500 shrink-0">Trade:</span>
               <select
                 value={tradeFilter}
                 onChange={(e) => setTradeFilter(e.target.value)}
-                className="h-9 px-2.5 bg-white border border-slate-200 rounded-lg text-xs font-medium text-slate-800 focus:outline-none focus:border-[#18b892] cursor-pointer"
+                className="h-10 px-3 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-medium text-slate-800 focus:outline-none focus:border-[#18b892] cursor-pointer"
               >
                 <option value="all">All Trades</option>
                 {uniqueTrades.map((t) => (
@@ -395,13 +397,13 @@ export const WorkforceModule: React.FC<WorkforceModuleProps> = ({ onBackToDashbo
 
           {/* Deployment Filter */}
           <div className="flex items-center gap-1.5">
-            <span className="text-xs font-semibold text-slate-500 shrink-0">Deployment:</span>
+            <span className="text-xs sm:text-sm font-semibold text-slate-500 shrink-0">Deployment:</span>
             <select
               value={assignmentFilter}
               onChange={(e) =>
                 setAssignmentFilter(e.target.value as 'all' | 'assigned' | 'available')
               }
-              className="h-9 px-2.5 bg-white border border-slate-200 rounded-lg text-xs font-medium text-slate-800 focus:outline-none focus:border-[#18b892] cursor-pointer"
+              className="h-10 px-3 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-medium text-slate-800 focus:outline-none focus:border-[#18b892] cursor-pointer"
             >
               <option value="all">All Staff</option>
               <option value="assigned">Assigned to Project</option>
@@ -427,7 +429,7 @@ export const WorkforceModule: React.FC<WorkforceModuleProps> = ({ onBackToDashbo
             <AlertCircle className="w-6 h-6" />
           </div>
           <h2 className="text-base font-bold text-slate-900">Unable to load staff records.</h2>
-          <p className="text-xs text-slate-500 mt-1 max-w-md mx-auto leading-relaxed">
+          <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-md mx-auto leading-relaxed">
             {errorMessage}
           </p>
           <div className="mt-5">
@@ -466,18 +468,18 @@ export const WorkforceModule: React.FC<WorkforceModuleProps> = ({ onBackToDashbo
           </div>
         </div>
       ) : (
-        <div className="bg-white rounded-xl border border-slate-200/80 shadow-2xs overflow-hidden">
+        <div className="bg-white rounded-xl border border-slate-200/90 shadow-2xs overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse text-xs">
+            <table className="w-full text-left border-collapse text-sm">
               <thead>
-                <tr className="bg-slate-50/75 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider text-slate-500">
-                  <th className="py-3.5 px-4 font-bold">Personnel</th>
-                  <th className="py-3.5 px-3 font-bold">Role &amp; Department</th>
-                  <th className="py-3.5 px-3 font-bold">Contact Details</th>
-                  <th className="py-3.5 px-3 font-bold">Status</th>
-                  <th className="py-3.5 px-3 font-bold">Current Deployment</th>
-                  <th className="py-3.5 px-3 font-bold">Staff ID / Code</th>
-                  <th className="py-3.5 px-4 font-bold text-right">Actions</th>
+                <tr className="bg-slate-50/80 border-b border-slate-200 text-xs font-bold uppercase tracking-wider text-slate-500">
+                  <th className="py-3.5 px-4 font-bold min-w-[200px]">Personnel</th>
+                  <th className="py-3.5 px-3 font-bold min-w-[180px]">Role &amp; Department</th>
+                  <th className="py-3.5 px-3 font-bold min-w-[150px]">Contact Details</th>
+                  <th className="py-3.5 px-3 font-bold min-w-[110px]">Status</th>
+                  <th className="py-3.5 px-3 font-bold min-w-[180px]">Current Deployment</th>
+                  <th className="py-3.5 px-3 font-bold min-w-[130px]">Staff Code</th>
+                  <th className="py-3.5 px-4 font-bold text-right min-w-[130px]">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -496,20 +498,20 @@ export const WorkforceModule: React.FC<WorkforceModuleProps> = ({ onBackToDashbo
                       }}
                     >
                       {/* Name & Avatar */}
-                      <td className="py-3.5 px-4">
+                      <td className="py-4 px-4">
                         <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-full bg-emerald-50 text-[#18b892] flex items-center justify-center font-bold text-xs shrink-0 border border-[#18b892]/20">
+                          <div className="w-10 h-10 rounded-xl bg-[#18b892]/10 text-[#18b892] flex items-center justify-center font-bold text-sm shrink-0 border border-[#18b892]/25">
                             {person.fullName.charAt(0).toUpperCase()}
                           </div>
                           <div className="min-w-0">
                             <div className="font-bold text-slate-900 group-hover:text-[#18b892] transition-colors truncate">
                               {person.fullName}
                             </div>
-                            <div className="text-[11px] text-slate-500 flex items-center gap-1.5 truncate">
+                            <div className="text-xs text-slate-500 flex items-center gap-1.5 truncate mt-0.5">
                               {person.email ? (
-                                <span className="flex items-center gap-1 truncate text-slate-500">
-                                  <Mail className="w-3 h-3 text-slate-400 shrink-0" />
-                                  {person.email}
+                                <span className="flex items-center gap-1.5 truncate text-slate-600">
+                                  <Mail className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                                  <span className="truncate">{person.email}</span>
                                 </span>
                               ) : (
                                 <span className="text-slate-400 italic">No email record</span>
@@ -520,26 +522,26 @@ export const WorkforceModule: React.FC<WorkforceModuleProps> = ({ onBackToDashbo
                       </td>
 
                       {/* Role & Department */}
-                      <td className="py-3.5 px-3">
+                      <td className="py-4 px-3">
                         <div className="space-y-1">
                           <span
-                            className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${roleCfg.badgeClasses}`}
+                            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold border whitespace-nowrap ${roleCfg.badgeClasses}`}
                           >
-                            <Shield className="w-3 h-3 shrink-0" />
-                            {roleCfg.name}
+                            <Shield className="w-3.5 h-3.5 shrink-0" />
+                            <span>{roleCfg.name}</span>
                           </span>
-                          <div className="text-[10.5px] text-slate-400 font-medium">
+                          <div className="text-xs text-slate-500 font-medium">
                             {person.department} • {person.trade}
                           </div>
                         </div>
                       </td>
 
                       {/* Contact */}
-                      <td className="py-3.5 px-3">
-                        <div className="space-y-0.5 font-mono text-[11px] text-slate-700">
+                      <td className="py-4 px-3">
+                        <div className="font-mono text-xs text-slate-700 whitespace-nowrap">
                           {person.phone ? (
-                            <div className="flex items-center gap-1 text-slate-700">
-                              <Phone className="w-3 h-3 text-slate-400 shrink-0" />
+                            <div className="flex items-center gap-1.5 text-slate-700">
+                              <Phone className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                               <span>{person.phone}</span>
                             </div>
                           ) : (
@@ -549,9 +551,9 @@ export const WorkforceModule: React.FC<WorkforceModuleProps> = ({ onBackToDashbo
                       </td>
 
                       {/* Status */}
-                      <td className="py-3.5 px-3">
+                      <td className="py-4 px-3">
                         <span
-                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10.5px] font-bold border capitalize ${statusBadge(
+                          className={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold border capitalize whitespace-nowrap ${statusBadge(
                             person.status
                           )}`}
                         >
@@ -560,10 +562,10 @@ export const WorkforceModule: React.FC<WorkforceModuleProps> = ({ onBackToDashbo
                       </td>
 
                       {/* Current Deployment */}
-                      <td className="py-3.5 px-3">
+                      <td className="py-4 px-3">
                         {activeAssign ? (
                           <div className="flex items-center gap-1.5">
-                            <span className="font-mono text-[11px] font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded">
+                            <span className="font-mono text-xs font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded whitespace-nowrap">
                               {activeAssign.projects?.project_code || 'PRJ'}
                             </span>
                             <span className="font-medium text-slate-900 truncate max-w-[150px]">
@@ -571,37 +573,37 @@ export const WorkforceModule: React.FC<WorkforceModuleProps> = ({ onBackToDashbo
                             </span>
                           </div>
                         ) : (
-                          <span className="inline-block px-2 py-0.5 rounded text-[10.5px] font-medium bg-slate-100 text-slate-600 border border-slate-200">
+                          <span className="inline-block px-2.5 py-1 rounded-md text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200 whitespace-nowrap">
                             Available
                           </span>
                         )}
                       </td>
 
                       {/* Workforce Code */}
-                      <td className="py-3.5 px-3">
+                      <td className="py-4 px-3">
                         {person.workforceCode ? (
-                          <span className="font-mono text-xs font-bold text-slate-700 bg-slate-100 px-2 py-0.5 rounded border border-slate-200/80">
+                          <span className="font-mono text-xs font-bold text-slate-700 bg-slate-100 px-2.5 py-1 rounded-lg border border-slate-200 whitespace-nowrap">
                             {person.workforceCode}
                           </span>
                         ) : (
-                          <span className="text-[11px] text-slate-400 italic">Office Account</span>
+                          <span className="text-xs text-slate-400 italic">Office Account</span>
                         )}
                       </td>
 
                       {/* Actions */}
-                      <td className="py-3.5 px-4 text-right" onClick={(e) => e.stopPropagation()}>
+                      <td className="py-4 px-4 text-right" onClick={(e) => e.stopPropagation()}>
                         <div className="flex items-center justify-end gap-1.5">
                           {person.workforceId ? (
                             <button
                               type="button"
                               onClick={() => navigate(`${baseStaffPath}/${person.workforceId}`)}
-                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-[#18b892]/10 hover:bg-[#18b892]/20 text-[#18b892] text-[11px] font-bold transition-colors cursor-pointer border border-[#18b892]/20"
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#18b892]/10 hover:bg-[#18b892] hover:text-white text-[#18b892] text-xs font-bold transition-all cursor-pointer border border-[#18b892]/25 whitespace-nowrap"
                               title="Open Staff Control Centre"
                             >
                               <span>Control Centre</span>
                             </button>
                           ) : (
-                            <span className="text-[10px] text-slate-400 font-medium px-2 py-1 bg-slate-50 rounded">
+                            <span className="text-xs text-slate-400 font-medium px-2 py-1 bg-slate-50 rounded whitespace-nowrap">
                               System User
                             </span>
                           )}

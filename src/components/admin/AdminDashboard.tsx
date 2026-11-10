@@ -273,7 +273,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ initialTab }) =>
                 <span className="font-bold text-slate-900 tracking-tight text-[15px] leading-tight truncate">
                   Davejoe
                 </span>
-                <span className="text-[10px] font-semibold text-[#01875F] tracking-wider uppercase leading-tight truncate">
+                <span className="text-[10px] font-semibold text-[#18b892] tracking-wider uppercase leading-tight truncate">
                   Administration
                 </span>
               </div>
@@ -327,7 +327,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ initialTab }) =>
                 )}
 
                 {(!isSectionCollapsed || sidebarCollapsed) && (
-                  <div className="space-y-0.5">
+                  <div className="space-y-1">
                     {section.items.map((item) => {
                       const Icon = item.icon;
                       const isActive = activeTab === item.key;
@@ -337,20 +337,20 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ initialTab }) =>
                           type="button"
                           onClick={() => handleSelectTab(item.key)}
                           title={sidebarCollapsed && !isMobile ? item.label : undefined}
-                          className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold transition-colors cursor-pointer text-left ${
+                          className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all cursor-pointer text-left ${
                             isActive
-                              ? 'bg-[#01875F] text-white shadow-xs'
+                              ? 'bg-[#18b892] text-white shadow-xs font-semibold'
                               : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                           } ${sidebarCollapsed && !isMobile ? 'justify-center px-0' : ''}`}
                         >
-                          <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : 'text-slate-400'}`} />
+                          <Icon className={`w-4.5 h-4.5 shrink-0 ${isActive ? 'text-white' : 'text-slate-400 group-hover:text-slate-600'}`} />
                           {(!sidebarCollapsed || isMobile) && (
                             <div className="flex items-center justify-between flex-1 min-w-0">
                               <span className="truncate">{item.label}</span>
                               {item.count != null && (
                                 <span
-                                  className={`ml-2 text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
-                                    isActive ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'
+                                  className={`ml-2 text-xs font-mono px-2 py-0.5 rounded-full font-bold ${
+                                    isActive ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-600'
                                   }`}
                                 >
                                   {item.count}
@@ -370,24 +370,24 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ initialTab }) =>
       </div>
 
       {/* User Account / Sign Out */}
-      <div className="p-3 border-t border-slate-100 space-y-2 bg-slate-50/50">
+      <div className="p-3.5 border-t border-slate-100 space-y-2 bg-slate-50/50">
         {!sidebarCollapsed || isMobile ? (
-          <div className="px-3 py-2 bg-white rounded-xl border border-slate-200/80 flex items-center gap-2.5 shadow-2xs">
-            <div className="w-7 h-7 rounded-full bg-[#01875F]/10 text-[#01875F] flex items-center justify-center text-xs font-bold shrink-0">
+          <div className="px-3.5 py-2.5 bg-white rounded-xl border border-slate-200/90 flex items-center gap-3 shadow-2xs">
+            <div className="w-8 h-8 rounded-full bg-[#18b892]/10 text-[#18b892] flex items-center justify-center text-sm font-bold shrink-0 border border-[#18b892]/20">
               {adminDisplayName[0].toUpperCase()}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-xs font-semibold text-slate-800 truncate leading-tight">
+              <p className="text-sm font-bold text-slate-800 truncate leading-tight">
                 {adminDisplayName}
               </p>
-              <p className="text-[10px] text-[#01875F] font-medium truncate leading-tight mt-0.5">
+              <p className="text-xs text-[#18b892] font-semibold truncate leading-tight mt-0.5">
                 Admin Coordinator
               </p>
             </div>
           </div>
         ) : (
           <div className="flex justify-center py-1">
-            <div className="w-7 h-7 rounded-full bg-[#01875F]/10 text-[#01875F] flex items-center justify-center text-xs font-bold">
+            <div className="w-8 h-8 rounded-full bg-[#18b892]/10 text-[#18b892] flex items-center justify-center text-sm font-bold border border-[#18b892]/20">
               {adminDisplayName[0].toUpperCase()}
             </div>
           </div>
@@ -399,9 +399,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ initialTab }) =>
           title="Sign Out"
           className={`w-full flex items-center ${
             sidebarCollapsed && !isMobile ? 'justify-center' : 'gap-2.5'
-          } px-3 py-2 rounded-xl text-xs font-semibold text-red-600 hover:bg-red-50 transition-colors cursor-pointer text-left`}
+          } px-3.5 py-2.5 rounded-xl text-sm font-semibold text-red-600 hover:bg-red-50 transition-colors cursor-pointer text-left`}
         >
-          <LogOut className="w-4 h-4 text-red-500 shrink-0" />
+          <LogOut className="w-4.5 h-4.5 text-red-500 shrink-0" />
           {(!sidebarCollapsed || isMobile) && <span>Sign Out</span>}
         </button>
       </div>
@@ -409,12 +409,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ initialTab }) =>
   );
 
   return (
-    <div className="min-h-screen bg-[#F8FAFB] flex flex-col md:flex-row text-slate-800 font-sans selection:bg-[#01875F]/20 selection:text-[#01875F]">
+    <div className="min-h-screen bg-[#F7FAF9] flex flex-col md:flex-row text-slate-800 font-sans selection:bg-[#18b892]/20 selection:text-[#18b892]">
       {/* Desktop Collapsible Sidebar */}
       <aside
         className={`hidden md:flex ${
           sidebarCollapsed ? 'w-20' : 'w-64'
-        } bg-white border-r border-slate-200/90 flex-col shrink-0 transition-all duration-200 h-screen sticky top-0`}
+        } bg-white border-r border-slate-200/90 flex-col shrink-0 transition-all duration-200 h-screen sticky top-0 z-30`}
       >
         {renderSidebarContent(false)}
       </aside>
@@ -435,18 +435,18 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ initialTab }) =>
       {/* MAIN CONTENT AREA */}
       <main className="flex-1 flex flex-col min-w-0 overflow-y-auto">
         {/* Top Header */}
-        <header className="h-16 px-4 sm:px-8 border-b border-slate-200/80 bg-white flex items-center justify-between shrink-0">
-          <div className="flex items-center gap-3">
+        <header className="h-16 px-4 sm:px-8 border-b border-slate-200/80 bg-white flex items-center justify-between shrink-0 sticky top-0 z-20">
+          <div className="flex items-center gap-3 min-w-0">
             <button
               type="button"
               onClick={() => setMobileDrawerOpen(true)}
-              className="md:hidden p-2 -ml-1 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg cursor-pointer"
+              className="md:hidden p-2 -ml-1 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg cursor-pointer shrink-0"
               aria-label="Open navigation menu"
             >
               <Menu className="w-5 h-5" />
             </button>
-            <div>
-              <h1 className="text-base font-bold text-slate-900 tracking-tight">
+            <div className="min-w-0">
+              <h1 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight truncate">
                 {activeTab === 'dashboard' && 'Admin Dashboard'}
                 {activeTab === 'users' && 'User Management'}
                 {activeTab === 'roles' && 'Roles & Permissions'}
@@ -463,33 +463,33 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ initialTab }) =>
                 {activeTab === 'materials' && 'Materials Directory'}
                 {activeTab === 'inventory' && 'Commercial Inventory & Sales'}
               </h1>
-            <p className="text-xs text-slate-500 hidden sm:block">
-              {activeTab === 'dashboard' && 'Manage users, access, system configuration and administrative operations.'}
-              {activeTab === 'users' && 'Manage users, profiles, roles and system access.'}
-              {activeTab === 'roles' && 'Role-Based Access Control configuration, permissions and security boundaries.'}
-              {activeTab === 'audit-logs' && 'Read-only security logs and chronological operational history.'}
-              {activeTab === 'settings' && 'System configuration, live Supabase connectivity and diagnostics.'}
-              {activeTab === 'workforce' && 'All registered persons, roles, and profiles across Davejoe.'}
-              {activeTab === 'projects' && 'Enterprise construction and civil engineering projects.'}
-              {activeTab === 'clients' && 'Corporate and residential client accounts.'}
-              {activeTab === 'tasks' && 'Issue mandatory specifications, PPE, deliverables, and verify task handovers.'}
-              {activeTab === 'tools' && 'Track tool assignments, dispatch custody, returns, and damage condition audits.'}
-              {activeTab === 'remnants' && 'Account for surplus materials on site, transfer custody, and verify store returns.'}
-              {activeTab === 'service-requests' && 'Register and manage walk-in customer service requests, site visits, and project conversion.'}
-              {activeTab === 'materials' && 'Comprehensive catalogue of construction materials, prices, specifications, and suppliers.'}
-              {activeTab === 'inventory' && 'Commercial inventory, sales checkout, material issuance tracking, and Rehab Global paints.'}
-            </p>
+              <p className="text-xs text-slate-500 hidden sm:block truncate">
+                {activeTab === 'dashboard' && 'Manage staff, projects, materials, commercial sales, and administrative operations.'}
+                {activeTab === 'users' && 'Manage users, profiles, roles and system access.'}
+                {activeTab === 'roles' && 'Role-Based Access Control configuration, permissions and security boundaries.'}
+                {activeTab === 'audit-logs' && 'Read-only security logs and chronological operational history.'}
+                {activeTab === 'settings' && 'System configuration, live Supabase connectivity and diagnostics.'}
+                {activeTab === 'workforce' && 'All registered persons, roles, and profiles across Davejoe.'}
+                {activeTab === 'projects' && 'Enterprise construction and civil engineering projects.'}
+                {activeTab === 'clients' && 'Corporate and residential client accounts.'}
+                {activeTab === 'tasks' && 'Issue mandatory specifications, PPE, deliverables, and verify task handovers.'}
+                {activeTab === 'tools' && 'Track tool assignments, dispatch custody, returns, and damage condition audits.'}
+                {activeTab === 'remnants' && 'Account for surplus materials on site, transfer custody, and verify store returns.'}
+                {activeTab === 'service-requests' && 'Register and manage walk-in customer service requests, site visits, and project conversion.'}
+                {activeTab === 'materials' && 'Comprehensive catalogue of construction materials, prices, specifications, and suppliers.'}
+                {activeTab === 'inventory' && 'Commercial inventory, sales checkout, material issuance tracking, and Rehab Global paints.'}
+              </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2.5 sm:gap-3">
+          <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
             <button
               type="button"
               onClick={() => setIsAddMaterialModalOpen(true)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#18b892] hover:bg-[#139c7b] text-white rounded-lg text-xs font-bold transition-colors shadow-2xs cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#18b892] hover:bg-[#139c7b] text-white rounded-xl text-xs sm:text-sm font-bold transition-all shadow-2xs cursor-pointer whitespace-nowrap"
               title="Add New Material to Master Directory"
             >
-              <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+              <Plus className="w-4 h-4 stroke-[2.5] shrink-0" />
               <span className="hidden sm:inline">Add Material</span>
               <span className="sm:hidden">Material</span>
             </button>
@@ -499,13 +499,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ initialTab }) =>
               onClick={handleRefresh}
               disabled={isRefreshing}
               title="Refresh Records"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-lg text-xs font-semibold transition-colors shadow-2xs cursor-pointer disabled:opacity-60"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl text-xs sm:text-sm font-semibold transition-colors shadow-2xs cursor-pointer disabled:opacity-60 whitespace-nowrap"
             >
-              <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-[#01875F]' : ''}`} />
+              <RefreshCw className={`w-3.5 h-3.5 shrink-0 ${isRefreshing ? 'animate-spin text-[#18b892]' : 'text-slate-500'}`} />
               <span className="hidden sm:inline">Refresh</span>
             </button>
 
-            <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-50 text-[#01875F] border border-emerald-200">
+            <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-50 text-[#18b892] border border-[#18b892]/25 whitespace-nowrap">
               Admin Active
             </span>
           </div>
@@ -523,85 +523,85 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ initialTab }) =>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div
                   onClick={() => handleSelectTab('workforce')}
-                  className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-2xs hover:border-[#18b892]/50 transition-colors cursor-pointer group"
+                  className="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-2xs hover:border-[#18b892]/60 hover:shadow-xs transition-all cursor-pointer group"
                 >
                   <div className="flex items-center justify-between mb-3">
-                    <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider group-hover:text-[#18b892] transition-colors">
+                    <span className="text-xs sm:text-sm font-bold text-slate-500 uppercase tracking-wider group-hover:text-[#18b892] transition-colors">
                       Registered Staff
                     </span>
-                    <div className="w-8 h-8 rounded-lg bg-teal-50 text-[#18b892] flex items-center justify-center">
-                      <Users className="w-4 h-4" />
+                    <div className="w-9 h-9 rounded-xl bg-teal-50 text-[#18b892] flex items-center justify-center shrink-0 border border-[#18b892]/20">
+                      <Users className="w-4.5 h-4.5" />
                     </div>
                   </div>
-                  <div className="text-2xl font-bold text-slate-900">
+                  <div className="text-3xl font-bold font-mono tracking-tight text-slate-900">
                     {isLoading ? '...' : metrics.workforceCount}
                   </div>
-                  <p className="text-[11px] text-slate-400 mt-1 flex items-center justify-between">
-                    <span>Staff directory across 9 roles</span>
-                    <ArrowRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-[#18b892] group-hover:translate-x-0.5 transition-all" />
+                  <p className="text-xs sm:text-sm text-slate-500 mt-1.5 flex items-center justify-between">
+                    <span>Staff roster across 9 roles</span>
+                    <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-[#18b892] group-hover:translate-x-0.5 transition-all" />
                   </p>
                 </div>
 
                 <div
                   onClick={() => handleSelectTab('roles')}
-                  className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-2xs hover:border-[#01875F]/50 transition-colors cursor-pointer group"
+                  className="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-2xs hover:border-[#18b892]/60 hover:shadow-xs transition-all cursor-pointer group"
                 >
                   <div className="flex items-center justify-between mb-3">
-                    <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider group-hover:text-[#01875F] transition-colors">
+                    <span className="text-xs sm:text-sm font-bold text-slate-500 uppercase tracking-wider group-hover:text-[#18b892] transition-colors">
                       System Roles
                     </span>
-                    <div className="w-8 h-8 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center">
-                      <ShieldCheck className="w-4 h-4" />
+                    <div className="w-9 h-9 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center shrink-0 border border-purple-200/60">
+                      <ShieldCheck className="w-4.5 h-4.5" />
                     </div>
                   </div>
-                  <div className="text-2xl font-bold text-slate-900">
+                  <div className="text-3xl font-bold font-mono tracking-tight text-slate-900">
                     {isLoading ? '...' : metrics.rolesCount}
                   </div>
-                  <p className="text-[11px] text-slate-400 mt-1 flex items-center justify-between">
+                  <p className="text-xs sm:text-sm text-slate-500 mt-1.5 flex items-center justify-between">
                     <span>Configured RBAC roles</span>
-                    <ArrowRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-[#01875F] group-hover:translate-x-0.5 transition-all" />
+                    <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-[#18b892] group-hover:translate-x-0.5 transition-all" />
                   </p>
                 </div>
 
                 <div
                   onClick={() => handleSelectTab('audit-logs')}
-                  className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-2xs hover:border-[#01875F]/50 transition-colors cursor-pointer group"
+                  className="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-2xs hover:border-[#18b892]/60 hover:shadow-xs transition-all cursor-pointer group"
                 >
                   <div className="flex items-center justify-between mb-3">
-                    <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider group-hover:text-[#01875F] transition-colors">
+                    <span className="text-xs sm:text-sm font-bold text-slate-500 uppercase tracking-wider group-hover:text-[#18b892] transition-colors">
                       Audit Logs
                     </span>
-                    <div className="w-8 h-8 rounded-lg bg-emerald-50 text-[#01875F] flex items-center justify-center">
-                      <FileText className="w-4 h-4" />
+                    <div className="w-9 h-9 rounded-xl bg-emerald-50 text-[#18b892] flex items-center justify-center shrink-0 border border-[#18b892]/20">
+                      <FileText className="w-4.5 h-4.5" />
                     </div>
                   </div>
-                  <div className="text-2xl font-bold text-slate-900">
+                  <div className="text-3xl font-bold font-mono tracking-tight text-slate-900">
                     {isLoading ? '...' : metrics.recentAuditCount}
                   </div>
-                  <p className="text-[11px] text-slate-400 mt-1 flex items-center justify-between">
+                  <p className="text-xs sm:text-sm text-slate-500 mt-1.5 flex items-center justify-between">
                     <span>Logged audit events</span>
-                    <ArrowRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-[#01875F] group-hover:translate-x-0.5 transition-all" />
+                    <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-[#18b892] group-hover:translate-x-0.5 transition-all" />
                   </p>
                 </div>
 
                 <div
                   onClick={() => handleSelectTab('settings')}
-                  className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-2xs hover:border-[#01875F]/50 transition-colors cursor-pointer group"
+                  className="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-2xs hover:border-[#18b892]/60 hover:shadow-xs transition-all cursor-pointer group"
                 >
                   <div className="flex items-center justify-between mb-3">
-                    <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider group-hover:text-[#01875F] transition-colors">
+                    <span className="text-xs sm:text-sm font-bold text-slate-500 uppercase tracking-wider group-hover:text-[#18b892] transition-colors">
                       System Status
                     </span>
-                    <div className="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
-                      <Settings className="w-4 h-4" />
+                    <div className="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0 border border-amber-200/60">
+                      <Settings className="w-4.5 h-4.5" />
                     </div>
                   </div>
-                  <div className="text-2xl font-bold text-[#01875F]">
+                  <div className="text-3xl font-bold font-mono tracking-tight text-[#18b892]">
                     Online
                   </div>
-                  <p className="text-[11px] text-slate-400 mt-1 flex items-center justify-between">
+                  <p className="text-xs sm:text-sm text-slate-500 mt-1.5 flex items-center justify-between">
                     <span>Supabase RLS active</span>
-                    <ArrowRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-[#01875F] group-hover:translate-x-0.5 transition-all" />
+                    <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-[#18b892] group-hover:translate-x-0.5 transition-all" />
                   </p>
                 </div>
               </div>
@@ -610,44 +610,54 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ initialTab }) =>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div
                   onClick={() => handleSelectTab('service-requests')}
-                  className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-2xs hover:border-[#18b892]/60 hover:shadow-sm transition-all cursor-pointer group"
+                  className="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-2xs hover:border-[#18b892]/60 hover:shadow-xs transition-all cursor-pointer group flex flex-col justify-between"
                 >
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-bold text-slate-700 uppercase tracking-wider group-hover:text-[#18b892] transition-colors">
-                      Walk-In Service Requests
-                    </span>
-                    <div className="w-8 h-8 rounded-lg bg-teal-50 text-[#18b892] flex items-center justify-center">
-                      <FileQuestion className="w-4 h-4" />
+                  <div>
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-xs font-bold text-slate-500 uppercase tracking-wider group-hover:text-[#18b892] transition-colors">
+                        Walk-In Customer Intake
+                      </span>
+                      <div className="w-9 h-9 rounded-xl bg-teal-50 text-[#18b892] flex items-center justify-center shrink-0 border border-[#18b892]/20">
+                        <FileQuestion className="w-4.5 h-4.5" />
+                      </div>
                     </div>
+                    <h3 className="text-base font-bold text-slate-900 group-hover:text-[#18b892] transition-colors">
+                      Service Requests
+                    </h3>
+                    <p className="text-sm text-slate-600 mt-1 mb-4 leading-relaxed">
+                      Register walk-in client briefs, location, contact, budget, and route for Executive review and project conversion.
+                    </p>
                   </div>
-                  <p className="text-xs text-slate-500 mb-3">
-                    Register walk-in client briefs, location, contact, budget, and route for Executive review.
-                  </p>
-                  <div className="flex items-center text-xs font-bold text-[#18b892] gap-1 group-hover:translate-x-1 transition-transform">
+                  <div className="flex items-center text-sm font-semibold text-[#18b892] gap-1.5 group-hover:translate-x-1 transition-transform">
                     <span>Open Service Requests</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
+                    <ArrowRight className="w-4 h-4" />
                   </div>
                 </div>
 
                 <div
                   onClick={() => handleSelectTab('materials')}
-                  className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-2xs hover:border-[#18b892]/60 hover:shadow-sm transition-all cursor-pointer group"
+                  className="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-2xs hover:border-[#18b892]/60 hover:shadow-xs transition-all cursor-pointer group flex flex-col justify-between"
                 >
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-bold text-slate-700 uppercase tracking-wider group-hover:text-[#18b892] transition-colors">
-                      Materials Directory
-                    </span>
-                    <div className="w-8 h-8 rounded-lg bg-emerald-50 text-[#18b892] flex items-center justify-center">
-                      <Boxes className="w-4 h-4" />
+                  <div>
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-xs font-bold text-slate-500 uppercase tracking-wider group-hover:text-[#18b892] transition-colors">
+                        Catalogue &amp; Specs
+                      </span>
+                      <div className="w-9 h-9 rounded-xl bg-emerald-50 text-[#18b892] flex items-center justify-center shrink-0 border border-[#18b892]/20">
+                        <Boxes className="w-4.5 h-4.5" />
+                      </div>
                     </div>
+                    <h3 className="text-base font-bold text-slate-900 group-hover:text-[#18b892] transition-colors">
+                      Materials Directory
+                    </h3>
+                    <p className="text-sm text-slate-600 mt-1 mb-4 leading-relaxed">
+                      Management-assigned materials catalogue, base prices, specifications, and project allocation.
+                    </p>
                   </div>
-                  <p className="text-xs text-slate-500 mb-3">
-                    Management-assigned materials catalogue, base prices, specifications, and project inventory.
-                  </p>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center text-xs font-bold text-[#18b892] gap-1 group-hover:translate-x-1 transition-transform">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center text-sm font-semibold text-[#18b892] gap-1.5 group-hover:translate-x-1 transition-transform">
                       <span>Access Materials</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
+                      <ArrowRight className="w-4 h-4" />
                     </div>
                     <button
                       type="button"
@@ -655,33 +665,38 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ initialTab }) =>
                         e.stopPropagation();
                         setIsAddMaterialModalOpen(true);
                       }}
-                      className="inline-flex items-center gap-1 px-2.5 py-1 bg-[#18b892] hover:bg-[#139c7b] text-white text-[11px] font-bold rounded-lg shadow-xs transition-colors cursor-pointer"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#18b892] hover:bg-[#139c7b] text-white text-xs font-bold rounded-lg shadow-2xs transition-colors cursor-pointer whitespace-nowrap"
                       title="Add new material directly"
                     >
-                      <Plus className="w-3 h-3 stroke-[2.5]" />
-                      <span>+ Add Material</span>
+                      <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+                      <span>Add Material</span>
                     </button>
                   </div>
                 </div>
 
                 <div
                   onClick={() => handleSelectTab('inventory')}
-                  className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-2xs hover:border-[#18b892]/60 hover:shadow-sm transition-all cursor-pointer group"
+                  className="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-2xs hover:border-[#18b892]/60 hover:shadow-xs transition-all cursor-pointer group flex flex-col justify-between"
                 >
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-bold text-slate-700 uppercase tracking-wider group-hover:text-[#18b892] transition-colors">
-                      Commercial Inventory & Sales
-                    </span>
-                    <div className="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center">
-                      <Package className="w-4 h-4" />
+                  <div>
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-xs font-bold text-slate-500 uppercase tracking-wider group-hover:text-[#18b892] transition-colors">
+                        Store &amp; Sales Point
+                      </span>
+                      <div className="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0 border border-indigo-200/60">
+                        <Package className="w-4.5 h-4.5" />
+                      </div>
                     </div>
+                    <h3 className="text-base font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">
+                      Commercial Inventory &amp; Sales
+                    </h3>
+                    <p className="text-sm text-slate-600 mt-1 mb-4 leading-relaxed">
+                      Sell paint, tools, screeding, diffusers, and vases. Track sales checkout, stock levels, and partner items.
+                    </p>
                   </div>
-                  <p className="text-xs text-slate-500 mb-3">
-                    Sell paint, tools, screeding, diffusers, vases. Track issuance, sales checkout, and enquiries.
-                  </p>
-                  <div className="flex items-center text-xs font-bold text-indigo-600 gap-1 group-hover:translate-x-1 transition-transform">
+                  <div className="flex items-center text-sm font-semibold text-indigo-600 gap-1.5 group-hover:translate-x-1 transition-transform">
                     <span>Manage Inventory</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
+                    <ArrowRight className="w-4 h-4" />
                   </div>
                 </div>
               </div>
@@ -689,22 +704,22 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ initialTab }) =>
               {/* Administrative Overview Sections */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* System Roles Quick View */}
-                <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs p-5 space-y-4">
+                <div className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs p-5 sm:p-6 space-y-4">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-sm font-bold text-slate-900">
+                    <h3 className="text-base font-bold text-slate-900">
                       Configured System Roles
                     </h3>
                     <button
                       type="button"
                       onClick={() => handleSelectTab('roles')}
-                      className="text-xs font-semibold text-[#01875F] hover:underline"
+                      className="text-sm font-semibold text-[#18b892] hover:underline cursor-pointer"
                     >
                       Manage RBAC &rarr;
                     </button>
                   </div>
 
                   {rolesList.length === 0 ? (
-                    <div className="p-6 text-center text-xs text-slate-400 border border-dashed border-slate-200 rounded-xl">
+                    <div className="p-6 text-center text-sm text-slate-400 border border-dashed border-slate-200 rounded-xl">
                       No system roles found in public.roles.
                     </div>
                   ) : (
@@ -712,15 +727,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ initialTab }) =>
                       {rolesList.slice(0, 5).map((r) => (
                         <div
                           key={r.id}
-                          className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 border border-slate-100 text-xs"
+                          className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100 text-sm"
                         >
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2.5">
                             <span className="font-semibold text-slate-800">{r.name}</span>
-                            <span className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-slate-200 text-slate-700 font-semibold">
+                            <span className="px-2 py-0.5 rounded text-xs font-mono bg-slate-200 text-slate-700 font-semibold">
                               {r.slug}
                             </span>
                           </div>
-                          <span className="text-[11px] text-slate-400">
+                          <span className="text-xs text-slate-400 hidden sm:inline">
                             {r.description || 'System access role'}
                           </span>
                         </div>
@@ -730,17 +745,17 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ initialTab }) =>
                 </div>
 
                 {/* Recent Audit Logs Quick View */}
-                <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs p-5 space-y-4">
+                <div className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs p-5 sm:p-6 space-y-4">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-sm font-bold text-slate-900">
+                    <h3 className="text-base font-bold text-slate-900">
                       Recent Audit Activities
                     </h3>
                     <button
                       type="button"
                       onClick={() => handleSelectTab('audit-logs')}
-                      className="text-xs font-semibold text-[#01875F] hover:underline"
+                      className="text-sm font-semibold text-[#18b892] hover:underline cursor-pointer"
                     >
-                      View all logs &rarr;
+                      View All Logs &rarr;
                     </button>
                   </div>
 

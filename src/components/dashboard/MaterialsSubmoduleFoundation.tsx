@@ -75,7 +75,7 @@ export const MaterialsSubmoduleFoundation: React.FC<MaterialsSubmoduleFoundation
         <button
           type="button"
           onClick={onBackToOverview}
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#01875F] hover:underline mb-2 cursor-pointer"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#18b892] hover:underline mb-2 cursor-pointer"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
           <span>Back to Materials</span>
@@ -89,7 +89,7 @@ export const MaterialsSubmoduleFoundation: React.FC<MaterialsSubmoduleFoundation
               </span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight flex items-center gap-2.5">
-              <Icon className="w-7 h-7 text-[#01875F]" />
+              <Icon className="w-7 h-7 text-[#18b892]" />
               <span>{title}</span>
             </h1>
             <p className="text-xs sm:text-sm text-slate-500 mt-1">
@@ -106,7 +106,7 @@ export const MaterialsSubmoduleFoundation: React.FC<MaterialsSubmoduleFoundation
               title="Check live database records"
             >
               <RefreshCw
-                className={`w-3.5 h-3.5 text-[#01875F] ${isRefreshing ? 'animate-spin' : ''}`}
+                className={`w-3.5 h-3.5 text-[#18b892] ${isRefreshing ? 'animate-spin' : ''}`}
               />
               <span>{isRefreshing ? 'Checking...' : 'Refresh'}</span>
             </button>
@@ -128,14 +128,14 @@ export const MaterialsSubmoduleFoundation: React.FC<MaterialsSubmoduleFoundation
           <button
             type="button"
             onClick={() => fetchRecordCount()}
-            className="px-4 py-2 bg-[#01875F] hover:bg-[#016f4e] text-white text-xs font-semibold rounded-lg shadow-2xs transition-colors cursor-pointer"
+            className="px-4 py-2 bg-[#18b892] hover:bg-[#016f4e] text-white text-xs font-semibold rounded-lg shadow-2xs transition-colors cursor-pointer"
           >
             Retry
           </button>
         </div>
       ) : (
         <div className="bg-white rounded-xl border border-slate-200/80 shadow-2xs p-8 sm:p-12 text-center max-w-2xl mx-auto">
-          <div className="w-14 h-14 rounded-2xl bg-[#E6F4EA] text-[#01875F] flex items-center justify-center mx-auto mb-4 border border-[#01875F]/20 shadow-2xs">
+          <div className="w-14 h-14 rounded-2xl bg-[#E6F4EA] text-[#18b892] flex items-center justify-center mx-auto mb-4 border border-[#18b892]/20 shadow-2xs">
             <Icon className="w-7 h-7" strokeWidth={1.8} />
           </div>
 
@@ -154,7 +154,7 @@ export const MaterialsSubmoduleFoundation: React.FC<MaterialsSubmoduleFoundation
             <button
               type="button"
               onClick={onBackToOverview}
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#01875F] hover:underline cursor-pointer"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#18b892] hover:underline cursor-pointer"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>Back to Overview</span>

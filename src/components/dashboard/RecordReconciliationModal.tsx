@@ -164,7 +164,7 @@ export const RecordReconciliationModal: React.FC<RecordReconciliationModalProps>
       >
         <div className="px-6 py-5 bg-white border-b border-slate-100 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#E6F4EA] text-[#01875F] flex items-center justify-center shrink-0 border border-[#01875F]/20">
+            <div className="w-10 h-10 rounded-xl bg-[#E6F4EA] text-[#18b892] flex items-center justify-center shrink-0 border border-[#18b892]/20">
               <Scale className="w-5 h-5" />
             </div>
             <div>
@@ -205,7 +205,7 @@ export const RecordReconciliationModal: React.FC<RecordReconciliationModalProps>
                   required
                   value={projectId}
                   onChange={(e) => setProjectId(e.target.value)}
-                  className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#01875F]"
+                  className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#18b892]"
                 >
                   <option value="">Select Project</option>
                   {projects.map((p) => (
@@ -226,7 +226,7 @@ export const RecordReconciliationModal: React.FC<RecordReconciliationModalProps>
                   required
                   value={reconciliationDate}
                   onChange={(e) => setReconciliationDate(e.target.value)}
-                  className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#01875F]"
+                  className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#18b892]"
                 />
               </div>
             </div>
@@ -239,7 +239,7 @@ export const RecordReconciliationModal: React.FC<RecordReconciliationModalProps>
                 required
                 value={materialId}
                 onChange={(e) => setMaterialId(e.target.value)}
-                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#01875F]"
+                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#18b892]"
               >
                 <option value="">Select Material</option>
                 {materials.map((m) => (
@@ -363,7 +363,7 @@ export const RecordReconciliationModal: React.FC<RecordReconciliationModalProps>
                     required
                     value={closingQuantity}
                     onChange={(e) => setClosingQuantity(e.target.value)}
-                    className="w-32 px-3 py-1.5 bg-white border border-slate-300 rounded-lg text-sm font-mono font-bold text-slate-900 text-right focus:outline-none focus:ring-1 focus:ring-[#01875F]"
+                    className="w-32 px-3 py-1.5 bg-white border border-slate-300 rounded-lg text-sm font-mono font-bold text-slate-900 text-right focus:outline-none focus:ring-1 focus:ring-[#18b892]"
                   />
                   <span className="text-xs text-slate-600 font-mono">{unit}</span>
                 </div>
@@ -407,7 +407,7 @@ export const RecordReconciliationModal: React.FC<RecordReconciliationModalProps>
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="Investigation findings for variance, cycle count methodology..."
-              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#01875F]"
+              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#18b892]"
             />
           </div>
 
@@ -423,7 +423,7 @@ export const RecordReconciliationModal: React.FC<RecordReconciliationModalProps>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#01875F] text-white hover:bg-[#016f4e] text-xs font-semibold rounded-lg shadow-2xs transition-colors cursor-pointer disabled:opacity-60"
+              className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#18b892] text-white hover:bg-[#016f4e] text-xs font-semibold rounded-lg shadow-2xs transition-colors cursor-pointer disabled:opacity-60"
             >
               {isSubmitting ? (
                 <>

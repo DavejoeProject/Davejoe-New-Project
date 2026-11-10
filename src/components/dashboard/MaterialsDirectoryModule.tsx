@@ -147,21 +147,26 @@ export const MaterialsDirectoryModule: React.FC<MaterialsDirectoryModuleProps> =
   return (
     <div className="space-y-6 pb-16 select-auto">
       {/* 1. Header & Breadcrumbs */}
-      <div className="bg-white p-5 sm:p-6 rounded-xl border border-slate-200/80 shadow-2xs">
+      {/* 1. Header & Breadcrumbs */}
+      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-2xs">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                MATERIALS
-              </span>
+          <div className="flex items-start sm:items-center gap-3">
+            <div className="w-12 h-12 rounded-xl bg-[#18b892]/10 text-[#18b892] flex items-center justify-center shrink-0 border border-[#18b892]/20">
+              <Package className="w-6 h-6 stroke-[2]" />
             </div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight flex items-center gap-2.5">
-              <Package className="w-7 h-7 text-[#01875F]" />
-              <span>Materials Directory</span>
-            </h1>
-            <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-2xl leading-relaxed">
-              Manage the organization&apos;s material master catalog and inventory reference information.
-            </p>
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-xs font-bold uppercase tracking-wider text-[#18b892]">
+                  MATERIALS
+                </span>
+              </div>
+              <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
+                Materials Directory
+              </h1>
+              <p className="text-xs sm:text-sm text-slate-500 mt-0.5 max-w-2xl leading-relaxed">
+                Manage the organization&apos;s material master catalog and inventory reference information.
+              </p>
+            </div>
           </div>
 
           <div className="flex items-center gap-2.5 self-start sm:self-center shrink-0">
@@ -169,11 +174,11 @@ export const MaterialsDirectoryModule: React.FC<MaterialsDirectoryModuleProps> =
               type="button"
               onClick={() => fetchData(true)}
               disabled={isRefreshing}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white hover:bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-700 shadow-2xs transition-colors cursor-pointer disabled:opacity-60"
+              className="inline-flex items-center gap-2 h-10 px-4 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-700 shadow-2xs transition-colors cursor-pointer disabled:opacity-60 whitespace-nowrap"
               title="Refresh materials from database"
             >
               <RefreshCw
-                className={`w-3.5 h-3.5 text-[#01875F] ${isRefreshing ? 'animate-spin' : ''}`}
+                className={`w-4 h-4 text-[#18b892] shrink-0 ${isRefreshing ? 'animate-spin' : ''}`}
               />
               <span>{isRefreshing ? 'Refreshing...' : 'Refresh'}</span>
             </button>
@@ -181,9 +186,9 @@ export const MaterialsDirectoryModule: React.FC<MaterialsDirectoryModuleProps> =
             <button
               type="button"
               onClick={() => setIsAddModalOpen(true)}
-              className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#01875F] hover:bg-[#016f4e] text-white text-xs font-semibold rounded-lg shadow-2xs transition-colors cursor-pointer"
+              className="inline-flex items-center gap-2 h-10 px-4 bg-[#18b892] hover:bg-[#139c7b] text-white text-xs sm:text-sm font-bold rounded-xl shadow-sm transition-colors cursor-pointer whitespace-nowrap"
             >
-              <Plus className="w-4 h-4" />
+              <Plus className="w-4 h-4 stroke-[2.5] shrink-0" />
               <span>Add Material</span>
             </button>
           </div>
@@ -196,53 +201,53 @@ export const MaterialsDirectoryModule: React.FC<MaterialsDirectoryModuleProps> =
       {/* 3. Executive Summary KPI Cards (Restrained Enterprise Metrics) */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {/* Card 1: TOTAL MATERIALS */}
-        <div className="bg-white rounded-xl border border-slate-200/80 p-4 shadow-2xs">
-          <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">
+        <div className="bg-white rounded-2xl border border-slate-200/80 p-4 sm:p-5 shadow-2xs">
+          <span className="text-xs text-slate-500 font-bold uppercase tracking-wider block">
             TOTAL MATERIALS
           </span>
-          <span className="text-2xl font-bold text-slate-900 mt-1 block font-mono">
+          <span className="text-3xl sm:text-4xl font-bold text-slate-900 mt-1 block font-mono tracking-tight">
             {isLoading && !executiveSummary
               ? '...'
               : (executiveSummary?.totalMaterials ?? totalUnfilteredCount)}
           </span>
-          <span className="text-[11px] text-slate-500">Master catalog records</span>
+          <span className="text-xs text-slate-500 mt-0.5 block">Master catalog records</span>
         </div>
 
         {/* Card 2: LOW STOCK */}
-        <div className="bg-white rounded-xl border border-slate-200/80 p-4 shadow-2xs">
-          <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">
+        <div className="bg-white rounded-2xl border border-slate-200/80 p-4 sm:p-5 shadow-2xs">
+          <span className="text-xs text-slate-500 font-bold uppercase tracking-wider block">
             LOW STOCK
           </span>
           <span
-            className={`text-2xl font-bold mt-1 block font-mono ${
+            className={`text-3xl sm:text-4xl font-bold mt-1 block font-mono tracking-tight ${
               (executiveSummary?.lowStockCount ?? 0) > 0 ? 'text-amber-600' : 'text-slate-900'
             }`}
           >
             {isLoading && !executiveSummary ? '...' : (executiveSummary?.lowStockCount ?? 0)}
           </span>
-          <span className="text-[11px] text-slate-500">At or below reorder level</span>
+          <span className="text-xs text-slate-500 mt-0.5 block">At or below reorder level</span>
         </div>
 
         {/* Card 3: ACTIVE MATERIALS */}
-        <div className="bg-white rounded-xl border border-slate-200/80 p-4 shadow-2xs">
-          <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">
+        <div className="bg-white rounded-2xl border border-slate-200/80 p-4 sm:p-5 shadow-2xs">
+          <span className="text-xs text-slate-500 font-bold uppercase tracking-wider block">
             ACTIVE MATERIALS
           </span>
-          <span className="text-2xl font-bold text-slate-900 mt-1 block font-mono">
+          <span className="text-3xl sm:text-4xl font-bold text-slate-900 mt-1 block font-mono tracking-tight">
             {isLoading && !executiveSummary ? '...' : (executiveSummary?.activeCount ?? 0)}
           </span>
-          <span className="text-[11px] text-slate-500">Available for requisition</span>
+          <span className="text-xs text-slate-500 mt-0.5 block">Available for requisition</span>
         </div>
 
         {/* Card 4: INACTIVE MATERIALS */}
-        <div className="bg-white rounded-xl border border-slate-200/80 p-4 shadow-2xs">
-          <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">
+        <div className="bg-white rounded-2xl border border-slate-200/80 p-4 sm:p-5 shadow-2xs">
+          <span className="text-xs text-slate-500 font-bold uppercase tracking-wider block">
             INACTIVE MATERIALS
           </span>
-          <span className="text-2xl font-bold text-slate-900 mt-1 block font-mono">
+          <span className="text-3xl sm:text-4xl font-bold text-slate-900 mt-1 block font-mono tracking-tight">
             {isLoading && !executiveSummary ? '...' : (executiveSummary?.inactiveCount ?? 0)}
           </span>
-          <span className="text-[11px] text-slate-500">Archived / discontinued</span>
+          <span className="text-xs text-slate-500 mt-0.5 block">Archived / discontinued</span>
         </div>
       </div>
 
@@ -251,13 +256,13 @@ export const MaterialsDirectoryModule: React.FC<MaterialsDirectoryModuleProps> =
         <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
           {/* Search Input */}
           <div className="sm:col-span-5 relative">
-            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+            <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 shrink-0 pointer-events-none" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search materials by name, code, brand or specification..."
-              className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#01875F] focus:border-[#01875F] transition-all"
+              className="w-full h-10 pl-10 pr-4 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-[#18b892] transition-all"
             />
           </div>
 
@@ -266,7 +271,7 @@ export const MaterialsDirectoryModule: React.FC<MaterialsDirectoryModuleProps> =
             <select
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
-              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-700 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#01875F] focus:border-[#01875F] transition-all capitalize"
+              className="w-full h-10 px-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-700 focus:bg-white focus:outline-none focus:border-[#18b892] transition-all capitalize font-medium"
             >
               <option value="all">All Categories</option>
               {uniqueCategories.map((c) => (
@@ -282,7 +287,7 @@ export const MaterialsDirectoryModule: React.FC<MaterialsDirectoryModuleProps> =
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-700 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#01875F] focus:border-[#01875F] transition-all"
+              className="w-full h-10 px-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-700 focus:bg-white focus:outline-none focus:border-[#18b892] transition-all font-medium"
             >
               <option value="all">All Statuses</option>
               {ALL_MATERIAL_STATUSES.map((s) => (
@@ -298,7 +303,7 @@ export const MaterialsDirectoryModule: React.FC<MaterialsDirectoryModuleProps> =
             <select
               value={stockConditionFilter}
               onChange={(e) => setStockConditionFilter(e.target.value as any)}
-              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-700 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#01875F] focus:border-[#01875F] transition-all"
+              className="w-full h-10 px-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-700 focus:bg-white focus:outline-none focus:border-[#18b892] transition-all font-medium"
             >
               <option value="all">All Stock</option>
               <option value="low">Low Stock</option>
@@ -308,16 +313,16 @@ export const MaterialsDirectoryModule: React.FC<MaterialsDirectoryModuleProps> =
         </div>
 
         {hasActiveFilters && (
-          <div className="flex items-center justify-between pt-2 border-t border-slate-100 text-xs text-slate-500">
+          <div className="flex items-center justify-between pt-2.5 border-t border-slate-100 text-xs sm:text-sm text-slate-500">
             <span>
               Showing {materials.length} matching material{materials.length === 1 ? '' : 's'}
             </span>
             <button
               type="button"
               onClick={handleClearFilters}
-              className="inline-flex items-center gap-1 text-[#01875F] font-semibold hover:underline cursor-pointer"
+              className="inline-flex items-center gap-1.5 text-[#18b892] font-semibold hover:underline cursor-pointer"
             >
-              <X className="w-3.5 h-3.5" />
+              <X className="w-4 h-4 shrink-0" />
               <span>Clear Filters</span>
             </button>
           </div>
@@ -330,44 +335,44 @@ export const MaterialsDirectoryModule: React.FC<MaterialsDirectoryModuleProps> =
           <div className="h-6 bg-slate-100 rounded w-1/4" />
           <div className="space-y-2">
             {[1, 2, 3, 4, 5, 6].map((i) => (
-              <div key={i} className="h-12 bg-slate-50 rounded border border-slate-100" />
+              <div key={i} className="h-14 bg-slate-50 rounded border border-slate-100" />
             ))}
           </div>
         </div>
       ) : errorMessage ? (
-        <div className="bg-white rounded-xl border border-red-200/90 shadow-2xs p-10 text-center max-w-lg mx-auto">
-          <div className="w-12 h-12 rounded-full bg-red-50 text-red-500 flex items-center justify-center mx-auto mb-3">
-            <AlertCircle className="w-6 h-6" />
+        <div className="bg-white rounded-2xl border border-red-200/90 shadow-2xs p-10 text-center max-w-lg mx-auto">
+          <div className="w-12 h-12 rounded-xl bg-red-50 text-red-500 flex items-center justify-center mx-auto mb-3">
+            <AlertCircle className="w-6 h-6 shrink-0" />
           </div>
           <h2 className="text-base font-bold text-slate-900">Unable to load materials.</h2>
-          <p className="text-xs text-slate-500 mt-1 mb-4">{errorMessage}</p>
+          <p className="text-xs sm:text-sm text-slate-500 mt-1 mb-4">{errorMessage}</p>
           <button
             type="button"
             onClick={() => fetchData()}
-            className="px-4 py-2 bg-[#01875F] hover:bg-[#016f4e] text-white text-xs font-semibold rounded-lg shadow-2xs transition-colors cursor-pointer"
+            className="px-4 py-2 bg-[#18b892] hover:bg-[#139c7b] text-white text-xs sm:text-sm font-semibold rounded-xl shadow-2xs transition-colors cursor-pointer"
           >
             Retry
           </button>
         </div>
       ) : materials.length === 0 ? (
-        <div className="bg-white rounded-xl border border-slate-200/80 shadow-2xs p-12 text-center max-w-xl mx-auto">
-          <div className="w-12 h-12 rounded-full bg-[#E6F4EA] text-[#01875F] flex items-center justify-center mx-auto mb-3 border border-[#01875F]/20">
-            <Boxes className="w-6 h-6" />
+        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs p-12 text-center max-w-xl mx-auto">
+          <div className="w-14 h-14 rounded-2xl bg-[#18b892]/10 text-[#18b892] flex items-center justify-center mx-auto mb-3 border border-[#18b892]/20">
+            <Boxes className="w-7 h-7 shrink-0" />
           </div>
-          <h3 className="text-base font-bold text-slate-900">
+          <h3 className="text-lg font-bold text-slate-900">
             {hasActiveFilters ? 'No materials match your current filters.' : 'No materials yet'}
           </h3>
-          <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto leading-relaxed">
+          <p className="text-xs sm:text-sm text-slate-500 mt-1.5 max-w-sm mx-auto leading-relaxed">
             {hasActiveFilters
               ? 'Try adjusting your search keywords, category, or stock condition filters.'
               : 'Materials created in the system will appear here.'}
           </p>
-          <div className="mt-4 flex items-center justify-center gap-3">
+          <div className="mt-5 flex items-center justify-center gap-3">
             {hasActiveFilters ? (
               <button
                 type="button"
                 onClick={handleClearFilters}
-                className="px-4 py-2 bg-[#01875F] text-white text-xs font-semibold rounded-lg shadow-2xs hover:bg-[#016f4e] transition-colors cursor-pointer"
+                className="px-4 py-2 bg-[#18b892] text-white text-xs sm:text-sm font-semibold rounded-xl shadow-2xs hover:bg-[#139c7b] transition-colors cursor-pointer"
               >
                 Clear Filters
               </button>
@@ -375,31 +380,31 @@ export const MaterialsDirectoryModule: React.FC<MaterialsDirectoryModuleProps> =
               <button
                 type="button"
                 onClick={() => setIsAddModalOpen(true)}
-                className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#01875F] text-white text-xs font-semibold rounded-lg shadow-2xs hover:bg-[#016f4e] transition-colors cursor-pointer"
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#18b892] text-white text-xs sm:text-sm font-bold rounded-xl shadow-2xs hover:bg-[#139c7b] transition-colors cursor-pointer"
               >
-                <Plus className="w-4 h-4" />
+                <Plus className="w-4 h-4 stroke-[2.5] shrink-0" />
                 <span>+ Add Material</span>
               </button>
             )}
           </div>
         </div>
       ) : (
-        <div className="bg-white rounded-xl border border-slate-200/80 shadow-2xs overflow-hidden">
+        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs overflow-hidden">
           {/* Desktop & Tablet Table */}
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs border-collapse">
+            <table className="w-full text-left text-sm border-collapse">
               <thead>
-                <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-500 font-semibold uppercase text-[10px] tracking-wider">
-                  <th className="py-3.5 px-4">Material</th>
-                  <th className="py-3.5 px-3">Code</th>
-                  <th className="py-3.5 px-3">Category</th>
-                  <th className="py-3.5 px-3">Unit</th>
-                  <th className="py-3.5 px-3 text-right">Current Stock</th>
-                  <th className="py-3.5 px-3 text-right">Reorder Level</th>
-                  <th className="py-3.5 px-3 text-right">Standard Cost</th>
-                  <th className="py-3.5 px-3 text-center">Stock Status</th>
-                  <th className="py-3.5 px-3 text-center">Status</th>
-                  <th className="py-3.5 px-4 text-right">Actions</th>
+                <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-500 font-bold uppercase text-xs tracking-wider">
+                  <th className="py-3.5 px-4 min-w-[200px]">Material</th>
+                  <th className="py-3.5 px-3 min-w-[120px]">Code</th>
+                  <th className="py-3.5 px-3 min-w-[130px]">Category</th>
+                  <th className="py-3.5 px-3 min-w-[90px]">Unit</th>
+                  <th className="py-3.5 px-3 text-right min-w-[120px]">Current Stock</th>
+                  <th className="py-3.5 px-3 text-right min-w-[120px]">Reorder Level</th>
+                  <th className="py-3.5 px-3 text-right min-w-[130px]">Standard Cost</th>
+                  <th className="py-3.5 px-3 text-center min-w-[130px]">Stock Status</th>
+                  <th className="py-3.5 px-3 text-center min-w-[110px]">Status</th>
+                  <th className="py-3.5 px-4 text-right min-w-[160px]">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -421,11 +426,11 @@ export const MaterialsDirectoryModule: React.FC<MaterialsDirectoryModuleProps> =
                     >
                       {/* Material Name & Brand/Spec */}
                       <td className="py-3.5 px-4">
-                        <div className="font-bold text-slate-900 group-hover:text-[#01875F] transition-colors">
+                        <div className="font-bold text-slate-900 group-hover:text-[#18b892] transition-colors text-sm">
                           {m.name}
                         </div>
                         {(m.brand || m.specification) && (
-                          <div className="text-[11px] text-slate-400 font-normal truncate max-w-xs mt-0.5">
+                          <div className="text-xs text-slate-400 font-normal truncate max-w-xs mt-0.5">
                             {m.brand && <span>{m.brand}</span>}
                             {m.brand && m.specification && <span> • </span>}
                             {m.specification && <span>{m.specification}</span>}
@@ -435,7 +440,7 @@ export const MaterialsDirectoryModule: React.FC<MaterialsDirectoryModuleProps> =
 
                       {/* Code */}
                       <td className="py-3.5 px-3 font-mono text-slate-700">
-                        <span className="bg-slate-100 px-2 py-0.5 rounded border border-slate-200/80 text-[11px] font-semibold">
+                        <span className="bg-slate-100/90 px-2.5 py-1 rounded-md border border-slate-200/80 text-xs font-bold whitespace-nowrap">
                           {m.material_code}
                         </span>
                       </td>
@@ -446,12 +451,12 @@ export const MaterialsDirectoryModule: React.FC<MaterialsDirectoryModuleProps> =
                       </td>
 
                       {/* Unit */}
-                      <td className="py-3.5 px-3 text-slate-500 font-mono">
+                      <td className="py-3.5 px-3 text-slate-500 font-mono text-xs">
                         {m.unit_of_measure}
                       </td>
 
                       {/* Current Stock */}
-                      <td className="py-3.5 px-3 text-right font-mono">
+                      <td className="py-3.5 px-3 text-right font-mono tabular-nums">
                         <span
                           className={`font-bold ${
                             isLow ? 'text-amber-600' : 'text-slate-900'
@@ -459,37 +464,37 @@ export const MaterialsDirectoryModule: React.FC<MaterialsDirectoryModuleProps> =
                         >
                           {m.current_stock.toLocaleString()}
                         </span>{' '}
-                        <span className="text-[11px] text-slate-400 font-normal">
+                        <span className="text-xs text-slate-400 font-normal">
                           {m.unit_of_measure}
                         </span>
                       </td>
 
                       {/* Reorder Level */}
-                      <td className="py-3.5 px-3 text-right font-mono text-slate-600">
+                      <td className="py-3.5 px-3 text-right font-mono text-slate-600 tabular-nums">
                         {m.reorder_level !== null ? m.reorder_level.toLocaleString() : '0'}{' '}
-                        <span className="text-[11px] text-slate-400 font-normal">
+                        <span className="text-xs text-slate-400 font-normal">
                           {m.unit_of_measure}
                         </span>
                       </td>
 
                       {/* Standard Unit Cost */}
-                      <td className="py-3.5 px-3 text-right font-mono font-medium text-slate-900">
+                      <td className="py-3.5 px-3 text-right font-mono font-bold text-slate-900 tabular-nums">
                         {formatNaira(m.standard_unit_cost)}
                       </td>
 
                       {/* Stock Status */}
                       <td className="py-3.5 px-3 text-center">
                         <span
-                          className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10.5px] font-semibold border ${
+                          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border whitespace-nowrap ${
                             isLow
                               ? 'bg-amber-50 text-amber-700 border-amber-200'
                               : 'bg-emerald-50 text-emerald-700 border-emerald-200'
                           }`}
                         >
                           {isLow ? (
-                            <AlertTriangle className="w-3 h-3 text-amber-600" />
+                            <AlertTriangle className="w-3.5 h-3.5 text-amber-600 shrink-0" />
                           ) : (
-                            <CheckCircle2 className="w-3 h-3 text-[#01875F]" />
+                            <CheckCircle2 className="w-3.5 h-3.5 text-[#18b892] shrink-0" />
                           )}
                           {stockCondition}
                         </span>
@@ -498,9 +503,9 @@ export const MaterialsDirectoryModule: React.FC<MaterialsDirectoryModuleProps> =
                       {/* Status */}
                       <td className="py-3.5 px-3 text-center">
                         <span
-                          className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10.5px] font-semibold border ${statusCfg.badgeClasses}`}
+                          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border whitespace-nowrap ${statusCfg.badgeClasses}`}
                         >
-                          <span className={`w-1.5 h-1.5 rounded-full ${statusCfg.dotClasses}`} />
+                          <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${statusCfg.dotClasses}`} />
                           {statusCfg.label}
                         </span>
                       </td>
@@ -514,18 +519,20 @@ export const MaterialsDirectoryModule: React.FC<MaterialsDirectoryModuleProps> =
                           <button
                             type="button"
                             onClick={() => setSelectedViewMaterial(m)}
-                            className="p-1.5 text-slate-500 hover:text-[#01875F] hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+                            className="inline-flex items-center gap-1 px-2.5 py-1.5 text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg text-xs font-bold transition-colors cursor-pointer whitespace-nowrap"
                             title="View Material Details"
                           >
-                            <Eye className="w-4 h-4" />
+                            <Eye className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                            <span>Details</span>
                           </button>
                           <button
                             type="button"
                             onClick={() => setSelectedEditMaterial(m)}
-                            className="p-1.5 text-slate-500 hover:text-[#01875F] hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+                            className="inline-flex items-center gap-1 px-2.5 py-1.5 text-[#18b892] bg-[#18b892]/10 hover:bg-[#18b892]/20 rounded-lg text-xs font-bold transition-colors cursor-pointer whitespace-nowrap"
                             title="Edit Material"
                           >
-                            <Edit2 className="w-4 h-4" />
+                            <Edit2 className="w-3.5 h-3.5 shrink-0" />
+                            <span>Edit</span>
                           </button>
                         </div>
                       </td>
@@ -537,11 +544,11 @@ export const MaterialsDirectoryModule: React.FC<MaterialsDirectoryModuleProps> =
           </div>
 
           {/* Table Footer */}
-          <div className="px-4 py-3 bg-slate-50/60 border-t border-slate-200 text-xs text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-2">
+          <div className="px-5 py-4 bg-slate-50/70 border-t border-slate-200 text-xs sm:text-sm text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-2">
             <span>
-              Showing {materials.length} of {totalUnfilteredCount} total material{totalUnfilteredCount === 1 ? '' : 's'}
+              Showing <strong className="text-slate-800">{materials.length}</strong> of {totalUnfilteredCount} total material{totalUnfilteredCount === 1 ? '' : 's'}
             </span>
-            <span className="text-[11px] text-slate-400 font-mono">
+            <span className="text-xs text-slate-400 font-mono font-medium">
               Live Database Active
             </span>
           </div>

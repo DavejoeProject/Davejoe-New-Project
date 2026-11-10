@@ -122,7 +122,7 @@ export const SupervisorDashboard: React.FC = () => {
       <header className="sticky top-0 z-40 bg-white border-b border-slate-200/90 shadow-2xs">
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-            <div className="w-9 h-9 rounded-xl bg-[#01875F] text-white flex items-center justify-center font-bold text-sm shadow-2xs shrink-0">
+            <div className="w-9 h-9 rounded-xl bg-[#18b892] text-white flex items-center justify-center font-bold text-sm shadow-2xs shrink-0">
               <HardHat className="w-5 h-5" />
             </div>
             <div className="min-w-0">
@@ -133,7 +133,7 @@ export const SupervisorDashboard: React.FC = () => {
                 <h1 className="text-xs sm:text-base font-bold text-slate-900 tracking-tight truncate">
                   Site Supervisor Operations
                 </h1>
-                <span className="hidden sm:inline-block px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#E6F4EA] text-[#01875F] border border-[#01875F]/20">
+                <span className="hidden sm:inline-block px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#E6F4EA] text-[#18b892] border border-[#18b892]/20">
                   Site Supervisor
                 </span>
               </div>
@@ -148,13 +148,13 @@ export const SupervisorDashboard: React.FC = () => {
               className="p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
               title="Refresh Dashboard"
             >
-              <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin text-[#01875F]' : ''}`} />
+              <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin text-[#18b892]' : ''}`} />
             </button>
 
             <div className="h-5 w-px bg-slate-200" />
 
             <div className="flex items-center gap-2 text-xs">
-              <div className="w-8 h-8 rounded-full bg-[#E6F4EA] text-[#01875F] flex items-center justify-center font-bold text-xs border border-[#01875F]/20">
+              <div className="w-8 h-8 rounded-full bg-[#E6F4EA] text-[#18b892] flex items-center justify-center font-bold text-xs border border-[#18b892]/20">
                 {supervisorName[0] || 'S'}
               </div>
               <span className="hidden md:inline font-semibold text-slate-800">{supervisorName}</span>
@@ -178,7 +178,7 @@ export const SupervisorDashboard: React.FC = () => {
         <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200/80 shadow-2xs flex flex-col lg:flex-row lg:items-center justify-between gap-4 sm:gap-5">
           <div>
             <div className="flex items-center gap-2 text-xs text-slate-400 font-medium mb-1">
-              <Calendar className="w-3.5 h-3.5 text-[#01875F]" />
+              <Calendar className="w-3.5 h-3.5 text-[#18b892]" />
               <span>{formatNigerianDate(new Date().toISOString())}</span>
               <span>&bull;</span>
               <span>{data?.projects.length || 0} Assigned Projects</span>
@@ -196,7 +196,7 @@ export const SupervisorDashboard: React.FC = () => {
             <button
               type="button"
               onClick={() => setIsClockInOpen(true)}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#01875F] hover:bg-[#016f4e] text-white text-xs font-bold rounded-xl shadow-2xs transition-all cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#18b892] hover:bg-[#016f4e] text-white text-xs font-bold rounded-xl shadow-2xs transition-all cursor-pointer"
             >
               <Clock className="w-3.5 h-3.5" />
               <span>Clock In Worker</span>
@@ -234,7 +234,7 @@ export const SupervisorDashboard: React.FC = () => {
               onClick={() => setIsRequestMaterialOpen(true)}
               className="inline-flex items-center gap-1.5 px-3 py-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-xs font-bold rounded-xl shadow-2xs transition-all cursor-pointer"
             >
-              <Package className="w-3.5 h-3.5 text-[#01875F]" />
+              <Package className="w-3.5 h-3.5 text-[#18b892]" />
               <span>Request Material</span>
             </button>
           </div>
@@ -247,7 +247,7 @@ export const SupervisorDashboard: React.FC = () => {
               <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
                 Active Projects
               </span>
-              <Building className="w-4 h-4 text-[#01875F]" />
+              <Building className="w-4 h-4 text-[#18b892]" />
             </div>
             <div className="text-2xl font-bold font-mono text-slate-900">
               {data?.kpis.activeProjects ?? 0}
@@ -320,7 +320,7 @@ export const SupervisorDashboard: React.FC = () => {
                 }}
                 className={`flex items-center gap-2 px-3.5 py-2.5 min-h-[42px] rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
                   isActive
-                    ? 'bg-[#01875F] text-white shadow-2xs'
+                    ? 'bg-[#18b892] text-white shadow-2xs'
                     : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
                 }`}
               >
@@ -343,7 +343,7 @@ export const SupervisorDashboard: React.FC = () => {
               <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs p-5 sm:p-6 space-y-4">
                 <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                   <div className="flex items-center gap-2">
-                    <UserCheck className="w-4 h-4 text-[#01875F]" />
+                    <UserCheck className="w-4 h-4 text-[#18b892]" />
                     <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
                       Today's Site Attendance ({data?.todayAttendance.length || 0})
                     </h3>
@@ -351,7 +351,7 @@ export const SupervisorDashboard: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setActiveTab('attendance')}
-                    className="text-xs font-semibold text-[#01875F] hover:underline cursor-pointer"
+                    className="text-xs font-semibold text-[#18b892] hover:underline cursor-pointer"
                   >
                     View Register &rarr;
                   </button>
@@ -379,7 +379,7 @@ export const SupervisorDashboard: React.FC = () => {
                       return (
                         <div key={att.id} className="py-2.5 flex items-center justify-between text-xs">
                           <div className="flex items-center gap-2.5">
-                            <div className="w-7 h-7 rounded-full bg-[#E6F4EA] text-[#01875F] flex items-center justify-center font-bold text-[11px] shrink-0">
+                            <div className="w-7 h-7 rounded-full bg-[#E6F4EA] text-[#18b892] flex items-center justify-center font-bold text-[11px] shrink-0">
                               {name[0] || 'A'}
                             </div>
                             <div>
@@ -419,7 +419,7 @@ export const SupervisorDashboard: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setActiveTab('productivity')}
-                    className="text-xs font-semibold text-[#01875F] hover:underline cursor-pointer"
+                    className="text-xs font-semibold text-[#18b892] hover:underline cursor-pointer"
                   >
                     View All &rarr;
                   </button>
@@ -479,7 +479,7 @@ export const SupervisorDashboard: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setIsReportIssueOpen(true)}
-                  className="inline-flex items-center gap-1 text-xs font-bold text-[#01875F] hover:underline cursor-pointer"
+                  className="inline-flex items-center gap-1 text-xs font-bold text-[#18b892] hover:underline cursor-pointer"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   <span>Report Site Issue</span>
@@ -575,7 +575,7 @@ export const SupervisorDashboard: React.FC = () => {
                     >
                       <div>
                         <div className="flex items-center justify-between gap-2 mb-2">
-                          <span className="font-mono text-xs font-bold text-[#01875F] bg-[#E6F4EA] px-2 py-0.5 rounded-md border border-[#01875F]/20">
+                          <span className="font-mono text-xs font-bold text-[#18b892] bg-[#E6F4EA] px-2 py-0.5 rounded-md border border-[#18b892]/20">
                             {proj.project_code}
                           </span>
                           <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 uppercase">
@@ -625,7 +625,7 @@ export const SupervisorDashboard: React.FC = () => {
                           onClick={() => {
                             setIsClockInOpen(true);
                           }}
-                          className="text-xs font-bold text-[#01875F] hover:underline cursor-pointer"
+                          className="text-xs font-bold text-[#18b892] hover:underline cursor-pointer"
                         >
                           + Clock In
                         </button>
@@ -668,7 +668,7 @@ export const SupervisorDashboard: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setIsLogProductivityOpen(true)}
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#01875F] hover:bg-[#016f4e] text-white text-xs font-bold rounded-xl shadow-2xs transition-colors cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#18b892] hover:bg-[#016f4e] text-white text-xs font-bold rounded-xl shadow-2xs transition-colors cursor-pointer"
               >
                 <Plus className="w-3.5 h-3.5" />
                 <span>Log Output</span>
@@ -804,12 +804,12 @@ export const SupervisorDashboard: React.FC = () => {
         {activeTab === 'profile' && (
           <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs p-6 max-w-xl">
             <div className="flex items-center gap-4 pb-6 border-b border-slate-100">
-              <div className="w-16 h-16 rounded-2xl bg-[#01875F] text-white flex items-center justify-center font-bold text-2xl shadow-sm">
+              <div className="w-16 h-16 rounded-2xl bg-[#18b892] text-white flex items-center justify-center font-bold text-2xl shadow-sm">
                 {supervisorName[0] || 'S'}
               </div>
               <div>
                 <h3 className="text-lg font-bold text-slate-900">{supervisorName}</h3>
-                <span className="inline-block mt-0.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#E6F4EA] text-[#01875F] border border-[#01875F]/20">
+                <span className="inline-block mt-0.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#E6F4EA] text-[#18b892] border border-[#18b892]/20">
                   Site Supervisor
                 </span>
               </div>
@@ -826,7 +826,7 @@ export const SupervisorDashboard: React.FC = () => {
               </div>
               <div className="flex items-center justify-between py-2 border-b border-slate-100">
                 <span className="text-slate-500 font-medium">Assigned Projects:</span>
-                <span className="font-bold font-mono text-[#01875F]">
+                <span className="font-bold font-mono text-[#18b892]">
                   {data?.projects.length || 0} Projects Active
                 </span>
               </div>

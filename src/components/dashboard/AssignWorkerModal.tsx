@@ -104,7 +104,7 @@ export const AssignWorkerModal: React.FC<AssignWorkerModalProps> = ({
         {/* Header */}
         <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/60">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-[#E6F4EA] text-[#01875F] flex items-center justify-center font-bold">
+            <div className="w-8 h-8 rounded-lg bg-[#E6F4EA] text-[#18b892] flex items-center justify-center font-bold">
               <FolderPlus className="w-4 h-4" />
             </div>
             <div>
@@ -150,7 +150,7 @@ export const AssignWorkerModal: React.FC<AssignWorkerModalProps> = ({
                   required
                   value={selectedProjectId}
                   onChange={(e) => setSelectedProjectId(e.target.value)}
-                  className="w-full h-9 px-3 bg-white border border-slate-200 rounded-lg text-xs font-medium text-slate-800 focus:outline-none focus:border-[#01875F] cursor-pointer"
+                  className="w-full h-9 px-3 bg-white border border-slate-200 rounded-lg text-xs font-medium text-slate-800 focus:outline-none focus:border-[#18b892] cursor-pointer"
                 >
                   {projects.map((p) => (
                     <option key={p.id} value={p.id}>
@@ -169,7 +169,7 @@ export const AssignWorkerModal: React.FC<AssignWorkerModalProps> = ({
                   placeholder="e.g. Lead Mason, Lead Electrician, Artisan"
                   value={roleOnProject}
                   onChange={(e) => setRoleOnProject(e.target.value)}
-                  className="w-full h-9 px-3 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-[#01875F]"
+                  className="w-full h-9 px-3 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-[#18b892]"
                 />
               </div>
 
@@ -182,7 +182,7 @@ export const AssignWorkerModal: React.FC<AssignWorkerModalProps> = ({
                     type="date"
                     value={startDate}
                     onChange={(e) => setStartDate(e.target.value)}
-                    className="w-full h-9 px-3 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-[#01875F]"
+                    className="w-full h-9 px-3 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-[#18b892]"
                   />
                 </div>
 
@@ -194,7 +194,7 @@ export const AssignWorkerModal: React.FC<AssignWorkerModalProps> = ({
                     type="date"
                     value={endDate}
                     onChange={(e) => setEndDate(e.target.value)}
-                    className="w-full h-9 px-3 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-[#01875F]"
+                    className="w-full h-9 px-3 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-[#18b892]"
                   />
                 </div>
               </div>
@@ -208,7 +208,7 @@ export const AssignWorkerModal: React.FC<AssignWorkerModalProps> = ({
                   placeholder="Scope of site work, deployment supervisor, or conditions..."
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  className="w-full p-3 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-[#01875F] resize-none"
+                  className="w-full p-3 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-[#18b892] resize-none"
                 />
               </div>
             </>
@@ -227,7 +227,7 @@ export const AssignWorkerModal: React.FC<AssignWorkerModalProps> = ({
             <button
               type="submit"
               disabled={isSubmitting || projects.length === 0}
-              className="px-4 py-2 bg-[#01875F] hover:bg-[#016f4e] text-white text-xs font-bold rounded-lg shadow-sm transition-colors cursor-pointer disabled:opacity-60 flex items-center gap-1.5"
+              className="px-4 py-2 bg-[#18b892] hover:bg-[#016f4e] text-white text-xs font-bold rounded-lg shadow-sm transition-colors cursor-pointer disabled:opacity-60 flex items-center gap-1.5"
             >
               {isSubmitting ? (
                 <>

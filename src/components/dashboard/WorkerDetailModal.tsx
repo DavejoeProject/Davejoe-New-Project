@@ -58,7 +58,7 @@ export const WorkerDetailModal: React.FC<WorkerDetailModalProps> = ({
         {/* Header */}
         <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/60">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#E6F4EA] text-[#01875F] flex items-center justify-center font-bold text-sm">
+            <div className="w-10 h-10 rounded-xl bg-[#E6F4EA] text-[#18b892] flex items-center justify-center font-bold text-sm">
               <User className="w-5 h-5" />
             </div>
             <div>
@@ -120,7 +120,7 @@ export const WorkerDetailModal: React.FC<WorkerDetailModalProps> = ({
               onClick={() => setActiveTab(t.key as any)}
               className={`py-3 px-3 text-xs font-semibold border-b-2 transition-colors cursor-pointer whitespace-nowrap ${
                 activeTab === t.key
-                  ? 'border-[#01875F] text-[#01875F]'
+                  ? 'border-[#18b892] text-[#18b892]'
                   : 'border-transparent text-slate-500 hover:text-slate-800'
               }`}
             >

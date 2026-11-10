@@ -16,7 +16,7 @@ export const PWAUpdateToast: React.FC = () => {
       className="fixed top-4 right-4 sm:right-6 z-50 bg-white border border-emerald-200/90 rounded-2xl shadow-[0_10px_25px_-5px_rgba(1,135,95,0.15)] p-4 max-w-sm w-[calc(100vw-2rem)] animate-in fade-in slide-in-from-top-3 duration-200"
     >
       <div className="flex items-start gap-3">
-        <div className="w-9 h-9 rounded-xl bg-emerald-50 text-[#01875F] flex items-center justify-center shrink-0">
+        <div className="w-9 h-9 rounded-xl bg-emerald-50 text-[#18b892] flex items-center justify-center shrink-0">
           <Sparkles className="w-4 h-4" />
         </div>
 
@@ -32,7 +32,7 @@ export const PWAUpdateToast: React.FC = () => {
             <button
               type="button"
               onClick={update}
-              className="h-7 px-3 rounded-md bg-[#01875F] hover:bg-[#00704e] text-white text-[11px] font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+              className="h-7 px-3 rounded-md bg-[#18b892] hover:bg-[#139c7b] text-white text-[11px] font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
             >
               <RefreshCw className="w-3 h-3" />
               Update Now

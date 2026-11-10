@@ -31,7 +31,7 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
         {/* Header */}
         <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/60">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#E6F4EA] text-[#01875F] flex items-center justify-center font-bold">
+            <div className="w-10 h-10 rounded-xl bg-[#E6F4EA] text-[#18b892] flex items-center justify-center font-bold">
               <Building2 className="w-5 h-5" />
             </div>
             <div>

@@ -129,7 +129,7 @@ export const MaterialRequestControlCentre: React.FC<MaterialRequestControlCentre
         <button
           type="button"
           onClick={handleBack}
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#01875F] hover:underline cursor-pointer"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#18b892] hover:underline cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Back to Requests</span>
@@ -146,7 +146,7 @@ export const MaterialRequestControlCentre: React.FC<MaterialRequestControlCentre
           <button
             type="button"
             onClick={() => fetchRequestDetails()}
-            className="px-4 py-2 bg-[#01875F] hover:bg-[#016f4e] text-white text-xs font-semibold rounded-lg shadow-2xs transition-colors cursor-pointer"
+            className="px-4 py-2 bg-[#18b892] hover:bg-[#016f4e] text-white text-xs font-semibold rounded-lg shadow-2xs transition-colors cursor-pointer"
           >
             Retry
           </button>
@@ -188,7 +188,7 @@ export const MaterialRequestControlCentre: React.FC<MaterialRequestControlCentre
         <button
           type="button"
           onClick={handleBack}
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#01875F] hover:underline mb-3 cursor-pointer"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#18b892] hover:underline mb-3 cursor-pointer"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
           <span>Back to Material Requests</span>
@@ -214,7 +214,7 @@ export const MaterialRequestControlCentre: React.FC<MaterialRequestControlCentre
             </div>
 
             <h1 className="text-2xl font-bold text-slate-900 tracking-tight mt-1.5 flex items-center gap-2">
-              <FileText className="w-6 h-6 text-[#01875F]" />
+              <FileText className="w-6 h-6 text-[#18b892]" />
               <span>{request.justification || 'Material Requisition'}</span>
             </h1>
 
@@ -223,7 +223,7 @@ export const MaterialRequestControlCentre: React.FC<MaterialRequestControlCentre
               {request.projects ? (
                 <Link
                   to={`/management/projects/${request.project_id}`}
-                  className="font-semibold text-slate-800 hover:text-[#01875F] hover:underline inline-flex items-center gap-1"
+                  className="font-semibold text-slate-800 hover:text-[#18b892] hover:underline inline-flex items-center gap-1"
                 >
                   <Building className="w-3.5 h-3.5 text-slate-400" />
                   <span>
@@ -247,7 +247,7 @@ export const MaterialRequestControlCentre: React.FC<MaterialRequestControlCentre
               title="Refresh"
             >
               <RefreshCw
-                className={`w-3.5 h-3.5 text-[#01875F] ${isRefreshing ? 'animate-spin' : ''}`}
+                className={`w-3.5 h-3.5 text-[#18b892] ${isRefreshing ? 'animate-spin' : ''}`}
               />
               <span>{isRefreshing ? 'Refreshing...' : 'Refresh'}</span>
             </button>
@@ -266,7 +266,7 @@ export const MaterialRequestControlCentre: React.FC<MaterialRequestControlCentre
                 <button
                   type="button"
                   onClick={() => setIsApproveOpen(true)}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#01875F] hover:bg-[#016f4e] text-white text-xs font-semibold rounded-lg shadow-2xs transition-colors cursor-pointer"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#18b892] hover:bg-[#016f4e] text-white text-xs font-semibold rounded-lg shadow-2xs transition-colors cursor-pointer"
                 >
                   <CheckCircle2 className="w-4 h-4" />
                   <span>Approve Request</span>
@@ -451,7 +451,7 @@ export const MaterialRequestControlCentre: React.FC<MaterialRequestControlCentre
                         {item.material ? (
                           <Link
                             to="/management/materials/directory"
-                            className="hover:text-[#01875F] hover:underline"
+                            className="hover:text-[#18b892] hover:underline"
                           >
                             {item.material.name}
                           </Link>
@@ -532,7 +532,7 @@ export const MaterialRequestControlCentre: React.FC<MaterialRequestControlCentre
       {/* 5. Downstream Fulfilment Context */}
       <div className="bg-white rounded-xl border border-slate-200/80 p-5 shadow-2xs space-y-2">
         <div className="flex items-center gap-2">
-          <Truck className="w-4 h-4 text-[#01875F]" />
+          <Truck className="w-4 h-4 text-[#18b892]" />
           <h3 className="font-bold text-xs uppercase tracking-wider text-slate-700">
             Downstream Procurement & Fulfilment
           </h3>

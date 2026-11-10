@@ -178,7 +178,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
             <span className="text-[10.5px] font-bold uppercase tracking-wider text-slate-400">
               COMMAND CENTRE
             </span>
-            <span className="px-2 py-0.5 rounded-full text-[10.5px] font-bold uppercase tracking-wider bg-[#E6F4EA] text-[#01875F] border border-[#01875F]/20">
+            <span className="px-2 py-0.5 rounded-full text-[10.5px] font-bold uppercase tracking-wider bg-[#E6F4EA] text-[#18b892] border border-[#18b892]/20">
               {userRole}
             </span>
           </div>
@@ -193,7 +193,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
         {/* Date & Refresh Action */}
         <div className="flex items-center gap-2.5 self-start sm:self-center shrink-0">
           <div className="hidden sm:inline-flex items-center gap-2 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-700">
-            <Calendar className="w-4 h-4 text-[#01875F]" />
+            <Calendar className="w-4 h-4 text-[#18b892]" />
             <span>{currentDateFormatted}</span>
           </div>
 
@@ -204,7 +204,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
             className="inline-flex items-center gap-1.5 px-3 py-2 bg-white hover:bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-700 shadow-2xs transition-colors cursor-pointer disabled:opacity-60"
             title="Refresh live Supabase database metrics"
           >
-            <RefreshCw className={`w-3.5 h-3.5 text-[#01875F] ${isRefreshing ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`w-3.5 h-3.5 text-[#18b892] ${isRefreshing ? 'animate-spin' : ''}`} />
             <span>{isRefreshing ? 'Refreshing...' : 'Refresh'}</span>
           </button>
         </div>
@@ -223,10 +223,10 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
             className="bg-white rounded-xl border border-slate-200/80 p-3.5 sm:p-5 shadow-2xs hover:border-slate-300 transition-all cursor-pointer group flex flex-col justify-between"
           >
             <div className="flex items-center justify-between mb-2 sm:mb-3">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-[#E6F4EA] flex items-center justify-center text-[#01875F]">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-[#E6F4EA] flex items-center justify-center text-[#18b892]">
                 <FolderKanban className="w-4 h-4 sm:w-5 sm:h-5" strokeWidth={2} />
               </div>
-              <span className="hidden sm:inline text-[11px] font-semibold text-slate-400 group-hover:text-[#01875F] transition-colors">
+              <span className="hidden sm:inline text-[11px] font-semibold text-slate-400 group-hover:text-[#18b892] transition-colors">
                 Projects &rarr;
               </span>
             </div>
@@ -247,10 +247,10 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
             className="bg-white rounded-xl border border-slate-200/80 p-3.5 sm:p-5 shadow-2xs hover:border-slate-300 transition-all cursor-pointer group flex flex-col justify-between"
           >
             <div className="flex items-center justify-between mb-2 sm:mb-3">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-[#E6F4EA] flex items-center justify-center text-[#01875F]">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-[#E6F4EA] flex items-center justify-center text-[#18b892]">
                 <Users className="w-4 h-4 sm:w-5 sm:h-5" strokeWidth={2} />
               </div>
-              <span className="hidden sm:inline text-[11px] font-semibold text-slate-400 group-hover:text-[#01875F] transition-colors">
+              <span className="hidden sm:inline text-[11px] font-semibold text-slate-400 group-hover:text-[#18b892] transition-colors">
                 Staff &rarr;
               </span>
             </div>
@@ -271,10 +271,10 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
             className="bg-white rounded-xl border border-slate-200/80 p-3.5 sm:p-5 shadow-2xs hover:border-slate-300 transition-all cursor-pointer group flex flex-col justify-between"
           >
             <div className="flex items-center justify-between mb-2 sm:mb-3">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-[#E6F4EA] flex items-center justify-center text-[#01875F]">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-[#E6F4EA] flex items-center justify-center text-[#18b892]">
                 <CheckSquare className="w-4 h-4 sm:w-5 sm:h-5" strokeWidth={2} />
               </div>
-              <span className="hidden sm:inline text-[11px] font-semibold text-slate-400 group-hover:text-[#01875F] transition-colors">
+              <span className="hidden sm:inline text-[11px] font-semibold text-slate-400 group-hover:text-[#18b892] transition-colors">
                 Review &rarr;
               </span>
             </div>
@@ -295,10 +295,10 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
             className="bg-white rounded-xl border border-slate-200/80 p-3.5 sm:p-5 shadow-2xs hover:border-slate-300 transition-all cursor-pointer group flex flex-col justify-between"
           >
             <div className="flex items-center justify-between mb-2 sm:mb-3">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-[#E6F4EA] flex items-center justify-center text-[#01875F]">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-[#E6F4EA] flex items-center justify-center text-[#18b892]">
                 <CircleDollarSign className="w-4 h-4 sm:w-5 sm:h-5" strokeWidth={2} />
               </div>
-              <span className="hidden sm:inline text-[11px] font-semibold text-slate-400 group-hover:text-[#01875F] transition-colors">
+              <span className="hidden sm:inline text-[11px] font-semibold text-slate-400 group-hover:text-[#18b892] transition-colors">
                 Finances &rarr;
               </span>
             </div>
@@ -324,7 +324,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
           <div>
             <div className="flex items-center justify-between pb-4 border-b border-slate-100">
               <div className="flex items-center gap-2.5">
-                <div className="w-7 h-7 rounded-md bg-[#E6F4EA] text-[#01875F] flex items-center justify-center">
+                <div className="w-7 h-7 rounded-md bg-[#E6F4EA] text-[#18b892] flex items-center justify-center">
                   <FolderKanban className="w-4 h-4" />
                 </div>
                 <h2 className="text-base font-bold text-slate-900 tracking-tight">
@@ -334,7 +334,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
               <button
                 type="button"
                 onClick={() => onSelectModule('all-projects')}
-                className="text-xs font-semibold text-[#01875F] hover:underline cursor-pointer inline-flex items-center gap-1"
+                className="text-xs font-semibold text-[#18b892] hover:underline cursor-pointer inline-flex items-center gap-1"
               >
                 <span>View All Projects</span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -359,7 +359,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
                   {projects?.data.projects.slice(0, 5).map((p) => (
                     <div
                       key={p.id}
-                      className="p-3.5 border border-slate-200/80 rounded-lg hover:border-[#01875F]/30 transition-colors"
+                      className="p-3.5 border border-slate-200/80 rounded-lg hover:border-[#18b892]/30 transition-colors"
                     >
                       <div className="flex items-start justify-between gap-2">
                         <div>
@@ -393,7 +393,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
                         )}
                         {/* ONLY display progress if real progress field exists */}
                         {p.progress != null && (
-                          <span className="font-semibold text-[#01875F]">
+                          <span className="font-semibold text-[#18b892]">
                             Progress: {p.progress}%
                           </span>
                         )}
@@ -409,7 +409,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
             <button
               type="button"
               onClick={() => onSelectModule('all-projects')}
-              className="text-xs font-semibold text-[#01875F] hover:underline cursor-pointer inline-flex items-center gap-1"
+              className="text-xs font-semibold text-[#18b892] hover:underline cursor-pointer inline-flex items-center gap-1"
             >
               <span>View All Projects &rarr;</span>
             </button>
@@ -421,7 +421,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
           <div>
             <div className="flex items-center justify-between pb-4 border-b border-slate-100">
               <div className="flex items-center gap-2.5">
-                <div className="w-7 h-7 rounded-md bg-[#E6F4EA] text-[#01875F] flex items-center justify-center">
+                <div className="w-7 h-7 rounded-md bg-[#E6F4EA] text-[#18b892] flex items-center justify-center">
                   <CheckSquare className="w-4 h-4" />
                 </div>
                 <h2 className="text-base font-bold text-slate-900 tracking-tight">
@@ -431,7 +431,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
               <button
                 type="button"
                 onClick={() => onSelectModule('approvals')}
-                className="text-xs font-semibold text-[#01875F] hover:underline cursor-pointer inline-flex items-center gap-1"
+                className="text-xs font-semibold text-[#18b892] hover:underline cursor-pointer inline-flex items-center gap-1"
               >
                 <span>View All Approvals</span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -456,14 +456,14 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
                   {approvals?.data.items.slice(0, 5).map((item) => (
                     <div
                       key={item.id}
-                      className="p-3.5 border border-slate-200/80 rounded-lg hover:border-[#01875F]/30 transition-colors flex items-center justify-between gap-3"
+                      className="p-3.5 border border-slate-200/80 rounded-lg hover:border-[#18b892]/30 transition-colors flex items-center justify-between gap-3"
                     >
                       <div className="min-w-0">
                         <div className="flex items-center gap-2">
                           <span className="text-xs font-bold text-slate-900 truncate">
                             {item.reference}
                           </span>
-                          <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-[#E6F4EA] text-[#01875F]">
+                          <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-[#E6F4EA] text-[#18b892]">
                             {item.type}
                           </span>
                         </div>
@@ -483,7 +483,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
                         <button
                           type="button"
                           onClick={() => onSelectModule(item.moduleKey as DashboardNavKey)}
-                          className="text-xs font-semibold text-[#01875F] hover:underline cursor-pointer mt-0.5 inline-block"
+                          className="text-xs font-semibold text-[#18b892] hover:underline cursor-pointer mt-0.5 inline-block"
                         >
                           Review &rarr;
                         </button>
@@ -499,7 +499,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
             <button
               type="button"
               onClick={() => onSelectModule('approvals')}
-              className="text-xs font-semibold text-[#01875F] hover:underline cursor-pointer inline-flex items-center gap-1"
+              className="text-xs font-semibold text-[#18b892] hover:underline cursor-pointer inline-flex items-center gap-1"
             >
               <span>View All Approvals &rarr;</span>
             </button>
@@ -516,7 +516,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
           <div>
             <div className="flex items-center justify-between pb-4 border-b border-slate-100">
               <div className="flex items-center gap-2.5">
-                <div className="w-7 h-7 rounded-md bg-[#E6F4EA] text-[#01875F] flex items-center justify-center">
+                <div className="w-7 h-7 rounded-md bg-[#E6F4EA] text-[#18b892] flex items-center justify-center">
                   <Users className="w-4 h-4" />
                 </div>
                 <h2 className="text-base font-bold text-slate-900 tracking-tight">
@@ -526,7 +526,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
               <button
                 type="button"
                 onClick={() => onSelectModule('workforce')}
-                className="text-xs font-semibold text-[#01875F] hover:underline cursor-pointer inline-flex items-center gap-1"
+                className="text-xs font-semibold text-[#18b892] hover:underline cursor-pointer inline-flex items-center gap-1"
               >
                 <span>View Staff</span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -589,7 +589,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
             <button
               type="button"
               onClick={() => onSelectModule('workforce')}
-              className="text-xs font-semibold text-[#01875F] hover:underline cursor-pointer inline-flex items-center gap-1"
+              className="text-xs font-semibold text-[#18b892] hover:underline cursor-pointer inline-flex items-center gap-1"
             >
               <span>View Staff &rarr;</span>
             </button>
@@ -601,7 +601,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
           <div>
             <div className="flex items-center justify-between pb-4 border-b border-slate-100">
               <div className="flex items-center gap-2.5">
-                <div className="w-7 h-7 rounded-md bg-[#E6F4EA] text-[#01875F] flex items-center justify-center">
+                <div className="w-7 h-7 rounded-md bg-[#E6F4EA] text-[#18b892] flex items-center justify-center">
                   <Package className="w-4 h-4" />
                 </div>
                 <h2 className="text-base font-bold text-slate-900 tracking-tight">
@@ -611,7 +611,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
               <button
                 type="button"
                 onClick={() => onSelectModule('materials')}
-                className="text-xs font-semibold text-[#01875F] hover:underline cursor-pointer inline-flex items-center gap-1"
+                className="text-xs font-semibold text-[#18b892] hover:underline cursor-pointer inline-flex items-center gap-1"
               >
                 <span>View Materials</span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -681,7 +681,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
             <button
               type="button"
               onClick={() => onSelectModule('materials')}
-              className="text-xs font-semibold text-[#01875F] hover:underline cursor-pointer inline-flex items-center gap-1"
+              className="text-xs font-semibold text-[#18b892] hover:underline cursor-pointer inline-flex items-center gap-1"
             >
               <span>View Materials &rarr;</span>
             </button>
@@ -695,7 +695,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
       <div className="bg-white rounded-xl border border-slate-200/80 shadow-2xs p-5 sm:p-6">
         <div className="flex items-center justify-between pb-4 border-b border-slate-100">
           <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-md bg-[#E6F4EA] text-[#01875F] flex items-center justify-center">
+            <div className="w-7 h-7 rounded-md bg-[#E6F4EA] text-[#18b892] flex items-center justify-center">
               <CircleDollarSign className="w-4 h-4" />
             </div>
             <h2 className="text-base font-bold text-slate-900 tracking-tight">
@@ -705,7 +705,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
           <button
             type="button"
             onClick={() => onSelectModule('project-costs')}
-            className="text-xs font-semibold text-[#01875F] hover:underline cursor-pointer inline-flex items-center gap-1"
+            className="text-xs font-semibold text-[#18b892] hover:underline cursor-pointer inline-flex items-center gap-1"
           >
             <span>Financial Details</span>
             <ArrowRight className="w-3.5 h-3.5" />
@@ -762,7 +762,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
           <div>
             <div className="flex items-center justify-between pb-4 border-b border-slate-100">
               <div className="flex items-center gap-2.5">
-                <div className="w-7 h-7 rounded-md bg-[#E6F4EA] text-[#01875F] flex items-center justify-center">
+                <div className="w-7 h-7 rounded-md bg-[#E6F4EA] text-[#18b892] flex items-center justify-center">
                   <AlertTriangle className="w-4 h-4" />
                 </div>
                 <h2 className="text-base font-bold text-slate-900 tracking-tight">
@@ -772,7 +772,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
               <button
                 type="button"
                 onClick={() => onSelectModule('alerts')}
-                className="text-xs font-semibold text-[#01875F] hover:underline cursor-pointer inline-flex items-center gap-1"
+                className="text-xs font-semibold text-[#18b892] hover:underline cursor-pointer inline-flex items-center gap-1"
               >
                 <span>View All Alerts</span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -785,7 +785,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
               ) : alerts?.data.alerts.length === 0 ? (
                 <div className="py-12 px-4 text-center border border-dashed border-slate-200 rounded-lg bg-slate-50/50">
                   <div className="w-10 h-10 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto mb-2.5">
-                    <ShieldCheck className="w-5 h-5 text-[#01875F]" />
+                    <ShieldCheck className="w-5 h-5 text-[#18b892]" />
                   </div>
                   <h3 className="text-sm font-bold text-slate-800">No alerts</h3>
                   <p className="text-xs text-slate-500 max-w-sm mx-auto mt-1 leading-relaxed">
@@ -797,7 +797,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
                   {alerts?.data.alerts.slice(0, 5).map((a) => (
                     <div
                       key={a.id}
-                      className="p-3.5 border border-slate-200/80 rounded-lg hover:border-[#01875F]/30 transition-colors"
+                      className="p-3.5 border border-slate-200/80 rounded-lg hover:border-[#18b892]/30 transition-colors"
                     >
                       <div className="flex items-center justify-between gap-2">
                         <span className="text-xs font-bold text-slate-900">{a.title}</span>
@@ -823,7 +823,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
             <button
               type="button"
               onClick={() => onSelectModule('alerts')}
-              className="text-xs font-semibold text-[#01875F] hover:underline cursor-pointer inline-flex items-center gap-1"
+              className="text-xs font-semibold text-[#18b892] hover:underline cursor-pointer inline-flex items-center gap-1"
             >
               <span>View All Alerts &rarr;</span>
             </button>
@@ -835,7 +835,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
           <div>
             <div className="flex items-center justify-between pb-4 border-b border-slate-100">
               <div className="flex items-center gap-2.5">
-                <div className="w-7 h-7 rounded-md bg-[#E6F4EA] text-[#01875F] flex items-center justify-center">
+                <div className="w-7 h-7 rounded-md bg-[#E6F4EA] text-[#18b892] flex items-center justify-center">
                   <Clock className="w-4 h-4" />
                 </div>
                 <h2 className="text-base font-bold text-slate-900 tracking-tight">
@@ -861,7 +861,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
                 <div className="space-y-3">
                   {activity?.data.activities.slice(0, 6).map((act) => (
                     <div key={act.id} className="flex items-start gap-3 text-xs py-1.5 border-b border-slate-100 last:border-0">
-                      <div className="w-2 h-2 rounded-full bg-[#01875F] mt-1.5 shrink-0" />
+                      <div className="w-2 h-2 rounded-full bg-[#18b892] mt-1.5 shrink-0" />
                       <div className="min-w-0 flex-1">
                         <span className="font-semibold text-slate-800 block truncate">{act.title}</span>
                         <p className="text-[11px] text-slate-400 mt-0.5">{act.subtitle} &bull; {act.timestamp}</p>
@@ -887,9 +887,9 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
           <button
             type="button"
             onClick={() => onSelectModule('all-projects')}
-            className="p-3 rounded-lg border border-slate-200 hover:border-[#01875F] hover:bg-slate-50/70 text-left transition-all cursor-pointer group"
+            className="p-3 rounded-lg border border-slate-200 hover:border-[#18b892] hover:bg-slate-50/70 text-left transition-all cursor-pointer group"
           >
-            <FolderKanban className="w-4 h-4 text-[#01875F] mb-1.5 group-hover:scale-110 transition-transform" />
+            <FolderKanban className="w-4 h-4 text-[#18b892] mb-1.5 group-hover:scale-110 transition-transform" />
             <span className="text-xs font-bold text-slate-900 block">Create Project</span>
             <span className="text-[10.5px] text-slate-400 block mt-0.5">Projects portfolio</span>
           </button>
@@ -897,9 +897,9 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
           <button
             type="button"
             onClick={() => onSelectModule('workforce')}
-            className="p-3 rounded-lg border border-slate-200 hover:border-[#01875F] hover:bg-slate-50/70 text-left transition-all cursor-pointer group"
+            className="p-3 rounded-lg border border-slate-200 hover:border-[#18b892] hover:bg-slate-50/70 text-left transition-all cursor-pointer group"
           >
-            <UserPlus className="w-4 h-4 text-[#01875F] mb-1.5 group-hover:scale-110 transition-transform" />
+            <UserPlus className="w-4 h-4 text-[#18b892] mb-1.5 group-hover:scale-110 transition-transform" />
             <span className="text-xs font-bold text-slate-900 block">Add Staff</span>
             <span className="text-[10.5px] text-slate-400 block mt-0.5">Rosters &amp; staff</span>
           </button>
@@ -907,9 +907,9 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
           <button
             type="button"
             onClick={() => onSelectModule('material-requests')}
-            className="p-3 rounded-lg border border-slate-200 hover:border-[#01875F] hover:bg-slate-50/70 text-left transition-all cursor-pointer group"
+            className="p-3 rounded-lg border border-slate-200 hover:border-[#18b892] hover:bg-slate-50/70 text-left transition-all cursor-pointer group"
           >
-            <FileText className="w-4 h-4 text-[#01875F] mb-1.5 group-hover:scale-110 transition-transform" />
+            <FileText className="w-4 h-4 text-[#18b892] mb-1.5 group-hover:scale-110 transition-transform" />
             <span className="text-xs font-bold text-slate-900 block">Material Request</span>
             <span className="text-[10.5px] text-slate-400 block mt-0.5">Site requisitions</span>
           </button>
@@ -917,9 +917,9 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
           <button
             type="button"
             onClick={() => onSelectModule('procurement')}
-            className="p-3 rounded-lg border border-slate-200 hover:border-[#01875F] hover:bg-slate-50/70 text-left transition-all cursor-pointer group"
+            className="p-3 rounded-lg border border-slate-200 hover:border-[#18b892] hover:bg-slate-50/70 text-left transition-all cursor-pointer group"
           >
-            <ShoppingCart className="w-4 h-4 text-[#01875F] mb-1.5 group-hover:scale-110 transition-transform" />
+            <ShoppingCart className="w-4 h-4 text-[#18b892] mb-1.5 group-hover:scale-110 transition-transform" />
             <span className="text-xs font-bold text-slate-900 block">Create Procurement</span>
             <span className="text-[10.5px] text-slate-400 block mt-0.5">Purchase orders</span>
           </button>
@@ -927,9 +927,9 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
           <button
             type="button"
             onClick={() => onSelectModule('approvals')}
-            className="p-3 rounded-lg border border-slate-200 hover:border-[#01875F] hover:bg-slate-50/70 text-left transition-all cursor-pointer group"
+            className="p-3 rounded-lg border border-slate-200 hover:border-[#18b892] hover:bg-slate-50/70 text-left transition-all cursor-pointer group"
           >
-            <CheckSquare className="w-4 h-4 text-[#01875F] mb-1.5 group-hover:scale-110 transition-transform" />
+            <CheckSquare className="w-4 h-4 text-[#18b892] mb-1.5 group-hover:scale-110 transition-transform" />
             <span className="text-xs font-bold text-slate-900 block">Review Approvals</span>
             <span className="text-[10.5px] text-slate-400 block mt-0.5">Pending sign-offs</span>
           </button>

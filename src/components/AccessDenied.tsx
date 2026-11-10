@@ -12,7 +12,7 @@ export const AccessDenied: React.FC = () => {
   if (isLoading || !isInitialized) {
     return (
       <div className="min-h-screen bg-[#F8FAF9] flex flex-col items-center justify-center p-4">
-        <div className="w-10 h-10 border-3 border-[#01875F]/20 border-t-[#01875F] rounded-full animate-spin mb-3" />
+        <div className="w-10 h-10 border-3 border-[#18b892]/20 border-t-[#18b892] rounded-full animate-spin mb-3" />
         <p className="text-xs font-semibold text-slate-500 tracking-wide">
           Loading your workspace...
         </p>
@@ -35,7 +35,7 @@ export const AccessDenied: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8FAF9] flex flex-col items-center justify-center p-4 sm:p-6 selection:bg-[#01875F] selection:text-white">
+    <div className="min-h-screen bg-[#F8FAF9] flex flex-col items-center justify-center p-4 sm:p-6 selection:bg-[#18b892] selection:text-white">
       {/* Brand Header */}
       <div className="flex items-center gap-2.5 mb-8">
         <div className="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center shadow-xs shrink-0 bg-white border border-slate-100">
@@ -71,7 +71,7 @@ export const AccessDenied: React.FC = () => {
           type="button"
           onClick={handleReturnToLogin}
           disabled={isLoading}
-          className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 bg-[#01875F] hover:bg-[#016f4e] text-white text-sm font-semibold rounded-xl shadow-sm transition-all duration-150 cursor-pointer disabled:opacity-60"
+          className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 bg-[#18b892] hover:bg-[#016f4e] text-white text-sm font-semibold rounded-xl shadow-sm transition-all duration-150 cursor-pointer disabled:opacity-60"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Return to Login</span>

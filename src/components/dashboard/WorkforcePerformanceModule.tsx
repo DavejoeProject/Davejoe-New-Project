@@ -108,7 +108,7 @@ export const WorkforcePerformanceModule: React.FC<WorkforcePerformanceModuleProp
           <button
             type="button"
             onClick={onBackToDashboard}
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#01875F] hover:underline mb-2 cursor-pointer"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#18b892] hover:underline mb-2 cursor-pointer"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>Back to Dashboard</span>
@@ -123,7 +123,7 @@ export const WorkforcePerformanceModule: React.FC<WorkforcePerformanceModuleProp
               </span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight flex items-center gap-2.5">
-              <TrendingUp className="w-7 h-7 text-[#01875F]" />
+              <TrendingUp className="w-7 h-7 text-[#18b892]" />
               <span>Staff Performance Control</span>
             </h1>
             <p className="text-xs sm:text-sm text-slate-500 mt-1">
@@ -140,7 +140,7 @@ export const WorkforcePerformanceModule: React.FC<WorkforcePerformanceModuleProp
               title="Refresh performance metrics from database"
             >
               <RefreshCw
-                className={`w-3.5 h-3.5 text-[#01875F] ${isRefreshing ? 'animate-spin' : ''}`}
+                className={`w-3.5 h-3.5 text-[#18b892] ${isRefreshing ? 'animate-spin' : ''}`}
               />
               <span>{isRefreshing ? 'Refreshing...' : 'Refresh'}</span>
             </button>
@@ -172,7 +172,7 @@ export const WorkforcePerformanceModule: React.FC<WorkforcePerformanceModuleProp
             <button
               type="button"
               onClick={() => fetchSummary(false)}
-              className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#01875F] hover:bg-[#016f4e] text-white text-xs font-semibold rounded-lg shadow-sm transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#18b892] hover:bg-[#016f4e] text-white text-xs font-semibold rounded-lg shadow-sm transition-colors cursor-pointer"
             >
               <RefreshCw className="w-3.5 h-3.5" />
               <span>Retry</span>
@@ -214,7 +214,7 @@ export const WorkforcePerformanceModule: React.FC<WorkforcePerformanceModuleProp
               <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">
                 AVAILABLE
               </span>
-              <span className="text-xl font-bold text-[#01875F] mt-1 block font-mono">
+              <span className="text-xl font-bold text-[#18b892] mt-1 block font-mono">
                 {summaryData.metrics.availableWorkforce}
               </span>
             </div>
@@ -271,7 +271,7 @@ export const WorkforcePerformanceModule: React.FC<WorkforcePerformanceModuleProp
                   <button
                     type="button"
                     onClick={() => navigate('/management/workforce/overtime')}
-                    className="text-[11px] font-bold text-[#01875F] hover:underline cursor-pointer"
+                    className="text-[11px] font-bold text-[#18b892] hover:underline cursor-pointer"
                   >
                     View All
                   </button>
@@ -313,7 +313,7 @@ export const WorkforcePerformanceModule: React.FC<WorkforcePerformanceModuleProp
                   <button
                     type="button"
                     onClick={() => navigate('/management/workforce/conduct')}
-                    className="text-[11px] font-bold text-[#01875F] hover:underline cursor-pointer"
+                    className="text-[11px] font-bold text-[#18b892] hover:underline cursor-pointer"
                   >
                     View All
                   </button>
@@ -344,14 +344,14 @@ export const WorkforcePerformanceModule: React.FC<WorkforcePerformanceModuleProp
               {/* Available Artisans Ready for Deployment */}
               <div className="bg-white rounded-xl border border-slate-200/80 p-4 shadow-2xs space-y-2">
                 <div className="flex items-center justify-between pb-2 border-b border-slate-100">
-                  <h3 className="text-xs font-bold text-[#01875F] flex items-center gap-1.5 uppercase">
+                  <h3 className="text-xs font-bold text-[#18b892] flex items-center gap-1.5 uppercase">
                     <Users className="w-3.5 h-3.5" />
                     <span>Available Artisans ({summaryData.exceptions.availableWorkers.length})</span>
                   </h3>
                   <button
                     type="button"
                     onClick={() => navigate('/management/workforce')}
-                    className="text-[11px] font-bold text-[#01875F] hover:underline cursor-pointer"
+                    className="text-[11px] font-bold text-[#18b892] hover:underline cursor-pointer"
                   >
                     Staff Directory
                   </button>
@@ -371,7 +371,7 @@ export const WorkforcePerformanceModule: React.FC<WorkforcePerformanceModuleProp
                         <button
                           type="button"
                           onClick={() => navigate(`/management/workforce/${w.id}`)}
-                          className="px-2 py-0.5 rounded text-[10.5px] font-bold bg-[#E6F4EA] text-[#01875F] border border-[#01875F]/20 hover:bg-[#d2edd9] cursor-pointer"
+                          className="px-2 py-0.5 rounded text-[10.5px] font-bold bg-[#E6F4EA] text-[#18b892] border border-[#18b892]/20 hover:bg-[#d2edd9] cursor-pointer"
                         >
                           Control Centre
                         </button>
@@ -387,7 +387,7 @@ export const WorkforcePerformanceModule: React.FC<WorkforcePerformanceModuleProp
           <div className="bg-white rounded-xl border border-slate-200/80 shadow-2xs overflow-hidden">
             <div className="p-4 sm:p-5 border-b border-slate-100">
               <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
-                <FolderKanban className="w-4 h-4 text-[#01875F]" />
+                <FolderKanban className="w-4 h-4 text-[#18b892]" />
                 <span>Performance &amp; Deployment by Project</span>
               </h2>
               <p className="text-xs text-slate-500 mt-0.5">
@@ -418,7 +418,7 @@ export const WorkforcePerformanceModule: React.FC<WorkforcePerformanceModuleProp
                           <button
                             type="button"
                             onClick={() => navigate(`/management/projects/${p.projectId}`)}
-                            className="font-bold text-[#01875F] hover:underline flex items-center gap-1 cursor-pointer"
+                            className="font-bold text-[#18b892] hover:underline flex items-center gap-1 cursor-pointer"
                           >
                             <span>{p.projectName}</span>
                             <ExternalLink className="w-3 h-3 text-slate-400" />
@@ -469,7 +469,7 @@ export const WorkforcePerformanceModule: React.FC<WorkforcePerformanceModuleProp
             <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between">
               <div>
                 <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
-                  <Users className="w-4 h-4 text-[#01875F]" />
+                  <Users className="w-4 h-4 text-[#18b892]" />
                   <span>Staff Member Performance Overview</span>
                 </h2>
                 <p className="text-xs text-slate-500 mt-0.5">
@@ -479,7 +479,7 @@ export const WorkforcePerformanceModule: React.FC<WorkforcePerformanceModuleProp
               <button
                 type="button"
                 onClick={() => navigate('/management/workforce')}
-                className="text-xs font-bold text-[#01875F] hover:underline cursor-pointer"
+                className="text-xs font-bold text-[#18b892] hover:underline cursor-pointer"
               >
                 Staff Directory →
               </button>
@@ -511,7 +511,7 @@ export const WorkforcePerformanceModule: React.FC<WorkforcePerformanceModuleProp
                           <button
                             type="button"
                             onClick={() => navigate(`/management/workforce/${w.workforceId}`)}
-                            className="font-bold text-slate-900 hover:text-[#01875F] flex items-center gap-1.5 transition-colors cursor-pointer text-left"
+                            className="font-bold text-slate-900 hover:text-[#18b892] flex items-center gap-1.5 transition-colors cursor-pointer text-left"
                             title="Open Staff Control Centre"
                           >
                             <span>{w.workerName}</span>
@@ -529,7 +529,7 @@ export const WorkforcePerformanceModule: React.FC<WorkforcePerformanceModuleProp
                             <button
                               type="button"
                               onClick={() => navigate(`/management/projects/${w.currentProjectId}`)}
-                              className="font-bold text-[#01875F] hover:underline flex items-center gap-1 cursor-pointer"
+                              className="font-bold text-[#18b892] hover:underline flex items-center gap-1 cursor-pointer"
                             >
                               <span>{w.currentProject}</span>
                               <ExternalLink className="w-3 h-3 text-slate-400" />

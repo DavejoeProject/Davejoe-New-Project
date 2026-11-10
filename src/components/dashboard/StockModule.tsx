@@ -157,7 +157,7 @@ export const StockModule: React.FC<StockModuleProps> = () => {
               </span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight flex items-center gap-2.5">
-              <Boxes className="w-7 h-7 text-[#01875F]" />
+              <Boxes className="w-7 h-7 text-[#18b892]" />
               <span>Stock & Inventory Control</span>
             </h1>
             <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-2xl leading-relaxed">
@@ -173,7 +173,7 @@ export const StockModule: React.FC<StockModuleProps> = () => {
               className="inline-flex items-center gap-1.5 px-3 py-2 bg-white hover:bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-700 shadow-2xs transition-colors cursor-pointer disabled:opacity-60"
               title="Refresh"
             >
-              <RefreshCw className={`w-3.5 h-3.5 text-[#01875F] ${isRefreshing ? 'animate-spin' : ''}`} />
+              <RefreshCw className={`w-3.5 h-3.5 text-[#18b892] ${isRefreshing ? 'animate-spin' : ''}`} />
               <span>{isRefreshing ? 'Refreshing...' : 'Refresh'}</span>
             </button>
 
@@ -189,7 +189,7 @@ export const StockModule: React.FC<StockModuleProps> = () => {
             <button
               type="button"
               onClick={() => setIsUsageModalOpen(true)}
-              className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#01875F] hover:bg-[#016f4e] text-white text-xs font-semibold rounded-lg shadow-2xs transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#18b892] hover:bg-[#016f4e] text-white text-xs font-semibold rounded-lg shadow-2xs transition-colors cursor-pointer"
             >
               <Plus className="w-4 h-4" />
               <span>Record Usage</span>
@@ -217,7 +217,7 @@ export const StockModule: React.FC<StockModuleProps> = () => {
           <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">
             TOTAL STOCK UNITS
           </span>
-          <span className="text-2xl font-bold text-[#01875F] mt-1 block font-mono">
+          <span className="text-2xl font-bold text-[#18b892] mt-1 block font-mono">
             {isLoading && !summary ? '...' : (summary?.totalStockPositions ?? 0).toLocaleString()}
           </span>
           <span className="text-[11px] text-slate-500">Total units on hand</span>
@@ -299,7 +299,7 @@ export const StockModule: React.FC<StockModuleProps> = () => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search materials, projects, or movements..."
-                className="w-full pl-9 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#01875F]"
+                className="w-full pl-9 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#18b892]"
               />
             </div>
 
@@ -307,7 +307,7 @@ export const StockModule: React.FC<StockModuleProps> = () => {
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-700 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#01875F]"
+                className="px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-700 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#18b892]"
               >
                 <option value="all">All Positions</option>
                 <option value="healthy">Healthy</option>
@@ -320,7 +320,7 @@ export const StockModule: React.FC<StockModuleProps> = () => {
               <select
                 value={projectFilter}
                 onChange={(e) => setProjectFilter(e.target.value)}
-                className="px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-700 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#01875F]"
+                className="px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-700 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#18b892]"
               >
                 <option value="all">All Projects</option>
                 {projects.map((p) => (
@@ -339,7 +339,7 @@ export const StockModule: React.FC<StockModuleProps> = () => {
             <button
               type="button"
               onClick={handleClearFilters}
-              className="text-[#01875F] font-semibold hover:underline cursor-pointer"
+              className="text-[#18b892] font-semibold hover:underline cursor-pointer"
             >
               Clear Filters
             </button>
@@ -363,7 +363,7 @@ export const StockModule: React.FC<StockModuleProps> = () => {
           <button
             type="button"
             onClick={() => fetchData()}
-            className="px-4 py-2 bg-[#01875F] text-white text-xs font-semibold rounded-lg shadow-2xs hover:bg-[#016f4e] transition-colors"
+            className="px-4 py-2 bg-[#18b892] text-white text-xs font-semibold rounded-lg shadow-2xs hover:bg-[#016f4e] transition-colors"
           >
             Retry
           </button>
@@ -372,7 +372,7 @@ export const StockModule: React.FC<StockModuleProps> = () => {
         /* Stock Positions Table */
         positions.length === 0 ? (
           <div className="bg-white rounded-xl border border-slate-200/80 p-12 text-center max-w-xl mx-auto shadow-2xs">
-            <div className="w-12 h-12 rounded-full bg-[#E6F4EA] text-[#01875F] flex items-center justify-center mx-auto mb-3 border border-[#01875F]/20">
+            <div className="w-12 h-12 rounded-full bg-[#E6F4EA] text-[#18b892] flex items-center justify-center mx-auto mb-3 border border-[#18b892]/20">
               <Boxes className="w-6 h-6" />
             </div>
             <h3 className="text-base font-bold text-slate-900">No stock records yet</h3>
@@ -408,7 +408,7 @@ export const StockModule: React.FC<StockModuleProps> = () => {
                         className="hover:bg-slate-50/80 transition-colors cursor-pointer group"
                       >
                         <td className="py-3.5 px-4">
-                          <span className="font-bold text-slate-900 group-hover:text-[#01875F]">
+                          <span className="font-bold text-slate-900 group-hover:text-[#18b892]">
                             {pos.name}
                           </span>
                         </td>
@@ -451,7 +451,7 @@ export const StockModule: React.FC<StockModuleProps> = () => {
                           <button
                             type="button"
                             onClick={() => setSelectedStockDetail(pos)}
-                            className="p-1.5 text-slate-500 hover:text-[#01875F] hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+                            className="p-1.5 text-slate-500 hover:text-[#18b892] hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
                             title="Inspect Stock Ledger"
                           >
                             <Eye className="w-4 h-4" />
@@ -469,7 +469,7 @@ export const StockModule: React.FC<StockModuleProps> = () => {
         /* Movement Ledger Table */
         movements.length === 0 ? (
           <div className="bg-white rounded-xl border border-slate-200/80 p-12 text-center max-w-xl mx-auto shadow-2xs">
-            <div className="w-12 h-12 rounded-full bg-[#E6F4EA] text-[#01875F] flex items-center justify-center mx-auto mb-3 border border-[#01875F]/20">
+            <div className="w-12 h-12 rounded-full bg-[#E6F4EA] text-[#18b892] flex items-center justify-center mx-auto mb-3 border border-[#18b892]/20">
               <Layers className="w-6 h-6" />
             </div>
             <h3 className="text-base font-bold text-slate-900">No stock movements recorded yet</h3>
@@ -528,7 +528,7 @@ export const StockModule: React.FC<StockModuleProps> = () => {
                           {m.projects ? (
                             <Link
                               to={`/management/projects/${m.project_id}`}
-                              className="hover:text-[#01875F] hover:underline"
+                              className="hover:text-[#18b892] hover:underline"
                             >
                               {m.projects.name}
                             </Link>
@@ -562,7 +562,7 @@ export const StockModule: React.FC<StockModuleProps> = () => {
         /* Usage Records Table */
         usages.length === 0 ? (
           <div className="bg-white rounded-xl border border-slate-200/80 p-12 text-center max-w-xl mx-auto shadow-2xs">
-            <div className="w-12 h-12 rounded-full bg-[#E6F4EA] text-[#01875F] flex items-center justify-center mx-auto mb-3 border border-[#01875F]/20">
+            <div className="w-12 h-12 rounded-full bg-[#E6F4EA] text-[#18b892] flex items-center justify-center mx-auto mb-3 border border-[#18b892]/20">
               <Hammer className="w-6 h-6" />
             </div>
             <h3 className="text-base font-bold text-slate-900">No material usage recorded yet</h3>
@@ -572,7 +572,7 @@ export const StockModule: React.FC<StockModuleProps> = () => {
             <button
               type="button"
               onClick={() => setIsUsageModalOpen(true)}
-              className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 bg-[#01875F] text-white text-xs font-semibold rounded-lg shadow-2xs hover:bg-[#016f4e] transition-colors"
+              className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 bg-[#18b892] text-white text-xs font-semibold rounded-lg shadow-2xs hover:bg-[#016f4e] transition-colors"
             >
               <Plus className="w-4 h-4" />
               <span>Record Usage</span>
@@ -604,7 +604,7 @@ export const StockModule: React.FC<StockModuleProps> = () => {
                         {u.projects ? (
                           <Link
                             to={`/management/projects/${u.project_id}`}
-                            className="font-medium text-slate-800 hover:text-[#01875F] hover:underline"
+                            className="font-medium text-slate-800 hover:text-[#18b892] hover:underline"
                           >
                             {u.projects.name}
                           </Link>

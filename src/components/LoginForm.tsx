@@ -213,7 +213,7 @@ export const LoginForm: React.FC = () => {
                     className={`w-full h-11 px-3.5 pl-10 bg-white border rounded-lg text-sm text-slate-800 placeholder:text-slate-400 transition-all outline-none ${
                       errors.email || errors.general?.includes('credentials')
                         ? 'border-red-400 focus:border-red-500 focus:ring-2 focus:ring-red-100'
-                        : 'border-slate-200 hover:border-slate-300 focus:border-[#01875F] focus:ring-2 focus:ring-[#01875F]/20'
+                        : 'border-slate-200 hover:border-slate-300 focus:border-[#18b892] focus:ring-2 focus:ring-[#18b892]/20'
                     }`}
                   />
                 </div>
@@ -277,13 +277,13 @@ export const LoginForm: React.FC = () => {
                     className={`w-full h-11 px-3.5 pl-10 pr-10 bg-white border rounded-lg text-sm text-slate-800 placeholder:text-slate-400 transition-all outline-none ${
                       errors.password || errors.general?.includes('credentials')
                         ? 'border-red-400 focus:border-red-500 focus:ring-2 focus:ring-red-100'
-                        : 'border-slate-200 hover:border-slate-300 focus:border-[#01875F] focus:ring-2 focus:ring-[#01875F]/20'
+                        : 'border-slate-200 hover:border-slate-300 focus:border-[#18b892] focus:ring-2 focus:ring-[#18b892]/20'
                     }`}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword((prev) => !prev)}
-                    className="absolute right-3 text-slate-400 hover:text-slate-600 p-1 rounded transition-colors focus:outline-none focus:text-[#01875F]"
+                    className="absolute right-3 text-slate-400 hover:text-slate-600 p-1 rounded transition-colors focus:outline-none focus:text-[#18b892]"
                     aria-label={showPassword ? 'Hide password' : 'Show password'}
                   >
                     {showPassword ? (
@@ -305,7 +305,7 @@ export const LoginForm: React.FC = () => {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full h-11 bg-[#01875F] hover:bg-[#016f4e] active:bg-[#01583e] text-white text-sm font-semibold rounded-lg shadow-sm hover:shadow transition-all duration-150 flex items-center justify-center gap-2 disabled:opacity-75 cursor-pointer"
+                  className="w-full h-11 bg-[#18b892] hover:bg-[#016f4e] active:bg-[#01583e] text-white text-sm font-semibold rounded-lg shadow-sm hover:shadow transition-all duration-150 flex items-center justify-center gap-2 disabled:opacity-75 cursor-pointer"
                 >
                   {isLoading ? (
                     <span className="inline-flex items-center gap-2">
@@ -345,7 +345,7 @@ export const LoginForm: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setIsForgotModalOpen(true)}
-                  className="text-xs sm:text-sm font-medium text-[#01875F] hover:text-[#016f4e] transition-colors focus:outline-none focus:underline cursor-pointer"
+                  className="text-xs sm:text-sm font-medium text-[#18b892] hover:text-[#016f4e] transition-colors focus:outline-none focus:underline cursor-pointer"
                 >
                   Forgot password?
                 </button>
@@ -355,7 +355,7 @@ export const LoginForm: React.FC = () => {
         ) : (
           /* SUCCESS STATE AFTER SIGN IN (Fallback) */
           <div className="text-center py-4 animate-in fade-in-50 zoom-in-95 duration-200">
-            <div className="w-14 h-14 bg-emerald-50 text-[#01875F] rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="w-14 h-14 bg-emerald-50 text-[#18b892] rounded-full flex items-center justify-center mx-auto mb-4">
               <CheckCircle2 className="w-8 h-8" strokeWidth={2.2} />
             </div>
             <h2 className="text-xl font-bold text-slate-900 mb-1">
@@ -372,7 +372,7 @@ export const LoginForm: React.FC = () => {
               <div className="text-sm font-semibold text-slate-800 truncate">
                 {authenticatedUser?.email}
               </div>
-              <div className="text-xs font-semibold text-[#01875F] mt-1">
+              <div className="text-xs font-semibold text-[#18b892] mt-1">
                 Role: {authenticatedUser?.role}
               </div>
             </div>

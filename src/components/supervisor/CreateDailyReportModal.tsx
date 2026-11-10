@@ -96,7 +96,7 @@ export const CreateDailyReportModal: React.FC<CreateDailyReportModalProps> = ({
         {/* Header */}
         <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between shrink-0 bg-slate-50/50">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-[#E6F4EA] text-[#01875F] flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-[#E6F4EA] text-[#18b892] flex items-center justify-center">
               <FileText className="w-4 h-4" />
             </div>
             <div>
@@ -138,7 +138,7 @@ export const CreateDailyReportModal: React.FC<CreateDailyReportModalProps> = ({
                 value={projectId}
                 onChange={(e) => setProjectId(e.target.value)}
                 required
-                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl focus:border-[#01875F] focus:ring-1 focus:ring-[#01875F] text-xs font-medium text-slate-800"
+                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl focus:border-[#18b892] focus:ring-1 focus:ring-[#18b892] text-xs font-medium text-slate-800"
               >
                 <option value="">Select Project</option>
                 {projects.map((p) => (
@@ -158,7 +158,7 @@ export const CreateDailyReportModal: React.FC<CreateDailyReportModalProps> = ({
                 value={reportDate}
                 onChange={(e) => setReportDate(e.target.value)}
                 required
-                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl focus:border-[#01875F] focus:ring-1 focus:ring-[#01875F] text-xs font-medium text-slate-800"
+                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl focus:border-[#18b892] focus:ring-1 focus:ring-[#18b892] text-xs font-medium text-slate-800"
               />
             </div>
           </div>
@@ -170,7 +170,7 @@ export const CreateDailyReportModal: React.FC<CreateDailyReportModalProps> = ({
               placeholder="e.g., Priming & Wall Skimming — 2nd Floor"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl focus:border-[#01875F] focus:ring-1 focus:ring-[#01875F] text-xs text-slate-800"
+              className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl focus:border-[#18b892] focus:ring-1 focus:ring-[#18b892] text-xs text-slate-800"
             />
           </div>
 
@@ -182,7 +182,7 @@ export const CreateDailyReportModal: React.FC<CreateDailyReportModalProps> = ({
                 placeholder="Scope scheduled for today's shift..."
                 value={workPlanned}
                 onChange={(e) => setWorkPlanned(e.target.value)}
-                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl focus:border-[#01875F] focus:ring-1 focus:ring-[#01875F] text-xs text-slate-800"
+                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl focus:border-[#18b892] focus:ring-1 focus:ring-[#18b892] text-xs text-slate-800"
               />
             </div>
 
@@ -196,7 +196,7 @@ export const CreateDailyReportModal: React.FC<CreateDailyReportModalProps> = ({
                 placeholder="Specific tasks completed by artisans..."
                 value={workCompleted}
                 onChange={(e) => setWorkCompleted(e.target.value)}
-                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl focus:border-[#01875F] focus:ring-1 focus:ring-[#01875F] text-xs text-slate-800"
+                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl focus:border-[#18b892] focus:ring-1 focus:ring-[#18b892] text-xs text-slate-800"
               />
             </div>
           </div>
@@ -209,7 +209,7 @@ export const CreateDailyReportModal: React.FC<CreateDailyReportModalProps> = ({
                 placeholder="e.g., Living room, Rooms 1-3"
                 value={areasWorked}
                 onChange={(e) => setAreasWorked(e.target.value)}
-                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl focus:border-[#01875F] focus:ring-1 focus:ring-[#01875F] text-xs text-slate-800"
+                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl focus:border-[#18b892] focus:ring-1 focus:ring-[#18b892] text-xs text-slate-800"
               />
             </div>
 
@@ -220,7 +220,7 @@ export const CreateDailyReportModal: React.FC<CreateDailyReportModalProps> = ({
                 placeholder="e.g., 250 m² primed"
                 value={quantitiesCompleted}
                 onChange={(e) => setQuantitiesCompleted(e.target.value)}
-                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl focus:border-[#01875F] focus:ring-1 focus:ring-[#01875F] text-xs text-slate-800"
+                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl focus:border-[#18b892] focus:ring-1 focus:ring-[#18b892] text-xs text-slate-800"
               />
             </div>
 
@@ -232,7 +232,7 @@ export const CreateDailyReportModal: React.FC<CreateDailyReportModalProps> = ({
                 placeholder="e.g., 8"
                 value={workforcePresent}
                 onChange={(e) => setWorkforcePresent(e.target.value)}
-                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl focus:border-[#01875F] focus:ring-1 focus:ring-[#01875F] text-xs text-slate-800"
+                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl focus:border-[#18b892] focus:ring-1 focus:ring-[#18b892] text-xs text-slate-800"
               />
             </div>
           </div>
@@ -245,7 +245,7 @@ export const CreateDailyReportModal: React.FC<CreateDailyReportModalProps> = ({
                 placeholder="Paint drums, filler bags, sandpaper..."
                 value={materialsReceived}
                 onChange={(e) => setMaterialsReceived(e.target.value)}
-                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl focus:border-[#01875F] focus:ring-1 focus:ring-[#01875F] text-xs text-slate-800"
+                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl focus:border-[#18b892] focus:ring-1 focus:ring-[#18b892] text-xs text-slate-800"
               />
             </div>
 
@@ -256,7 +256,7 @@ export const CreateDailyReportModal: React.FC<CreateDailyReportModalProps> = ({
                 placeholder="Quantities used during the shift..."
                 value={materialsUsed}
                 onChange={(e) => setMaterialsUsed(e.target.value)}
-                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl focus:border-[#01875F] focus:ring-1 focus:ring-[#01875F] text-xs text-slate-800"
+                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl focus:border-[#18b892] focus:ring-1 focus:ring-[#18b892] text-xs text-slate-800"
               />
             </div>
           </div>
@@ -269,7 +269,7 @@ export const CreateDailyReportModal: React.FC<CreateDailyReportModalProps> = ({
                 placeholder="Power outage, water shortage, client delay..."
                 value={delaysIssues}
                 onChange={(e) => setDelaysIssues(e.target.value)}
-                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl focus:border-[#01875F] focus:ring-1 focus:ring-[#01875F] text-xs text-slate-800"
+                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl focus:border-[#18b892] focus:ring-1 focus:ring-[#18b892] text-xs text-slate-800"
               />
             </div>
 
@@ -280,7 +280,7 @@ export const CreateDailyReportModal: React.FC<CreateDailyReportModalProps> = ({
                 placeholder="Safety PPE compliance, client instructions..."
                 value={safetyConcerns}
                 onChange={(e) => setSafetyConcerns(e.target.value)}
-                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl focus:border-[#01875F] focus:ring-1 focus:ring-[#01875F] text-xs text-slate-800"
+                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl focus:border-[#18b892] focus:ring-1 focus:ring-[#18b892] text-xs text-slate-800"
               />
             </div>
           </div>
@@ -292,7 +292,7 @@ export const CreateDailyReportModal: React.FC<CreateDailyReportModalProps> = ({
               placeholder="e.g., Final coat of emulsion in master bedroom"
               value={nextSteps}
               onChange={(e) => setNextSteps(e.target.value)}
-              className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl focus:border-[#01875F] focus:ring-1 focus:ring-[#01875F] text-xs text-slate-800"
+              className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl focus:border-[#18b892] focus:ring-1 focus:ring-[#18b892] text-xs text-slate-800"
             />
           </div>
 
@@ -309,7 +309,7 @@ export const CreateDailyReportModal: React.FC<CreateDailyReportModalProps> = ({
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-5 py-2 bg-[#01875F] hover:bg-[#016f4e] text-white font-bold rounded-xl shadow-2xs transition-colors cursor-pointer disabled:opacity-50"
+              className="px-5 py-2 bg-[#18b892] hover:bg-[#016f4e] text-white font-bold rounded-xl shadow-2xs transition-colors cursor-pointer disabled:opacity-50"
             >
               {isSubmitting ? 'Submitting Report...' : 'Submit Daily Report'}
             </button>

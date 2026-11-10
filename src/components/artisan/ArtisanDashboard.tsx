@@ -144,7 +144,7 @@ export const ArtisanDashboard: React.FC = () => {
       <header className="sticky top-0 z-40 bg-white border-b border-slate-200/90 shadow-2xs">
         <div className="max-w-5xl mx-auto px-3 sm:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-[#01875F] text-white flex items-center justify-center font-bold text-sm shadow-2xs">
+            <div className="w-9 h-9 rounded-xl bg-[#18b892] text-white flex items-center justify-center font-bold text-sm shadow-2xs">
               <Hammer className="w-5 h-5" />
             </div>
             <div>
@@ -155,7 +155,7 @@ export const ArtisanDashboard: React.FC = () => {
                 <h1 className="text-sm sm:text-base font-bold text-slate-900 tracking-tight">
                   Artisan Workspace
                 </h1>
-                <span className="hidden sm:inline-block px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#E6F4EA] text-[#01875F] border border-[#01875F]/20">
+                <span className="hidden sm:inline-block px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#E6F4EA] text-[#18b892] border border-[#18b892]/20">
                   {data?.profile.trade || 'Workforce'}
                 </span>
               </div>
@@ -170,13 +170,13 @@ export const ArtisanDashboard: React.FC = () => {
               className="p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
               title="Refresh"
             >
-              <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin text-[#01875F]' : ''}`} />
+              <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin text-[#18b892]' : ''}`} />
             </button>
 
             <div className="h-5 w-px bg-slate-200" />
 
             <div className="flex items-center gap-2 text-xs">
-              <div className="w-8 h-8 rounded-full bg-[#E6F4EA] text-[#01875F] flex items-center justify-center font-bold text-xs border border-[#01875F]/20">
+              <div className="w-8 h-8 rounded-full bg-[#E6F4EA] text-[#18b892] flex items-center justify-center font-bold text-xs border border-[#18b892]/20">
                 {workerName[0] || 'A'}
               </div>
               <span className="hidden md:inline font-semibold text-slate-800">{workerName}</span>
@@ -200,7 +200,7 @@ export const ArtisanDashboard: React.FC = () => {
         <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200/80 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 text-xs text-slate-400 font-medium mb-1">
-              <Calendar className="w-3.5 h-3.5 text-[#01875F]" />
+              <Calendar className="w-3.5 h-3.5 text-[#18b892]" />
               <span>{formatNigerianDate(new Date().toISOString())}</span>
               <span>&bull;</span>
               <span className="font-mono">Code: {data?.profile.workforce_code || '---'}</span>
@@ -214,7 +214,7 @@ export const ArtisanDashboard: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="px-3 py-1 rounded-full text-xs font-semibold bg-[#E6F4EA] text-[#01875F] border border-[#01875F]/20">
+            <span className="px-3 py-1 rounded-full text-xs font-semibold bg-[#E6F4EA] text-[#18b892] border border-[#18b892]/20">
               {data?.profile.trade || 'Artisan'}
             </span>
             <span className="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
@@ -265,7 +265,7 @@ export const ArtisanDashboard: React.FC = () => {
                 onClick={() => setArtisanTab(t.key as any)}
                 className={`flex items-center gap-2 px-3.5 py-2.5 min-h-[42px] rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
                   isActive
-                    ? 'bg-[#01875F] text-white shadow-2xs'
+                    ? 'bg-[#18b892] text-white shadow-2xs'
                     : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
                 }`}
               >
@@ -282,7 +282,7 @@ export const ArtisanDashboard: React.FC = () => {
             <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs p-6">
               <div className="flex items-center justify-between pb-4 border-b border-slate-100">
                 <div className="flex items-center gap-2">
-                  <Clock className="w-5 h-5 text-[#01875F]" />
+                  <Clock className="w-5 h-5 text-[#18b892]" />
                   <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
                     Today's Attendance Status
                   </h3>
@@ -310,7 +310,7 @@ export const ArtisanDashboard: React.FC = () => {
                 </div>
               ) : (
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                  <span className="w-2 h-2 rounded-full bg-[#01875F] animate-pulse" />
+                  <span className="w-2 h-2 rounded-full bg-[#18b892] animate-pulse" />
                   <span>Clocked In (Active On Site)</span>
                 </div>
               )}
@@ -339,7 +339,7 @@ export const ArtisanDashboard: React.FC = () => {
                   type="button"
                   onClick={handleClockIn}
                   disabled={isClocking}
-                  className="w-full md:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#01875F] hover:bg-[#016f4e] text-white text-xs font-bold rounded-xl shadow-sm transition-all disabled:opacity-50 cursor-pointer"
+                  className="w-full md:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#18b892] hover:bg-[#016f4e] text-white text-xs font-bold rounded-xl shadow-sm transition-all disabled:opacity-50 cursor-pointer"
                 >
                   <Clock className="w-4 h-4" />
                   <span>{isClocking ? 'Recording...' : 'CLOCK IN TODAY'}</span>
@@ -371,13 +371,13 @@ export const ArtisanDashboard: React.FC = () => {
         <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs p-6 space-y-4">
           <div className="flex items-center justify-between pb-3 border-b border-slate-100">
             <div className="flex items-center gap-2">
-              <Building className="w-5 h-5 text-[#01875F]" />
+              <Building className="w-5 h-5 text-[#18b892]" />
               <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
                 My Assigned Project
               </h3>
             </div>
             {data?.activeProject && (
-              <span className="text-xs font-mono font-bold text-[#01875F] bg-[#E6F4EA] px-2 py-0.5 rounded-md border border-[#01875F]/20">
+              <span className="text-xs font-mono font-bold text-[#18b892] bg-[#E6F4EA] px-2 py-0.5 rounded-md border border-[#18b892]/20">
                 {data.activeProject.projectCode}
               </span>
             )}
@@ -470,7 +470,7 @@ export const ArtisanDashboard: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setIsOvertimeModalOpen(true)}
-                className="inline-flex items-center gap-1 text-xs font-bold text-[#01875F] hover:underline cursor-pointer"
+                className="inline-flex items-center gap-1 text-xs font-bold text-[#18b892] hover:underline cursor-pointer"
               >
                 <Plus className="w-3.5 h-3.5" />
                 <span>Request Overtime</span>
@@ -526,7 +526,7 @@ export const ArtisanDashboard: React.FC = () => {
         <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs p-6 space-y-4">
           <div className="flex items-center justify-between pb-3 border-b border-slate-100">
             <div className="flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-[#01875F]" />
+              <Calendar className="w-4 h-4 text-[#18b892]" />
               <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
                 My Attendance History (Past 14 Days)
               </h3>
@@ -590,7 +590,7 @@ export const ArtisanDashboard: React.FC = () => {
         {artisanTab === 'profile' && (
         <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs p-6 max-w-xl">
           <div className="flex items-center gap-4 pb-5 border-b border-slate-100">
-            <div className="w-14 h-14 rounded-2xl bg-[#01875F] text-white flex items-center justify-center font-bold text-xl shadow-2xs">
+            <div className="w-14 h-14 rounded-2xl bg-[#18b892] text-white flex items-center justify-center font-bold text-xl shadow-2xs">
               {workerName[0] || 'A'}
             </div>
             <div>

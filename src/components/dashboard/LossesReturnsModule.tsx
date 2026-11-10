@@ -144,7 +144,7 @@ export const LossesReturnsModule: React.FC<LossesReturnsModuleProps> = () => {
               </span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight flex items-center gap-2.5">
-              <RotateCcw className="w-7 h-7 text-[#01875F]" />
+              <RotateCcw className="w-7 h-7 text-[#18b892]" />
               <span>Losses & Returns</span>
             </h1>
             <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-2xl leading-relaxed">
@@ -160,7 +160,7 @@ export const LossesReturnsModule: React.FC<LossesReturnsModuleProps> = () => {
               className="inline-flex items-center gap-1.5 px-3 py-2 bg-white hover:bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-700 shadow-2xs transition-colors cursor-pointer disabled:opacity-60"
               title="Refresh"
             >
-              <RefreshCw className={`w-3.5 h-3.5 text-[#01875F] ${isRefreshing ? 'animate-spin' : ''}`} />
+              <RefreshCw className={`w-3.5 h-3.5 text-[#18b892] ${isRefreshing ? 'animate-spin' : ''}`} />
               <span>{isRefreshing ? 'Refreshing...' : 'Refresh'}</span>
             </button>
 
@@ -228,7 +228,7 @@ export const LossesReturnsModule: React.FC<LossesReturnsModuleProps> = () => {
           <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">
             TOTAL RETURNED UNITS
           </span>
-          <span className="text-2xl font-bold text-[#01875F] mt-1 block font-mono">
+          <span className="text-2xl font-bold text-[#18b892] mt-1 block font-mono">
             {isLoading && !summary ? '...' : (summary?.totalReturnedQuantity ?? 0).toLocaleString()}
           </span>
           <span className="text-[11px] text-slate-500">Re-entered into inventory</span>
@@ -271,14 +271,14 @@ export const LossesReturnsModule: React.FC<LossesReturnsModuleProps> = () => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search by material, reason, project..."
-                className="w-full pl-9 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#01875F]"
+                className="w-full pl-9 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#18b892]"
               />
             </div>
 
             <select
               value={projectFilter}
               onChange={(e) => setProjectFilter(e.target.value)}
-              className="px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-700 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#01875F]"
+              className="px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-700 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#18b892]"
             >
               <option value="all">All Projects</option>
               {projects.map((p) => (
@@ -296,7 +296,7 @@ export const LossesReturnsModule: React.FC<LossesReturnsModuleProps> = () => {
             <button
               type="button"
               onClick={handleClearFilters}
-              className="text-[#01875F] font-semibold hover:underline cursor-pointer"
+              className="text-[#18b892] font-semibold hover:underline cursor-pointer"
             >
               Clear Filters
             </button>
@@ -320,7 +320,7 @@ export const LossesReturnsModule: React.FC<LossesReturnsModuleProps> = () => {
           <button
             type="button"
             onClick={() => fetchData()}
-            className="px-4 py-2 bg-[#01875F] text-white text-xs font-semibold rounded-lg shadow-2xs hover:bg-[#016f4e] transition-colors"
+            className="px-4 py-2 bg-[#18b892] text-white text-xs font-semibold rounded-lg shadow-2xs hover:bg-[#016f4e] transition-colors"
           >
             Retry
           </button>
@@ -370,7 +370,7 @@ export const LossesReturnsModule: React.FC<LossesReturnsModuleProps> = () => {
                         {l.projects ? (
                           <Link
                             to={`/management/projects/${l.project_id}`}
-                            className="font-medium text-slate-800 hover:text-[#01875F] hover:underline"
+                            className="font-medium text-slate-800 hover:text-[#18b892] hover:underline"
                           >
                             {l.projects.name}
                           </Link>
@@ -406,7 +406,7 @@ export const LossesReturnsModule: React.FC<LossesReturnsModuleProps> = () => {
                           <button
                             type="button"
                             onClick={() => handleApproveLoss(l.id)}
-                            className="px-2.5 py-1 bg-white hover:bg-emerald-50 text-[#01875F] border border-emerald-200 rounded text-[10.5px] font-semibold transition-colors cursor-pointer"
+                            className="px-2.5 py-1 bg-white hover:bg-emerald-50 text-[#18b892] border border-emerald-200 rounded text-[10.5px] font-semibold transition-colors cursor-pointer"
                           >
                             Approve
                           </button>
@@ -433,7 +433,7 @@ export const LossesReturnsModule: React.FC<LossesReturnsModuleProps> = () => {
             <button
               type="button"
               onClick={() => setIsReturnModalOpen(true)}
-              className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 bg-[#01875F] text-white text-xs font-semibold rounded-lg shadow-2xs hover:bg-[#016f4e] transition-colors"
+              className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 bg-[#18b892] text-white text-xs font-semibold rounded-lg shadow-2xs hover:bg-[#016f4e] transition-colors"
             >
               <RotateCcw className="w-4 h-4" />
               <span>Record Return</span>
@@ -464,7 +464,7 @@ export const LossesReturnsModule: React.FC<LossesReturnsModuleProps> = () => {
                         {r.projects ? (
                           <Link
                             to={`/management/projects/${r.project_id}`}
-                            className="font-medium text-slate-800 hover:text-[#01875F] hover:underline"
+                            className="font-medium text-slate-800 hover:text-[#18b892] hover:underline"
                           >
                             {r.projects.name}
                           </Link>

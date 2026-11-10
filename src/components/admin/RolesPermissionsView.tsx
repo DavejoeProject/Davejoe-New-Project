@@ -249,7 +249,7 @@ export const RolesPermissionsView: React.FC<RolesPermissionsViewProps> = ({
             <button
               type="button"
               onClick={() => setIsCreateRoleOpen(true)}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[#01875F] hover:bg-[#00704e] text-white rounded-xl text-xs font-bold transition-colors shadow-2xs cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[#18b892] hover:bg-[#139c7b] text-white rounded-xl text-xs font-bold transition-colors shadow-2xs cursor-pointer"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>Create Role</span>
@@ -261,7 +261,7 @@ export const RolesPermissionsView: React.FC<RolesPermissionsViewProps> = ({
             disabled={isLoadingRoles}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-semibold transition-colors shadow-2xs cursor-pointer"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${isLoadingRoles ? 'animate-spin text-[#01875F]' : ''}`} />
+            <RefreshCw className={`w-3.5 h-3.5 ${isLoadingRoles ? 'animate-spin text-[#18b892]' : ''}`} />
             <span>Refresh Matrix</span>
           </button>
         </div>
@@ -276,8 +276,8 @@ export const RolesPermissionsView: React.FC<RolesPermissionsViewProps> = ({
       )}
 
       {successMessage && (
-        <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl text-xs text-[#01875F] flex items-center gap-2.5 font-semibold">
-          <CheckCircle2 className="w-4 h-4 text-[#01875F] shrink-0" />
+        <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl text-xs text-[#18b892] flex items-center gap-2.5 font-semibold">
+          <CheckCircle2 className="w-4 h-4 text-[#18b892] shrink-0" />
           <span>{successMessage}</span>
         </div>
       )}
@@ -289,7 +289,7 @@ export const RolesPermissionsView: React.FC<RolesPermissionsViewProps> = ({
           <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs p-4 space-y-3">
             <div className="flex items-center justify-between pb-2 border-b border-slate-100">
               <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
-                <Shield className="w-4 h-4 text-[#01875F]" />
+                <Shield className="w-4 h-4 text-[#18b892]" />
                 <span>Configured Roles ({roles.length})</span>
               </h3>
               <span className="text-[10px] font-semibold text-slate-400">public.roles</span>
@@ -312,7 +312,7 @@ export const RolesPermissionsView: React.FC<RolesPermissionsViewProps> = ({
                       onClick={() => setSelectedRoleId(r.id)}
                       className={`w-full p-3.5 rounded-xl border text-left transition-all cursor-pointer flex items-center justify-between ${
                         isSelected
-                          ? 'border-[#01875F] bg-emerald-50/40 shadow-xs ring-1 ring-[#01875F]/30'
+                          ? 'border-[#18b892] bg-emerald-50/40 shadow-xs ring-1 ring-[#18b892]/30'
                           : 'border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50/70'
                       }`}
                     >
@@ -320,7 +320,7 @@ export const RolesPermissionsView: React.FC<RolesPermissionsViewProps> = ({
                         <div className="flex items-center gap-2">
                           <span
                             className={`font-bold text-xs truncate ${
-                              isSelected ? 'text-[#01875F]' : 'text-slate-800'
+                              isSelected ? 'text-[#18b892]' : 'text-slate-800'
                             }`}
                           >
                             {r.name}
@@ -351,7 +351,7 @@ export const RolesPermissionsView: React.FC<RolesPermissionsViewProps> = ({
 
                       <ChevronRight
                         className={`w-4 h-4 shrink-0 transition-transform ${
-                          isSelected ? 'text-[#01875F] translate-x-0.5' : 'text-slate-300'
+                          isSelected ? 'text-[#18b892] translate-x-0.5' : 'text-slate-300'
                         }`}
                       />
                     </button>
@@ -364,7 +364,7 @@ export const RolesPermissionsView: React.FC<RolesPermissionsViewProps> = ({
           {/* Authoritative Security Architecture Notice */}
           <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-4 text-xs text-slate-600 space-y-2">
             <div className="flex items-center gap-2 text-slate-800 font-bold">
-              <Info className="w-4 h-4 text-[#01875F]" />
+              <Info className="w-4 h-4 text-[#18b892]" />
               <span>Authoritative Role Model</span>
             </div>
             <p className="text-[11px] text-slate-500 leading-relaxed">
@@ -374,7 +374,7 @@ export const RolesPermissionsView: React.FC<RolesPermissionsViewProps> = ({
               <div>auth.users (id)</div>
               <div className="text-slate-400 pl-3">&darr; public.user_roles</div>
               <div>public.roles (id, slug)</div>
-              <div className="text-[#01875F] font-bold pl-3">&rArr; role.slug = 'admin'</div>
+              <div className="text-[#18b892] font-bold pl-3">&rArr; role.slug = 'admin'</div>
             </div>
             <p className="text-[10px] text-slate-400 leading-tight">
               Human-readable titles are for presentation only. Permission checking relies on stable slugs.
@@ -428,7 +428,7 @@ export const RolesPermissionsView: React.FC<RolesPermissionsViewProps> = ({
                   value={permissionSearch}
                   onChange={(e) => setPermissionSearch(e.target.value)}
                   placeholder="Filter permissions by name or description..."
-                  className="w-full pl-8 pr-3 h-8.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 placeholder-slate-400 outline-none focus:bg-white focus:border-[#01875F]"
+                  className="w-full pl-8 pr-3 h-8.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 placeholder-slate-400 outline-none focus:bg-white focus:border-[#18b892]"
                 />
               </div>
 
@@ -436,7 +436,7 @@ export const RolesPermissionsView: React.FC<RolesPermissionsViewProps> = ({
                 <select
                   value={selectedModuleFilter}
                   onChange={(e) => setSelectedModuleFilter(e.target.value)}
-                  className="w-full h-8.5 px-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700 outline-none focus:bg-white focus:border-[#01875F] cursor-pointer"
+                  className="w-full h-8.5 px-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700 outline-none focus:bg-white focus:border-[#18b892] cursor-pointer"
                 >
                   <option value="all">All Modules ({modules.length})</option>
                   {modules.map((m) => (
@@ -451,7 +451,7 @@ export const RolesPermissionsView: React.FC<RolesPermissionsViewProps> = ({
             {/* Permissions List grouped by module */}
             {isLoadingPermissions ? (
               <div className="py-16 text-center text-xs text-slate-400 flex flex-col items-center justify-center gap-2">
-                <div className="w-6 h-6 border-2 border-[#01875F]/20 border-t-[#01875F] rounded-full animate-spin" />
+                <div className="w-6 h-6 border-2 border-[#18b892]/20 border-t-[#18b892] rounded-full animate-spin" />
                 <span>Loading assigned permissions...</span>
               </div>
             ) : allPermissions.length === 0 ? (
@@ -476,7 +476,7 @@ export const RolesPermissionsView: React.FC<RolesPermissionsViewProps> = ({
                       {/* Module Header */}
                       <div className="px-4 py-2.5 bg-slate-50/80 border-b border-slate-100 flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          <Layers className="w-3.5 h-3.5 text-[#01875F]" />
+                          <Layers className="w-3.5 h-3.5 text-[#18b892]" />
                           <span className="font-bold text-xs text-slate-800 uppercase tracking-wider">
                             {mod}
                           </span>
@@ -504,7 +504,7 @@ export const RolesPermissionsView: React.FC<RolesPermissionsViewProps> = ({
                                     {perm.name}
                                   </span>
                                   {isAssigned && (
-                                    <span className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded text-[10px] font-semibold bg-emerald-100 text-[#01875F]">
+                                    <span className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded text-[10px] font-semibold bg-emerald-100 text-[#18b892]">
                                       <Check className="w-3 h-3" />
                                       Granted
                                     </span>
@@ -523,7 +523,7 @@ export const RolesPermissionsView: React.FC<RolesPermissionsViewProps> = ({
                                 title={isAssigned ? `Click to revoke ${perm.name}` : `Click to grant ${perm.name}`}
                                 aria-label={`Toggle ${perm.name} permission`}
                                 className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none disabled:opacity-50 ${
-                                  isAssigned ? 'bg-[#01875F]' : 'bg-slate-200'
+                                  isAssigned ? 'bg-[#18b892]' : 'bg-slate-200'
                                 }`}
                               >
                                 <span
@@ -551,7 +551,7 @@ export const RolesPermissionsView: React.FC<RolesPermissionsViewProps> = ({
           <div className="bg-white rounded-2xl border border-slate-200/90 shadow-2xl max-w-md w-full overflow-hidden animate-in fade-in zoom-in-95 duration-150">
             <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/70">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-emerald-50 text-[#01875F] flex items-center justify-center font-bold">
+                <div className="w-8 h-8 rounded-lg bg-emerald-50 text-[#18b892] flex items-center justify-center font-bold">
                   <ShieldCheck className="w-4 h-4" />
                 </div>
                 <div>
@@ -591,7 +591,7 @@ export const RolesPermissionsView: React.FC<RolesPermissionsViewProps> = ({
                       setNewRoleSlug(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '_'));
                     }
                   }}
-                  className="w-full h-9 px-3 bg-white border border-slate-200 rounded-xl text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#01875F]"
+                  className="w-full h-9 px-3 bg-white border border-slate-200 rounded-xl text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#18b892]"
                 />
               </div>
 
@@ -604,7 +604,7 @@ export const RolesPermissionsView: React.FC<RolesPermissionsViewProps> = ({
                   placeholder="e.g. interior_architect"
                   value={newRoleSlug}
                   onChange={(e) => setNewRoleSlug(e.target.value)}
-                  className="w-full h-9 px-3 bg-white border border-slate-200 rounded-xl text-xs font-mono text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#01875F]"
+                  className="w-full h-9 px-3 bg-white border border-slate-200 rounded-xl text-xs font-mono text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#18b892]"
                 />
                 <span className="text-[10px] text-slate-400 mt-1 block">
                   Unique internal key used in RBAC guards (lowercase, underscores).
@@ -620,7 +620,7 @@ export const RolesPermissionsView: React.FC<RolesPermissionsViewProps> = ({
                   placeholder="e.g. Responsible for space planning and technical drawings..."
                   value={newRoleDesc}
                   onChange={(e) => setNewRoleDesc(e.target.value)}
-                  className="w-full p-2.5 bg-white border border-slate-200 rounded-xl text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#01875F]"
+                  className="w-full p-2.5 bg-white border border-slate-200 rounded-xl text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#18b892]"
                 />
               </div>
 
@@ -635,7 +635,7 @@ export const RolesPermissionsView: React.FC<RolesPermissionsViewProps> = ({
                 <button
                   type="submit"
                   disabled={isSubmittingRole || !newRoleName.trim()}
-                  className="px-4 py-2 bg-[#01875F] hover:bg-[#00704e] text-white text-xs font-bold rounded-xl shadow-sm transition-colors disabled:opacity-60 cursor-pointer"
+                  className="px-4 py-2 bg-[#18b892] hover:bg-[#139c7b] text-white text-xs font-bold rounded-xl shadow-sm transition-colors disabled:opacity-60 cursor-pointer"
                 >
                   {isSubmittingRole ? 'Creating...' : 'Create Role'}
                 </button>

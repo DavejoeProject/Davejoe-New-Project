@@ -151,7 +151,7 @@ export const TechnicalDashboard: React.FC = () => {
     'QC Officer';
 
   return (
-    <div className="min-h-screen bg-[#F8FAFB] flex flex-col text-slate-800 font-sans selection:bg-[#01875F]/20 selection:text-[#01875F]">
+    <div className="min-h-screen bg-[#F8FAFB] flex flex-col text-slate-800 font-sans selection:bg-[#18b892]/20 selection:text-[#18b892]">
       {/* Top Header */}
       <header className="h-16 px-3 sm:px-8 border-b border-slate-200/80 bg-white flex items-center justify-between sticky top-0 z-30 shadow-2xs">
         <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
@@ -162,7 +162,7 @@ export const TechnicalDashboard: React.FC = () => {
             <span className="font-bold text-slate-900 tracking-tight text-xs sm:text-base block leading-tight truncate">
               Davejoe Technical & QC Command
             </span>
-            <span className="text-[9.5px] sm:text-[10px] font-semibold text-[#01875F] tracking-wider uppercase block truncate">
+            <span className="text-[9.5px] sm:text-[10px] font-semibold text-[#18b892] tracking-wider uppercase block truncate">
               Quality Assurance & Compliance
             </span>
           </div>
@@ -176,7 +176,7 @@ export const TechnicalDashboard: React.FC = () => {
             className="inline-flex items-center justify-center w-8 h-8 sm:w-auto sm:h-auto sm:px-3 sm:py-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-semibold transition-colors cursor-pointer disabled:opacity-60"
             aria-label="Refresh"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-[#01875F]' : ''}`} />
+            <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-[#18b892]' : ''}`} />
             <span className="hidden sm:inline ml-1.5">Refresh</span>
           </button>
 
@@ -218,7 +218,7 @@ export const TechnicalDashboard: React.FC = () => {
                 onClick={() => setActiveTab(t.key as any)}
                 className={`flex items-center gap-2 px-3.5 py-2.5 min-h-[42px] rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
                   isActive
-                    ? 'bg-[#01875F] text-white shadow-2xs'
+                    ? 'bg-[#18b892] text-white shadow-2xs'
                     : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
                 }`}
               >
@@ -235,7 +235,7 @@ export const TechnicalDashboard: React.FC = () => {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2.5">
-              <ClipboardCheck className="w-6 h-6 text-[#01875F]" />
+              <ClipboardCheck className="w-6 h-6 text-[#18b892]" />
               <span>Technical Inspection & Quality Control</span>
             </h1>
             <p className="text-xs sm:text-sm text-slate-500 mt-1">
@@ -246,7 +246,7 @@ export const TechnicalDashboard: React.FC = () => {
           <button
             type="button"
             onClick={() => setModalOpen(true)}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-[#01875F] hover:bg-[#00704e] text-white rounded-xl text-xs font-semibold transition-colors shadow-2xs cursor-pointer self-start sm:self-auto"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-[#18b892] hover:bg-[#139c7b] text-white rounded-xl text-xs font-semibold transition-colors shadow-2xs cursor-pointer self-start sm:self-auto"
           >
             <Plus className="w-4 h-4" />
             <span>Record New Inspection</span>
@@ -275,7 +275,7 @@ export const TechnicalDashboard: React.FC = () => {
               <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
                 Passed Certifications
               </span>
-              <div className="w-8 h-8 rounded-lg bg-emerald-50 text-[#01875F] flex items-center justify-center">
+              <div className="w-8 h-8 rounded-lg bg-emerald-50 text-[#18b892] flex items-center justify-center">
                 <CheckCircle2 className="w-4 h-4" />
               </div>
             </div>
@@ -327,7 +327,7 @@ export const TechnicalDashboard: React.FC = () => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search by project or inspection type..."
-              className="w-full pl-9 pr-3 h-9 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 outline-none focus:bg-white focus:border-[#01875F]"
+              className="w-full pl-9 pr-3 h-9 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 outline-none focus:bg-white focus:border-[#18b892]"
             />
           </div>
 
@@ -336,7 +336,7 @@ export const TechnicalDashboard: React.FC = () => {
               type="button"
               onClick={() => setFilter('all')}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer ${
-                filter === 'all' ? 'bg-[#01875F] text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                filter === 'all' ? 'bg-[#18b892] text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
               }`}
             >
               All ({inspections.length})
@@ -345,7 +345,7 @@ export const TechnicalDashboard: React.FC = () => {
               type="button"
               onClick={() => setFilter('passed')}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer ${
-                filter === 'passed' ? 'bg-[#01875F] text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                filter === 'passed' ? 'bg-[#18b892] text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
               }`}
             >
               Passed ({passedCount})
@@ -411,7 +411,7 @@ export const TechnicalDashboard: React.FC = () => {
                         <span
                           className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold shrink-0 ${
                             isPassed
-                              ? 'bg-emerald-50 text-[#01875F] border border-emerald-200'
+                              ? 'bg-emerald-50 text-[#18b892] border border-emerald-200'
                               : isCritical
                                 ? 'bg-red-50 text-red-600 border border-red-200'
                                 : 'bg-amber-50 text-amber-700 border border-amber-200'
@@ -468,7 +468,7 @@ export const TechnicalDashboard: React.FC = () => {
                             <span
                               className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
                                 isPassed
-                                  ? 'bg-emerald-50 text-[#01875F] border border-emerald-200'
+                                  ? 'bg-emerald-50 text-[#18b892] border border-emerald-200'
                                   : isCritical
                                     ? 'bg-red-50 text-red-600 border border-red-200'
                                     : 'bg-amber-50 text-amber-700 border border-amber-200'
@@ -533,7 +533,7 @@ export const TechnicalDashboard: React.FC = () => {
                   value={selectedProjectId}
                   onChange={(e) => setSelectedProjectId(e.target.value)}
                   required
-                  className="w-full h-9 px-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-[#01875F]"
+                  className="w-full h-9 px-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-[#18b892]"
                 >
                   <option value="">Choose active project...</option>
                   {projects.map((p) => (
@@ -549,7 +549,7 @@ export const TechnicalDashboard: React.FC = () => {
                 <select
                   value={inspectionType}
                   onChange={(e) => setInspectionType(e.target.value)}
-                  className="w-full h-9 px-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-[#01875F]"
+                  className="w-full h-9 px-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-[#18b892]"
                 >
                   <option value="Concrete Compressive Core Testing">Concrete Compressive Core Testing</option>
                   <option value="Foundation Raft Rebar Spacing & Cover">Foundation Raft Rebar Spacing & Cover</option>
@@ -568,7 +568,7 @@ export const TechnicalDashboard: React.FC = () => {
                     onClick={() => setResultStatus('passed')}
                     className={`py-2 rounded-xl border font-bold text-xs ${
                       resultStatus === 'passed'
-                        ? 'bg-emerald-50 border-emerald-500 text-[#01875F]'
+                        ? 'bg-emerald-50 border-emerald-500 text-[#18b892]'
                         : 'bg-white border-slate-200 text-slate-600'
                     }`}
                   >
@@ -606,7 +606,7 @@ export const TechnicalDashboard: React.FC = () => {
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   placeholder="Notes on cylinder strength, rebar gauge, test pressure, or required corrective action..."
-                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-[#01875F]"
+                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-[#18b892]"
                 />
               </div>
 
@@ -623,7 +623,7 @@ export const TechnicalDashboard: React.FC = () => {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="min-h-[44px] px-5 py-2.5 bg-[#01875F] hover:bg-[#00704e] text-white rounded-xl font-semibold disabled:opacity-60 shadow-2xs cursor-pointer"
+                  className="min-h-[44px] px-5 py-2.5 bg-[#18b892] hover:bg-[#139c7b] text-white rounded-xl font-semibold disabled:opacity-60 shadow-2xs cursor-pointer"
                 >
                   {isSubmitting ? 'Saving...' : 'Submit Certification'}
                 </button>

@@ -12,13 +12,13 @@ export const SettingsModule: React.FC<SettingsModuleProps> = ({ onBackToDashboar
         <div>
           <button
             onClick={onBackToDashboard}
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#01875F] hover:underline mb-1 cursor-pointer"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#18b892] hover:underline mb-1 cursor-pointer"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>Back to Dashboard</span>
           </button>
           <h1 className="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2.5">
-            <Settings className="w-6 h-6 text-[#01875F]" />
+            <Settings className="w-6 h-6 text-[#18b892]" />
             <span>System Configuration & Security Architecture</span>
           </h1>
           <p className="text-xs sm:text-sm text-slate-500">
@@ -31,7 +31,7 @@ export const SettingsModule: React.FC<SettingsModuleProps> = ({ onBackToDashboar
         {/* Security & RLS Policy State */}
         <div className="bg-white rounded-xl border border-slate-200/80 p-5 shadow-2xs">
           <div className="flex items-center gap-2.5 mb-4">
-            <div className="w-9 h-9 rounded-lg bg-emerald-50 text-[#01875F] flex items-center justify-center">
+            <div className="w-9 h-9 rounded-lg bg-emerald-50 text-[#18b892] flex items-center justify-center">
               <ShieldCheck className="w-5 h-5" />
             </div>
             <div>

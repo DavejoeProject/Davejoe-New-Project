@@ -94,7 +94,7 @@ export const EditWorkforceModal: React.FC<EditWorkforceModalProps> = ({
         {/* Header */}
         <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/60">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-[#E6F4EA] text-[#01875F] flex items-center justify-center font-bold">
+            <div className="w-8 h-8 rounded-lg bg-[#E6F4EA] text-[#18b892] flex items-center justify-center font-bold">
               <Edit3 className="w-4 h-4" />
             </div>
             <div>
@@ -135,7 +135,7 @@ export const EditWorkforceModal: React.FC<EditWorkforceModalProps> = ({
                 required
                 value={trade}
                 onChange={(e) => setTrade(e.target.value)}
-                className="w-full h-9 px-3 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-[#01875F]"
+                className="w-full h-9 px-3 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-[#18b892]"
               />
             </div>
 
@@ -146,7 +146,7 @@ export const EditWorkforceModal: React.FC<EditWorkforceModalProps> = ({
               <select
                 value={status}
                 onChange={(e) => setStatus(e.target.value as WorkforceStatus)}
-                className="w-full h-9 px-3 bg-white border border-slate-200 rounded-lg text-xs font-medium text-slate-800 focus:outline-none focus:border-[#01875F] cursor-pointer"
+                className="w-full h-9 px-3 bg-white border border-slate-200 rounded-lg text-xs font-medium text-slate-800 focus:outline-none focus:border-[#18b892] cursor-pointer"
               >
                 {ALL_WORKFORCE_STATUSES.map((st) => (
                   <option key={st} value={st}>
@@ -166,7 +166,7 @@ export const EditWorkforceModal: React.FC<EditWorkforceModalProps> = ({
                 type="tel"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                className="w-full h-9 px-3 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-[#01875F]"
+                className="w-full h-9 px-3 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-[#18b892]"
               />
             </div>
 
@@ -178,7 +178,7 @@ export const EditWorkforceModal: React.FC<EditWorkforceModalProps> = ({
                 <select
                   value={selectedProfileId}
                   onChange={(e) => setSelectedProfileId(e.target.value)}
-                  className="w-full h-9 px-3 bg-white border border-slate-200 rounded-lg text-xs text-slate-800 focus:outline-none focus:border-[#01875F] cursor-pointer"
+                  className="w-full h-9 px-3 bg-white border border-slate-200 rounded-lg text-xs text-slate-800 focus:outline-none focus:border-[#18b892] cursor-pointer"
                 >
                   <option value="">No linked user account (Artisan)</option>
                   {availableProfiles.map((p) => {
@@ -207,7 +207,7 @@ export const EditWorkforceModal: React.FC<EditWorkforceModalProps> = ({
                 type="text"
                 value={emergencyContactName}
                 onChange={(e) => setEmergencyContactName(e.target.value)}
-                className="w-full h-9 px-3 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-[#01875F]"
+                className="w-full h-9 px-3 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-[#18b892]"
               />
             </div>
 
@@ -219,7 +219,7 @@ export const EditWorkforceModal: React.FC<EditWorkforceModalProps> = ({
                 type="tel"
                 value={emergencyContactPhone}
                 onChange={(e) => setEmergencyContactPhone(e.target.value)}
-                className="w-full h-9 px-3 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-[#01875F]"
+                className="w-full h-9 px-3 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-[#18b892]"
               />
             </div>
           </div>
@@ -232,7 +232,7 @@ export const EditWorkforceModal: React.FC<EditWorkforceModalProps> = ({
               rows={2}
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              className="w-full p-3 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-[#01875F] resize-none"
+              className="w-full p-3 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-[#18b892] resize-none"
             />
           </div>
 
@@ -249,7 +249,7 @@ export const EditWorkforceModal: React.FC<EditWorkforceModalProps> = ({
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-4 py-2 bg-[#01875F] hover:bg-[#016f4e] text-white text-xs font-bold rounded-lg shadow-sm transition-colors cursor-pointer disabled:opacity-60 flex items-center gap-1.5"
+              className="px-4 py-2 bg-[#18b892] hover:bg-[#016f4e] text-white text-xs font-bold rounded-lg shadow-sm transition-colors cursor-pointer disabled:opacity-60 flex items-center gap-1.5"
             >
               {isSubmitting ? (
                 <>

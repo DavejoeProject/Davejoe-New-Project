@@ -127,7 +127,7 @@ export const ClockOutWorkerModal: React.FC<ClockOutWorkerModalProps> = ({
                       onClick={() => setSelectedRecordId(att.id)}
                       className={`p-3 rounded-xl border text-xs flex items-center justify-between cursor-pointer transition-all ${
                         isSelected
-                          ? 'border-[#01875F] bg-[#E6F4EA]/40 ring-1 ring-[#01875F]'
+                          ? 'border-[#18b892] bg-[#E6F4EA]/40 ring-1 ring-[#18b892]'
                           : 'border-slate-200 bg-white hover:border-slate-300'
                       }`}
                     >

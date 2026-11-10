@@ -116,7 +116,7 @@ export const AddWorkforceModal: React.FC<AddWorkforceModalProps> = ({
         {/* Header */}
         <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/60">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-[#E6F4EA] text-[#01875F] flex items-center justify-center font-bold">
+            <div className="w-8 h-8 rounded-lg bg-[#E6F4EA] text-[#18b892] flex items-center justify-center font-bold">
               <UserPlus className="w-4 h-4" />
             </div>
             <div>
@@ -164,7 +164,7 @@ export const AddWorkforceModal: React.FC<AddWorkforceModalProps> = ({
                   placeholder="e.g. STF-101 or ART-042"
                   value={workforceCode}
                   onChange={(e) => setWorkforceCode(e.target.value)}
-                  className="w-full h-9 px-3 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-[#01875F] uppercase font-mono"
+                  className="w-full h-9 px-3 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-[#18b892] uppercase font-mono"
                 />
                 <span className="text-[11px] text-slate-400 mt-1 block">
                   Must be unique across the organization.
@@ -178,7 +178,7 @@ export const AddWorkforceModal: React.FC<AddWorkforceModalProps> = ({
                 <select
                   value={status}
                   onChange={(e) => setStatus(e.target.value as WorkforceStatus)}
-                  className="w-full h-9 px-3 bg-white border border-slate-200 rounded-lg text-xs font-medium text-slate-800 focus:outline-none focus:border-[#01875F] cursor-pointer"
+                  className="w-full h-9 px-3 bg-white border border-slate-200 rounded-lg text-xs font-medium text-slate-800 focus:outline-none focus:border-[#18b892] cursor-pointer"
                 >
                   {ALL_WORKFORCE_STATUSES.map((st) => (
                     <option key={st} value={st}>
@@ -200,7 +200,7 @@ export const AddWorkforceModal: React.FC<AddWorkforceModalProps> = ({
                 value={trade}
                 onChange={(e) => setTrade(e.target.value)}
                 list="trades-list"
-                className="w-full h-9 px-3 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-[#01875F]"
+                className="w-full h-9 px-3 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-[#18b892]"
               />
               <datalist id="trades-list">
                 {COMMON_TRADES.map((t) => (
@@ -242,7 +242,7 @@ export const AddWorkforceModal: React.FC<AddWorkforceModalProps> = ({
                   placeholder="+234 800 000 0000"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  className="w-full h-9 px-3 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-[#01875F]"
+                  className="w-full h-9 px-3 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-[#18b892]"
                 />
               </div>
 
@@ -254,7 +254,7 @@ export const AddWorkforceModal: React.FC<AddWorkforceModalProps> = ({
                   <select
                     value={selectedProfileId}
                     onChange={(e) => setSelectedProfileId(e.target.value)}
-                    className="w-full h-9 px-3 bg-white border border-slate-200 rounded-lg text-xs text-slate-800 focus:outline-none focus:border-[#01875F] cursor-pointer"
+                    className="w-full h-9 px-3 bg-white border border-slate-200 rounded-lg text-xs text-slate-800 focus:outline-none focus:border-[#18b892] cursor-pointer"
                   >
                     <option value="">No linked user account (Artisan)</option>
                     {availableProfiles.map((p) => {
@@ -284,7 +284,7 @@ export const AddWorkforceModal: React.FC<AddWorkforceModalProps> = ({
                   placeholder="e.g. Next of Kin or Spouse"
                   value={emergencyContactName}
                   onChange={(e) => setEmergencyContactName(e.target.value)}
-                  className="w-full h-9 px-3 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-[#01875F]"
+                  className="w-full h-9 px-3 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-[#18b892]"
                 />
               </div>
 
@@ -297,7 +297,7 @@ export const AddWorkforceModal: React.FC<AddWorkforceModalProps> = ({
                   placeholder="+234 800 000 0000"
                   value={emergencyContactPhone}
                   onChange={(e) => setEmergencyContactPhone(e.target.value)}
-                  className="w-full h-9 px-3 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-[#01875F]"
+                  className="w-full h-9 px-3 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-[#18b892]"
                 />
               </div>
             </div>
@@ -319,7 +319,7 @@ export const AddWorkforceModal: React.FC<AddWorkforceModalProps> = ({
                 placeholder="Specializations, safety inductions, site preferences, or internal remarks..."
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                className="w-full p-3 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-[#01875F] resize-none"
+                className="w-full p-3 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-[#18b892] resize-none"
               />
             </div>
           </div>
@@ -337,7 +337,7 @@ export const AddWorkforceModal: React.FC<AddWorkforceModalProps> = ({
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-4 py-2 bg-[#01875F] hover:bg-[#016f4e] text-white text-xs font-bold rounded-lg shadow-sm transition-colors cursor-pointer disabled:opacity-60 flex items-center gap-1.5"
+              className="px-4 py-2 bg-[#18b892] hover:bg-[#016f4e] text-white text-xs font-bold rounded-lg shadow-sm transition-colors cursor-pointer disabled:opacity-60 flex items-center gap-1.5"
             >
               {isSubmitting ? (
                 <>

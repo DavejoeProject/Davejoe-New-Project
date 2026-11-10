@@ -234,7 +234,7 @@ export const NewMaterialRequestModal: React.FC<NewMaterialRequestModalProps> = (
         {/* Header */}
         <div className="px-6 py-5 bg-white border-b border-slate-100 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#E6F4EA] text-[#01875F] flex items-center justify-center shrink-0 border border-[#01875F]/20">
+            <div className="w-10 h-10 rounded-xl bg-[#E6F4EA] text-[#18b892] flex items-center justify-center shrink-0 border border-[#18b892]/20">
               <FileText className="w-5 h-5" />
             </div>
             <div>
@@ -288,7 +288,7 @@ export const NewMaterialRequestModal: React.FC<NewMaterialRequestModalProps> = (
                     required
                     value={projectId}
                     onChange={(e) => setProjectId(e.target.value)}
-                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#01875F] focus:border-[#01875F]"
+                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#18b892] focus:border-[#18b892]"
                   >
                     <option value="">Select Project</option>
                     {projects.map((p) => (
@@ -309,7 +309,7 @@ export const NewMaterialRequestModal: React.FC<NewMaterialRequestModalProps> = (
                 <select
                   value={priority}
                   onChange={(e) => setPriority(e.target.value as MaterialRequestPriority)}
-                  className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#01875F] focus:border-[#01875F]"
+                  className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#18b892] focus:border-[#18b892]"
                 >
                   {ALL_REQUEST_PRIORITIES.map((pr) => (
                     <option key={pr} value={pr}>
@@ -332,7 +332,7 @@ export const NewMaterialRequestModal: React.FC<NewMaterialRequestModalProps> = (
                   required
                   value={requiredByDate}
                   onChange={(e) => setRequiredByDate(e.target.value)}
-                  className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#01875F] focus:border-[#01875F]"
+                  className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#18b892] focus:border-[#18b892]"
                 />
               </div>
 
@@ -347,7 +347,7 @@ export const NewMaterialRequestModal: React.FC<NewMaterialRequestModalProps> = (
                   value={justification}
                   onChange={(e) => setJustification(e.target.value)}
                   placeholder="e.g. Ground floor slab casting stage 1"
-                  className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#01875F] focus:border-[#01875F]"
+                  className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#18b892] focus:border-[#18b892]"
                 />
               </div>
             </div>
@@ -368,7 +368,7 @@ export const NewMaterialRequestModal: React.FC<NewMaterialRequestModalProps> = (
               <button
                 type="button"
                 onClick={handleAddItem}
-                className="inline-flex items-center gap-1 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-[#01875F] font-semibold text-xs rounded-lg transition-colors cursor-pointer"
+                className="inline-flex items-center gap-1 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-[#18b892] font-semibold text-xs rounded-lg transition-colors cursor-pointer"
               >
                 <Plus className="w-3.5 h-3.5" />
                 <span>Add Item</span>
@@ -419,7 +419,7 @@ export const NewMaterialRequestModal: React.FC<NewMaterialRequestModalProps> = (
                           required
                           value={item.material_id}
                           onChange={(e) => handleItemChange(item.id, 'material_id', e.target.value)}
-                          className="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#01875F] focus:border-[#01875F]"
+                          className="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#18b892] focus:border-[#18b892]"
                         >
                           <option value="">Select Material</option>
                           {materials.map((m) => (
@@ -454,7 +454,7 @@ export const NewMaterialRequestModal: React.FC<NewMaterialRequestModalProps> = (
                             handleItemChange(item.id, 'requested_quantity', e.target.value)
                           }
                           placeholder="0"
-                          className="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#01875F] focus:border-[#01875F]"
+                          className="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#18b892] focus:border-[#18b892]"
                         />
                         <span className="text-[10px] text-slate-400 truncate block">
                           {selectedMaterial?.unit_of_measure || 'units'}
@@ -473,7 +473,7 @@ export const NewMaterialRequestModal: React.FC<NewMaterialRequestModalProps> = (
                           value={item.unit_cost}
                           onChange={(e) => handleItemChange(item.id, 'unit_cost', e.target.value)}
                           placeholder="0.00"
-                          className="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#01875F] focus:border-[#01875F]"
+                          className="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#18b892] focus:border-[#18b892]"
                         />
                       </div>
 
@@ -495,7 +495,7 @@ export const NewMaterialRequestModal: React.FC<NewMaterialRequestModalProps> = (
                         value={item.notes}
                         onChange={(e) => handleItemChange(item.id, 'notes', e.target.value)}
                         placeholder="Item notes, specific dimensions or delivery instructions (optional)..."
-                        className="w-full px-2.5 py-1 bg-slate-50 border border-slate-100 rounded text-[11px] text-slate-700 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#01875F]"
+                        className="w-full px-2.5 py-1 bg-slate-50 border border-slate-100 rounded text-[11px] text-slate-700 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#18b892]"
                       />
                     </div>
                   </div>
@@ -525,7 +525,7 @@ export const NewMaterialRequestModal: React.FC<NewMaterialRequestModalProps> = (
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="Additional delivery milestones, site contact details, or supervisor instructions..."
-              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#01875F] focus:border-[#01875F]"
+              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#18b892] focus:border-[#18b892]"
             />
           </div>
 
@@ -542,7 +542,7 @@ export const NewMaterialRequestModal: React.FC<NewMaterialRequestModalProps> = (
             <button
               type="submit"
               disabled={isSubmitting}
-              className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#01875F] text-white hover:bg-[#016f4e] text-xs font-semibold rounded-lg shadow-2xs transition-colors cursor-pointer disabled:opacity-60"
+              className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#18b892] text-white hover:bg-[#016f4e] text-xs font-semibold rounded-lg shadow-2xs transition-colors cursor-pointer disabled:opacity-60"
             >
               {isSubmitting ? (
                 <>

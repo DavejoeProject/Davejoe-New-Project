@@ -57,7 +57,7 @@ export const WorkforceDetailModal: React.FC<WorkforceDetailModalProps> = ({
         {/* Header */}
         <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/60">
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-xl bg-[#E6F4EA] text-[#01875F] flex items-center justify-center font-bold text-base shadow-2xs">
+            <div className="w-11 h-11 rounded-xl bg-[#E6F4EA] text-[#18b892] flex items-center justify-center font-bold text-base shadow-2xs">
               {prof?.avatar_url ? (
                 <img
                   src={prof.avatar_url}
@@ -147,7 +147,7 @@ export const WorkforceDetailModal: React.FC<WorkforceDetailModalProps> = ({
                     onClose();
                     onOpenAssign(member);
                   }}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#01875F] hover:bg-[#016f4e] text-white text-xs font-bold rounded-lg shadow-2xs transition-colors cursor-pointer"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#18b892] hover:bg-[#016f4e] text-white text-xs font-bold rounded-lg shadow-2xs transition-colors cursor-pointer"
                 >
                   <UserPlus className="w-3.5 h-3.5" />
                   <span>Deploy to Project</span>
@@ -161,7 +161,7 @@ export const WorkforceDetailModal: React.FC<WorkforceDetailModalProps> = ({
             {/* Contact Details */}
             <div className="bg-white p-4 rounded-xl border border-slate-200/80 shadow-2xs space-y-2.5">
               <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-                <Phone className="w-3.5 h-3.5 text-[#01875F]" />
+                <Phone className="w-3.5 h-3.5 text-[#18b892]" />
                 <span>Contact Details</span>
               </h3>
               <div className="space-y-1.5">
@@ -189,7 +189,7 @@ export const WorkforceDetailModal: React.FC<WorkforceDetailModalProps> = ({
             {/* Profile & System Details */}
             <div className="bg-white p-4 rounded-xl border border-slate-200/80 shadow-2xs space-y-2.5">
               <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-                <Briefcase className="w-3.5 h-3.5 text-[#01875F]" />
+                <Briefcase className="w-3.5 h-3.5 text-[#18b892]" />
                 <span>Roster &amp; Profile</span>
               </h3>
               <div className="space-y-1.5">
@@ -217,7 +217,7 @@ export const WorkforceDetailModal: React.FC<WorkforceDetailModalProps> = ({
           {member.notes && (
             <div className="bg-white p-4 rounded-xl border border-slate-200/80 shadow-2xs space-y-1.5">
               <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-                <FileText className="w-3.5 h-3.5 text-[#01875F]" />
+                <FileText className="w-3.5 h-3.5 text-[#18b892]" />
                 <span>Notes & Remarks</span>
               </h3>
               <p className="text-xs text-slate-700 leading-relaxed whitespace-pre-line">
@@ -230,7 +230,7 @@ export const WorkforceDetailModal: React.FC<WorkforceDetailModalProps> = ({
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-                <Calendar className="w-3.5 h-3.5 text-[#01875F]" />
+                <Calendar className="w-3.5 h-3.5 text-[#18b892]" />
                 <span>Project Assignment History ({assignments.length})</span>
               </h3>
               <button
@@ -239,7 +239,7 @@ export const WorkforceDetailModal: React.FC<WorkforceDetailModalProps> = ({
                   onClose();
                   onOpenAssign(member);
                 }}
-                className="text-xs font-semibold text-[#01875F] hover:underline cursor-pointer flex items-center gap-1"
+                className="text-xs font-semibold text-[#18b892] hover:underline cursor-pointer flex items-center gap-1"
               >
                 <UserPlus className="w-3.5 h-3.5" />
                 <span>+ Assign to Project</span>

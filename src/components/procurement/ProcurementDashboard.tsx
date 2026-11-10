@@ -112,7 +112,7 @@ export const ProcurementDashboard: React.FC = () => {
     'Procurement Lead';
 
   return (
-    <div className="min-h-screen bg-[#F8FAFB] flex flex-col text-slate-800 font-sans selection:bg-[#01875F]/20 selection:text-[#01875F]">
+    <div className="min-h-screen bg-[#F8FAFB] flex flex-col text-slate-800 font-sans selection:bg-[#18b892]/20 selection:text-[#18b892]">
       {/* Top Header */}
       <header className="h-16 px-3 sm:px-8 border-b border-slate-200/80 bg-white flex items-center justify-between sticky top-0 z-30 shadow-2xs">
         <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
@@ -123,7 +123,7 @@ export const ProcurementDashboard: React.FC = () => {
             <span className="font-bold text-slate-900 tracking-tight text-xs sm:text-base block leading-tight truncate">
               Davejoe Procurement & Logistics
             </span>
-            <span className="text-[9.5px] sm:text-[10px] font-semibold text-[#01875F] tracking-wider uppercase block truncate">
+            <span className="text-[9.5px] sm:text-[10px] font-semibold text-[#18b892] tracking-wider uppercase block truncate">
               Supply Chain & Logistics Management
             </span>
           </div>
@@ -136,7 +136,7 @@ export const ProcurementDashboard: React.FC = () => {
             disabled={isRefreshing}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-semibold transition-colors cursor-pointer disabled:opacity-60"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-[#01875F]' : ''}`} />
+            <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-[#18b892]' : ''}`} />
             <span className="hidden sm:inline">Refresh</span>
           </button>
 
@@ -165,7 +165,7 @@ export const ProcurementDashboard: React.FC = () => {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2.5">
-              <Truck className="w-5 h-5 sm:w-6 sm:h-6 text-[#01875F]" />
+              <Truck className="w-5 h-5 sm:w-6 sm:h-6 text-[#18b892]" />
               <span>Procurement & Supply Chain Command</span>
             </h1>
             <p className="text-xs sm:text-sm text-slate-500 mt-1">
@@ -177,7 +177,7 @@ export const ProcurementDashboard: React.FC = () => {
             <button
               type="button"
               onClick={() => setCreatePoOpen(true)}
-              className="inline-flex items-center gap-1.5 min-h-[44px] sm:min-h-[38px] px-3.5 py-2 bg-[#01875F] hover:bg-[#00704e] text-white rounded-xl text-xs font-semibold transition-colors shadow-2xs cursor-pointer"
+              className="inline-flex items-center gap-1.5 min-h-[44px] sm:min-h-[38px] px-3.5 py-2 bg-[#18b892] hover:bg-[#139c7b] text-white rounded-xl text-xs font-semibold transition-colors shadow-2xs cursor-pointer"
             >
               <Plus className="w-4 h-4" />
               <span>Create Purchase Order</span>
@@ -187,7 +187,7 @@ export const ProcurementDashboard: React.FC = () => {
               onClick={() => setRecordDeliveryOpen(true)}
               className="inline-flex items-center gap-1.5 min-h-[44px] sm:min-h-[38px] px-3.5 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-semibold transition-colors cursor-pointer"
             >
-              <Truck className="w-4 h-4 text-[#01875F]" />
+              <Truck className="w-4 h-4 text-[#18b892]" />
               <span>Record Delivery</span>
             </button>
           </div>
@@ -230,7 +230,7 @@ export const ProcurementDashboard: React.FC = () => {
               <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
                 Committed PO Value
               </span>
-              <div className="w-8 h-8 rounded-lg bg-emerald-50 text-[#01875F] flex items-center justify-center">
+              <div className="w-8 h-8 rounded-lg bg-emerald-50 text-[#18b892] flex items-center justify-center">
                 <TrendingUp className="w-4 h-4" />
               </div>
             </div>
@@ -262,7 +262,7 @@ export const ProcurementDashboard: React.FC = () => {
             type="button"
             onClick={() => setActiveTab('orders')}
             className={`min-h-[42px] px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-colors cursor-pointer ${
-              activeTab === 'orders' ? 'bg-[#01875F] text-white shadow-xs' : 'text-slate-600 hover:bg-slate-100'
+              activeTab === 'orders' ? 'bg-[#18b892] text-white shadow-xs' : 'text-slate-600 hover:bg-slate-100'
             }`}
           >
             Purchase Orders ({purchaseOrders.length})
@@ -271,7 +271,7 @@ export const ProcurementDashboard: React.FC = () => {
             type="button"
             onClick={() => setActiveTab('requests')}
             className={`min-h-[42px] px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-colors cursor-pointer ${
-              activeTab === 'requests' ? 'bg-[#01875F] text-white shadow-xs' : 'text-slate-600 hover:bg-slate-100'
+              activeTab === 'requests' ? 'bg-[#18b892] text-white shadow-xs' : 'text-slate-600 hover:bg-slate-100'
             }`}
           >
             Site Material Requests ({materialRequests.length})
@@ -280,7 +280,7 @@ export const ProcurementDashboard: React.FC = () => {
             type="button"
             onClick={() => setActiveTab('deliveries')}
             className={`min-h-[42px] px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-colors cursor-pointer ${
-              activeTab === 'deliveries' ? 'bg-[#01875F] text-white shadow-xs' : 'text-slate-600 hover:bg-slate-100'
+              activeTab === 'deliveries' ? 'bg-[#18b892] text-white shadow-xs' : 'text-slate-600 hover:bg-slate-100'
             }`}
           >
             Site Deliveries ({deliveries.length})
@@ -289,7 +289,7 @@ export const ProcurementDashboard: React.FC = () => {
             type="button"
             onClick={() => setActiveTab('suppliers')}
             className={`min-h-[42px] px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-colors cursor-pointer ${
-              activeTab === 'suppliers' ? 'bg-[#01875F] text-white shadow-xs' : 'text-slate-600 hover:bg-slate-100'
+              activeTab === 'suppliers' ? 'bg-[#18b892] text-white shadow-xs' : 'text-slate-600 hover:bg-slate-100'
             }`}
           >
             Supplier Directory ({suppliers.length})
@@ -298,7 +298,7 @@ export const ProcurementDashboard: React.FC = () => {
             type="button"
             onClick={() => setActiveTab('remnants')}
             className={`min-h-[42px] px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-colors cursor-pointer ${
-              activeTab === 'remnants' ? 'bg-[#01875F] text-white shadow-xs' : 'text-slate-600 hover:bg-slate-100'
+              activeTab === 'remnants' ? 'bg-[#18b892] text-white shadow-xs' : 'text-slate-600 hover:bg-slate-100'
             }`}
           >
             Material Remnants & Recovery
@@ -307,7 +307,7 @@ export const ProcurementDashboard: React.FC = () => {
             type="button"
             onClick={() => setActiveTab('tools')}
             className={`min-h-[42px] px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-colors cursor-pointer ${
-              activeTab === 'tools' ? 'bg-[#01875F] text-white shadow-xs' : 'text-slate-600 hover:bg-slate-100'
+              activeTab === 'tools' ? 'bg-[#18b892] text-white shadow-xs' : 'text-slate-600 hover:bg-slate-100'
             }`}
           >
             Tools & Equipment Register
@@ -349,7 +349,7 @@ export const ProcurementDashboard: React.FC = () => {
                         <td className="py-3 px-3 text-slate-600">{po.supplier?.name || po.supplier_name || 'Vendor'}</td>
                         <td className="py-3 px-3 text-right font-bold text-slate-900">{formatNaira(po.total_amount)}</td>
                         <td className="py-3 px-3">
-                          <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-[#01875F] border border-emerald-200 capitalize">
+                          <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-[#18b892] border border-emerald-200 capitalize">
                             {po.status || 'Active'}
                           </span>
                         </td>
@@ -443,7 +443,7 @@ export const ProcurementDashboard: React.FC = () => {
                         <td className="py-3 px-3 font-semibold text-slate-800">{del.project?.name || 'Site'}</td>
                         <td className="py-3 px-3 text-slate-600">{del.supplier?.name || del.supplier_name || 'Vendor'}</td>
                         <td className="py-3 px-3">
-                          <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-[#01875F] border border-emerald-200 capitalize">
+                          <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-[#18b892] border border-emerald-200 capitalize">
                             {del.status || 'Received'}
                           </span>
                         </td>
@@ -491,7 +491,7 @@ export const ProcurementDashboard: React.FC = () => {
                         <td className="py-3 px-3 text-slate-600">{s.contact_person || '—'}</td>
                         <td className="py-3 px-3 text-slate-500 font-mono">{s.phone || '—'}</td>
                         <td className="py-3 px-3">
-                          <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-[#01875F] border border-emerald-200">
+                          <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-[#18b892] border border-emerald-200">
                             {s.status || 'Active'}
                           </span>
                         </td>

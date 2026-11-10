@@ -209,19 +209,19 @@ export const AssignMaterialModal: React.FC<AssignMaterialModalProps> = ({
           {/* Header */}
           <div className="px-6 py-5 bg-white border-b border-slate-100 flex items-start justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-[#E6F4EA] text-[#01875F] flex items-center justify-center shrink-0 border border-[#01875F]/20 shadow-2xs">
-                <Boxes className="w-5 h-5" />
+              <div className="w-12 h-12 rounded-xl bg-[#18b892]/10 text-[#18b892] flex items-center justify-center shrink-0 border border-[#18b892]/20 shadow-2xs">
+                <Boxes className="w-6 h-6 stroke-[2]" />
               </div>
               <div>
                 <h2 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight">
                   Assign Material to Project
                 </h2>
-                <div className="flex items-center gap-2 text-xs text-slate-500 mt-0.5">
+                <div className="flex items-center gap-2 text-xs sm:text-sm text-slate-500 mt-0.5">
                   <span className="font-semibold text-slate-700">{projectName}</span>
                   {projectCode && (
                     <>
                       <span>·</span>
-                      <span className="font-mono bg-slate-100 px-1.5 py-0.2 rounded text-[11px] text-slate-600">
+                      <span className="font-mono bg-slate-100 px-2 py-0.5 rounded-md text-xs font-bold text-slate-600 border border-slate-200/80">
                         {projectCode}
                       </span>
                     </>
@@ -241,7 +241,7 @@ export const AssignMaterialModal: React.FC<AssignMaterialModalProps> = ({
           </div>
 
           {/* Form Content */}
-          <form onSubmit={handleSubmit} className="overflow-y-auto p-5 sm:p-6 space-y-6 text-xs text-slate-700 flex-1">
+          <form onSubmit={handleSubmit} className="overflow-y-auto p-5 sm:p-6 space-y-6 text-sm text-slate-700 flex-1">
             {formError && (
               <div className="p-3.5 bg-red-50 border border-red-200 text-red-700 rounded-xl flex items-start gap-2.5">
                 <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
@@ -253,7 +253,7 @@ export const AssignMaterialModal: React.FC<AssignMaterialModalProps> = ({
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <label className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
-                  <Package className="w-3.5 h-3.5 text-[#01875F]" />
+                  <Package className="w-4 h-4 text-[#18b892] shrink-0" />
                   <span>Select Material from Catalog</span>
                 </label>
 
@@ -261,9 +261,9 @@ export const AssignMaterialModal: React.FC<AssignMaterialModalProps> = ({
                 <button
                   type="button"
                   onClick={() => setIsAddNewMaterialOpen(true)}
-                  className="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-semibold text-[#01875F] bg-[#E6F4EA] hover:bg-[#d4ede0] rounded-md transition-colors cursor-pointer border border-[#01875F]/20"
+                  className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-[#18b892] bg-[#18b892]/10 hover:bg-[#18b892]/20 rounded-lg transition-colors cursor-pointer border border-[#18b892]/20 whitespace-nowrap"
                 >
-                  <Plus className="w-3.5 h-3.5" />
+                  <Plus className="w-3.5 h-3.5 shrink-0" />
                   <span>+ Add New Material</span>
                 </button>
               </div>
@@ -271,21 +271,21 @@ export const AssignMaterialModal: React.FC<AssignMaterialModalProps> = ({
               {/* Search & Filter Bar */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                 <div className="sm:col-span-2 relative">
-                  <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 shrink-0 pointer-events-none" />
                   <input
                     type="text"
                     value={searchFilter}
                     onChange={(e) => setSearchFilter(e.target.value)}
                     placeholder="Search material by name, code, brand..."
-                    className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#01875F] focus:border-[#01875F]"
+                    className="w-full h-10 pl-10 pr-4 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-[#18b892]"
                   />
                   {searchFilter && (
                     <button
                       type="button"
                       onClick={() => setSearchFilter('')}
-                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
                     >
-                      <X className="w-3.5 h-3.5" />
+                      <X className="w-4 h-4" />
                     </button>
                   )}
                 </div>
@@ -294,7 +294,7 @@ export const AssignMaterialModal: React.FC<AssignMaterialModalProps> = ({
                   <select
                     value={categoryFilter}
                     onChange={(e) => setCategoryFilter(e.target.value)}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#01875F] focus:border-[#01875F] cursor-pointer"
+                    className="w-full h-10 px-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 focus:bg-white focus:outline-none focus:border-[#18b892] cursor-pointer font-medium"
                   >
                     <option value="all">All Categories ({materials.length})</option>
                     {categories.map((cat) => (
@@ -308,12 +308,12 @@ export const AssignMaterialModal: React.FC<AssignMaterialModalProps> = ({
 
               {/* Material List / Selector Box */}
               {loadingMaterials ? (
-                <div className="h-36 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-center text-slate-400 animate-pulse">
+                <div className="h-36 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-center text-slate-400 animate-pulse text-sm">
                   <span>Loading catalog materials...</span>
                 </div>
               ) : catalogError ? (
                 <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-center text-red-600">
-                  <p className="font-semibold">{catalogError}</p>
+                  <p className="font-semibold text-sm">{catalogError}</p>
                   <button
                     type="button"
                     onClick={loadMaterials}
@@ -324,13 +324,13 @@ export const AssignMaterialModal: React.FC<AssignMaterialModalProps> = ({
                 </div>
               ) : filteredMaterials.length === 0 ? (
                 <div className="p-6 text-center border border-dashed border-slate-200 rounded-xl bg-slate-50/50">
-                  <p className="text-slate-500 font-medium">No materials found matching your search.</p>
+                  <p className="text-slate-500 font-medium text-sm">No materials found matching your search.</p>
                   <button
                     type="button"
                     onClick={() => setIsAddNewMaterialOpen(true)}
-                    className="mt-2.5 inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#01875F] text-white rounded-lg text-xs font-semibold hover:bg-[#01704d]"
+                    className="mt-2.5 inline-flex items-center gap-1.5 px-4 py-2 bg-[#18b892] text-white rounded-xl text-xs font-bold hover:bg-[#139c7b] whitespace-nowrap"
                   >
-                    <Plus className="w-3.5 h-3.5" />
+                    <Plus className="w-4 h-4 shrink-0" />
                     <span>Create new material</span>
                   </button>
                 </div>
@@ -345,22 +345,22 @@ export const AssignMaterialModal: React.FC<AssignMaterialModalProps> = ({
                       <div
                         key={mat.id}
                         onClick={() => handleSelectMaterial(mat)}
-                        className={`p-3 flex items-center justify-between gap-3 transition-colors cursor-pointer ${
+                        className={`p-3 sm:p-3.5 flex items-center justify-between gap-3 transition-colors cursor-pointer ${
                           isSelected
-                            ? 'bg-[#E6F4EA]/70 border-l-4 border-l-[#01875F]'
+                            ? 'bg-[#18b892]/10 border-l-4 border-l-[#18b892]'
                             : 'hover:bg-slate-50'
                         }`}
                       >
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-2">
-                            <span className="font-bold text-slate-900 truncate">{mat.name}</span>
+                            <span className="font-bold text-slate-900 truncate text-sm">{mat.name}</span>
                             {mat.material_code && (
-                              <span className="font-mono text-[10px] text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">
+                              <span className="font-mono text-xs font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded border border-slate-200/80 whitespace-nowrap">
                                 {mat.material_code}
                               </span>
                             )}
                           </div>
-                          <div className="flex items-center gap-2 text-[11px] text-slate-500 mt-0.5">
+                          <div className="flex items-center gap-2 text-xs text-slate-500 mt-0.5">
                             <span className="capitalize">{mat.category || 'General'}</span>
                             {mat.brand && (
                               <>
@@ -402,36 +402,36 @@ export const AssignMaterialModal: React.FC<AssignMaterialModalProps> = ({
 
             {/* SECTION 2: SELECTED MATERIAL SUMMARY CARD */}
             {selectedMaterial && (
-              <div className="p-4 bg-slate-50 border border-slate-200/90 rounded-xl space-y-2.5">
+              <div className="p-4 sm:p-5 bg-slate-50 border border-slate-200/90 rounded-2xl space-y-3">
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                    <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
                       Selected Item Details
                     </span>
-                    <h4 className="text-sm font-bold text-slate-900 mt-0.5">
+                    <h4 className="text-base font-bold text-slate-900 mt-0.5">
                       {selectedMaterial.name}
                     </h4>
-                    <p className="text-slate-600 text-xs mt-0.5">
+                    <p className="text-slate-600 text-xs sm:text-sm mt-0.5">
                       {selectedMaterial.specification || selectedMaterial.description || 'Standard specification'}
                     </p>
                   </div>
 
                   <div className="text-right">
-                    <span className="text-[10px] uppercase font-bold text-slate-400">Standard Cost</span>
-                    <div className="font-mono font-bold text-[#01875F] text-sm">
+                    <span className="text-xs uppercase font-bold text-slate-400">Standard Cost</span>
+                    <div className="font-mono font-bold text-[#18b892] text-base tabular-nums">
                       {formatNaira(selectedMaterial.standard_unit_cost || 0)}
                     </div>
-                    <span className="text-[10.5px] text-slate-500">
+                    <span className="text-xs text-slate-500">
                       per {selectedMaterial.unit_of_measure || 'unit'}
                     </span>
                   </div>
                 </div>
 
-                <div className="pt-2 border-t border-slate-200/60 flex items-center justify-between text-[11px] text-slate-500">
-                  <span>Category: <strong className="text-slate-700 capitalize">{selectedMaterial.category || 'General'}</strong></span>
-                  <span>Warehouse Stock: <strong className="text-slate-700">{selectedMaterial.current_stock ?? 0} {selectedMaterial.unit_of_measure || 'units'}</strong></span>
+                <div className="pt-2.5 border-t border-slate-200/70 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500">
+                  <span>Category: <strong className="text-slate-800 capitalize font-semibold">{selectedMaterial.category || 'General'}</strong></span>
+                  <span>Warehouse Stock: <strong className="text-slate-800 font-semibold">{selectedMaterial.current_stock ?? 0} {selectedMaterial.unit_of_measure || 'units'}</strong></span>
                   {selectedMaterial.storage_location && (
-                    <span>Location: <strong className="text-slate-700">{selectedMaterial.storage_location}</strong></span>
+                    <span>Location: <strong className="text-slate-800 font-semibold">{selectedMaterial.storage_location}</strong></span>
                   )}
                 </div>
               </div>
@@ -440,11 +440,11 @@ export const AssignMaterialModal: React.FC<AssignMaterialModalProps> = ({
             {/* SECTION 3: QUANTITIES & PRICING */}
             <div className="space-y-4">
               <label className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
-                <DollarSign className="w-3.5 h-3.5 text-[#01875F]" />
-                <span>Quantity, Unit Cost & Budget Allocation</span>
+                <DollarSign className="w-4 h-4 text-[#18b892] shrink-0" />
+                <span>Quantity, Unit Cost &amp; Budget Allocation</span>
               </label>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 {/* Required Quantity */}
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 mb-1">
@@ -463,9 +463,9 @@ export const AssignMaterialModal: React.FC<AssignMaterialModalProps> = ({
                           setApprovedQuantity(e.target.value);
                         }
                       }}
-                      className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-mono font-bold text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#01875F] focus:border-[#01875F]"
+                      className="w-full h-10 px-3 bg-white border border-slate-200 rounded-xl text-sm font-mono font-bold text-slate-800 focus:outline-none focus:border-[#18b892]"
                     />
-                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-[11px] font-semibold">
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs font-semibold pointer-events-none">
                       {selectedMaterial?.unit_of_measure || 'units'}
                     </span>
                   </div>
@@ -483,9 +483,9 @@ export const AssignMaterialModal: React.FC<AssignMaterialModalProps> = ({
                       min="0"
                       value={approvedQuantity}
                       onChange={(e) => setApprovedQuantity(e.target.value)}
-                      className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-mono text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#01875F] focus:border-[#01875F]"
+                      className="w-full h-10 px-3 bg-white border border-slate-200 rounded-xl text-sm font-mono text-slate-800 focus:outline-none focus:border-[#18b892]"
                     />
-                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-[11px] font-semibold">
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs font-semibold pointer-events-none">
                       {selectedMaterial?.unit_of_measure || 'units'}
                     </span>
                   </div>
@@ -502,20 +502,20 @@ export const AssignMaterialModal: React.FC<AssignMaterialModalProps> = ({
                     min="0"
                     value={unitCost}
                     onChange={(e) => setUnitCost(e.target.value)}
-                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-mono font-bold text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#01875F] focus:border-[#01875F]"
+                    className="w-full h-10 px-3 bg-white border border-slate-200 rounded-xl text-sm font-mono font-bold text-slate-800 focus:outline-none focus:border-[#18b892]"
                   />
                 </div>
               </div>
 
               {/* Calculated Total Cost Highlight Banner */}
-              <div className="p-3.5 bg-[#E6F4EA]/50 border border-[#01875F]/30 rounded-xl flex items-center justify-between">
+              <div className="p-4 bg-[#18b892]/10 border border-[#18b892]/25 rounded-2xl flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Info className="w-4 h-4 text-[#01875F]" />
-                  <span className="text-xs font-semibold text-slate-700">
+                  <Info className="w-4 h-4 text-[#18b892] shrink-0" />
+                  <span className="text-xs sm:text-sm font-semibold text-slate-700">
                     Calculated Requirement Total:
                   </span>
                 </div>
-                <div className="font-mono font-bold text-sm sm:text-base text-[#01875F]">
+                <div className="font-mono font-bold text-base sm:text-lg text-[#18b892] tabular-nums">
                   {formatNaira(calculatedTotalCost)}
                 </div>
               </div>
@@ -532,7 +532,7 @@ export const AssignMaterialModal: React.FC<AssignMaterialModalProps> = ({
                   value={purpose}
                   onChange={(e) => setPurpose(e.target.value)}
                   placeholder="e.g. Wall screeding and prime coat for living area"
-                  className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-[#01875F] focus:border-[#01875F]"
+                  className="w-full h-10 px-3.5 bg-white border border-slate-200 rounded-xl text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#18b892]"
                 />
               </div>
 
@@ -545,7 +545,7 @@ export const AssignMaterialModal: React.FC<AssignMaterialModalProps> = ({
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   placeholder="e.g. Must deliver in waterproof wrap. Verify batch number with site supervisor before unloading."
-                  className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-[#01875F] focus:border-[#01875F] resize-none"
+                  className="w-full p-3 bg-white border border-slate-200 rounded-xl text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#18b892] resize-none"
                 />
               </div>
             </div>
@@ -557,7 +557,7 @@ export const AssignMaterialModal: React.FC<AssignMaterialModalProps> = ({
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className="px-4 py-2 border border-slate-200 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100 hover:text-slate-800 transition-colors cursor-pointer"
+              className="px-4 py-2 border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-600 hover:bg-slate-100 hover:text-slate-800 transition-colors cursor-pointer"
             >
               Cancel
             </button>
@@ -566,16 +566,16 @@ export const AssignMaterialModal: React.FC<AssignMaterialModalProps> = ({
               type="button"
               onClick={handleSubmit}
               disabled={isSubmitting || !selectedMaterialId}
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#01875F] hover:bg-[#01704d] text-white text-xs font-bold rounded-lg shadow-sm transition-all cursor-pointer disabled:opacity-50"
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#18b892] hover:bg-[#139c7b] text-white text-xs sm:text-sm font-bold rounded-xl shadow-sm transition-all cursor-pointer disabled:opacity-50 whitespace-nowrap"
             >
               {isSubmitting ? (
                 <>
-                  <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin shrink-0" />
                   <span>Assigning Material...</span>
                 </>
               ) : (
                 <>
-                  <Boxes className="w-4 h-4" />
+                  <Boxes className="w-4 h-4 shrink-0" />
                   <span>Assign Material to Project</span>
                 </>
               )}

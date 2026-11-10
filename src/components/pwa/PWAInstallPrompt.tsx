@@ -85,7 +85,7 @@ export const PWAInstallPrompt: React.FC<PWAInstallPromptProps> = ({
               <h3 className="text-sm font-bold text-slate-900 tracking-tight">
                 Install Davejoe
               </h3>
-              <span className="inline-flex items-center px-1.5 py-0.2 text-[10px] font-medium text-[#01875F] bg-[#01875F]/10 rounded">
+              <span className="inline-flex items-center px-1.5 py-0.2 text-[10px] font-medium text-[#18b892] bg-[#18b892]/10 rounded">
                 PWA
               </span>
             </div>
@@ -111,7 +111,7 @@ export const PWAInstallPrompt: React.FC<PWAInstallPromptProps> = ({
             type="button"
             onClick={handleInstallClick}
             disabled={isInstalling}
-            className="flex-1 h-9 px-3.5 rounded-lg bg-[#01875F] hover:bg-[#00704e] active:bg-[#005a3f] text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors shadow-xs disabled:opacity-60 cursor-pointer"
+            className="flex-1 h-9 px-3.5 rounded-lg bg-[#18b892] hover:bg-[#139c7b] active:bg-[#005a3f] text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors shadow-xs disabled:opacity-60 cursor-pointer"
           >
             {isMobile ? (
               <Smartphone className="w-3.5 h-3.5" />
@@ -176,7 +176,7 @@ export const PWAInstallPrompt: React.FC<PWAInstallPromptProps> = ({
                 <div className="flex-1">
                   Tap the <strong className="text-slate-900">Share</strong> button in Safari's bottom toolbar.
                   <div className="mt-1 flex items-center gap-1.5 text-slate-500">
-                    <Share className="w-3.5 h-3.5 text-[#01875F]" />
+                    <Share className="w-3.5 h-3.5 text-[#18b892]" />
                     <span>Usually located at the bottom of the screen</span>
                   </div>
                 </div>
@@ -189,7 +189,7 @@ export const PWAInstallPrompt: React.FC<PWAInstallPromptProps> = ({
                 <div className="flex-1">
                   Scroll down and select <strong className="text-slate-900">Add to Home Screen</strong>.
                   <div className="mt-1 flex items-center gap-1.5 text-slate-500">
-                    <PlusSquare className="w-3.5 h-3.5 text-[#01875F]" />
+                    <PlusSquare className="w-3.5 h-3.5 text-[#18b892]" />
                     <span>Look for the square icon with a plus sign</span>
                   </div>
                 </div>
@@ -211,7 +211,7 @@ export const PWAInstallPrompt: React.FC<PWAInstallPromptProps> = ({
                 setShowIOSModal(false);
                 dismiss(false);
               }}
-              className="w-full h-9 rounded-lg bg-[#01875F] hover:bg-[#00704e] text-white text-xs font-semibold flex items-center justify-center transition-colors cursor-pointer"
+              className="w-full h-9 rounded-lg bg-[#18b892] hover:bg-[#139c7b] text-white text-xs font-semibold flex items-center justify-center transition-colors cursor-pointer"
             >
               Got it
             </button>

@@ -159,7 +159,7 @@ export const ReconciliationModule: React.FC<ReconciliationModuleProps> = () => {
               </span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight flex items-center gap-2.5">
-              <Scale className="w-7 h-7 text-[#01875F]" />
+              <Scale className="w-7 h-7 text-[#18b892]" />
               <span>Reconciliation</span>
             </h1>
             <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-2xl leading-relaxed">
@@ -176,7 +176,7 @@ export const ReconciliationModule: React.FC<ReconciliationModuleProps> = () => {
               title="Refresh"
             >
               <RefreshCw
-                className={`w-3.5 h-3.5 text-[#01875F] ${isRefreshing ? 'animate-spin' : ''}`}
+                className={`w-3.5 h-3.5 text-[#18b892] ${isRefreshing ? 'animate-spin' : ''}`}
               />
               <span>{isRefreshing ? 'Refreshing...' : 'Refresh'}</span>
             </button>
@@ -184,7 +184,7 @@ export const ReconciliationModule: React.FC<ReconciliationModuleProps> = () => {
             <button
               type="button"
               onClick={() => setIsRecordModalOpen(true)}
-              className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#01875F] hover:bg-[#016f4e] text-white text-xs font-semibold rounded-lg shadow-2xs transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#18b892] hover:bg-[#016f4e] text-white text-xs font-semibold rounded-lg shadow-2xs transition-colors cursor-pointer"
             >
               <Plus className="w-4 h-4" />
               <span>Record Reconciliation</span>
@@ -266,7 +266,7 @@ export const ReconciliationModule: React.FC<ReconciliationModuleProps> = () => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search by material name, project, or audit notes..."
-              className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#01875F] focus:border-[#01875F] transition-all"
+              className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#18b892] focus:border-[#18b892] transition-all"
             />
           </div>
 
@@ -275,7 +275,7 @@ export const ReconciliationModule: React.FC<ReconciliationModuleProps> = () => {
             <select
               value={projectFilter}
               onChange={(e) => setProjectFilter(e.target.value)}
-              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-700 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#01875F] focus:border-[#01875F] transition-all"
+              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-700 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#18b892] focus:border-[#18b892] transition-all"
             >
               <option value="all">All Project Sites</option>
               {projects.map((p) => (
@@ -291,7 +291,7 @@ export const ReconciliationModule: React.FC<ReconciliationModuleProps> = () => {
             <select
               value={varianceFilter}
               onChange={(e) => setVarianceFilter(e.target.value as any)}
-              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-700 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#01875F] focus:border-[#01875F] transition-all"
+              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-700 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#18b892] focus:border-[#18b892] transition-all"
             >
               <option value="all">All Audits</option>
               <option value="balanced">Balanced Positions Only (Variance = 0)</option>
@@ -309,7 +309,7 @@ export const ReconciliationModule: React.FC<ReconciliationModuleProps> = () => {
             <button
               type="button"
               onClick={handleClearFilters}
-              className="inline-flex items-center gap-1 text-[#01875F] font-semibold hover:underline cursor-pointer"
+              className="inline-flex items-center gap-1 text-[#18b892] font-semibold hover:underline cursor-pointer"
             >
               <X className="w-3.5 h-3.5" />
               <span>Clear Filters</span>
@@ -338,14 +338,14 @@ export const ReconciliationModule: React.FC<ReconciliationModuleProps> = () => {
           <button
             type="button"
             onClick={() => fetchData()}
-            className="px-4 py-2 bg-[#01875F] hover:bg-[#016f4e] text-white text-xs font-semibold rounded-lg shadow-2xs transition-colors cursor-pointer"
+            className="px-4 py-2 bg-[#18b892] hover:bg-[#016f4e] text-white text-xs font-semibold rounded-lg shadow-2xs transition-colors cursor-pointer"
           >
             Retry
           </button>
         </div>
       ) : reconciliations.length === 0 ? (
         <div className="bg-white rounded-xl border border-slate-200/80 shadow-2xs p-12 text-center max-w-xl mx-auto">
-          <div className="w-12 h-12 rounded-full bg-[#E6F4EA] text-[#01875F] flex items-center justify-center mx-auto mb-3 border border-[#01875F]/20">
+          <div className="w-12 h-12 rounded-full bg-[#E6F4EA] text-[#18b892] flex items-center justify-center mx-auto mb-3 border border-[#18b892]/20">
             <Scale className="w-6 h-6" />
           </div>
           <h3 className="text-base font-bold text-slate-900">
@@ -363,7 +363,7 @@ export const ReconciliationModule: React.FC<ReconciliationModuleProps> = () => {
               <button
                 type="button"
                 onClick={handleClearFilters}
-                className="px-4 py-2 bg-[#01875F] text-white text-xs font-semibold rounded-lg shadow-2xs hover:bg-[#016f4e] transition-colors cursor-pointer"
+                className="px-4 py-2 bg-[#18b892] text-white text-xs font-semibold rounded-lg shadow-2xs hover:bg-[#016f4e] transition-colors cursor-pointer"
               >
                 Clear Filters
               </button>
@@ -371,7 +371,7 @@ export const ReconciliationModule: React.FC<ReconciliationModuleProps> = () => {
               <button
                 type="button"
                 onClick={() => setIsRecordModalOpen(true)}
-                className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#01875F] text-white text-xs font-semibold rounded-lg shadow-2xs hover:bg-[#016f4e] transition-colors cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#18b892] text-white text-xs font-semibold rounded-lg shadow-2xs hover:bg-[#016f4e] transition-colors cursor-pointer"
               >
                 <Plus className="w-4 h-4" />
                 <span>+ Record Reconciliation</span>
@@ -416,7 +416,7 @@ export const ReconciliationModule: React.FC<ReconciliationModuleProps> = () => {
                     >
                       {/* Material */}
                       <td className="py-3.5 px-4">
-                        <div className="font-bold text-slate-900 group-hover:text-[#01875F] transition-colors">
+                        <div className="font-bold text-slate-900 group-hover:text-[#18b892] transition-colors">
                           {rec.material?.name || 'Material Item'}
                         </div>
                         <div className="text-[10.5px] font-mono text-slate-400">
@@ -429,7 +429,7 @@ export const ReconciliationModule: React.FC<ReconciliationModuleProps> = () => {
                         {rec.projects ? (
                           <Link
                             to={`/management/projects/${rec.project_id}`}
-                            className="font-medium text-slate-800 hover:text-[#01875F] hover:underline"
+                            className="font-medium text-slate-800 hover:text-[#18b892] hover:underline"
                           >
                             <span className="font-mono text-[11px] text-slate-500 mr-1">
                               {rec.projects.project_code}
@@ -470,7 +470,7 @@ export const ReconciliationModule: React.FC<ReconciliationModuleProps> = () => {
                           <span
                             className={`w-1.5 h-1.5 rounded-full ${
                               isBalanced
-                                ? 'bg-[#01875F]'
+                                ? 'bg-[#18b892]'
                                 : isShortage
                                 ? 'bg-rose-500'
                                 : 'bg-blue-500'
@@ -492,7 +492,7 @@ export const ReconciliationModule: React.FC<ReconciliationModuleProps> = () => {
                         <button
                           type="button"
                           onClick={() => setSelectedReconciliation(rec)}
-                          className="p-1.5 text-slate-500 hover:text-[#01875F] hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+                          className="p-1.5 text-slate-500 hover:text-[#18b892] hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
                           title="Inspect Reconciliation Audit"
                         >
                           <Eye className="w-4 h-4" />
@@ -527,7 +527,7 @@ export const ReconciliationModule: React.FC<ReconciliationModuleProps> = () => {
             {/* Header */}
             <div className="px-6 py-5 bg-white border-b border-slate-100 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-emerald-50 text-[#01875F] flex items-center justify-center shrink-0 border border-emerald-200">
+                <div className="w-10 h-10 rounded-xl bg-emerald-50 text-[#18b892] flex items-center justify-center shrink-0 border border-emerald-200">
                   <Scale className="w-5 h-5" />
                 </div>
                 <div>
@@ -563,7 +563,7 @@ export const ReconciliationModule: React.FC<ReconciliationModuleProps> = () => {
                     <span>Code: {selectedReconciliation.material?.material_code || '—'}</span>
                     <Link
                       to="/management/materials/directory"
-                      className="text-[#01875F] hover:underline inline-flex items-center gap-0.5"
+                      className="text-[#18b892] hover:underline inline-flex items-center gap-0.5"
                     >
                       <span>Catalog</span>
                       <ExternalLink className="w-3 h-3" />
@@ -583,7 +583,7 @@ export const ReconciliationModule: React.FC<ReconciliationModuleProps> = () => {
                     {selectedReconciliation.project_id && (
                       <Link
                         to={`/management/projects/${selectedReconciliation.project_id}`}
-                        className="text-[#01875F] hover:underline inline-flex items-center gap-0.5"
+                        className="text-[#18b892] hover:underline inline-flex items-center gap-0.5"
                       >
                         <span>Project</span>
                         <ExternalLink className="w-3 h-3" />
@@ -632,7 +632,7 @@ export const ReconciliationModule: React.FC<ReconciliationModuleProps> = () => {
 
                   <div className="flex justify-between font-bold text-slate-900">
                     <span>Physical Stocktaking Count:</span>
-                    <span className="text-[#01875F]">
+                    <span className="text-[#18b892]">
                       {Number(selectedReconciliation.closing_quantity ?? 0).toLocaleString()}
                     </span>
                   </div>

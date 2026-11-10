@@ -296,7 +296,7 @@ export const CreateProjectionModal: React.FC<CreateProjectionModalProps> = ({
         <div className="px-4 sm:px-6 py-3.5 sm:py-4 border-b border-slate-100 flex items-center justify-between shrink-0">
           <div className="min-w-0 pr-2">
             <h2 className="text-sm sm:text-lg font-bold text-slate-900 tracking-tight flex items-center gap-2 truncate">
-              <Calculator className="w-5 h-5 text-[#01875F] shrink-0" />
+              <Calculator className="w-5 h-5 text-[#18b892] shrink-0" />
               <span>New Project Projection</span>
             </h2>
             <p className="text-[11px] sm:text-xs text-slate-500 truncate mt-0.5">
@@ -331,9 +331,9 @@ export const CreateProjectionModal: React.FC<CreateProjectionModalProps> = ({
               onClick={() => setStep(s.num)}
               className={`flex items-center gap-1.5 py-1 px-2.5 rounded-lg transition-colors cursor-pointer ${
                 step === s.num
-                  ? 'bg-[#01875F] text-white shadow-2xs'
+                  ? 'bg-[#18b892] text-white shadow-2xs'
                   : step > s.num
-                  ? 'text-[#01875F] bg-[#01875F]/10'
+                  ? 'text-[#18b892] bg-[#18b892]/10'
                   : 'text-slate-400 hover:text-slate-600'
               }`}
             >
@@ -365,7 +365,7 @@ export const CreateProjectionModal: React.FC<CreateProjectionModalProps> = ({
                     name="clientMode"
                     checked={clientMode === 'existing'}
                     onChange={() => setClientMode('existing')}
-                    className="accent-[#01875F]"
+                    className="accent-[#18b892]"
                   />
                   Select Existing Client ({existingClients.length})
                 </label>
@@ -378,7 +378,7 @@ export const CreateProjectionModal: React.FC<CreateProjectionModalProps> = ({
                       setClientMode('new');
                       setClientId('');
                     }}
-                    className="accent-[#01875F]"
+                    className="accent-[#18b892]"
                   />
                   New Prospective Client
                 </label>
@@ -392,7 +392,7 @@ export const CreateProjectionModal: React.FC<CreateProjectionModalProps> = ({
                   <select
                     value={clientId}
                     onChange={(e) => handleSelectClient(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white focus:ring-2 focus:ring-[#01875F] focus:outline-none"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white focus:ring-2 focus:ring-[#18b892] focus:outline-none"
                   >
                     <option value="">-- Choose Existing Client --</option>
                     {existingClients.map((c) => (
@@ -415,7 +415,7 @@ export const CreateProjectionModal: React.FC<CreateProjectionModalProps> = ({
                     placeholder="e.g. Chevron Nigeria Ltd / Mr. Tunde Adeleke"
                     value={clientName}
                     onChange={(e) => setClientName(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-[#01875F] focus:outline-none"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-[#18b892] focus:outline-none"
                   />
                 </div>
                 <div>
@@ -428,7 +428,7 @@ export const CreateProjectionModal: React.FC<CreateProjectionModalProps> = ({
                     placeholder="e.g. Eko Atlantic Luxury Penthouse Fit-Out"
                     value={proposedProjectName}
                     onChange={(e) => setProposedProjectName(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-[#01875F] focus:outline-none"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-[#18b892] focus:outline-none"
                   />
                 </div>
               </div>
@@ -441,7 +441,7 @@ export const CreateProjectionModal: React.FC<CreateProjectionModalProps> = ({
                     placeholder="e.g. +234 803 123 4567"
                     value={clientPhone}
                     onChange={(e) => setClientPhone(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-[#01875F] focus:outline-none"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-[#18b892] focus:outline-none"
                   />
                 </div>
                 <div>
@@ -451,7 +451,7 @@ export const CreateProjectionModal: React.FC<CreateProjectionModalProps> = ({
                     placeholder="client@example.com"
                     value={clientEmail}
                     onChange={(e) => setClientEmail(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-[#01875F] focus:outline-none"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-[#18b892] focus:outline-none"
                   />
                 </div>
                 <div>
@@ -459,7 +459,7 @@ export const CreateProjectionModal: React.FC<CreateProjectionModalProps> = ({
                   <select
                     value={projectType}
                     onChange={(e) => setProjectType(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white focus:ring-2 focus:ring-[#01875F] focus:outline-none"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white focus:ring-2 focus:ring-[#18b892] focus:outline-none"
                   >
                     <option>Interior Finishing & Fit-out</option>
                     <option>Hardwood & Parquet Flooring</option>
@@ -479,7 +479,7 @@ export const CreateProjectionModal: React.FC<CreateProjectionModalProps> = ({
                     placeholder="e.g. Tower A, Victoria Island, Lagos"
                     value={siteLocation}
                     onChange={(e) => setSiteLocation(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-[#01875F] focus:outline-none"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-[#18b892] focus:outline-none"
                   />
                 </div>
                 <div>
@@ -489,7 +489,7 @@ export const CreateProjectionModal: React.FC<CreateProjectionModalProps> = ({
                     placeholder="e.g. Direct Referral from Arc. Somoye / Website Enquiry #1042"
                     value={sourceEnquiry}
                     onChange={(e) => setSourceEnquiry(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-[#01875F] focus:outline-none"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-[#18b892] focus:outline-none"
                   />
                 </div>
               </div>
@@ -501,7 +501,7 @@ export const CreateProjectionModal: React.FC<CreateProjectionModalProps> = ({
                   placeholder="Detailed description of client's requirements, architectural brief and requested deliverables..."
                   value={scopeOfWork}
                   onChange={(e) => setScopeOfWork(e.target.value)}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-[#01875F] focus:outline-none"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-[#18b892] focus:outline-none"
                 />
               </div>
 
@@ -512,7 +512,7 @@ export const CreateProjectionModal: React.FC<CreateProjectionModalProps> = ({
                     type="date"
                     value={targetStartDate}
                     onChange={(e) => setTargetStartDate(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-[#01875F] focus:outline-none"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-[#18b892] focus:outline-none"
                   />
                 </div>
                 <div>
@@ -522,7 +522,7 @@ export const CreateProjectionModal: React.FC<CreateProjectionModalProps> = ({
                     min={1}
                     value={targetDurationWeeks}
                     onChange={(e) => setTargetDurationWeeks(Number(e.target.value))}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-[#01875F] focus:outline-none"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-[#18b892] focus:outline-none"
                   />
                 </div>
               </div>
@@ -544,7 +544,7 @@ export const CreateProjectionModal: React.FC<CreateProjectionModalProps> = ({
                 <button
                   type="button"
                   onClick={handleAddWorkArea}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-[#01875F] text-white hover:bg-[#01704f] transition-colors"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-[#18b892] text-white hover:bg-[#01704f] transition-colors"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   Add Work Area
@@ -628,7 +628,7 @@ export const CreateProjectionModal: React.FC<CreateProjectionModalProps> = ({
                     placeholder="e.g. Existing screed is dry but has 3mm undulations requiring self-leveling"
                     value={surfaceConditions}
                     onChange={(e) => setSurfaceConditions(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-[#01875F] focus:outline-none"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-[#18b892] focus:outline-none"
                   />
                 </div>
                 <div>
@@ -640,7 +640,7 @@ export const CreateProjectionModal: React.FC<CreateProjectionModalProps> = ({
                     placeholder="e.g. Floor grinding, moisture test, polyurethane primer and leveling compound"
                     value={surfacePreparation}
                     onChange={(e) => setSurfacePreparation(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-[#01875F] focus:outline-none"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-[#18b892] focus:outline-none"
                   />
                 </div>
               </div>
@@ -655,7 +655,7 @@ export const CreateProjectionModal: React.FC<CreateProjectionModalProps> = ({
                     placeholder="e.g. Italian Porcelain 120x60cm / 15mm French Oak Parquet"
                     value={requiredFinishing}
                     onChange={(e) => setRequiredFinishing(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-[#01875F] focus:outline-none"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-[#18b892] focus:outline-none"
                   />
                 </div>
                 <div>
@@ -667,7 +667,7 @@ export const CreateProjectionModal: React.FC<CreateProjectionModalProps> = ({
                     placeholder="e.g. Rising dampness from sub-base / site access window restrictions"
                     value={technicalRisks}
                     onChange={(e) => setTechnicalRisks(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-[#01875F] focus:outline-none"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-[#18b892] focus:outline-none"
                   />
                 </div>
               </div>
@@ -758,7 +758,7 @@ export const CreateProjectionModal: React.FC<CreateProjectionModalProps> = ({
                   <button
                     type="button"
                     onClick={handleAddLineItem}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-[#01875F] text-white hover:bg-[#01704f] transition-colors cursor-pointer"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-[#18b892] text-white hover:bg-[#01704f] transition-colors cursor-pointer"
                   >
                     <Plus className="w-3.5 h-3.5" />
                     Add Item
@@ -842,7 +842,7 @@ export const CreateProjectionModal: React.FC<CreateProjectionModalProps> = ({
             <div className="space-y-5">
               <div className="p-5 bg-gradient-to-r from-slate-50 to-emerald-50/40 rounded-xl border border-slate-200/90 space-y-4">
                 <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
-                  <Calculator className="w-4 h-4 text-[#01875F]" />
+                  <Calculator className="w-4 h-4 text-[#18b892]" />
                   Consolidated Cost Structure & Contingency
                 </h3>
 
@@ -881,7 +881,7 @@ export const CreateProjectionModal: React.FC<CreateProjectionModalProps> = ({
               {/* Commercial Contract Pricing */}
               <div className="p-5 bg-white rounded-xl border border-slate-200 shadow-2xs space-y-4">
                 <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
-                  <TrendingUp className="w-4 h-4 text-[#01875F]" />
+                  <TrendingUp className="w-4 h-4 text-[#18b892]" />
                   Commercial Pricing & Profitability Analysis
                 </h3>
 
@@ -894,7 +894,7 @@ export const CreateProjectionModal: React.FC<CreateProjectionModalProps> = ({
                     min={0}
                     value={proposedSellingPrice}
                     onChange={(e) => setProposedSellingPrice(Number(e.target.value))}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-base font-bold font-mono focus:ring-2 focus:ring-[#01875F] focus:outline-none"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-base font-bold font-mono focus:ring-2 focus:ring-[#18b892] focus:outline-none"
                   />
                   <p className="text-[11px] text-slate-500 mt-1">
                     This is the proposed quotation amount to be presented to the client.
@@ -993,7 +993,7 @@ export const CreateProjectionModal: React.FC<CreateProjectionModalProps> = ({
               <button
                 type="button"
                 onClick={() => setStep(step + 1)}
-                className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold bg-[#01875F] text-white hover:bg-[#01704f] rounded-xl shadow-xs transition-colors cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold bg-[#18b892] text-white hover:bg-[#01704f] rounded-xl shadow-xs transition-colors cursor-pointer"
               >
                 Next Step
                 <ChevronRight className="w-4 h-4" />
@@ -1012,7 +1012,7 @@ export const CreateProjectionModal: React.FC<CreateProjectionModalProps> = ({
                   type="button"
                   disabled={submitting}
                   onClick={() => handleSubmit(true)}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold bg-[#01875F] hover:bg-[#01704f] text-white rounded-xl shadow-xs transition-colors cursor-pointer disabled:opacity-50"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold bg-[#18b892] hover:bg-[#01704f] text-white rounded-xl shadow-xs transition-colors cursor-pointer disabled:opacity-50"
                 >
                   {submitting ? 'Submitting...' : 'Submit for Contributions'}
                 </button>

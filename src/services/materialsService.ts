@@ -133,7 +133,7 @@ export const MATERIAL_STATUS_CONFIG: Record<
   active: {
     label: 'Active',
     badgeClasses: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-    dotClasses: 'bg-[#01875F]',
+    dotClasses: 'bg-[#18b892]',
   },
   inactive: {
     label: 'Inactive',

@@ -165,7 +165,7 @@ export const EditMaterialModal: React.FC<EditMaterialModalProps> = ({
         {/* Header */}
         <div className="px-6 py-5 bg-white border-b border-slate-100 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#E6F4EA] text-[#01875F] flex items-center justify-center shrink-0 border border-[#01875F]/20">
+            <div className="w-10 h-10 rounded-xl bg-[#E6F4EA] text-[#18b892] flex items-center justify-center shrink-0 border border-[#18b892]/20">
               <Edit2 className="w-5 h-5" />
             </div>
             <div>
@@ -202,7 +202,7 @@ export const EditMaterialModal: React.FC<EditMaterialModalProps> = ({
 
           {/* Read-Only Operational Stock & Code Notice */}
           <div className="p-3.5 bg-slate-50 border border-slate-200/80 rounded-xl flex items-start gap-2.5 text-slate-600 text-[11px]">
-            <Info className="w-4 h-4 text-[#01875F] shrink-0 mt-0.5" />
+            <Info className="w-4 h-4 text-[#18b892] shrink-0 mt-0.5" />
             <div>
               <p className="font-semibold text-slate-800">
                 Operational Stock Balance:{' '}
@@ -239,7 +239,7 @@ export const EditMaterialModal: React.FC<EditMaterialModalProps> = ({
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Material Name"
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#01875F] focus:border-[#01875F]"
+                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#18b892] focus:border-[#18b892]"
               />
             </div>
           </div>
@@ -252,7 +252,7 @@ export const EditMaterialModal: React.FC<EditMaterialModalProps> = ({
                 <select
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#01875F] focus:border-[#01875F]"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#18b892] focus:border-[#18b892]"
                 >
                   {MATERIAL_CATEGORIES.map((c) => (
                     <option key={c.value} value={c.value}>
@@ -275,7 +275,7 @@ export const EditMaterialModal: React.FC<EditMaterialModalProps> = ({
                     value={customCategory}
                     onChange={(e) => setCustomCategory(e.target.value)}
                     placeholder="Enter custom category"
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#01875F] focus:border-[#01875F]"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#18b892] focus:border-[#18b892]"
                   />
                 )}
               </div>
@@ -288,7 +288,7 @@ export const EditMaterialModal: React.FC<EditMaterialModalProps> = ({
                 value={brand}
                 onChange={(e) => setBrand(e.target.value)}
                 placeholder="e.g. Dangote, BUA, Lafarge"
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#01875F] focus:border-[#01875F]"
+                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#18b892] focus:border-[#18b892]"
               />
             </div>
           </div>
@@ -303,7 +303,7 @@ export const EditMaterialModal: React.FC<EditMaterialModalProps> = ({
                 <select
                   value={unitOfMeasure}
                   onChange={(e) => setUnitOfMeasure(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#01875F] focus:border-[#01875F]"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#18b892] focus:border-[#18b892]"
                 >
                   {COMMON_UNITS.map((u) => (
                     <option key={u} value={u}>
@@ -319,7 +319,7 @@ export const EditMaterialModal: React.FC<EditMaterialModalProps> = ({
                     value={customUnit}
                     onChange={(e) => setCustomUnit(e.target.value)}
                     placeholder="Enter unit of measure"
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#01875F] focus:border-[#01875F]"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#18b892] focus:border-[#18b892]"
                   />
                 )}
               </div>
@@ -332,7 +332,7 @@ export const EditMaterialModal: React.FC<EditMaterialModalProps> = ({
                 value={specification}
                 onChange={(e) => setSpecification(e.target.value)}
                 placeholder="e.g. 50kg bag, Grade 42.5N"
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#01875F] focus:border-[#01875F]"
+                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#18b892] focus:border-[#18b892]"
               />
             </div>
           </div>
@@ -348,7 +348,7 @@ export const EditMaterialModal: React.FC<EditMaterialModalProps> = ({
                 value={standardUnitCost}
                 onChange={(e) => setStandardUnitCost(e.target.value)}
                 placeholder="0.00"
-                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-mono text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#01875F] focus:border-[#01875F]"
+                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-mono text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#18b892] focus:border-[#18b892]"
               />
               <span className="text-[10px] text-slate-400">Unit base reference in ₦</span>
             </div>
@@ -362,7 +362,7 @@ export const EditMaterialModal: React.FC<EditMaterialModalProps> = ({
                 value={reorderLevel}
                 onChange={(e) => setReorderLevel(e.target.value)}
                 placeholder="0"
-                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-mono text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#01875F] focus:border-[#01875F]"
+                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-mono text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#18b892] focus:border-[#18b892]"
               />
               <span className="text-[10px] text-slate-400">Low stock trigger limit</span>
             </div>
@@ -375,7 +375,7 @@ export const EditMaterialModal: React.FC<EditMaterialModalProps> = ({
               <select
                 value={status}
                 onChange={(e) => setStatus(e.target.value as MaterialStatus)}
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#01875F] focus:border-[#01875F]"
+                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#18b892] focus:border-[#18b892]"
               >
                 {ALL_MATERIAL_STATUSES.map((s) => (
                   <option key={s} value={s}>
@@ -392,7 +392,7 @@ export const EditMaterialModal: React.FC<EditMaterialModalProps> = ({
                 value={storageLocation}
                 onChange={(e) => setStorageLocation(e.target.value)}
                 placeholder="e.g. Central Yard, Shed B, Bin 14"
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#01875F] focus:border-[#01875F]"
+                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#18b892] focus:border-[#18b892]"
               />
             </div>
           </div>
@@ -406,7 +406,7 @@ export const EditMaterialModal: React.FC<EditMaterialModalProps> = ({
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="General description of the material..."
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#01875F] focus:border-[#01875F]"
+                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#18b892] focus:border-[#18b892]"
               />
             </div>
 
@@ -417,7 +417,7 @@ export const EditMaterialModal: React.FC<EditMaterialModalProps> = ({
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="Special handling rules or notes..."
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#01875F] focus:border-[#01875F]"
+                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#18b892] focus:border-[#18b892]"
               />
             </div>
           </div>
@@ -435,7 +435,7 @@ export const EditMaterialModal: React.FC<EditMaterialModalProps> = ({
             <button
               type="submit"
               disabled={isSubmitting}
-              className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#01875F] text-white hover:bg-[#016f4e] text-xs font-semibold rounded-lg shadow-2xs transition-colors cursor-pointer disabled:opacity-60"
+              className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#18b892] text-white hover:bg-[#016f4e] text-xs font-semibold rounded-lg shadow-2xs transition-colors cursor-pointer disabled:opacity-60"
             >
               {isSubmitting ? (
                 <>

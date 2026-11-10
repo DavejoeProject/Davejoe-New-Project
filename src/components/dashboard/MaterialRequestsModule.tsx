@@ -169,7 +169,7 @@ export const MaterialRequestsModule: React.FC<MaterialRequestsModuleProps> = () 
               </span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight flex items-center gap-2.5">
-              <FileText className="w-7 h-7 text-[#01875F]" />
+              <FileText className="w-7 h-7 text-[#18b892]" />
               <span>Material Requests</span>
             </h1>
             <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-2xl leading-relaxed">
@@ -186,7 +186,7 @@ export const MaterialRequestsModule: React.FC<MaterialRequestsModuleProps> = () 
               title="Refresh"
             >
               <RefreshCw
-                className={`w-3.5 h-3.5 text-[#01875F] ${isRefreshing ? 'animate-spin' : ''}`}
+                className={`w-3.5 h-3.5 text-[#18b892] ${isRefreshing ? 'animate-spin' : ''}`}
               />
               <span>{isRefreshing ? 'Refreshing...' : 'Refresh'}</span>
             </button>
@@ -194,7 +194,7 @@ export const MaterialRequestsModule: React.FC<MaterialRequestsModuleProps> = () 
             <button
               type="button"
               onClick={() => setIsNewModalOpen(true)}
-              className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#01875F] hover:bg-[#016f4e] text-white text-xs font-semibold rounded-lg shadow-2xs transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#18b892] hover:bg-[#016f4e] text-white text-xs font-semibold rounded-lg shadow-2xs transition-colors cursor-pointer"
             >
               <Plus className="w-4 h-4" />
               <span>New Material Request</span>
@@ -236,7 +236,7 @@ export const MaterialRequestsModule: React.FC<MaterialRequestsModuleProps> = () 
           <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">
             APPROVED
           </span>
-          <span className="text-2xl font-bold text-[#01875F] mt-1 block font-mono">
+          <span className="text-2xl font-bold text-[#18b892] mt-1 block font-mono">
             {isLoading && !summary ? '...' : (summary?.approved ?? 0)}
           </span>
           <span className="text-[11px] text-slate-500">Authorized for procurement</span>
@@ -264,7 +264,7 @@ export const MaterialRequestsModule: React.FC<MaterialRequestsModuleProps> = () 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search requests by code, project, or requester..."
-              className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#01875F] focus:border-[#01875F] transition-all"
+              className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#18b892] focus:border-[#18b892] transition-all"
             />
           </div>
 
@@ -273,7 +273,7 @@ export const MaterialRequestsModule: React.FC<MaterialRequestsModuleProps> = () 
             <select
               value={projectFilter}
               onChange={(e) => setProjectFilter(e.target.value)}
-              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-700 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#01875F] focus:border-[#01875F] transition-all"
+              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-700 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#18b892] focus:border-[#18b892] transition-all"
             >
               <option value="all">All Projects</option>
               {projects.map((p) => (
@@ -289,7 +289,7 @@ export const MaterialRequestsModule: React.FC<MaterialRequestsModuleProps> = () 
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-700 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#01875F] focus:border-[#01875F] transition-all"
+              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-700 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#18b892] focus:border-[#18b892] transition-all"
             >
               <option value="all">All Statuses</option>
               {ALL_REQUEST_STATUSES.map((st) => (
@@ -305,7 +305,7 @@ export const MaterialRequestsModule: React.FC<MaterialRequestsModuleProps> = () 
             <select
               value={priorityFilter}
               onChange={(e) => setPriorityFilter(e.target.value)}
-              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-700 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#01875F] focus:border-[#01875F] transition-all"
+              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-700 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#18b892] focus:border-[#18b892] transition-all"
             >
               <option value="all">All Priorities</option>
               {ALL_REQUEST_PRIORITIES.map((pr) => (
@@ -325,7 +325,7 @@ export const MaterialRequestsModule: React.FC<MaterialRequestsModuleProps> = () 
             <button
               type="button"
               onClick={handleClearFilters}
-              className="inline-flex items-center gap-1 text-[#01875F] font-semibold hover:underline cursor-pointer"
+              className="inline-flex items-center gap-1 text-[#18b892] font-semibold hover:underline cursor-pointer"
             >
               <X className="w-3.5 h-3.5" />
               <span>Clear Filters</span>
@@ -354,14 +354,14 @@ export const MaterialRequestsModule: React.FC<MaterialRequestsModuleProps> = () 
           <button
             type="button"
             onClick={() => fetchData()}
-            className="px-4 py-2 bg-[#01875F] hover:bg-[#016f4e] text-white text-xs font-semibold rounded-lg shadow-2xs transition-colors cursor-pointer"
+            className="px-4 py-2 bg-[#18b892] hover:bg-[#016f4e] text-white text-xs font-semibold rounded-lg shadow-2xs transition-colors cursor-pointer"
           >
             Retry
           </button>
         </div>
       ) : requests.length === 0 ? (
         <div className="bg-white rounded-xl border border-slate-200/80 shadow-2xs p-12 text-center max-w-xl mx-auto">
-          <div className="w-12 h-12 rounded-full bg-[#E6F4EA] text-[#01875F] flex items-center justify-center mx-auto mb-3 border border-[#01875F]/20">
+          <div className="w-12 h-12 rounded-full bg-[#E6F4EA] text-[#18b892] flex items-center justify-center mx-auto mb-3 border border-[#18b892]/20">
             <Boxes className="w-6 h-6" />
           </div>
           <h3 className="text-base font-bold text-slate-900">
@@ -377,7 +377,7 @@ export const MaterialRequestsModule: React.FC<MaterialRequestsModuleProps> = () 
               <button
                 type="button"
                 onClick={handleClearFilters}
-                className="px-4 py-2 bg-[#01875F] text-white text-xs font-semibold rounded-lg shadow-2xs hover:bg-[#016f4e] transition-colors cursor-pointer"
+                className="px-4 py-2 bg-[#18b892] text-white text-xs font-semibold rounded-lg shadow-2xs hover:bg-[#016f4e] transition-colors cursor-pointer"
               >
                 Clear Filters
               </button>
@@ -385,7 +385,7 @@ export const MaterialRequestsModule: React.FC<MaterialRequestsModuleProps> = () 
               <button
                 type="button"
                 onClick={() => setIsNewModalOpen(true)}
-                className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#01875F] text-white text-xs font-semibold rounded-lg shadow-2xs hover:bg-[#016f4e] transition-colors cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#18b892] text-white text-xs font-semibold rounded-lg shadow-2xs hover:bg-[#016f4e] transition-colors cursor-pointer"
               >
                 <Plus className="w-4 h-4" />
                 <span>+ New Material Request</span>
@@ -439,7 +439,7 @@ export const MaterialRequestsModule: React.FC<MaterialRequestsModuleProps> = () 
                     >
                       {/* Request code */}
                       <td className="py-3.5 px-4">
-                        <div className="font-mono font-bold text-slate-900 group-hover:text-[#01875F] transition-colors">
+                        <div className="font-mono font-bold text-slate-900 group-hover:text-[#18b892] transition-colors">
                           {req.request_code}
                         </div>
                         {req.itemCount !== undefined && (
@@ -457,7 +457,7 @@ export const MaterialRequestsModule: React.FC<MaterialRequestsModuleProps> = () 
                         {req.projects ? (
                           <Link
                             to={`/management/projects/${req.project_id}`}
-                            className="font-medium text-slate-800 hover:text-[#01875F] hover:underline"
+                            className="font-medium text-slate-800 hover:text-[#18b892] hover:underline"
                           >
                             <span className="font-mono text-[11px] text-slate-500 mr-1">
                               {req.projects.project_code}
@@ -519,7 +519,7 @@ export const MaterialRequestsModule: React.FC<MaterialRequestsModuleProps> = () 
                               <button
                                 type="button"
                                 onClick={() => setSelectedApproveRequest(req)}
-                                className="p-1.5 text-[#01875F] hover:bg-emerald-50 rounded-lg transition-colors cursor-pointer"
+                                className="p-1.5 text-[#18b892] hover:bg-emerald-50 rounded-lg transition-colors cursor-pointer"
                                 title="Approve Request"
                               >
                                 <CheckCircle2 className="w-4 h-4" />
@@ -537,7 +537,7 @@ export const MaterialRequestsModule: React.FC<MaterialRequestsModuleProps> = () 
                           <button
                             type="button"
                             onClick={() => navigate(`/management/materials/requests/${req.id}`)}
-                            className="p-1.5 text-slate-500 hover:text-[#01875F] hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+                            className="p-1.5 text-slate-500 hover:text-[#18b892] hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
                             title="View Requisition Control Centre"
                           >
                             <Eye className="w-4 h-4" />

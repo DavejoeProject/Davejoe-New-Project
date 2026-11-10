@@ -116,7 +116,7 @@ export const AttendanceModule: React.FC<AttendanceModuleProps> = ({ onBackToDash
           <button
             type="button"
             onClick={onBackToDashboard}
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#01875F] hover:underline mb-2 cursor-pointer"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#18b892] hover:underline mb-2 cursor-pointer"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>Back to Dashboard</span>
@@ -131,7 +131,7 @@ export const AttendanceModule: React.FC<AttendanceModuleProps> = ({ onBackToDash
               </span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight flex items-center gap-2.5">
-              <CalendarCheck className="w-7 h-7 text-[#01875F]" />
+              <CalendarCheck className="w-7 h-7 text-[#18b892]" />
               <span>Attendance</span>
             </h1>
             <p className="text-xs sm:text-sm text-slate-500 mt-1">
@@ -148,7 +148,7 @@ export const AttendanceModule: React.FC<AttendanceModuleProps> = ({ onBackToDash
               title="Refresh attendance records from database"
             >
               <RefreshCw
-                className={`w-3.5 h-3.5 text-[#01875F] ${isRefreshing ? 'animate-spin' : ''}`}
+                className={`w-3.5 h-3.5 text-[#18b892] ${isRefreshing ? 'animate-spin' : ''}`}
               />
               <span>{isRefreshing ? 'Refreshing...' : 'Refresh'}</span>
             </button>
@@ -236,7 +236,7 @@ export const AttendanceModule: React.FC<AttendanceModuleProps> = ({ onBackToDash
               placeholder="Search by worker name, code, trade, or project..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full h-9 pl-9 pr-3.5 bg-slate-50 hover:bg-slate-100/70 focus:bg-white border border-slate-200 rounded-lg text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#01875F] transition-all"
+              className="w-full h-9 pl-9 pr-3.5 bg-slate-50 hover:bg-slate-100/70 focus:bg-white border border-slate-200 rounded-lg text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#18b892] transition-all"
             />
           </div>
 
@@ -261,7 +261,7 @@ export const AttendanceModule: React.FC<AttendanceModuleProps> = ({ onBackToDash
               type="date"
               value={dateFilter}
               onChange={(e) => setDateFilter(e.target.value)}
-              className="h-8 px-2 bg-white border border-slate-200 rounded-lg text-xs text-slate-800 focus:outline-none focus:border-[#01875F]"
+              className="h-8 px-2 bg-white border border-slate-200 rounded-lg text-xs text-slate-800 focus:outline-none focus:border-[#18b892]"
             />
           </div>
 
@@ -271,7 +271,7 @@ export const AttendanceModule: React.FC<AttendanceModuleProps> = ({ onBackToDash
             <select
               value={projectFilter}
               onChange={(e) => setProjectFilter(e.target.value)}
-              className="h-8 px-2.5 bg-white border border-slate-200 rounded-lg text-xs font-medium text-slate-800 focus:outline-none focus:border-[#01875F] cursor-pointer max-w-[200px] truncate"
+              className="h-8 px-2.5 bg-white border border-slate-200 rounded-lg text-xs font-medium text-slate-800 focus:outline-none focus:border-[#18b892] cursor-pointer max-w-[200px] truncate"
             >
               <option value="all">All Projects</option>
               {filterOptions.projects.map((p) => (
@@ -288,7 +288,7 @@ export const AttendanceModule: React.FC<AttendanceModuleProps> = ({ onBackToDash
             <select
               value={workerFilter}
               onChange={(e) => setWorkerFilter(e.target.value)}
-              className="h-8 px-2.5 bg-white border border-slate-200 rounded-lg text-xs font-medium text-slate-800 focus:outline-none focus:border-[#01875F] cursor-pointer max-w-[200px] truncate"
+              className="h-8 px-2.5 bg-white border border-slate-200 rounded-lg text-xs font-medium text-slate-800 focus:outline-none focus:border-[#18b892] cursor-pointer max-w-[200px] truncate"
             >
               <option value="all">All Workers</option>
               {filterOptions.workers.map((w) => (
@@ -305,7 +305,7 @@ export const AttendanceModule: React.FC<AttendanceModuleProps> = ({ onBackToDash
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="h-8 px-2.5 bg-white border border-slate-200 rounded-lg text-xs font-medium text-slate-800 focus:outline-none focus:border-[#01875F] cursor-pointer"
+              className="h-8 px-2.5 bg-white border border-slate-200 rounded-lg text-xs font-medium text-slate-800 focus:outline-none focus:border-[#18b892] cursor-pointer"
             >
               <option value="all">All Statuses</option>
               {ALL_ATTENDANCE_STATUSES.map((st) => (
@@ -345,7 +345,7 @@ export const AttendanceModule: React.FC<AttendanceModuleProps> = ({ onBackToDash
             <button
               type="button"
               onClick={() => fetchAttendance(false)}
-              className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#01875F] hover:bg-[#016f4e] text-white text-xs font-semibold rounded-lg shadow-sm transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#18b892] hover:bg-[#016f4e] text-white text-xs font-semibold rounded-lg shadow-sm transition-colors cursor-pointer"
             >
               <RefreshCw className="w-3.5 h-3.5" />
               <span>Retry</span>
@@ -355,7 +355,7 @@ export const AttendanceModule: React.FC<AttendanceModuleProps> = ({ onBackToDash
       ) : records.length === 0 ? (
         /* Exact Zero-Demo-Data Empty State */
         <div className="bg-white rounded-xl border border-slate-200/80 shadow-2xs p-12 text-center max-w-2xl mx-auto">
-          <div className="w-14 h-14 rounded-2xl bg-[#E6F4EA] text-[#01875F] flex items-center justify-center mx-auto mb-4 border border-[#01875F]/20">
+          <div className="w-14 h-14 rounded-2xl bg-[#E6F4EA] text-[#18b892] flex items-center justify-center mx-auto mb-4 border border-[#18b892]/20">
             <CalendarCheck className="w-7 h-7" strokeWidth={1.8} />
           </div>
 
@@ -402,7 +402,7 @@ export const AttendanceModule: React.FC<AttendanceModuleProps> = ({ onBackToDash
                         <button
                           type="button"
                           onClick={() => navigate(`/management/workforce/${rec.workforce_member_id}`)}
-                          className="font-bold text-slate-900 hover:text-[#01875F] flex items-center gap-1.5 transition-colors cursor-pointer text-left"
+                          className="font-bold text-slate-900 hover:text-[#18b892] flex items-center gap-1.5 transition-colors cursor-pointer text-left"
                           title="Open Staff Control Centre"
                         >
                           <span>{workerName}</span>
@@ -430,7 +430,7 @@ export const AttendanceModule: React.FC<AttendanceModuleProps> = ({ onBackToDash
                           <button
                             type="button"
                             onClick={() => navigate(`/management/projects/${rec.project_id}`)}
-                            className="font-bold text-[#01875F] hover:underline flex items-center gap-1 cursor-pointer text-left"
+                            className="font-bold text-[#18b892] hover:underline flex items-center gap-1 cursor-pointer text-left"
                             title="Open Project Control Centre"
                           >
                             <span>{rec.projects.name}</span>

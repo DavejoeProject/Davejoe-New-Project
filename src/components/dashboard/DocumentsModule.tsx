@@ -14,13 +14,13 @@ export const DocumentsModule: React.FC<DocumentsModuleProps> = ({ onBackToDashbo
         <div>
           <button
             onClick={onBackToDashboard}
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#01875F] hover:underline mb-1 cursor-pointer"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#18b892] hover:underline mb-1 cursor-pointer"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>Back to Dashboard</span>
           </button>
           <h1 className="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2.5">
-            <FileText className="w-6 h-6 text-[#01875F]" />
+            <FileText className="w-6 h-6 text-[#18b892]" />
             <span>Project Documents & Drawings Repository</span>
           </h1>
           <p className="text-xs sm:text-sm text-slate-500">
@@ -28,7 +28,7 @@ export const DocumentsModule: React.FC<DocumentsModuleProps> = ({ onBackToDashbo
           </p>
         </div>
 
-        <button className="px-3.5 py-2 bg-[#01875F] hover:bg-[#016f4e] text-white text-xs font-semibold rounded-lg shadow-xs flex items-center gap-2 cursor-pointer transition-colors">
+        <button className="px-3.5 py-2 bg-[#18b892] hover:bg-[#016f4e] text-white text-xs font-semibold rounded-lg shadow-xs flex items-center gap-2 cursor-pointer transition-colors">
           <Plus className="w-4 h-4" />
           <span>Upload Document</span>
         </button>

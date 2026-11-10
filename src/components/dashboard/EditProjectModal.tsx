@@ -138,7 +138,7 @@ export const EditProjectModal: React.FC<EditProjectModalProps> = ({
         {/* Header */}
         <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-[#E6F4EA] text-[#01875F] flex items-center justify-center font-bold">
+            <div className="w-8 h-8 rounded-lg bg-[#E6F4EA] text-[#18b892] flex items-center justify-center font-bold">
               <Edit3 className="w-4 h-4" />
             </div>
             <div>
@@ -179,7 +179,7 @@ export const EditProjectModal: React.FC<EditProjectModalProps> = ({
                 required
                 value={projectCode}
                 onChange={(e) => setProjectCode(e.target.value)}
-                className="w-full h-10 px-3.5 bg-white border border-slate-200 rounded-lg text-xs font-mono font-medium text-slate-900 focus:outline-none focus:border-[#01875F]"
+                className="w-full h-10 px-3.5 bg-white border border-slate-200 rounded-lg text-xs font-mono font-medium text-slate-900 focus:outline-none focus:border-[#18b892]"
               />
             </div>
 
@@ -192,7 +192,7 @@ export const EditProjectModal: React.FC<EditProjectModalProps> = ({
                 required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full h-10 px-3.5 bg-white border border-slate-200 rounded-lg text-xs font-medium text-slate-900 focus:outline-none focus:border-[#01875F]"
+                className="w-full h-10 px-3.5 bg-white border border-slate-200 rounded-lg text-xs font-medium text-slate-900 focus:outline-none focus:border-[#18b892]"
               />
             </div>
           </div>
@@ -208,7 +208,7 @@ export const EditProjectModal: React.FC<EditProjectModalProps> = ({
                 value={clientId}
                 onChange={(e) => setClientId(e.target.value)}
                 disabled={loadingClients}
-                className="w-full h-10 px-3.5 bg-white border border-slate-200 rounded-lg text-xs font-medium text-slate-900 focus:outline-none focus:border-[#01875F]"
+                className="w-full h-10 px-3.5 bg-white border border-slate-200 rounded-lg text-xs font-medium text-slate-900 focus:outline-none focus:border-[#18b892]"
               >
                 <option value="" disabled>
                   Select client
@@ -228,7 +228,7 @@ export const EditProjectModal: React.FC<EditProjectModalProps> = ({
               <select
                 value={status}
                 onChange={(e) => setStatus(e.target.value as ProjectStatus)}
-                className="w-full h-10 px-3.5 bg-white border border-slate-200 rounded-lg text-xs font-medium text-slate-900 focus:outline-none focus:border-[#01875F]"
+                className="w-full h-10 px-3.5 bg-white border border-slate-200 rounded-lg text-xs font-medium text-slate-900 focus:outline-none focus:border-[#18b892]"
               >
                 {ALL_PROJECT_STATUSES.map((st) => (
                   <option key={st} value={st}>
@@ -252,7 +252,7 @@ export const EditProjectModal: React.FC<EditProjectModalProps> = ({
                 type="text"
                 value={projectType}
                 onChange={(e) => setProjectType(e.target.value)}
-                className="w-full h-10 px-3.5 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-[#01875F]"
+                className="w-full h-10 px-3.5 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-[#18b892]"
               />
             </div>
 
@@ -267,7 +267,7 @@ export const EditProjectModal: React.FC<EditProjectModalProps> = ({
                 value={contractValue}
                 onChange={(e) => setContractValue(e.target.value)}
                 placeholder="Leave blank for null"
-                className="w-full h-10 px-3.5 bg-white border border-slate-200 rounded-lg text-xs font-mono text-slate-900 focus:outline-none focus:border-[#01875F]"
+                className="w-full h-10 px-3.5 bg-white border border-slate-200 rounded-lg text-xs font-mono text-slate-900 focus:outline-none focus:border-[#18b892]"
               />
             </div>
           </div>
@@ -282,7 +282,7 @@ export const EditProjectModal: React.FC<EditProjectModalProps> = ({
                 type="date"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
-                className="w-full h-10 px-3 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-[#01875F]"
+                className="w-full h-10 px-3 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-[#18b892]"
               />
             </div>
 
@@ -294,7 +294,7 @@ export const EditProjectModal: React.FC<EditProjectModalProps> = ({
                 type="date"
                 value={expectedCompletionDate}
                 onChange={(e) => setExpectedCompletionDate(e.target.value)}
-                className="w-full h-10 px-3 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-[#01875F]"
+                className="w-full h-10 px-3 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-[#18b892]"
               />
             </div>
 
@@ -306,7 +306,7 @@ export const EditProjectModal: React.FC<EditProjectModalProps> = ({
                 type="date"
                 value={actualCompletionDate}
                 onChange={(e) => setActualCompletionDate(e.target.value)}
-                className="w-full h-10 px-3 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-[#01875F]"
+                className="w-full h-10 px-3 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-[#18b892]"
               />
             </div>
           </div>
@@ -321,7 +321,7 @@ export const EditProjectModal: React.FC<EditProjectModalProps> = ({
                 type="text"
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
-                className="w-full h-10 px-3 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-[#01875F]"
+                className="w-full h-10 px-3 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-[#18b892]"
               />
             </div>
 
@@ -333,7 +333,7 @@ export const EditProjectModal: React.FC<EditProjectModalProps> = ({
                 type="text"
                 value={city}
                 onChange={(e) => setCity(e.target.value)}
-                className="w-full h-10 px-3 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-[#01875F]"
+                className="w-full h-10 px-3 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-[#18b892]"
               />
             </div>
 
@@ -345,7 +345,7 @@ export const EditProjectModal: React.FC<EditProjectModalProps> = ({
                 type="text"
                 value={state}
                 onChange={(e) => setState(e.target.value)}
-                className="w-full h-10 px-3 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-[#01875F]"
+                className="w-full h-10 px-3 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-[#18b892]"
               />
             </div>
           </div>
@@ -359,7 +359,7 @@ export const EditProjectModal: React.FC<EditProjectModalProps> = ({
               rows={2}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full p-3 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-[#01875F]"
+              className="w-full p-3 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-[#18b892]"
             />
           </div>
 
@@ -381,7 +381,7 @@ export const EditProjectModal: React.FC<EditProjectModalProps> = ({
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-5 py-2 bg-[#01875F] hover:bg-[#016f4e] text-white text-xs font-bold rounded-lg shadow-sm transition-colors disabled:opacity-60 cursor-pointer"
+              className="px-5 py-2 bg-[#18b892] hover:bg-[#016f4e] text-white text-xs font-bold rounded-lg shadow-sm transition-colors disabled:opacity-60 cursor-pointer"
             >
               {isSubmitting ? 'Saving Changes...' : 'Save Changes'}
             </button>

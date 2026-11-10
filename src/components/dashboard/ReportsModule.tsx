@@ -227,7 +227,7 @@ export const ReportsModule: React.FC<ReportsModuleProps> = ({
               </span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight flex items-center gap-2.5">
-              <FileBarChart className="w-7 h-7 text-[#01875F]" />
+              <FileBarChart className="w-7 h-7 text-[#18b892]" />
               <span>Operational &amp; Executive Reporting</span>
             </h1>
             <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-2xl leading-relaxed">
@@ -269,7 +269,7 @@ export const ReportsModule: React.FC<ReportsModuleProps> = ({
               className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white hover:bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-700 shadow-2xs transition-colors cursor-pointer"
               title="Print report"
             >
-              <Printer className="w-3.5 h-3.5 text-[#01875F]" />
+              <Printer className="w-3.5 h-3.5 text-[#18b892]" />
               <span>Print View</span>
             </button>
 
@@ -281,7 +281,7 @@ export const ReportsModule: React.FC<ReportsModuleProps> = ({
               title="Refresh Report Data"
             >
               <RefreshCw
-                className={`w-3.5 h-3.5 text-[#01875F] ${isRefreshing ? 'animate-spin' : ''}`}
+                className={`w-3.5 h-3.5 text-[#18b892] ${isRefreshing ? 'animate-spin' : ''}`}
               />
               <span>{isRefreshing ? 'Refreshing...' : 'Refresh'}</span>
             </button>
@@ -331,7 +331,7 @@ export const ReportsModule: React.FC<ReportsModuleProps> = ({
               onClick={() => setActiveTab(tab.key as ReportCategoryTab)}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap cursor-pointer ${
                 isActive
-                  ? 'bg-[#01875F] text-white shadow-2xs'
+                  ? 'bg-[#18b892] text-white shadow-2xs'
                   : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
               }`}
             >
@@ -363,7 +363,7 @@ export const ReportsModule: React.FC<ReportsModuleProps> = ({
           <button
             type="button"
             onClick={() => fetchReport()}
-            className="px-4 py-2 bg-[#01875F] hover:bg-[#016f4e] text-white text-xs font-semibold rounded-lg shadow-2xs transition-colors cursor-pointer"
+            className="px-4 py-2 bg-[#18b892] hover:bg-[#016f4e] text-white text-xs font-semibold rounded-lg shadow-2xs transition-colors cursor-pointer"
           >
             Retry
           </button>
@@ -396,7 +396,7 @@ export const ReportsModule: React.FC<ReportsModuleProps> = ({
                         </div>
                         <Link
                           to={al.route}
-                          className="shrink-0 ml-3 p-1.5 text-[#01875F] hover:bg-emerald-50 rounded-lg transition-colors inline-flex items-center gap-1 font-semibold"
+                          className="shrink-0 ml-3 p-1.5 text-[#18b892] hover:bg-emerald-50 rounded-lg transition-colors inline-flex items-center gap-1 font-semibold"
                           title="Open operational view"
                         >
                           <span>Review</span>
@@ -414,7 +414,7 @@ export const ReportsModule: React.FC<ReportsModuleProps> = ({
                   <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">
                     TOTAL CONTRACT PORTFOLIO
                   </span>
-                  <span className="text-xl font-bold text-[#01875F] mt-1 block font-mono">
+                  <span className="text-xl font-bold text-[#18b892] mt-1 block font-mono">
                     {formatNaira(executiveData.portfolio.totalContractValue)}
                   </span>
                   <span className="text-[11px] text-slate-500">
@@ -581,7 +581,7 @@ export const ReportsModule: React.FC<ReportsModuleProps> = ({
                               </span>
                             </td>
 
-                            <td className="py-3.5 px-3 text-right font-mono font-bold text-[#01875F]">
+                            <td className="py-3.5 px-3 text-right font-mono font-bold text-[#18b892]">
                               {p.contractValue != null ? formatNaira(p.contractValue) : '—'}
                             </td>
 
@@ -604,7 +604,7 @@ export const ReportsModule: React.FC<ReportsModuleProps> = ({
                             <td className="py-3.5 px-4 text-right print:hidden">
                               <Link
                                 to={`/management/projects/${p.id}`}
-                                className="text-[#01875F] hover:underline inline-flex items-center gap-1 font-semibold"
+                                className="text-[#18b892] hover:underline inline-flex items-center gap-1 font-semibold"
                               >
                                 <span>Inspect</span>
                                 <ExternalLink className="w-3 h-3" />
@@ -790,7 +790,7 @@ export const ReportsModule: React.FC<ReportsModuleProps> = ({
                     </div>
                     <div className="flex justify-between py-1.5 border-b border-slate-100">
                       <span className="text-slate-500">Total Commercial Commitment:</span>
-                      <span className="font-bold font-mono text-[#01875F]">
+                      <span className="font-bold font-mono text-[#18b892]">
                         {formatNaira(materialData.procurementSummary.totalValue)}
                       </span>
                     </div>
@@ -814,7 +814,7 @@ export const ReportsModule: React.FC<ReportsModuleProps> = ({
                   <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">
                     PORTFOLIO CONTRACT SUM
                   </span>
-                  <span className="text-xl font-bold text-[#01875F] mt-1 block font-mono">
+                  <span className="text-xl font-bold text-[#18b892] mt-1 block font-mono">
                     {formatNaira(financialData.totalContractValue)}
                   </span>
                   <span className="text-[11px] text-slate-500">Agreed client contracts</span>
@@ -880,7 +880,7 @@ export const ReportsModule: React.FC<ReportsModuleProps> = ({
                             <span className="font-bold text-slate-900 block">{p.name}</span>
                             <span className="font-mono text-[10.5px] text-slate-400">{p.code}</span>
                           </td>
-                          <td className="py-3.5 px-3 text-right font-mono font-bold text-[#01875F]">
+                          <td className="py-3.5 px-3 text-right font-mono font-bold text-[#18b892]">
                             {p.contractValue != null ? formatNaira(p.contractValue) : 'Not recorded'}
                           </td>
                           <td className="py-3.5 px-3 text-right font-mono font-semibold text-slate-900">

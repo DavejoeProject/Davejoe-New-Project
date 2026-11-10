@@ -20,13 +20,13 @@ export const SuppliersModule: React.FC<SuppliersModuleProps> = ({ onBackToDashbo
         <div>
           <button
             onClick={onBackToDashboard}
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#01875F] hover:underline mb-1 cursor-pointer"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#18b892] hover:underline mb-1 cursor-pointer"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>Back to Dashboard</span>
           </button>
           <h1 className="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2.5">
-            <Truck className="w-6 h-6 text-[#01875F]" />
+            <Truck className="w-6 h-6 text-[#18b892]" />
             <span>Suppliers & Vendor Management</span>
           </h1>
           <p className="text-xs sm:text-sm text-slate-500">
@@ -34,7 +34,7 @@ export const SuppliersModule: React.FC<SuppliersModuleProps> = ({ onBackToDashbo
           </p>
         </div>
 
-        <button className="px-3.5 py-2 bg-[#01875F] hover:bg-[#016f4e] text-white text-xs font-semibold rounded-lg shadow-xs flex items-center gap-2 cursor-pointer transition-colors">
+        <button className="px-3.5 py-2 bg-[#18b892] hover:bg-[#016f4e] text-white text-xs font-semibold rounded-lg shadow-xs flex items-center gap-2 cursor-pointer transition-colors">
           <Plus className="w-4 h-4" />
           <span>Add Approved Supplier</span>
         </button>
@@ -46,7 +46,7 @@ export const SuppliersModule: React.FC<SuppliersModuleProps> = ({ onBackToDashbo
             <div>
               <div className="flex items-start justify-between">
                 <div>
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-[#01875F] bg-[#01875F]/10 px-2 py-0.5 rounded">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-[#18b892] bg-[#18b892]/10 px-2 py-0.5 rounded">
                     {sup.category}
                   </span>
                   <h3 className="text-base font-bold text-slate-900 mt-2">{sup.name}</h3>
@@ -71,7 +71,7 @@ export const SuppliersModule: React.FC<SuppliersModuleProps> = ({ onBackToDashbo
 
             <div className="mt-5 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
               <span className="text-slate-500 font-medium">{sup.orders} completed purchase orders</span>
-              <button className="text-[#01875F] font-semibold hover:underline cursor-pointer">
+              <button className="text-[#18b892] font-semibold hover:underline cursor-pointer">
                 Issue Purchase Order →
               </button>
             </div>

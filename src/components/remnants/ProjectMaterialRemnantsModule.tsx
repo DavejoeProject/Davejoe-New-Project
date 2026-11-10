@@ -187,8 +187,8 @@ export const ProjectMaterialRemnantsModule: React.FC<ProjectMaterialRemnantsModu
       <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-2xs flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">
-            <Layers className="w-4 h-4 text-[#01875F]" />
-            <span>Site Surplus & Material Movements</span>
+            <Layers className="w-4 h-4 text-[#18b892] shrink-0" />
+            <span>Site Surplus &amp; Material Movements</span>
           </div>
           <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
             Material Remnants & Reconciliation
@@ -203,18 +203,18 @@ export const ProjectMaterialRemnantsModule: React.FC<ProjectMaterialRemnantsModu
             type="button"
             onClick={handleRefresh}
             disabled={isRefreshing}
-            className="inline-flex items-center gap-1.5 px-3 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-semibold transition-colors cursor-pointer disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl text-xs sm:text-sm font-semibold transition-colors cursor-pointer disabled:opacity-50 whitespace-nowrap"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-[#01875F]' : ''}`} />
+            <RefreshCw className={`w-3.5 h-3.5 shrink-0 ${isRefreshing ? 'animate-spin text-[#18b892]' : ''}`} />
             <span>Refresh</span>
           </button>
 
           <button
             type="button"
             onClick={() => setRecordModalOpen(true)}
-            className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#01875F] hover:bg-[#00704e] text-white rounded-xl text-xs font-bold shadow-2xs transition-all cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#18b892] hover:bg-[#139c7b] text-white rounded-xl text-xs sm:text-sm font-bold shadow-2xs transition-all cursor-pointer whitespace-nowrap"
           >
-            <Plus className="w-4 h-4" />
+            <Plus className="w-4 h-4 stroke-[2.5] shrink-0" />
             <span>Record Site Remnant</span>
           </button>
         </div>
@@ -223,11 +223,11 @@ export const ProjectMaterialRemnantsModule: React.FC<ProjectMaterialRemnantsModu
       {/* KPI Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-2xs">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
+          <span className="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-1">
             Total Remnants
           </span>
-          <div className="text-2xl font-bold text-slate-900">{totalRemnants}</div>
-          <p className="text-[11px] text-slate-500 mt-1">Recorded across projects</p>
+          <div className="text-2xl sm:text-3xl font-bold font-mono tracking-tight text-slate-900">{totalRemnants}</div>
+          <p className="text-xs text-slate-500 mt-1">Recorded across projects</p>
         </div>
 
         <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-2xs">
@@ -259,20 +259,20 @@ export const ProjectMaterialRemnantsModule: React.FC<ProjectMaterialRemnantsModu
       <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-3">
         <div className="flex items-center gap-2 flex-1">
           <div className="relative flex-1 max-w-sm">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-3 shrink-0" />
             <input
               type="text"
               placeholder="Search material or location..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-[#01875F]"
+              className="w-full pl-9 pr-3 h-10 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:border-[#18b892] transition-all font-medium"
             />
           </div>
 
           <select
             value={selectedProjectId}
             onChange={(e) => setSelectedProjectId(e.target.value)}
-            className="px-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-[#01875F] max-w-[200px] truncate"
+            className="px-3 h-10 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:border-[#18b892] max-w-[200px] truncate font-medium"
           >
             <option value="all">All Projects</option>
             {projects.map((p) => (
@@ -289,9 +289,9 @@ export const ProjectMaterialRemnantsModule: React.FC<ProjectMaterialRemnantsModu
               key={st}
               type="button"
               onClick={() => setStatusFilter(st)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer ${
+              className={`px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition-colors cursor-pointer ${
                 statusFilter === st
-                  ? 'bg-[#01875F] text-white shadow-2xs'
+                  ? 'bg-[#18b892] text-white shadow-2xs font-bold'
                   : 'text-slate-600 hover:bg-slate-100'
               }`}
             >
@@ -310,22 +310,22 @@ export const ProjectMaterialRemnantsModule: React.FC<ProjectMaterialRemnantsModu
       {/* Remnant Records Table */}
       <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs overflow-hidden">
         {loading ? (
-          <div className="py-16 text-center text-xs text-slate-400">Loading remnant records...</div>
+          <div className="py-16 text-center text-sm text-slate-400">Loading remnant records...</div>
         ) : filteredRemnants.length === 0 ? (
-          <div className="py-16 text-center text-slate-400 text-xs">
+          <div className="py-16 text-center text-slate-400 text-sm">
             No material remnants recorded for this criteria.
           </div>
         ) : (
-          <div className="overflow-x-auto touch-pan-x -mx-4 sm:mx-0 px-4 sm:px-0">
-            <table className="w-full text-left text-xs min-w-[700px]">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm min-w-[750px] border-collapse">
               <thead>
-                <tr className="border-b border-slate-100 bg-slate-50/60 text-slate-400 font-bold uppercase tracking-wider text-[10.5px]">
-                  <th className="py-3 px-4">Material & Project</th>
-                  <th className="py-3 px-4">Remaining / Delivered</th>
-                  <th className="py-3 px-4">Disposal / Destination</th>
-                  <th className="py-3 px-4">Condition</th>
-                  <th className="py-3 px-4">Verification</th>
-                  <th className="py-3 px-4 text-right">Actions</th>
+                <tr className="border-b border-slate-200 bg-slate-50/75 text-slate-500 font-bold uppercase tracking-wider text-xs">
+                  <th className="py-3.5 px-4 font-bold min-w-[220px]">Material & Project</th>
+                  <th className="py-3.5 px-4 font-bold min-w-[180px]">Remaining / Delivered</th>
+                  <th className="py-3.5 px-4 font-bold min-w-[180px]">Disposal / Destination</th>
+                  <th className="py-3.5 px-4 font-bold min-w-[120px]">Condition</th>
+                  <th className="py-3.5 px-4 font-bold min-w-[130px]">Verification</th>
+                  <th className="py-3.5 px-4 font-bold text-right min-w-[100px]">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -333,17 +333,17 @@ export const ProjectMaterialRemnantsModule: React.FC<ProjectMaterialRemnantsModu
                   <tr key={r.id} className="hover:bg-slate-50/80 transition-colors">
                     <td className="py-3.5 px-4">
                       <div className="font-bold text-slate-900">{r.material_name}</div>
-                      <div className="text-[11px] text-slate-400 flex items-center gap-1 mt-0.5">
-                        <Building className="w-3 h-3 text-[#01875F]" />
+                      <div className="text-xs text-slate-500 flex items-center gap-1 mt-0.5">
+                        <Building className="w-3.5 h-3.5 text-[#18b892] shrink-0" />
                         <span>{r.project?.name || 'Project Site'}</span>
                       </div>
                     </td>
 
                     <td className="py-3.5 px-4">
-                      <div className="font-bold text-[#01875F]">
+                      <div className="font-bold font-mono text-[#18b892] tabular-nums">
                         {r.quantity_remaining} {r.unit_of_measure}
                       </div>
-                      <div className="text-[11px] text-slate-400">
+                      <div className="text-xs text-slate-400 font-mono tabular-nums">
                         of {r.quantity_delivered} delivered ({r.quantity_consumed} used)
                       </div>
                     </td>
@@ -352,7 +352,7 @@ export const ProjectMaterialRemnantsModule: React.FC<ProjectMaterialRemnantsModu
                       <div className="font-semibold text-slate-800">
                         {r.destination_location || 'Central Warehouse'}
                       </div>
-                      <div className="text-[11px] text-slate-400">
+                      <div className="text-xs text-slate-400">
                         {r.quantity_returned_to_stock > 0
                           ? `${r.quantity_returned_to_stock} returned to stock`
                           : `${r.quantity_retained_on_site} retained on site`}
@@ -361,7 +361,7 @@ export const ProjectMaterialRemnantsModule: React.FC<ProjectMaterialRemnantsModu
 
                     <td className="py-3.5 px-4">
                       <span
-                        className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
+                        className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold uppercase whitespace-nowrap ${
                           r.condition === 'good'
                             ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
                             : r.condition === 'fair'
@@ -375,7 +375,7 @@ export const ProjectMaterialRemnantsModule: React.FC<ProjectMaterialRemnantsModu
 
                     <td className="py-3.5 px-4">
                       <span
-                        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
+                        className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider whitespace-nowrap ${
                           r.verification_status === 'verified'
                             ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
                             : r.verification_status === 'pending_verification'
@@ -383,7 +383,7 @@ export const ProjectMaterialRemnantsModule: React.FC<ProjectMaterialRemnantsModu
                             : 'bg-rose-50 text-rose-700 border border-rose-200'
                         }`}
                       >
-                        {r.verification_status === 'verified' && <CheckCircle2 className="w-2.5 h-2.5" />}
+                        {r.verification_status === 'verified' && <CheckCircle2 className="w-3 h-3 shrink-0" />}
                         {r.verification_status.replace('_', ' ')}
                       </span>
                     </td>
@@ -392,7 +392,7 @@ export const ProjectMaterialRemnantsModule: React.FC<ProjectMaterialRemnantsModu
                       <button
                         type="button"
                         onClick={() => setDetailItem(r)}
-                        className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-[#01875F] hover:text-white transition-colors cursor-pointer"
+                        className="px-3 py-1.5 text-xs font-bold rounded-lg bg-slate-100 hover:bg-[#18b892] hover:text-white transition-colors cursor-pointer whitespace-nowrap"
                       >
                         Inspect
                       </button>
@@ -411,8 +411,8 @@ export const ProjectMaterialRemnantsModule: React.FC<ProjectMaterialRemnantsModu
           <div className="bg-white rounded-3xl border border-slate-200 shadow-2xl w-full max-w-lg overflow-hidden animate-in zoom-in-95 duration-200">
             <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-[#01875F]/10 text-[#01875F] flex items-center justify-center font-bold">
-                  <RotateCcw className="w-5 h-5" />
+                <div className="w-10 h-10 rounded-xl bg-[#18b892]/10 text-[#18b892] flex items-center justify-center font-bold border border-[#18b892]/20 shrink-0">
+                  <RotateCcw className="w-5 h-5 shrink-0" />
                 </div>
                 <div>
                   <h3 className="text-base font-bold text-slate-900">Record Site Material Remnant</h3>
@@ -422,28 +422,28 @@ export const ProjectMaterialRemnantsModule: React.FC<ProjectMaterialRemnantsModu
               <button
                 type="button"
                 onClick={() => setRecordModalOpen(false)}
-                className="text-slate-400 hover:text-slate-700 cursor-pointer p-1"
+                className="text-slate-400 hover:text-slate-700 cursor-pointer p-1 rounded-lg"
               >
-                <X className="w-5 h-5" />
+                <X className="w-5 h-5 shrink-0" />
               </button>
             </div>
 
             <form onSubmit={handleCreateRemnant} className="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
               {formError && (
-                <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700">
+                <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 font-medium">
                   {formError}
                 </div>
               )}
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
                   Project Site *
                 </label>
                 <select
                   required
                   value={formProject}
                   onChange={(e) => setFormProject(e.target.value)}
-                  className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-[#01875F]"
+                  className="w-full px-3 h-10 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:border-[#18b892] font-medium"
                 >
                   <option value="">Select Project</option>
                   {projects.map((p) => (
@@ -456,7 +456,7 @@ export const ProjectMaterialRemnantsModule: React.FC<ProjectMaterialRemnantsModu
 
               {materials.length > 0 && (
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
                     Select from Materials Catalog (Optional)
                   </label>
                   <select
@@ -471,7 +471,7 @@ export const ProjectMaterialRemnantsModule: React.FC<ProjectMaterialRemnantsModu
                         if (found.unit_of_measure) setFormUnit(found.unit_of_measure);
                       }
                     }}
-                    className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-[#01875F]"
+                    className="w-full px-3 h-10 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:border-[#18b892] font-medium"
                   >
                     <option value="">-- Or enter custom material details below --</option>
                     {materials.map((m) => (
@@ -485,7 +485,7 @@ export const ProjectMaterialRemnantsModule: React.FC<ProjectMaterialRemnantsModu
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
                     Material Name *
                   </label>
                   <input
@@ -497,18 +497,18 @@ export const ProjectMaterialRemnantsModule: React.FC<ProjectMaterialRemnantsModu
                       setFormMaterialName(e.target.value);
                       if (selectedMaterialId) setSelectedMaterialId('');
                     }}
-                    className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-[#01875F]"
+                    className="w-full px-3 h-10 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:border-[#18b892] font-medium"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
                     Category
                   </label>
                   <select
                     value={formCategory}
                     onChange={(e) => setFormCategory(e.target.value)}
-                    className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-[#01875F]"
+                    className="w-full px-3 h-10 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:border-[#18b892] font-medium"
                   >
                     <option value="Timber & Board">Timber & Board</option>
                     <option value="Finishing Paint">Finishing Paint</option>
@@ -522,27 +522,27 @@ export const ProjectMaterialRemnantsModule: React.FC<ProjectMaterialRemnantsModu
 
               <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-700 mb-1">Delivered</label>
+                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Delivered</label>
                   <input
                     type="number"
                     min="0"
                     value={formQtyDelivered}
                     onChange={(e) => setFormQtyDelivered(Number(e.target.value))}
-                    className="w-full px-2.5 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl"
+                    className="w-full px-3 h-10 text-sm bg-slate-50 border border-slate-200 rounded-xl font-mono tabular-nums font-semibold"
                   />
                 </div>
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-700 mb-1">Consumed</label>
+                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Consumed</label>
                   <input
                     type="number"
                     min="0"
                     value={formQtyConsumed}
                     onChange={(e) => setFormQtyConsumed(Number(e.target.value))}
-                    className="w-full px-2.5 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl"
+                    className="w-full px-3 h-10 text-sm bg-slate-50 border border-slate-200 rounded-xl font-mono tabular-nums font-semibold"
                   />
                 </div>
                 <div>
-                  <label className="block text-[11px] font-bold text-[#01875F] mb-1">Remaining *</label>
+                  <label className="block text-xs font-bold text-[#18b892] uppercase tracking-wider mb-1.5">Remaining *</label>
                   <input
                     type="number"
                     min="1"
@@ -553,20 +553,20 @@ export const ProjectMaterialRemnantsModule: React.FC<ProjectMaterialRemnantsModu
                       setFormQtyRemaining(v);
                       setFormQtyReturned(v);
                     }}
-                    className="w-full px-2.5 py-2 text-xs bg-emerald-50 border border-emerald-300 rounded-xl font-bold text-emerald-800"
+                    className="w-full px-3 h-10 text-sm bg-[#18b892]/10 border border-[#18b892]/30 rounded-xl font-bold font-mono tabular-nums text-[#18b892]"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
                     Physical Condition
                   </label>
                   <select
                     value={formCondition}
                     onChange={(e) => setFormCondition(e.target.value as RemnantCondition)}
-                    className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-[#01875F]"
+                    className="w-full px-3 h-10 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:border-[#18b892] font-medium"
                   >
                     <option value="good">Good (Re-usable)</option>
                     <option value="fair">Fair (Minor Scuffs)</option>
@@ -577,7 +577,7 @@ export const ProjectMaterialRemnantsModule: React.FC<ProjectMaterialRemnantsModu
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
                     Destination Location *
                   </label>
                   <input
@@ -585,13 +585,13 @@ export const ProjectMaterialRemnantsModule: React.FC<ProjectMaterialRemnantsModu
                     required
                     value={formDestination}
                     onChange={(e) => setFormDestination(e.target.value)}
-                    className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-[#01875F]"
+                    className="w-full px-3 h-10 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:border-[#18b892] font-medium"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
                   Handover Notes & Custody Instructions
                 </label>
                 <textarea
@@ -599,7 +599,7 @@ export const ProjectMaterialRemnantsModule: React.FC<ProjectMaterialRemnantsModu
                   placeholder="Details of bundle, storage rack number, or authorized custodian..."
                   value={formNotes}
                   onChange={(e) => setFormNotes(e.target.value)}
-                  className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-[#01875F]"
+                  className="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:border-[#18b892] font-medium"
                 />
               </div>
 
@@ -607,14 +607,14 @@ export const ProjectMaterialRemnantsModule: React.FC<ProjectMaterialRemnantsModu
                 <button
                   type="button"
                   onClick={() => setRecordModalOpen(false)}
-                  className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl cursor-pointer"
+                  className="px-4 py-2.5 text-xs sm:text-sm font-semibold text-slate-600 hover:bg-slate-100 rounded-xl cursor-pointer whitespace-nowrap"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="px-5 py-2 text-xs font-bold text-white bg-[#01875F] hover:bg-[#00704e] rounded-xl shadow-xs transition-colors cursor-pointer disabled:opacity-50"
+                  className="px-5 py-2.5 text-xs sm:text-sm font-bold text-white bg-[#18b892] hover:bg-[#139c7b] rounded-xl shadow-xs transition-colors cursor-pointer disabled:opacity-50 whitespace-nowrap"
                 >
                   {submitting ? 'Recording...' : 'Confirm Remnant Record'}
                 </button>
@@ -630,8 +630,8 @@ export const ProjectMaterialRemnantsModule: React.FC<ProjectMaterialRemnantsModu
           <div className="bg-white rounded-3xl border border-slate-200 shadow-2xl w-full max-w-lg overflow-hidden animate-in zoom-in-95 duration-200">
             <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-[#01875F]/10 text-[#01875F] flex items-center justify-center font-bold">
-                  <ShieldCheck className="w-5 h-5" />
+                <div className="w-10 h-10 rounded-xl bg-[#18b892]/10 text-[#18b892] flex items-center justify-center font-bold border border-[#18b892]/20 shrink-0">
+                  <ShieldCheck className="w-5 h-5 shrink-0" />
                 </div>
                 <div>
                   <h3 className="text-base font-bold text-slate-900">Remnant Inspection & Handover</h3>
@@ -641,49 +641,49 @@ export const ProjectMaterialRemnantsModule: React.FC<ProjectMaterialRemnantsModu
               <button
                 type="button"
                 onClick={() => setDetailItem(null)}
-                className="text-slate-400 hover:text-slate-700 cursor-pointer p-1"
+                className="text-slate-400 hover:text-slate-700 cursor-pointer p-1 rounded-lg"
               >
-                <X className="w-5 h-5" />
+                <X className="w-5 h-5 shrink-0" />
               </button>
             </div>
 
-            <div className="p-6 space-y-4 text-xs">
-              <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-slate-500">Project:</span>
+            <div className="p-6 space-y-4 text-sm">
+              <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2.5">
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-500 font-medium text-xs sm:text-sm">Project:</span>
                   <span className="font-bold text-slate-800">{detailItem.project?.name}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-500">Remaining Quantity:</span>
-                  <span className="font-bold text-[#01875F]">
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-500 font-medium text-xs sm:text-sm">Remaining Quantity:</span>
+                  <span className="font-bold font-mono text-[#18b892] tabular-nums text-base">
                     {detailItem.quantity_remaining} {detailItem.unit_of_measure}
                   </span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-500">Physical Condition:</span>
-                  <span className="font-bold uppercase text-slate-800">{detailItem.condition}</span>
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-500 font-medium text-xs sm:text-sm">Physical Condition:</span>
+                  <span className="font-bold uppercase text-slate-800 text-xs px-2.5 py-0.5 rounded-full bg-slate-200/80">{detailItem.condition}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-500">Destination:</span>
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-500 font-medium text-xs sm:text-sm">Destination:</span>
                   <span className="font-bold text-slate-800">{detailItem.destination_location}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-500">Handover Date:</span>
-                  <span className="text-slate-700">{formatNigerianDate(detailItem.handover_timestamp)}</span>
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-500 font-medium text-xs sm:text-sm">Handover Date:</span>
+                  <span className="text-slate-700 font-mono text-xs">{formatNigerianDate(detailItem.handover_timestamp)}</span>
                 </div>
               </div>
 
               {detailItem.notes && (
-                <div className="p-3 bg-white rounded-xl border border-slate-100 text-slate-600">
-                  <span className="font-bold block text-slate-700 mb-0.5">Notes:</span>
+                <div className="p-3.5 bg-white rounded-xl border border-slate-100 text-slate-600 text-xs sm:text-sm">
+                  <span className="font-bold block text-slate-700 mb-1">Notes:</span>
                   {detailItem.notes}
                 </div>
               )}
 
               {/* Status Action Controls */}
               <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
-                <span className="text-[11px] font-semibold text-slate-500">
-                  Status: <strong className="uppercase">{detailItem.verification_status}</strong>
+                <span className="text-xs font-semibold text-slate-500">
+                  Status: <strong className="uppercase text-slate-800">{detailItem.verification_status}</strong>
                 </span>
 
                 <div className="flex items-center gap-2">
@@ -691,7 +691,7 @@ export const ProjectMaterialRemnantsModule: React.FC<ProjectMaterialRemnantsModu
                     <button
                       type="button"
                       onClick={() => handleStatusUpdate(detailItem.id, 'verified')}
-                      className="px-3 py-1.5 bg-[#01875F] hover:bg-[#00704e] text-white rounded-xl font-bold cursor-pointer transition-colors"
+                      className="px-3.5 py-2 bg-[#18b892] hover:bg-[#139c7b] text-white rounded-xl text-xs sm:text-sm font-bold cursor-pointer transition-colors whitespace-nowrap shadow-2xs"
                     >
                       Verify Handover
                     </button>
@@ -700,7 +700,7 @@ export const ProjectMaterialRemnantsModule: React.FC<ProjectMaterialRemnantsModu
                     <button
                       type="button"
                       onClick={() => handleStatusUpdate(detailItem.id, 'disputed')}
-                      className="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-xl font-bold cursor-pointer transition-colors"
+                      className="px-3.5 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-xl text-xs sm:text-sm font-bold cursor-pointer transition-colors whitespace-nowrap"
                     >
                       Dispute
                     </button>

@@ -130,7 +130,7 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
         {/* Header */}
         <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between shrink-0 bg-slate-50/50">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#01875F]/10 text-[#01875F] flex items-center justify-center font-bold shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-[#18b892]/10 text-[#18b892] flex items-center justify-center font-bold shrink-0">
               <UserPlus className="w-5 h-5" />
             </div>
             <div>
@@ -157,7 +157,7 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
             /* Success confirmation screen */
             <div className="space-y-5">
               <div className="p-5 rounded-2xl bg-emerald-50 border border-emerald-200 text-center space-y-2">
-                <CheckCircle2 className="w-10 h-10 text-[#01875F] mx-auto" />
+                <CheckCircle2 className="w-10 h-10 text-[#18b892] mx-auto" />
                 <h4 className="text-base font-bold text-emerald-950">
                   User Account Successfully Created
                 </h4>
@@ -181,7 +181,7 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
                 {createdResult.password && (
                   <div className="flex justify-between items-center py-1 border-b border-slate-200/60 font-sans">
                     <span className="text-slate-500 font-semibold">Initial Password</span>
-                    <span className="text-[#01875F] font-bold tracking-wider">
+                    <span className="text-[#18b892] font-bold tracking-wider">
                       {createdResult.password}
                     </span>
                   </div>
@@ -192,7 +192,7 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
                     {createdResult.roles.map((r) => (
                       <span
                         key={r}
-                        className="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-100/70 text-[#01875F]"
+                        className="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-100/70 text-[#18b892]"
                       >
                         {r}
                       </span>
@@ -247,7 +247,7 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
                         value={firstName}
                         onChange={(e) => setFirstName(e.target.value)}
                         placeholder="e.g. Tunde"
-                        className="w-full pl-8.5 pr-3 h-9 bg-slate-50/70 border border-slate-200 rounded-xl text-xs text-slate-800 outline-none focus:bg-white focus:border-[#01875F] focus:ring-1 focus:ring-[#01875F]"
+                        className="w-full pl-8.5 pr-3 h-9 bg-slate-50/70 border border-slate-200 rounded-xl text-xs text-slate-800 outline-none focus:bg-white focus:border-[#18b892] focus:ring-1 focus:ring-[#18b892]"
                       />
                     </div>
                   </div>
@@ -261,7 +261,7 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
                       value={lastName}
                       onChange={(e) => setLastName(e.target.value)}
                       placeholder="e.g. Adebayo"
-                      className="w-full px-3 h-9 bg-slate-50/70 border border-slate-200 rounded-xl text-xs text-slate-800 outline-none focus:bg-white focus:border-[#01875F] focus:ring-1 focus:ring-[#01875F]"
+                      className="w-full px-3 h-9 bg-slate-50/70 border border-slate-200 rounded-xl text-xs text-slate-800 outline-none focus:bg-white focus:border-[#18b892] focus:ring-1 focus:ring-[#18b892]"
                     />
                   </div>
                 </div>
@@ -279,7 +279,7 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="name@davejoe.com"
-                        className="w-full pl-8.5 pr-3 h-9 bg-slate-50/70 border border-slate-200 rounded-xl text-xs text-slate-800 outline-none focus:bg-white focus:border-[#01875F] focus:ring-1 focus:ring-[#01875F]"
+                        className="w-full pl-8.5 pr-3 h-9 bg-slate-50/70 border border-slate-200 rounded-xl text-xs text-slate-800 outline-none focus:bg-white focus:border-[#18b892] focus:ring-1 focus:ring-[#18b892]"
                       />
                     </div>
                   </div>
@@ -294,7 +294,7 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
                         placeholder="+234 800 000 0000"
-                        className="w-full pl-8.5 pr-3 h-9 bg-slate-50/70 border border-slate-200 rounded-xl text-xs text-slate-800 outline-none focus:bg-white focus:border-[#01875F] focus:ring-1 focus:ring-[#01875F]"
+                        className="w-full pl-8.5 pr-3 h-9 bg-slate-50/70 border border-slate-200 rounded-xl text-xs text-slate-800 outline-none focus:bg-white focus:border-[#18b892] focus:ring-1 focus:ring-[#18b892]"
                       />
                     </div>
                   </div>
@@ -310,7 +310,7 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
                   <button
                     type="button"
                     onClick={generateRandomPassword}
-                    className="text-[11px] font-semibold text-[#01875F] hover:underline cursor-pointer"
+                    className="text-[11px] font-semibold text-[#18b892] hover:underline cursor-pointer"
                   >
                     Generate Secure Password
                   </button>
@@ -322,7 +322,7 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Leave empty to auto-generate a secure password"
-                    className="w-full pl-8.5 pr-10 h-9 bg-slate-50/70 border border-slate-200 rounded-xl text-xs text-slate-800 outline-none focus:bg-white focus:border-[#01875F] focus:ring-1 focus:ring-[#01875F]"
+                    className="w-full pl-8.5 pr-10 h-9 bg-slate-50/70 border border-slate-200 rounded-xl text-xs text-slate-800 outline-none focus:bg-white focus:border-[#18b892] focus:ring-1 focus:ring-[#18b892]"
                   />
                   <button
                     type="button"
@@ -354,7 +354,7 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
                         key={r.slug}
                         className={`flex items-start gap-2.5 p-2.5 rounded-xl border text-xs cursor-pointer transition-colors ${
                           isChecked
-                            ? 'bg-[#01875F]/10 border-[#01875F] text-slate-900 font-semibold'
+                            ? 'bg-[#18b892]/10 border-[#18b892] text-slate-900 font-semibold'
                             : 'bg-white border-slate-200 hover:bg-slate-50 text-slate-700'
                         }`}
                       >
@@ -362,11 +362,11 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
                           type="checkbox"
                           checked={isChecked}
                           onChange={() => handleToggleRole(r.slug)}
-                          className="mt-0.5 rounded text-[#01875F] focus:ring-[#01875F] h-3.5 w-3.5 cursor-pointer"
+                          className="mt-0.5 rounded text-[#18b892] focus:ring-[#18b892] h-3.5 w-3.5 cursor-pointer"
                         />
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-1.5">
-                            <RoleIcon className={`w-3.5 h-3.5 ${isChecked ? 'text-[#01875F]' : 'text-slate-400'}`} />
+                            <RoleIcon className={`w-3.5 h-3.5 ${isChecked ? 'text-[#18b892]' : 'text-slate-400'}`} />
                             <span className="truncate">{r.name}</span>
                           </div>
                           <span className="text-[10px] text-slate-400 block truncate mt-0.5">
@@ -395,7 +395,7 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
                     onClick={() => setAccountStatus('active')}
                     className={`p-3 rounded-xl border text-left text-xs transition-colors cursor-pointer ${
                       accountStatus === 'active'
-                        ? 'border-[#01875F] bg-emerald-50/50 text-[#01875F] font-bold ring-1 ring-[#01875F]'
+                        ? 'border-[#18b892] bg-emerald-50/50 text-[#18b892] font-bold ring-1 ring-[#18b892]'
                         : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
                     }`}
                   >
@@ -439,7 +439,7 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="inline-flex items-center gap-1.5 px-5 py-2 bg-[#01875F] hover:bg-[#00704e] text-white rounded-xl text-xs font-semibold transition-colors shadow-xs cursor-pointer disabled:opacity-60"
+                  className="inline-flex items-center gap-1.5 px-5 py-2 bg-[#18b892] hover:bg-[#139c7b] text-white rounded-xl text-xs font-semibold transition-colors shadow-xs cursor-pointer disabled:opacity-60"
                 >
                   <UserPlus className="w-3.5 h-3.5" />
                   <span>{isSubmitting ? 'Creating Account...' : 'Create Account'}</span>

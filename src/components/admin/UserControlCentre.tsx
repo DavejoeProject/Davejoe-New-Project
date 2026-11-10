@@ -176,7 +176,7 @@ export const UserControlCentre: React.FC<UserControlCentreProps> = ({
         {/* Header */}
         <div className="px-6 py-4.5 border-b border-slate-100 flex items-center justify-between shrink-0 bg-slate-50/50">
           <div className="flex items-center gap-3 min-w-0 pr-4">
-            <div className="w-10 h-10 rounded-xl bg-[#01875F] text-white flex items-center justify-center font-bold text-sm shrink-0 shadow-2xs">
+            <div className="w-10 h-10 rounded-xl bg-[#18b892] text-white flex items-center justify-center font-bold text-sm shrink-0 shadow-2xs">
               {(user.display_name || user.first_name || user.email || 'U')[0].toUpperCase()}
             </div>
             <div className="min-w-0">
@@ -204,7 +204,7 @@ export const UserControlCentre: React.FC<UserControlCentreProps> = ({
             onClick={() => setActiveTab('profile')}
             className={`py-3 px-2 text-xs font-semibold border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 ${
               activeTab === 'profile'
-                ? 'border-[#01875F] text-[#01875F]'
+                ? 'border-[#18b892] text-[#18b892]'
                 : 'border-transparent text-slate-500 hover:text-slate-800'
             }`}
           >
@@ -217,7 +217,7 @@ export const UserControlCentre: React.FC<UserControlCentreProps> = ({
             onClick={() => setActiveTab('roles')}
             className={`py-3 px-2 text-xs font-semibold border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 ${
               activeTab === 'roles'
-                ? 'border-[#01875F] text-[#01875F]'
+                ? 'border-[#18b892] text-[#18b892]'
                 : 'border-transparent text-slate-500 hover:text-slate-800'
             }`}
           >
@@ -230,7 +230,7 @@ export const UserControlCentre: React.FC<UserControlCentreProps> = ({
             onClick={() => setActiveTab('status')}
             className={`py-3 px-2 text-xs font-semibold border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 ${
               activeTab === 'status'
-                ? 'border-[#01875F] text-[#01875F]'
+                ? 'border-[#18b892] text-[#18b892]'
                 : 'border-transparent text-slate-500 hover:text-slate-800'
             }`}
           >
@@ -243,7 +243,7 @@ export const UserControlCentre: React.FC<UserControlCentreProps> = ({
             onClick={() => setActiveTab('audit')}
             className={`py-3 px-2 text-xs font-semibold border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 ${
               activeTab === 'audit'
-                ? 'border-[#01875F] text-[#01875F]'
+                ? 'border-[#18b892] text-[#18b892]'
                 : 'border-transparent text-slate-500 hover:text-slate-800'
             }`}
           >
@@ -265,7 +265,7 @@ export const UserControlCentre: React.FC<UserControlCentreProps> = ({
               )}
 
               {profileSaveSuccess && (
-                <div className="p-3 bg-emerald-50 border border-emerald-200 text-xs text-[#01875F] rounded-xl flex items-center gap-2 font-semibold">
+                <div className="p-3 bg-emerald-50 border border-emerald-200 text-xs text-[#18b892] rounded-xl flex items-center gap-2 font-semibold">
                   <Check className="w-4 h-4 shrink-0" />
                   <span>Profile updated and audit event recorded successfully.</span>
                 </div>
@@ -281,7 +281,7 @@ export const UserControlCentre: React.FC<UserControlCentreProps> = ({
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
                     placeholder="Enter first name"
-                    className="w-full h-9 px-3 bg-white border border-slate-200 rounded-lg text-xs text-slate-800 outline-none focus:border-[#01875F] focus:ring-1 focus:ring-[#01875F]"
+                    className="w-full h-9 px-3 bg-white border border-slate-200 rounded-lg text-xs text-slate-800 outline-none focus:border-[#18b892] focus:ring-1 focus:ring-[#18b892]"
                   />
                 </div>
 
@@ -294,7 +294,7 @@ export const UserControlCentre: React.FC<UserControlCentreProps> = ({
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
                     placeholder="Enter last name"
-                    className="w-full h-9 px-3 bg-white border border-slate-200 rounded-lg text-xs text-slate-800 outline-none focus:border-[#01875F] focus:ring-1 focus:ring-[#01875F]"
+                    className="w-full h-9 px-3 bg-white border border-slate-200 rounded-lg text-xs text-slate-800 outline-none focus:border-[#18b892] focus:ring-1 focus:ring-[#18b892]"
                   />
                 </div>
               </div>
@@ -308,7 +308,7 @@ export const UserControlCentre: React.FC<UserControlCentreProps> = ({
                   value={displayName}
                   onChange={(e) => setDisplayName(e.target.value)}
                   placeholder="e.g. Mayowa Adewuyi"
-                  className="w-full h-9 px-3 bg-white border border-slate-200 rounded-lg text-xs text-slate-800 outline-none focus:border-[#01875F] focus:ring-1 focus:ring-[#01875F]"
+                  className="w-full h-9 px-3 bg-white border border-slate-200 rounded-lg text-xs text-slate-800 outline-none focus:border-[#18b892] focus:ring-1 focus:ring-[#18b892]"
                 />
               </div>
 
@@ -321,7 +321,7 @@ export const UserControlCentre: React.FC<UserControlCentreProps> = ({
                   value={jobTitle}
                   onChange={(e) => setJobTitle(e.target.value)}
                   placeholder="e.g. Project Manager, Site Engineer"
-                  className="w-full h-9 px-3 bg-white border border-slate-200 rounded-lg text-xs text-slate-800 outline-none focus:border-[#01875F] focus:ring-1 focus:ring-[#01875F]"
+                  className="w-full h-9 px-3 bg-white border border-slate-200 rounded-lg text-xs text-slate-800 outline-none focus:border-[#18b892] focus:ring-1 focus:ring-[#18b892]"
                 />
               </div>
 
@@ -341,10 +341,10 @@ export const UserControlCentre: React.FC<UserControlCentreProps> = ({
               {user.workforce && (
                 <div className="p-3 bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-between text-xs">
                   <div className="flex items-center gap-2">
-                    <HardHat className="w-4 h-4 text-[#01875F]" />
+                    <HardHat className="w-4 h-4 text-[#18b892]" />
                     <span className="font-semibold text-slate-800">Linked to Staff Registry</span>
                   </div>
-                  <span className="px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-100 text-[#01875F]">
+                  <span className="px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-100 text-[#18b892]">
                     {user.workforce.trade} ({user.workforce.workforce_code || 'No code'})
                   </span>
                 </div>
@@ -354,7 +354,7 @@ export const UserControlCentre: React.FC<UserControlCentreProps> = ({
                 <button
                   type="submit"
                   disabled={isSavingProfile}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#01875F] hover:bg-[#00704e] text-white text-xs font-semibold rounded-lg transition-colors cursor-pointer disabled:opacity-60 shadow-xs"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#18b892] hover:bg-[#139c7b] text-white text-xs font-semibold rounded-lg transition-colors cursor-pointer disabled:opacity-60 shadow-xs"
                 >
                   <Save className="w-3.5 h-3.5" />
                   <span>{isSavingProfile ? 'Saving...' : 'Save Profile Changes'}</span>
@@ -391,7 +391,7 @@ export const UserControlCentre: React.FC<UserControlCentreProps> = ({
                         className="p-3 bg-white border border-slate-200 rounded-xl flex items-center justify-between text-xs shadow-2xs"
                       >
                         <div className="flex items-center gap-2.5">
-                          <div className="w-7 h-7 rounded-lg bg-emerald-50 text-[#01875F] flex items-center justify-center font-bold">
+                          <div className="w-7 h-7 rounded-lg bg-emerald-50 text-[#18b892] flex items-center justify-center font-bold">
                             <Shield className="w-3.5 h-3.5" />
                           </div>
                           <div>
@@ -434,7 +434,7 @@ export const UserControlCentre: React.FC<UserControlCentreProps> = ({
                     <select
                       value={selectedRoleToAssign}
                       onChange={(e) => setSelectedRoleToAssign(e.target.value)}
-                      className="flex-1 h-9 px-3 bg-white border border-slate-200 rounded-lg text-xs text-slate-800 outline-none focus:border-[#01875F]"
+                      className="flex-1 h-9 px-3 bg-white border border-slate-200 rounded-lg text-xs text-slate-800 outline-none focus:border-[#18b892]"
                     >
                       <option value="">Select a role to assign...</option>
                       {availableRolesToAssign.map((r) => (
@@ -448,7 +448,7 @@ export const UserControlCentre: React.FC<UserControlCentreProps> = ({
                       type="button"
                       onClick={handleAssignRole}
                       disabled={!selectedRoleToAssign || isModifyingRole}
-                      className="h-9 px-3.5 bg-[#01875F] hover:bg-[#00704e] text-white text-xs font-semibold rounded-lg flex items-center gap-1 transition-colors cursor-pointer disabled:opacity-50 shrink-0"
+                      className="h-9 px-3.5 bg-[#18b892] hover:bg-[#139c7b] text-white text-xs font-semibold rounded-lg flex items-center gap-1 transition-colors cursor-pointer disabled:opacity-50 shrink-0"
                     >
                       <Plus className="w-3.5 h-3.5" />
                       <span>Assign</span>
@@ -470,7 +470,7 @@ export const UserControlCentre: React.FC<UserControlCentreProps> = ({
               )}
 
               {statusSuccessMessage && (
-                <div className="p-3 bg-emerald-50 border border-emerald-200 text-xs text-[#01875F] rounded-xl flex items-center gap-2 font-semibold animate-fadeIn">
+                <div className="p-3 bg-emerald-50 border border-emerald-200 text-xs text-[#18b892] rounded-xl flex items-center gap-2 font-semibold animate-fadeIn">
                   <CheckCircle2 className="w-4 h-4 shrink-0" />
                   <span>{statusSuccessMessage}</span>
                 </div>
@@ -485,7 +485,7 @@ export const UserControlCentre: React.FC<UserControlCentreProps> = ({
                 </div>
                 <span className={`px-2.5 py-1 rounded-full text-[11px] font-bold uppercase tracking-wide border ${
                   currentStatus === 'active'
-                    ? 'bg-emerald-50 text-[#01875F] border-emerald-200'
+                    ? 'bg-emerald-50 text-[#18b892] border-emerald-200'
                     : currentStatus === 'suspended'
                     ? 'bg-red-50 text-red-600 border-red-200'
                     : currentStatus === 'pending'
@@ -505,7 +505,7 @@ export const UserControlCentre: React.FC<UserControlCentreProps> = ({
                 <div
                   className={`p-3.5 rounded-xl border transition-all text-left flex flex-col justify-between ${
                     currentStatus === 'active'
-                      ? 'border-[#01875F] bg-emerald-50/40 ring-2 ring-[#01875F]/20'
+                      ? 'border-[#18b892] bg-emerald-50/40 ring-2 ring-[#18b892]/20'
                       : 'border-slate-200 bg-white hover:bg-slate-50/80'
                   }`}
                 >
@@ -516,7 +516,7 @@ export const UserControlCentre: React.FC<UserControlCentreProps> = ({
                         Active
                       </span>
                       {currentStatus === 'active' && (
-                        <span className="text-[10px] font-bold text-[#01875F] bg-emerald-100 px-2 py-0.5 rounded-full">
+                        <span className="text-[10px] font-bold text-[#18b892] bg-emerald-100 px-2 py-0.5 rounded-full">
                           Current Status
                         </span>
                       )}
@@ -529,7 +529,7 @@ export const UserControlCentre: React.FC<UserControlCentreProps> = ({
                     type="button"
                     disabled={isChangingStatus || currentStatus === 'active'}
                     onClick={() => handleStatusChange('active')}
-                    className="w-full py-2 px-3 bg-[#01875F] hover:bg-[#00704e] text-white text-xs font-semibold rounded-lg transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shadow-2xs"
+                    className="w-full py-2 px-3 bg-[#18b892] hover:bg-[#139c7b] text-white text-xs font-semibold rounded-lg transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shadow-2xs"
                   >
                     {currentStatus === 'active' ? 'Currently Active' : 'Set to Active'}
                   </button>

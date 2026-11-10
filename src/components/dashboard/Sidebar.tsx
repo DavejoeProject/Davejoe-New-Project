@@ -371,7 +371,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
               {/* Items - visible if section is expanded OR sidebar is in icon-only collapsed mode */}
               {(!isSectionCollapsed || collapsed) && (
-                <div className="space-y-0.5 animate-in fade-in duration-150">
+                <div className="space-y-1 animate-in fade-in duration-150">
                   {section.items.map((item) => {
                     const Icon = item.icon;
                     const isActive =
@@ -384,22 +384,22 @@ export const Sidebar: React.FC<SidebarProps> = ({
                         type="button"
                         onClick={() => handleItemClick(item.key)}
                         title={collapsed ? item.label : undefined}
-                        className={`w-full flex items-center gap-3 px-3 py-2.5 sm:py-2 rounded-lg text-xs font-medium transition-colors cursor-pointer group text-left min-h-[42px] sm:min-h-[38px] ${
+                        className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-colors cursor-pointer group text-left min-h-[42px] ${
                           isActive
-                            ? 'bg-[#01875F] text-white shadow-2xs font-semibold'
-                            : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                            ? 'bg-[#18b892] text-white shadow-xs font-bold'
+                            : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70'
                         } ${collapsed ? 'justify-center px-0 py-2.5' : ''}`}
                       >
                         <Icon
-                          className={`w-[18px] h-[18px] sm:w-[17px] sm:h-[17px] shrink-0 ${
+                          className={`w-[18px] h-[18px] shrink-0 ${
                             isActive
                               ? 'text-white'
-                              : 'text-slate-500 group-hover:text-slate-800'
+                              : 'text-slate-400 group-hover:text-slate-700'
                           }`}
                           strokeWidth={isActive ? 2.2 : 1.9}
                         />
                         {!collapsed && (
-                          <span className="truncate text-[13px]">{item.label}</span>
+                          <span className="truncate text-sm font-semibold">{item.label}</span>
                         )}
                       </button>
                     );
@@ -415,16 +415,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
       <div className="p-3 pb-safe border-t border-slate-100 shrink-0 space-y-1.5 bg-slate-50/60">
         {/* User Identity Display */}
         {!collapsed ? (
-          <div className="px-2.5 py-2 rounded-lg bg-white border border-slate-200/80 mb-2">
+          <div className="px-3 py-2.5 rounded-xl bg-white border border-slate-200/80 mb-2 shadow-2xs">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-full bg-[#01875F] text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-2xs">
+              <div className="w-9 h-9 rounded-xl bg-[#18b892] text-white flex items-center justify-center font-bold text-sm shrink-0 shadow-2xs">
                 M
               </div>
               <div className="flex flex-col min-w-0">
-                <span className="text-[13px] font-bold text-slate-900 truncate leading-tight">
+                <span className="text-sm font-bold text-slate-900 truncate leading-tight">
                   {userName}
                 </span>
-                <span className="text-[11px] font-semibold text-[#01875F] truncate leading-tight mt-0.5">
+                <span className="text-xs font-semibold text-[#18b892] truncate leading-tight mt-0.5">
                   {userRole}
                 </span>
               </div>
@@ -435,7 +435,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             className="flex justify-center mb-2"
             title={`${userName} • ${userRole}`}
           >
-            <div className="w-8 h-8 rounded-full bg-[#01875F] text-white flex items-center justify-center font-bold text-xs shadow-2xs">
+            <div className="w-9 h-9 rounded-xl bg-[#18b892] text-white flex items-center justify-center font-bold text-sm shadow-2xs">
               M
             </div>
           </div>

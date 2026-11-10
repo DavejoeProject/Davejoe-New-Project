@@ -304,29 +304,29 @@ export const JobCompletionPhotoLibrary: React.FC<Props> = ({
     switch (status) {
       case 'approved':
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-[#01875F] border border-emerald-200">
-            <CheckCircle2 className="w-3 h-3" />
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#18b892]/10 text-[#18b892] border border-[#18b892]/25 whitespace-nowrap">
+            <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
             Approved
           </span>
         );
       case 'needs_correction':
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
-            <AlertCircle className="w-3 h-3" />
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200 whitespace-nowrap">
+            <AlertCircle className="w-3.5 h-3.5 shrink-0" />
             Needs Correction
           </span>
         );
       case 'rejected':
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-red-50 text-red-700 border border-red-200">
-            <XCircle className="w-3 h-3" />
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-50 text-red-700 border border-red-200 whitespace-nowrap">
+            <XCircle className="w-3.5 h-3.5 shrink-0" />
             Rejected
           </span>
         );
       default:
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
-            <Clock className="w-3 h-3" />
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200 whitespace-nowrap">
+            <Clock className="w-3.5 h-3.5 shrink-0" />
             Pending Review
           </span>
         );
@@ -344,14 +344,14 @@ export const JobCompletionPhotoLibrary: React.FC<Props> = ({
       <section className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6 shadow-2xs">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-start gap-3">
-            <div className="rounded-xl bg-[#01875F]/10 p-3 text-[#01875F]">
-              <Images className="h-6 w-6" />
+            <div className="rounded-xl bg-[#18b892]/10 p-3 text-[#18b892] border border-[#18b892]/20 shrink-0">
+              <Images className="h-6 w-6 shrink-0" />
             </div>
             <div>
-              <h2 className="font-bold text-slate-900 text-base tracking-tight">
+              <h2 className="font-bold text-slate-900 text-base sm:text-lg tracking-tight">
                 Job Completion &amp; Site Evidence Library
               </h2>
-              <p className="mt-0.5 text-xs text-slate-500">
+              <p className="mt-0.5 text-xs sm:text-sm text-slate-500">
                 Verified photographic evidence for completed tasks, quality checkpoints, and social media showcase.
               </p>
             </div>
@@ -362,9 +362,9 @@ export const JobCompletionPhotoLibrary: React.FC<Props> = ({
               type="button"
               onClick={() => void loadPhotos()}
               disabled={loading}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 bg-white text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200 bg-white text-xs sm:text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer disabled:opacity-50 whitespace-nowrap"
             >
-              <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin text-[#01875F]' : ''}`} />
+              <RefreshCw className={`h-3.5 w-3.5 shrink-0 ${loading ? 'animate-spin text-[#18b892]' : ''}`} />
               <span>Refresh</span>
             </button>
           </div>
@@ -375,17 +375,17 @@ export const JobCompletionPhotoLibrary: React.FC<Props> = ({
           <form onSubmit={handleUpload} className="mt-6 space-y-4 border-t border-slate-100 pt-5">
             <div className="flex items-center justify-between">
               <h3 className="text-xs font-bold uppercase tracking-wider text-slate-800 flex items-center gap-2">
-                <Upload className="w-3.5 h-3.5 text-[#01875F]" />
+                <Upload className="w-3.5 h-3.5 text-[#18b892] shrink-0" />
                 Submit Job Completion Photograph
               </h3>
-              <span className="text-[11px] text-slate-400">
+              <span className="text-xs text-slate-400 font-mono">
                 Max 2 MB (JPG, PNG, WebP)
               </span>
             </div>
 
             <div className="grid gap-3 sm:grid-cols-2">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
                   Associate with Project / Site *
                 </label>
                 <select
@@ -394,7 +394,7 @@ export const JobCompletionPhotoLibrary: React.FC<Props> = ({
                     setSelectedProjectId(e.target.value);
                     if (e.target.value) setCustomProjectName('');
                   }}
-                  className="w-full h-9 px-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 outline-none focus:border-[#01875F]"
+                  className="w-full h-10 px-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 outline-none focus:bg-white focus:border-[#18b892] font-medium transition-all"
                 >
                   <option value="">-- Select from Active Projects or Type Below --</option>
                   {projects.map((p) => (
@@ -406,7 +406,7 @@ export const JobCompletionPhotoLibrary: React.FC<Props> = ({
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
                   Or Custom Project / Location Name
                 </label>
                 <input
@@ -418,13 +418,13 @@ export const JobCompletionPhotoLibrary: React.FC<Props> = ({
                   }}
                   disabled={Boolean(selectedProjectId)}
                   placeholder="e.g. Lekki Phase 1 Residential Renovation"
-                  className="w-full h-9 px-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 outline-none focus:border-[#01875F] disabled:opacity-50"
+                  className="w-full h-10 px-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 outline-none focus:bg-white focus:border-[#18b892] disabled:opacity-50 font-medium transition-all"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
                 Caption &amp; Completion Notes
               </label>
               <textarea
@@ -432,13 +432,13 @@ export const JobCompletionPhotoLibrary: React.FC<Props> = ({
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Describe the milestone, completed finishing trade, snagging resolution, or marketing caption..."
-                className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 outline-none focus:border-[#01875F]"
+                className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 outline-none focus:bg-white focus:border-[#18b892] font-medium transition-all"
               />
             </div>
 
             <div className="grid gap-3 sm:grid-cols-2 items-end">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
                   Choose Image File *
                 </label>
                 <input
@@ -446,7 +446,7 @@ export const JobCompletionPhotoLibrary: React.FC<Props> = ({
                   accept="image/jpeg,image/png,image/webp"
                   required
                   onChange={(e) => setSelectedFile(e.target.files?.[0] ?? null)}
-                  className="w-full text-xs text-slate-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-[#01875F]/10 file:text-[#01875F] hover:file:bg-[#01875F]/20 cursor-pointer"
+                  className="w-full text-xs text-slate-600 file:mr-3 file:py-2 file:px-3.5 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-[#18b892]/10 file:text-[#18b892] hover:file:bg-[#18b892]/20 cursor-pointer"
                 />
               </div>
 
@@ -454,9 +454,9 @@ export const JobCompletionPhotoLibrary: React.FC<Props> = ({
                 <button
                   type="submit"
                   disabled={uploading}
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2 rounded-xl bg-[#01875F] hover:bg-[#00704e] text-white text-xs font-bold shadow-xs transition-colors cursor-pointer disabled:opacity-60"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#18b892] hover:bg-[#139c7b] text-white text-xs sm:text-sm font-bold shadow-xs transition-colors cursor-pointer disabled:opacity-60 whitespace-nowrap"
                 >
-                  <Upload className="w-3.5 h-3.5" />
+                  <Upload className="w-4 h-4 stroke-[2.5] shrink-0" />
                   <span>{uploading ? 'Uploading Photo...' : 'Submit Evidence'}</span>
                 </button>
               </div>
@@ -467,14 +467,14 @@ export const JobCompletionPhotoLibrary: React.FC<Props> = ({
 
       {/* Alert Notices */}
       {error && (
-        <div role="alert" className="p-3.5 rounded-xl bg-red-50 border border-red-200 text-xs text-red-700 flex items-start gap-2.5">
+        <div role="alert" className="p-3.5 rounded-xl bg-red-50 border border-red-200 text-xs sm:text-sm text-red-700 flex items-start gap-2.5 font-medium">
           <AlertCircle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
           <span>{error}</span>
         </div>
       )}
 
       {notice && (
-        <div role="status" className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-[#01875F] font-semibold flex items-center gap-2">
+        <div role="status" className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-xs sm:text-sm text-[#18b892] font-semibold flex items-center gap-2">
           <CheckCircle2 className="w-4 h-4 shrink-0" />
           <span>{notice}</span>
         </div>
@@ -507,8 +507,8 @@ export const JobCompletionPhotoLibrary: React.FC<Props> = ({
 
       {/* Photo Cards Grid */}
       {loading ? (
-        <div className="py-16 text-center text-xs text-slate-400">
-          <div className="w-8 h-8 border-2 border-[#01875F]/30 border-t-[#01875F] rounded-full animate-spin mx-auto mb-2" />
+        <div className="py-16 text-center text-sm text-slate-400">
+          <div className="w-8 h-8 border-2 border-[#18b892]/30 border-t-[#18b892] rounded-full animate-spin mx-auto mb-2" />
           Loading photo library...
         </div>
       ) : filteredPhotos.length === 0 ? (
@@ -550,28 +550,28 @@ export const JobCompletionPhotoLibrary: React.FC<Props> = ({
                   </div>
 
                   <div className="p-4 space-y-2">
-                    <div className="flex items-center gap-1.5 text-[11px] font-semibold text-[#01875F]">
+                    <div className="flex items-center gap-1.5 text-xs font-semibold text-[#18b892]">
                       <Building2 className="w-3.5 h-3.5 shrink-0" />
                       <span className="truncate">{photo.project_name}</span>
                     </div>
 
                     {photo.description && (
-                      <p className="text-xs text-slate-700 line-clamp-3 leading-relaxed">
+                      <p className="text-xs sm:text-sm text-slate-700 line-clamp-3 leading-relaxed">
                         {photo.description}
                       </p>
                     )}
 
                     {photo.review_notes && (
-                      <div className="p-2.5 rounded-lg bg-amber-50/70 border border-amber-200/80 text-[11px] text-amber-800 space-y-1">
-                        <span className="font-bold block flex items-center gap-1">
-                          <MessageSquare className="w-3 h-3 text-amber-600" />
+                      <div className="p-2.5 rounded-lg bg-amber-50/70 border border-amber-200/80 text-xs text-amber-800 space-y-1">
+                        <span className="font-bold flex items-center gap-1">
+                          <MessageSquare className="w-3.5 h-3.5 text-amber-600 shrink-0" />
                           Reviewer Feedback:
                         </span>
                         <p>{photo.review_notes}</p>
                       </div>
                     )}
 
-                    <div className="pt-2 border-t border-slate-100 text-[10px] text-slate-400 flex items-center justify-between">
+                    <div className="pt-2 border-t border-slate-100 text-xs text-slate-400 font-mono flex items-center justify-between">
                       <span>{new Date(photo.created_at).toLocaleDateString()}</span>
                       <span>{(photo.file_size_bytes / 1024).toFixed(0)} KB</span>
                     </div>
@@ -582,9 +582,9 @@ export const JobCompletionPhotoLibrary: React.FC<Props> = ({
                   <button
                     type="button"
                     onClick={() => handleDownloadPhoto(photo)}
-                    className="flex-1 inline-flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold transition-colors cursor-pointer"
+                    className="flex-1 inline-flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs sm:text-sm font-semibold transition-colors cursor-pointer whitespace-nowrap"
                   >
-                    <Download className="h-3.5 w-3.5" />
+                    <Download className="h-3.5 w-3.5 shrink-0" />
                     <span>Download</span>
                   </button>
 
@@ -596,9 +596,9 @@ export const JobCompletionPhotoLibrary: React.FC<Props> = ({
                         setReviewStatusChoice(photo.review_status || 'approved');
                         setReviewNotes(photo.review_notes || '');
                       }}
-                      className="inline-flex items-center justify-center gap-1 py-1.5 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold transition-colors cursor-pointer"
+                      className="inline-flex items-center justify-center gap-1 py-2 px-3.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs sm:text-sm font-semibold transition-colors cursor-pointer whitespace-nowrap"
                     >
-                      <FileCheck className="h-3.5 w-3.5" />
+                      <FileCheck className="h-3.5 w-3.5 shrink-0" />
                       <span>Vet</span>
                     </button>
                   )}
@@ -616,10 +616,10 @@ export const JobCompletionPhotoLibrary: React.FC<Props> = ({
           aria-modal="true"
           className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4 animate-in fade-in duration-150"
         >
-          <div className="bg-white rounded-2xl border border-slate-200/90 shadow-2xl max-w-lg w-full overflow-hidden">
-            <div className="p-5 border-b border-slate-100 flex items-center justify-between">
+          <div className="bg-white rounded-3xl border border-slate-200/90 shadow-2xl max-w-lg w-full overflow-hidden">
+            <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
               <div>
-                <h3 className="text-sm font-bold text-slate-900">
+                <h3 className="text-base font-bold text-slate-900">
                   Leadership Evidence Vetting
                 </h3>
                 <p className="text-xs text-slate-500">
@@ -629,24 +629,24 @@ export const JobCompletionPhotoLibrary: React.FC<Props> = ({
               <button
                 type="button"
                 onClick={() => setReviewingPhoto(null)}
-                className="text-slate-400 hover:text-slate-600 text-xs font-bold"
+                className="text-slate-400 hover:text-slate-600 text-xs font-bold cursor-pointer p-1 rounded-lg"
               >
                 Close
               </button>
             </div>
 
-            <form onSubmit={handleSubmitReview} className="p-5 space-y-4 text-xs">
+            <form onSubmit={handleSubmitReview} className="p-5 space-y-4 text-xs sm:text-sm">
               <div>
-                <label className="block font-semibold text-slate-700 mb-1.5">
+                <label className="block font-bold uppercase tracking-wider text-xs text-slate-700 mb-1.5">
                   Vetting Decision *
                 </label>
                 <div className="grid grid-cols-3 gap-2">
                   <button
                     type="button"
                     onClick={() => setReviewStatusChoice('approved')}
-                    className={`py-2 px-3 rounded-xl border text-center font-bold transition-colors ${
+                    className={`py-2 px-3 rounded-xl border text-center text-xs font-bold transition-colors cursor-pointer whitespace-nowrap ${
                       reviewStatusChoice === 'approved'
-                        ? 'bg-emerald-50 border-emerald-500 text-[#01875F] ring-1 ring-emerald-500'
+                        ? 'bg-[#18b892]/10 border-[#18b892] text-[#18b892] ring-1 ring-[#18b892]'
                         : 'bg-white border-slate-200 text-slate-700'
                     }`}
                   >
@@ -655,7 +655,7 @@ export const JobCompletionPhotoLibrary: React.FC<Props> = ({
                   <button
                     type="button"
                     onClick={() => setReviewStatusChoice('needs_correction')}
-                    className={`py-2 px-3 rounded-xl border text-center font-bold transition-colors ${
+                    className={`py-2 px-3 rounded-xl border text-center text-xs font-bold transition-colors cursor-pointer whitespace-nowrap ${
                       reviewStatusChoice === 'needs_correction'
                         ? 'bg-amber-50 border-amber-500 text-amber-700 ring-1 ring-amber-500'
                         : 'bg-white border-slate-200 text-slate-700'
@@ -666,7 +666,7 @@ export const JobCompletionPhotoLibrary: React.FC<Props> = ({
                   <button
                     type="button"
                     onClick={() => setReviewStatusChoice('rejected')}
-                    className={`py-2 px-3 rounded-xl border text-center font-bold transition-colors ${
+                    className={`py-2 px-3 rounded-xl border text-center text-xs font-bold transition-colors cursor-pointer whitespace-nowrap ${
                       reviewStatusChoice === 'rejected'
                         ? 'bg-red-50 border-red-500 text-red-700 ring-1 ring-red-500'
                         : 'bg-white border-slate-200 text-slate-700'
@@ -678,7 +678,7 @@ export const JobCompletionPhotoLibrary: React.FC<Props> = ({
               </div>
 
               <div>
-                <label className="block font-semibold text-slate-700 mb-1">
+                <label className="block font-bold uppercase tracking-wider text-xs text-slate-700 mb-1.5">
                   Reviewer Feedback / Correction Request
                 </label>
                 <textarea
@@ -686,7 +686,7 @@ export const JobCompletionPhotoLibrary: React.FC<Props> = ({
                   value={reviewNotes}
                   onChange={(e) => setReviewNotes(e.target.value)}
                   placeholder="Specify feedback or required corrections for the submitter..."
-                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-[#01875F]"
+                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:bg-white focus:border-[#18b892] text-sm transition-all"
                 />
               </div>
 
@@ -694,14 +694,14 @@ export const JobCompletionPhotoLibrary: React.FC<Props> = ({
                 <button
                   type="button"
                   onClick={() => setReviewingPhoto(null)}
-                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-semibold"
+                  className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-semibold text-xs sm:text-sm cursor-pointer whitespace-nowrap"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmittingReview}
-                  className="px-5 py-2 bg-[#01875F] hover:bg-[#00704e] text-white rounded-xl font-bold shadow-2xs disabled:opacity-60"
+                  className="px-5 py-2.5 bg-[#18b892] hover:bg-[#139c7b] text-white rounded-xl font-bold shadow-2xs disabled:opacity-60 text-xs sm:text-sm cursor-pointer whitespace-nowrap"
                 >
                   {isSubmittingReview ? 'Saving...' : 'Confirm Decision'}
                 </button>

@@ -175,7 +175,7 @@ export const RecordStockAdjustmentModal: React.FC<RecordStockAdjustmentModalProp
                 required
                 value={materialId}
                 onChange={(e) => setMaterialId(e.target.value)}
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#01875F]"
+                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#18b892]"
               >
                 <option value="">Select Material</option>
                 {materials.map((m) => (
@@ -203,7 +203,7 @@ export const RecordStockAdjustmentModal: React.FC<RecordStockAdjustmentModalProp
               <select
                 value={movementType}
                 onChange={(e) => setMovementType(e.target.value as StockMovementType)}
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#01875F]"
+                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#18b892]"
               >
                 <option value="adjustment">Stock Adjustment (Audit Count)</option>
                 <option value="damage">Damage / Loss Write-Off</option>
@@ -225,7 +225,7 @@ export const RecordStockAdjustmentModal: React.FC<RecordStockAdjustmentModalProp
                   value={quantity}
                   onChange={(e) => setQuantity(e.target.value)}
                   placeholder="0"
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#01875F]"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#18b892]"
                 />
                 <span className="text-[11px] text-slate-400 shrink-0">
                   {selectedMaterial?.unit_of_measure || 'units'}
@@ -241,7 +241,7 @@ export const RecordStockAdjustmentModal: React.FC<RecordStockAdjustmentModalProp
             <select
               value={projectId}
               onChange={(e) => setProjectId(e.target.value)}
-              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#01875F]"
+              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#18b892]"
             >
               <option value="">Central Warehouse / Unassigned</option>
               {projects.map((p) => (
@@ -262,7 +262,7 @@ export const RecordStockAdjustmentModal: React.FC<RecordStockAdjustmentModalProp
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="e.g. Physical inventory cycle count adjustment, reconciliation surplus, batch audit variance..."
-              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#01875F]"
+              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#18b892]"
             />
           </div>
 
@@ -278,7 +278,7 @@ export const RecordStockAdjustmentModal: React.FC<RecordStockAdjustmentModalProp
             <button
               type="submit"
               disabled={isSubmitting}
-              className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#01875F] text-white hover:bg-[#016f4e] text-xs font-semibold rounded-lg shadow-2xs transition-colors cursor-pointer disabled:opacity-60"
+              className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#18b892] text-white hover:bg-[#016f4e] text-xs font-semibold rounded-lg shadow-2xs transition-colors cursor-pointer disabled:opacity-60"
             >
               {isSubmitting ? (
                 <>
