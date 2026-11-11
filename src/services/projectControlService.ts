@@ -607,26 +607,43 @@ export class ProjectControlService {
       }
 
       // 2. Direct table insert fallback
+      // Uses the verified PostgreSQL database schema:
+      // (project_id, material_id, required_quantity, approved_quantity, estimated_unit_cost, estimated_total_cost, purpose, created_by)
+      const combinedPurpose = [
+        payload.purpose?.trim(),
+        payload.notes?.trim() ? `Notes: ${payload.notes.trim()}` : null,
+      ]
+        .filter(Boolean)
+        .join(' — ') || null;
+
+      const insertRecord: Record<string, any> = {
+        project_id: payload.projectId,
+        material_id: payload.materialId,
+        required_quantity: requiredQty,
+        approved_quantity: approvedQty,
+        estimated_unit_cost: unitCost,
+        estimated_total_cost: totalCost,
+        purpose: combinedPurpose,
+        created_by: payload.assignedBy || null,
+      };
+
       const { data: insertData, error: insertError } = await supabase
         .from('project_material_requirements')
-        .insert({
-          project_id: payload.projectId,
-          material_id: payload.materialId,
-          required_quantity: requiredQty,
-          approved_quantity: approvedQty,
-          estimated_unit_cost: unitCost,
-          estimated_total_cost: totalCost,
-          purpose: payload.purpose?.trim() || null,
-          notes: payload.notes?.trim() || null,
-          status: 'assigned',
-          assigned_by: payload.assignedBy || null,
-        })
+        .insert(insertRecord)
         .select('*, materials(id, name, unit_of_measure, material_code, category)')
         .single();
 
       if (insertError) {
         return { data: null, error: insertError.message };
       }
+
+      // Format response to fulfill ProjectMaterialRequirementItem contract
+      const formattedData: ProjectMaterialRequirementItem = {
+        ...(insertData as any),
+        status: 'assigned',
+        assigned_by: insertData?.created_by || payload.assignedBy || null,
+        notes: payload.notes?.trim() || null,
+      };
 
       // 3. Best-effort audit logging
       try {
@@ -643,7 +660,7 @@ export class ProjectControlService {
               required_quantity: requiredQty,
               approved_quantity: approvedQty,
               estimated_total_cost: totalCost,
-              purpose: payload.purpose,
+              purpose: combinedPurpose,
             },
           });
         }
@@ -651,7 +668,7 @@ export class ProjectControlService {
         // Audit log table optional or RLS restricted
       }
 
-      return { data: insertData, error: null };
+      return { data: formattedData, error: null };
     } catch (err: any) {
       return { data: null, error: err?.message || 'Failed to assign material to project.' };
     }
@@ -677,12 +694,24 @@ export class ProjectControlService {
     }
 
     try {
+      const dbUpdates: Record<string, any> = {
+        updated_at: new Date().toISOString(),
+      };
+      if (updates.required_quantity !== undefined) dbUpdates.required_quantity = updates.required_quantity;
+      if (updates.approved_quantity !== undefined) dbUpdates.approved_quantity = updates.approved_quantity;
+      if (updates.estimated_unit_cost !== undefined) dbUpdates.estimated_unit_cost = updates.estimated_unit_cost;
+      if (updates.estimated_total_cost !== undefined) dbUpdates.estimated_total_cost = updates.estimated_total_cost;
+      if (updates.purpose !== undefined || updates.notes !== undefined) {
+        const parts = [
+          updates.purpose?.trim(),
+          updates.notes?.trim() ? `Notes: ${updates.notes.trim()}` : null,
+        ].filter(Boolean);
+        dbUpdates.purpose = parts.length > 0 ? parts.join(' — ') : null;
+      }
+
       const { error } = await supabase
         .from('project_material_requirements')
-        .update({
-          ...updates,
-          updated_at: new Date().toISOString(),
-        })
+        .update(dbUpdates)
         .eq('id', id);
 
       if (error) return { error: error.message };
@@ -744,7 +773,7 @@ export class ProjectControlService {
       const [reqs, requests, dels, usages, rets, losses, recons] = await Promise.all([
         supabase
           .from('project_material_requirements')
-          .select('id, project_id, material_id, required_quantity, approved_quantity, estimated_unit_cost, estimated_total_cost, purpose, notes, status, assigned_by, created_at, materials(id, name, material_code, category, brand, unit_of_measure, current_stock)')
+          .select('id, project_id, material_id, required_quantity, approved_quantity, estimated_unit_cost, estimated_total_cost, purpose, created_by, created_at, updated_at, materials(id, name, material_code, category, brand, unit_of_measure, current_stock)')
           .eq('project_id', projectId)
           .order('created_at', { ascending: false }),
         supabase
@@ -792,8 +821,15 @@ export class ProjectControlService {
         return { ...emptyResult, error: anyError.message };
       }
 
+      const mappedRequirements: ProjectMaterialRequirementItem[] = ((reqs.data || []) as any[]).map((r: any) => ({
+        ...r,
+        status: r.status || 'assigned',
+        assigned_by: r.assigned_by || r.created_by || null,
+        notes: r.notes || null,
+      }));
+
       return {
-        requirements: (reqs.data as unknown as ProjectMaterialRequirementItem[]) || [],
+        requirements: mappedRequirements,
         requests: (requests.data as unknown as ProjectMaterialRequestItem[]) || [],
         deliveries: (dels.data as unknown as ProjectMaterialDeliveryItem[]) || [],
         usage: (usages.data as unknown as ProjectMaterialUsageItem[]) || [],
