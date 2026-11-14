@@ -127,10 +127,10 @@ export async function traceAuthDatabaseFetch(explicitUserId?: string): Promise<A
         console.warn('⚠️ public.profiles: Session JWT expired (PGRST303).');
       } else if (profError.code === '42501' || profError.message?.toLowerCase().includes('row-level security')) {
         result.profiles.status = 'RLS_BLOCKED';
-        console.error('❌ public.profiles: RLS POLICY BLOCKED READ', profError);
+        console.warn('⚠️ public.profiles: RLS POLICY BLOCKED READ', profError);
       } else {
         result.profiles.status = 'ERROR';
-        console.error('❌ public.profiles: Database error', profError);
+        console.warn('⚠️ public.profiles: Database error', profError);
       }
     } else if (!profData) {
       result.profiles.status = 'EMPTY_SET';
@@ -146,7 +146,7 @@ export async function traceAuthDatabaseFetch(explicitUserId?: string): Promise<A
   } catch (err) {
     result.profiles.error = err;
     result.profiles.status = 'ERROR';
-    console.error('❌ public.profiles exception:', err);
+    console.warn('⚠️ public.profiles exception:', err);
   }
   console.groupEnd();
 
@@ -170,10 +170,10 @@ export async function traceAuthDatabaseFetch(explicitUserId?: string): Promise<A
         console.warn('⚠️ public.user_roles: Session JWT expired (PGRST303).');
       } else if (urError.code === '42501' || urError.message?.toLowerCase().includes('row-level security')) {
         result.userRoles.status = 'RLS_BLOCKED';
-        console.error('❌ public.user_roles: RLS POLICY BLOCKED READ (Code 42501)', urError);
+        console.warn('⚠️ public.user_roles: RLS POLICY BLOCKED READ (Code 42501)', urError);
       } else {
         result.userRoles.status = 'ERROR';
-        console.error('❌ public.user_roles: Database error', urError);
+        console.warn('⚠️ public.user_roles: Database error', urError);
       }
     } else if (!urData || urData.length === 0) {
       result.userRoles.status = 'EMPTY_SET';
@@ -194,7 +194,7 @@ export async function traceAuthDatabaseFetch(explicitUserId?: string): Promise<A
   } catch (err) {
     result.userRoles.error = err;
     result.userRoles.status = 'ERROR';
-    console.error('❌ public.user_roles exception:', err);
+    console.warn('⚠️ public.user_roles exception:', err);
   }
   console.groupEnd();
 
@@ -225,13 +225,13 @@ export async function traceAuthDatabaseFetch(explicitUserId?: string): Promise<A
         console.warn('⚠️ JOIN Query: Session JWT expired (PGRST303).');
       } else if (joinError.code === '42501' || joinError.message?.toLowerCase().includes('row-level security')) {
         result.joinQuery.status = 'RLS_BLOCKED';
-        console.error('❌ JOIN Query RLS BLOCKED:', joinError.message);
+        console.warn('⚠️ JOIN Query RLS BLOCKED:', joinError.message);
       } else if (joinError.code === 'PGRST200') {
         result.joinQuery.status = 'RELATION_NOT_FOUND';
         console.warn('⚠️ PostgREST foreign key relationship user_roles->roles not exposed. Falling back to multi-step query.');
       } else {
         result.joinQuery.status = 'ERROR';
-        console.error('❌ JOIN Query error:', joinError);
+        console.warn('⚠️ JOIN Query error:', joinError);
       }
     } else if (!joinData || joinData.length === 0) {
       result.joinQuery.status = 'EMPTY_SET';
@@ -261,7 +261,7 @@ export async function traceAuthDatabaseFetch(explicitUserId?: string): Promise<A
   } catch (err) {
     result.joinQuery.error = err;
     result.joinQuery.status = 'ERROR';
-    console.error('❌ JOIN Query exception:', err);
+    console.warn('⚠️ JOIN Query exception:', err);
   }
   console.groupEnd();
 
@@ -285,10 +285,10 @@ export async function traceAuthDatabaseFetch(explicitUserId?: string): Promise<A
         console.warn('⚠️ public.roles: Session JWT expired (PGRST303).');
       } else if (rolesError.code === '42501' || rolesError.message?.toLowerCase().includes('row-level security')) {
         result.roles.status = 'RLS_BLOCKED';
-        console.error('❌ public.roles: RLS POLICY BLOCKED READ (Code 42501)', rolesError);
+        console.warn('⚠️ public.roles: RLS POLICY BLOCKED READ (Code 42501)', rolesError);
       } else {
         result.roles.status = 'ERROR';
-        console.error('❌ public.roles: Database error', rolesError);
+        console.warn('⚠️ public.roles: Database error', rolesError);
       }
     } else if (!rolesData || rolesData.length === 0) {
       result.roles.status = 'EMPTY_SET';
@@ -309,7 +309,7 @@ export async function traceAuthDatabaseFetch(explicitUserId?: string): Promise<A
   } catch (err) {
     result.roles.error = err;
     result.roles.status = 'ERROR';
-    console.error('❌ public.roles exception:', err);
+    console.warn('⚠️ public.roles exception:', err);
   }
   console.groupEnd();
 
@@ -363,15 +363,15 @@ export async function traceAuthDatabaseFetch(explicitUserId?: string): Promise<A
     );
     if (rlsBlocked) {
       result.diagnosis = `FAILED: Database RLS policy prevented reading role tables for user ID ${targetUserId}.`;
-      console.error(
-        '%c❌ DIAGNOSTIC VERDICT: RLS POLICY ERROR%c\nOne or more tables blocked SELECT for this authenticated user.',
+      console.warn(
+        '%c⚠️ DIAGNOSTIC VERDICT: RLS POLICY ERROR%c\nOne or more tables blocked SELECT for this authenticated user.',
         'background: #FEE2E2; color: #DC2626; font-weight: bold; padding: 4px 8px; border-radius: 4px;',
         'color: inherit;'
       );
     } else {
-      result.diagnosis = `FAILED: No role records found in public.user_roles or public.roles for user ID ${targetUserId}.`;
-      console.error(
-        '%c❌ DIAGNOSTIC VERDICT: EMPTY ROLE SET%c\nNo user_roles records found for user ID ' + targetUserId,
+      result.diagnosis = `No role records found in public.user_roles or public.roles for user ID ${targetUserId}.`;
+      console.warn(
+        '%c⚠️ DIAGNOSTIC VERDICT: EMPTY ROLE SET%c\nNo user_roles records found for user ID ' + targetUserId,
         'background: #FEF3C7; color: #D97706; font-weight: bold; padding: 4px 8px; border-radius: 4px;',
         'color: inherit;'
       );
