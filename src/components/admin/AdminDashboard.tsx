@@ -56,6 +56,7 @@ import { AddMaterialModal } from '../dashboard/AddMaterialModal';
 import { UnifiedInventoryModule } from '../inventory/UnifiedInventoryModule';
 import { WorkforceDirectoryModule } from '../workforce/WorkforceDirectoryModule';
 import { VendorsPartnersModule } from '../vendors/VendorsPartnersModule';
+import { AccessDenied } from '../AccessDenied';
 
 type AdminTab =
   | 'dashboard'
@@ -82,9 +83,29 @@ export interface AdminDashboardProps {
 }
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({ initialTab }) => {
-  const { user, profile, logout } = useAuth();
+  const { user, profile, logout, hasAnyPermission } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+
+  const canAccessWorkforceDirectory = hasAnyPermission([
+    'View Workforce',
+    'workforce.view',
+    'Create Workforce',
+    'workforce.create',
+    'Update Workforce',
+    'workforce.update',
+    'Assign Workforce',
+    'workforce.assign',
+  ]);
+
+  const canAccessVendorsPartners = hasAnyPermission([
+    'View Vendors',
+    'vendors.view',
+    'Create Vendors',
+    'vendors.create',
+    'Update Vendors',
+    'vendors.update',
+  ]);
 
   // Resolve active tab from URL path
   const resolveTabFromPath = (path: string): AdminTab => {
@@ -189,8 +210,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ initialTab }) =>
         supabase.from('roles').select('*', { count: 'exact' }).limit(20),
         supabase.from('audit_logs').select('*', { count: 'exact' }).order('created_at', { ascending: false }).limit(6),
         WorkforceService.getCompletePersonnelDirectory().catch(() => null),
-        supabase.from('workforce_directory').select('id', { count: 'exact', head: true }),
-        supabase.from('vendors_partners').select('id', { count: 'exact', head: true }),
+        canAccessWorkforceDirectory
+          ? supabase.from('workforce_directory').select('id', { count: 'exact', head: true })
+          : Promise.resolve({ count: 0, error: null }),
+        canAccessVendorsPartners
+          ? supabase.from('vendors_partners').select('id', { count: 'exact', head: true })
+          : Promise.resolve({ count: 0, error: null }),
       ]);
 
       const totalStaff = personnelRes?.metrics?.totalPersonnel || uCount || (wData ? wData.length : 0);
@@ -235,8 +260,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ initialTab }) =>
         { key: 'projects' as AdminTab, label: 'Projects', icon: FolderKanban, count: metrics.projectsCount },
         { key: 'tasks' as AdminTab, label: 'Task Specifications', icon: ClipboardList },
         { key: 'workforce' as AdminTab, label: 'Staff', icon: Users, count: metrics.workforceCount },
-        { key: 'workforce-directory' as AdminTab, label: 'Workforce', icon: HardHat, count: metrics.contractWorkforceCount },
-        { key: 'vendors-partners' as AdminTab, label: 'Vendors & Partners', icon: Handshake, count: metrics.vendorsPartnersCount },
+        ...(canAccessWorkforceDirectory
+          ? [{ key: 'workforce-directory' as AdminTab, label: 'Workforce', icon: HardHat, count: metrics.contractWorkforceCount }]
+          : []),
+        ...(canAccessVendorsPartners
+          ? [{ key: 'vendors-partners' as AdminTab, label: 'Vendors & Partners', icon: Handshake, count: metrics.vendorsPartnersCount }]
+          : []),
         { key: 'attendance' as AdminTab, label: 'Attendance Muster', icon: CalendarCheck },
         { key: 'clients' as AdminTab, label: 'Clients', icon: Building2 },
       ],
@@ -853,14 +882,32 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ initialTab }) =>
           {/* TAB: CONTRACT WORKFORCE DIRECTORY */}
           {activeTab === 'workforce-directory' && (
             <div className="space-y-4">
-              <WorkforceDirectoryModule onBackToDashboard={() => handleSelectTab('dashboard')} />
+              {canAccessWorkforceDirectory ? (
+                <WorkforceDirectoryModule onBackToDashboard={() => handleSelectTab('dashboard')} />
+              ) : (
+                <AccessDenied
+                  isModuleRestricted
+                  title="Workforce Directory Access Restricted"
+                  message="You do not hold the required database permission (View Workforce) to access the Contract Workforce Directory."
+                  onBack={() => handleSelectTab('dashboard')}
+                />
+              )}
             </div>
           )}
 
           {/* TAB: VENDORS & PARTNERS DIRECTORY */}
           {activeTab === 'vendors-partners' && (
             <div className="space-y-4">
-              <VendorsPartnersModule onBackToDashboard={() => handleSelectTab('dashboard')} />
+              {canAccessVendorsPartners ? (
+                <VendorsPartnersModule onBackToDashboard={() => handleSelectTab('dashboard')} />
+              ) : (
+                <AccessDenied
+                  isModuleRestricted
+                  title="Vendors & Partners Access Restricted"
+                  message="You do not hold the required database permission (View Vendors) to access the Vendors & Partners Directory."
+                  onBack={() => handleSelectTab('dashboard')}
+                />
+              )}
             </div>
           )}
 

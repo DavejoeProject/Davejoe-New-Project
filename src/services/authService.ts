@@ -600,14 +600,17 @@ export class AuthService {
         if (roleIds.length > 0) {
           const { data: rolePerms } = await supabase
             .from('role_permissions')
-            .select('permission_id, permissions(name)')
+            .select('permission_id, permissions(name, code)')
             .in('role_id', roleIds);
 
           if (rolePerms) {
             for (const rp of rolePerms) {
-              const p = rp.permissions as unknown as { name?: string };
+              const p = rp.permissions as unknown as { name?: string | null; code?: string | null };
               if (p?.name) {
                 permissions.add(p.name);
+              }
+              if (p?.code) {
+                permissions.add(p.code);
               }
             }
           }

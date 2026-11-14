@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   ArrowLeft,
   HardHat,
@@ -14,22 +14,25 @@ import {
   XCircle,
   Eye,
   EyeOff,
-  UserX,
-  UserCheck,
   AlertCircle,
+  Lock,
 } from 'lucide-react';
 import {
   WorkforceDirectoryRecord,
+  WorkforceProtectedDetails,
   WorkforceDirectoryService,
   maskBankAccountNumber,
   ContractWorkforceStatus,
 } from '../../services/workforceDirectoryService';
 import { formatDateNigerian } from '../../services/dashboardService';
+import { ConfirmActionModal } from '../common/ConfirmActionModal';
 
 interface WorkforceDirectoryProfileProps {
   memberId: string;
-  canManage: boolean;
-  actorUserId?: string;
+  canUpdate: boolean;
+  canAssign: boolean;
+  canViewBanking: boolean;
+  initialFocus?: 'profile' | 'history';
   onBack: () => void;
   onEdit: (member: WorkforceDirectoryRecord) => void;
   onAssignProject: (member: WorkforceDirectoryRecord) => void;
@@ -39,8 +42,10 @@ interface WorkforceDirectoryProfileProps {
 
 export const WorkforceDirectoryProfile: React.FC<WorkforceDirectoryProfileProps> = ({
   memberId,
-  canManage,
-  actorUserId,
+  canUpdate,
+  canAssign,
+  canViewBanking,
+  initialFocus = 'profile',
   onBack,
   onEdit,
   onAssignProject,
@@ -48,61 +53,124 @@ export const WorkforceDirectoryProfile: React.FC<WorkforceDirectoryProfileProps>
   refreshTrigger = 0,
 }) => {
   const [member, setMember] = useState<WorkforceDirectoryRecord | null>(null);
+  const [protectedDetails, setProtectedDetails] = useState<WorkforceProtectedDetails | null>(null);
+  const [protectedRestricted, setProtectedRestricted] = useState(false);
+
   const [isLoading, setIsLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [showFullAccount, setShowFullAccount] = useState(false);
-  const [actionBusyId, setActionBusyId] = useState<string | null>(null);
+  const [isActionBusy, setIsActionBusy] = useState(false);
+
+  const [confirmState, setConfirmState] = useState<{
+    title: string;
+    message: string;
+    confirmLabel: string;
+    variant: 'danger' | 'warning' | 'primary';
+    onConfirm: () => Promise<void>;
+  } | null>(null);
+
+  const historySectionRef = useRef<HTMLDivElement | null>(null);
 
   const loadProfile = useCallback(async () => {
     setIsLoading(true);
     setErrorMsg(null);
     const res = await WorkforceDirectoryService.getMemberById(memberId);
-    if (res.error) setErrorMsg(res.error);
-    else setMember(res.data);
+    if (res.error) {
+      setErrorMsg(res.error);
+      setIsLoading(false);
+      return;
+    }
+
+    setMember(res.data);
+
+    if (canViewBanking) {
+      const protRes = await WorkforceDirectoryService.getWorkforceProtectedDetails(memberId);
+      if (protRes.data) {
+        setProtectedDetails(protRes.data);
+        setProtectedRestricted(false);
+      } else if (protRes.restricted) {
+        setProtectedRestricted(true);
+      }
+    } else {
+      setProtectedDetails(null);
+      setProtectedRestricted(true);
+    }
+
     setIsLoading(false);
-  }, [memberId]);
+  }, [memberId, canViewBanking]);
 
   useEffect(() => {
     loadProfile();
   }, [loadProfile, refreshTrigger]);
 
-  const handleToggleMemberStatus = async (nextStatus: ContractWorkforceStatus) => {
-    if (!member) return;
-    setActionBusyId('member-status');
-    const res = await WorkforceDirectoryService.updateStatus(
-      member.id,
-      nextStatus,
-      actorUserId,
-      member.status
-    );
-    setActionBusyId(null);
-    if (res.error) {
-      setErrorMsg(res.error);
-      return;
+  useEffect(() => {
+    if (!isLoading && initialFocus === 'history' && historySectionRef.current) {
+      historySectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
-    onStatusUpdated(`${member.full_name} marked as ${nextStatus}.`);
-    await loadProfile();
+  }, [isLoading, initialFocus]);
+
+  const requestStatusChange = (nextStatus: ContractWorkforceStatus) => {
+    if (!member || member.status === nextStatus) return;
+
+    const variant =
+      nextStatus === 'suspended' ? 'danger' : nextStatus === 'inactive' ? 'warning' : 'primary';
+    const verb =
+      nextStatus === 'active'
+        ? 'Activate'
+        : nextStatus === 'suspended'
+        ? 'Suspend'
+        : 'Deactivate';
+
+    setConfirmState({
+      title: `${verb} Workforce Member`,
+      message: `Are you sure you want to change ${member.full_name}'s status from "${member.status}" to "${nextStatus}"? Historical assignments and audit records will be preserved.`,
+      confirmLabel: verb,
+      variant,
+      onConfirm: async () => {
+        setIsActionBusy(true);
+        const res = await WorkforceDirectoryService.updateStatus(
+          member.id,
+          nextStatus,
+          member.status
+        );
+        setIsActionBusy(false);
+        setConfirmState(null);
+        if (res.error) {
+          setErrorMsg(res.error);
+          return;
+        }
+        onStatusUpdated(`${member.full_name} marked as ${nextStatus}.`);
+        await loadProfile();
+      },
+    });
   };
 
-  const handleUpdateAssignment = async (
+  const requestAssignmentOutcome = (
     assignmentId: string,
+    projectName: string,
     nextStatus: 'completed' | 'cancelled'
   ) => {
-    setActionBusyId(assignmentId);
-    const res = await WorkforceDirectoryService.updateAssignmentStatus(
-      assignmentId,
-      nextStatus,
-      actorUserId
-    );
-    setActionBusyId(null);
-    if (res.error) {
-      setErrorMsg(res.error);
-      return;
-    }
-    onStatusUpdated(
-      `Project assignment marked as ${nextStatus}. Historical record preserved.`
-    );
-    await loadProfile();
+    setConfirmState({
+      title: nextStatus === 'completed' ? 'Complete Project Assignment' : 'Cancel Project Assignment',
+      message: `Confirm marking ${member?.full_name}'s assignment on "${projectName}" as ${nextStatus}? This preserves the assignment in Assignment History.`,
+      confirmLabel: nextStatus === 'completed' ? 'Mark Completed' : 'Cancel Assignment',
+      variant: nextStatus === 'cancelled' ? 'warning' : 'primary',
+      onConfirm: async () => {
+        setIsActionBusy(true);
+        const res = await WorkforceDirectoryService.updateAssignmentStatus(
+          assignmentId,
+          nextStatus
+        );
+        setIsActionBusy(false);
+        setConfirmState(null);
+        if (res.error) {
+          setErrorMsg(res.error);
+          return;
+        }
+        onStatusUpdated(`Project assignment marked as ${nextStatus}. Historical record preserved.`);
+        await loadProfile();
+      },
+    });
   };
 
   if (isLoading) {
@@ -149,6 +217,12 @@ export const WorkforceDirectoryProfile: React.FC<WorkforceDirectoryProfileProps>
       ? 'text-red-700'
       : 'text-slate-600';
 
+  const displayNok = protectedDetails?.next_of_kin ?? member.next_of_kin;
+  const displayNokPhone = protectedDetails?.next_of_kin_phone ?? member.next_of_kin_phone;
+  const displayBankName = protectedDetails?.bank_name ?? member.bank_name;
+  const displayAccountName = protectedDetails?.account_name ?? member.account_name;
+  const displayAccountNumber = protectedDetails?.account_number ?? member.account_number;
+
   return (
     <div className="space-y-6 pb-8">
       {/* Top Action Bar */}
@@ -184,8 +258,8 @@ export const WorkforceDirectoryProfile: React.FC<WorkforceDirectoryProfileProps>
             </div>
           </div>
 
-          {canManage && (
-            <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+          <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+            {canAssign && (
               <button
                 type="button"
                 onClick={() => onAssignProject(member)}
@@ -200,49 +274,45 @@ export const WorkforceDirectoryProfile: React.FC<WorkforceDirectoryProfileProps>
                 <Plus className="w-4 h-4 shrink-0" />
                 <span>Assign to Project</span>
               </button>
+            )}
 
-              <button
-                type="button"
-                onClick={() => onEdit(member)}
-                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 rounded-xl transition-colors cursor-pointer whitespace-nowrap shrink-0"
-              >
-                <Edit3 className="w-4 h-4 shrink-0" />
-                <span>Edit Details</span>
-              </button>
-
-              {member.status === 'active' ? (
+            {canUpdate && (
+              <>
                 <button
                   type="button"
-                  disabled={actionBusyId === 'member-status'}
-                  onClick={() => handleToggleMemberStatus('inactive')}
-                  className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-red-700 bg-red-50 border border-red-200 hover:bg-red-100 rounded-xl transition-colors cursor-pointer whitespace-nowrap shrink-0"
+                  onClick={() => onEdit(member)}
+                  className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 rounded-xl transition-colors cursor-pointer whitespace-nowrap shrink-0"
                 >
-                  <UserX className="w-4 h-4 shrink-0" />
-                  <span>Deactivate</span>
+                  <Edit3 className="w-4 h-4 shrink-0" />
+                  <span>Edit Details</span>
                 </button>
-              ) : (
-                <button
-                  type="button"
-                  disabled={actionBusyId === 'member-status'}
-                  onClick={() => handleToggleMemberStatus('active')}
-                  className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 rounded-xl transition-colors cursor-pointer whitespace-nowrap shrink-0"
+
+                <select
+                  aria-label="Change workforce status"
+                  value={member.status}
+                  disabled={isActionBusy}
+                  onChange={(e) =>
+                    requestStatusChange(e.target.value as ContractWorkforceStatus)
+                  }
+                  className="px-3.5 py-2 text-sm font-semibold text-slate-700 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-[#18b892] cursor-pointer"
                 >
-                  <UserCheck className="w-4 h-4 shrink-0" />
-                  <span>Reactivate</span>
-                </button>
-              )}
-            </div>
-          )}
+                  <option value="active">Status: Active</option>
+                  <option value="inactive">Status: Inactive</option>
+                  <option value="suspended">Status: Suspended</option>
+                </select>
+              </>
+            )}
+          </div>
         </div>
       </div>
 
       {/* Profile Details Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Contact & Address */}
+        {/* Contact & Registration Notes */}
         <div className="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 space-y-4">
           <h3 className="text-sm font-bold text-slate-900 border-b border-slate-100 pb-2.5 flex items-center gap-2">
             <Phone className="w-4 h-4 text-[#18b892] shrink-0" />
-            <span>Contact & Location</span>
+            <span>Contact &amp; Location</span>
           </h3>
           <dl className="space-y-3 text-sm">
             <div>
@@ -259,6 +329,12 @@ export const WorkforceDirectoryProfile: React.FC<WorkforceDirectoryProfileProps>
               </dd>
             </div>
             <div>
+              <dt className="text-xs font-medium text-slate-400">Registration Notes</dt>
+              <dd className="text-xs text-slate-600 mt-0.5 leading-relaxed">
+                {member.registration_notes || 'No registration notes recorded.'}
+              </dd>
+            </div>
+            <div>
               <dt className="text-xs font-medium text-slate-400">Registration Date</dt>
               <dd className="font-mono tabular-nums text-slate-700 mt-0.5">
                 {formatDateNigerian(member.created_at)}
@@ -267,42 +343,51 @@ export const WorkforceDirectoryProfile: React.FC<WorkforceDirectoryProfileProps>
           </dl>
         </div>
 
-        {/* Next of Kin */}
+        {/* Next of Kin (Protected) */}
         <div className="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 space-y-4">
           <h3 className="text-sm font-bold text-slate-900 border-b border-slate-100 pb-2.5 flex items-center gap-2">
             <Shield className="w-4 h-4 text-[#18b892] shrink-0" />
             <span>Next of Kin</span>
           </h3>
-          <dl className="space-y-3 text-sm">
-            <div>
-              <dt className="text-xs font-medium text-slate-400">Next of Kin Name</dt>
-              <dd className="font-semibold text-slate-900 mt-0.5">
-                {member.next_of_kin || 'Not recorded'}
-              </dd>
+          {!canViewBanking || protectedRestricted ? (
+            <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-500 flex items-start gap-2.5">
+              <Lock className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
+              <span>
+                Next of kin details are restricted to authorized workforce &amp; administrative personnel.
+              </span>
             </div>
-            <div>
-              <dt className="text-xs font-medium text-slate-400">Next of Kin Phone Number</dt>
-              <dd className="font-mono tabular-nums text-slate-700 mt-0.5">
-                {member.next_of_kin_phone || 'Not recorded'}
-              </dd>
-            </div>
-            <div>
-              <dt className="text-xs font-medium text-slate-400">System Account Link</dt>
-              <dd className="text-xs text-slate-500 mt-0.5">
-                External contract artisan — no login credentials
-              </dd>
-            </div>
-          </dl>
+          ) : (
+            <dl className="space-y-3 text-sm">
+              <div>
+                <dt className="text-xs font-medium text-slate-400">Next of Kin Name</dt>
+                <dd className="font-semibold text-slate-900 mt-0.5">
+                  {displayNok || 'Not recorded'}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-xs font-medium text-slate-400">Next of Kin Phone Number</dt>
+                <dd className="font-mono tabular-nums text-slate-700 mt-0.5">
+                  {displayNokPhone || 'Not recorded'}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-xs font-medium text-slate-400">System Account Link</dt>
+                <dd className="text-xs text-slate-500 mt-0.5">
+                  External contract artisan — no login credentials
+                </dd>
+              </div>
+            </dl>
+          )}
         </div>
 
-        {/* Banking Information */}
+        {/* Banking Information (Protected) */}
         <div className="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 space-y-4">
           <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
             <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
               <Landmark className="w-4 h-4 text-[#18b892] shrink-0" />
               <span>Banking Details</span>
             </h3>
-            {member.account_number && (
+            {canViewBanking && !protectedRestricted && displayAccountNumber && (
               <button
                 type="button"
                 onClick={() => setShowFullAccount((prev) => !prev)}
@@ -322,31 +407,44 @@ export const WorkforceDirectoryProfile: React.FC<WorkforceDirectoryProfileProps>
               </button>
             )}
           </div>
-          <dl className="space-y-3 text-sm">
-            <div>
-              <dt className="text-xs font-medium text-slate-400">Bank Name</dt>
-              <dd className="font-semibold text-slate-900 mt-0.5">
-                {member.bank_name || 'Not recorded'}
-              </dd>
+
+          {!canViewBanking || protectedRestricted ? (
+            <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-500 flex items-start gap-2.5">
+              <Lock className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
+              <span>
+                Banking details require <code className="font-mono">workforce.banking.view</code> authorization.
+              </span>
             </div>
-            <div>
-              <dt className="text-xs font-medium text-slate-400">Account Name</dt>
-              <dd className="text-slate-700 mt-0.5">{member.account_name || 'Not recorded'}</dd>
-            </div>
-            <div>
-              <dt className="text-xs font-medium text-slate-400">Account Number</dt>
-              <dd className="font-mono tabular-nums font-semibold text-slate-900 mt-0.5">
-                {showFullAccount
-                  ? member.account_number || '—'
-                  : maskBankAccountNumber(member.account_number)}
-              </dd>
-            </div>
-          </dl>
+          ) : (
+            <dl className="space-y-3 text-sm">
+              <div>
+                <dt className="text-xs font-medium text-slate-400">Bank Name</dt>
+                <dd className="font-semibold text-slate-900 mt-0.5">
+                  {displayBankName || 'Not recorded'}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-xs font-medium text-slate-400">Account Name</dt>
+                <dd className="text-slate-700 mt-0.5">{displayAccountName || 'Not recorded'}</dd>
+              </div>
+              <div>
+                <dt className="text-xs font-medium text-slate-400">Account Number</dt>
+                <dd className="font-mono tabular-nums font-semibold text-slate-900 mt-0.5">
+                  {showFullAccount
+                    ? displayAccountNumber || '—'
+                    : maskBankAccountNumber(displayAccountNumber)}
+                </dd>
+              </div>
+            </dl>
+          )}
         </div>
       </div>
 
       {/* Current Project Assignments */}
-      <div className="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 space-y-4">
+      <div
+        ref={historySectionRef}
+        className="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 space-y-4"
+      >
         <div className="flex items-center justify-between border-b border-slate-100 pb-3">
           <div>
             <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
@@ -357,11 +455,11 @@ export const WorkforceDirectoryProfile: React.FC<WorkforceDirectoryProfileProps>
               Active site deployments for this contract worker.
             </p>
           </div>
-          {canManage && member.status === 'active' && (
+          {canAssign && member.status === 'active' && (
             <button
               type="button"
               onClick={() => onAssignProject(member)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-[#18b892] bg-emerald-50 hover:bg-emerald-100 border border-[#18b892]/20 rounded-lg transition-colors cursor-pointer whitespace-nowrap"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-[#18b892] bg-emerald-50 hover:bg-emerald-100 border border-[#18b892]/20 rounded-lg transition-colors cursor-pointer whitespace-nowrap shrink-0"
             >
               <Plus className="w-3.5 h-3.5 shrink-0" />
               <span>Assign Project</span>
@@ -382,7 +480,7 @@ export const WorkforceDirectoryProfile: React.FC<WorkforceDirectoryProfileProps>
                   <th className="py-2.5 px-4">Assigned Date</th>
                   <th className="py-2.5 px-4">Expected Completion</th>
                   <th className="py-2.5 px-4">Notes</th>
-                  {canManage && <th className="py-2.5 pl-4 text-right">Actions</th>}
+                  {canAssign && <th className="py-2.5 pl-4 text-right">Actions</th>}
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -405,23 +503,35 @@ export const WorkforceDirectoryProfile: React.FC<WorkforceDirectoryProfileProps>
                     <td className="py-3.5 px-4 text-xs text-slate-600 max-w-xs">
                       {a.assignment_notes || '—'}
                     </td>
-                    {canManage && (
+                    {canAssign && (
                       <td className="py-3.5 pl-4 text-right whitespace-nowrap">
                         <div className="inline-flex items-center gap-2">
                           <button
                             type="button"
-                            disabled={actionBusyId === a.id}
-                            onClick={() => handleUpdateAssignment(a.id, 'completed')}
-                            className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-lg cursor-pointer transition-colors"
+                            disabled={isActionBusy}
+                            onClick={() =>
+                              requestAssignmentOutcome(
+                                a.id,
+                                a.project?.name || 'Project',
+                                'completed'
+                              )
+                            }
+                            className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-lg cursor-pointer transition-colors whitespace-nowrap"
                           >
                             <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
                             <span>Complete</span>
                           </button>
                           <button
                             type="button"
-                            disabled={actionBusyId === a.id}
-                            onClick={() => handleUpdateAssignment(a.id, 'cancelled')}
-                            className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg cursor-pointer transition-colors"
+                            disabled={isActionBusy}
+                            onClick={() =>
+                              requestAssignmentOutcome(
+                                a.id,
+                                a.project?.name || 'Project',
+                                'cancelled'
+                              )
+                            }
+                            className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg cursor-pointer transition-colors whitespace-nowrap"
                           >
                             <XCircle className="w-3.5 h-3.5 shrink-0" />
                             <span>Cancel</span>
@@ -490,6 +600,20 @@ export const WorkforceDirectoryProfile: React.FC<WorkforceDirectoryProfileProps>
           </div>
         )}
       </div>
+
+      {/* Confirmation Dialog */}
+      <ConfirmActionModal
+        isOpen={Boolean(confirmState)}
+        title={confirmState?.title || ''}
+        message={confirmState?.message || ''}
+        confirmLabel={confirmState?.confirmLabel}
+        variant={confirmState?.variant || 'warning'}
+        isBusy={isActionBusy}
+        onConfirm={() => {
+          if (confirmState) confirmState.onConfirm();
+        }}
+        onCancel={() => setConfirmState(null)}
+      />
     </div>
   );
 };

@@ -1,5 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { X, HardHat, AlertCircle, CheckCircle2, User, Phone, MapPin, Landmark, Shield } from 'lucide-react';
+import {
+  X,
+  HardHat,
+  AlertCircle,
+  CheckCircle2,
+  User,
+  Phone,
+  MapPin,
+  Landmark,
+  Shield,
+  FileText,
+} from 'lucide-react';
 import {
   WorkforceDirectoryRecord,
   WorkforceDirectoryInput,
@@ -11,7 +22,6 @@ interface WorkforceDirectoryFormModalProps {
   isOpen: boolean;
   onClose: () => void;
   editingMember?: WorkforceDirectoryRecord | null;
-  actorUserId?: string;
   onSaved: (message: string) => void;
 }
 
@@ -19,7 +29,6 @@ export const WorkforceDirectoryFormModal: React.FC<WorkforceDirectoryFormModalPr
   isOpen,
   onClose,
   editingMember,
-  actorUserId,
   onSaved,
 }) => {
   const isEditing = Boolean(editingMember);
@@ -32,39 +41,63 @@ export const WorkforceDirectoryFormModal: React.FC<WorkforceDirectoryFormModalPr
   const [bankName, setBankName] = useState('');
   const [accountName, setAccountName] = useState('');
   const [accountNumber, setAccountNumber] = useState('');
+  const [registrationNotes, setRegistrationNotes] = useState('');
   const [status, setStatus] = useState<ContractWorkforceStatus>('active');
 
+  const [isLoadingProtected, setIsLoadingProtected] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   useEffect(() => {
-    if (isOpen) {
-      if (editingMember) {
-        setFullName(editingMember.full_name || '');
-        setAddress(editingMember.address || '');
-        setPhoneNumber(editingMember.phone_number || '');
-        setNextOfKin(editingMember.next_of_kin || '');
-        setNextOfKinPhone(editingMember.next_of_kin_phone || '');
-        setBankName(editingMember.bank_name || '');
-        setAccountName(editingMember.account_name || '');
-        setAccountNumber(editingMember.account_number || '');
-        const norm = (editingMember.status || 'active').toLowerCase();
-        setStatus(
-          norm === 'inactive' || norm === 'suspended' ? (norm as ContractWorkforceStatus) : 'active'
-        );
-      } else {
-        setFullName('');
-        setAddress('');
-        setPhoneNumber('');
-        setNextOfKin('');
-        setNextOfKinPhone('');
-        setBankName('');
-        setAccountName('');
-        setAccountNumber('');
-        setStatus('active');
-      }
-      setErrorMsg(null);
+    let active = true;
+    if (!isOpen) return;
+
+    if (editingMember) {
+      setFullName(editingMember.full_name || '');
+      setAddress(editingMember.address || '');
+      setPhoneNumber(editingMember.phone_number || '');
+      setNextOfKin(editingMember.next_of_kin || '');
+      setNextOfKinPhone(editingMember.next_of_kin_phone || '');
+      setBankName(editingMember.bank_name || '');
+      setAccountName(editingMember.account_name || '');
+      setAccountNumber(editingMember.account_number || '');
+      setRegistrationNotes(editingMember.registration_notes || '');
+      const norm = (editingMember.status || 'active').toLowerCase();
+      setStatus(
+        norm === 'inactive' || norm === 'suspended' ? (norm as ContractWorkforceStatus) : 'active'
+      );
+
+      // Load protected banking and next-of-kin columns via server-side RPC
+      setIsLoadingProtected(true);
+      WorkforceDirectoryService.getWorkforceProtectedDetails(editingMember.id).then((res) => {
+        if (!active) return;
+        setIsLoadingProtected(false);
+        if (res.data) {
+          setNextOfKin(res.data.next_of_kin || '');
+          setNextOfKinPhone(res.data.next_of_kin_phone || '');
+          setBankName(res.data.bank_name || '');
+          setAccountName(res.data.account_name || '');
+          setAccountNumber(res.data.account_number || '');
+        }
+      });
+    } else {
+      setFullName('');
+      setAddress('');
+      setPhoneNumber('');
+      setNextOfKin('');
+      setNextOfKinPhone('');
+      setBankName('');
+      setAccountName('');
+      setAccountNumber('');
+      setRegistrationNotes('');
+      setStatus('active');
+      setIsLoadingProtected(false);
     }
+    setErrorMsg(null);
+
+    return () => {
+      active = false;
+    };
   }, [isOpen, editingMember]);
 
   if (!isOpen) return null;
@@ -97,12 +130,13 @@ export const WorkforceDirectoryFormModal: React.FC<WorkforceDirectoryFormModalPr
       bank_name: bankName,
       account_name: accountName,
       account_number: accountNumber,
+      registration_notes: registrationNotes,
       status,
     };
 
     const res = editingMember
-      ? await WorkforceDirectoryService.updateMember(editingMember.id, payload, actorUserId, editingMember)
-      : await WorkforceDirectoryService.createMember(payload, actorUserId);
+      ? await WorkforceDirectoryService.updateMember(editingMember.id, payload, editingMember)
+      : await WorkforceDirectoryService.createMember(payload);
 
     setIsSubmitting(false);
 
@@ -114,7 +148,7 @@ export const WorkforceDirectoryFormModal: React.FC<WorkforceDirectoryFormModalPr
     onSaved(
       editingMember
         ? `Updated contract workforce profile for ${fullName.trim()}.`
-        : `Registered ${fullName.trim()} to Contract Workforce Directory.`
+        : `Registered ${fullName.trim()} to Workforce Directory.`
     );
     onClose();
   };
@@ -156,11 +190,11 @@ export const WorkforceDirectoryFormModal: React.FC<WorkforceDirectoryFormModalPr
             </div>
           )}
 
-          {/* Identity & Contact */}
+          {/* 01. Personal & Contact Details */}
           <div className="space-y-4">
             <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-500 border-b border-slate-100 pb-2">
               <User className="w-3.5 h-3.5 text-[#18b892]" />
-              <span>Personal & Contact Details</span>
+              <span>01. Personal &amp; Contact Details</span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -198,7 +232,7 @@ export const WorkforceDirectoryFormModal: React.FC<WorkforceDirectoryFormModalPr
 
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                Residential Address
+                Address
               </label>
               <div className="relative">
                 <MapPin className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
@@ -213,17 +247,22 @@ export const WorkforceDirectoryFormModal: React.FC<WorkforceDirectoryFormModalPr
             </div>
           </div>
 
-          {/* Emergency / Next of Kin */}
+          {/* 02. Next of Kin */}
           <div className="space-y-4">
-            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-500 border-b border-slate-100 pb-2">
-              <Shield className="w-3.5 h-3.5 text-[#18b892]" />
-              <span>Next of Kin</span>
+            <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-500">
+                <Shield className="w-3.5 h-3.5 text-[#18b892]" />
+                <span>02. Next of Kin</span>
+              </div>
+              {isLoadingProtected && (
+                <span className="text-xs text-slate-400">Loading protected fields...</span>
+              )}
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                  Next of Kin Name
+                  Next of Kin
                 </label>
                 <input
                   type="text"
@@ -249,11 +288,11 @@ export const WorkforceDirectoryFormModal: React.FC<WorkforceDirectoryFormModalPr
             </div>
           </div>
 
-          {/* Banking Details */}
+          {/* 03. Banking Details */}
           <div className="space-y-4">
             <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-500 border-b border-slate-100 pb-2">
               <Landmark className="w-3.5 h-3.5 text-[#18b892]" />
-              <span>Banking Details (Confidential)</span>
+              <span>03. Banking Details (Protected)</span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -299,22 +338,45 @@ export const WorkforceDirectoryFormModal: React.FC<WorkforceDirectoryFormModalPr
             </div>
           </div>
 
-          {isEditing && (
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                Directory Status
-              </label>
-              <select
-                value={status}
-                onChange={(e) => setStatus(e.target.value as ContractWorkforceStatus)}
-                className="w-full sm:w-64 px-3.5 py-2.5 text-sm bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#18b892]/25 focus:border-[#18b892]"
-              >
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
-                <option value="suspended">Suspended</option>
-              </select>
+          {/* 04. Registration Notes & Status */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-500 border-b border-slate-100 pb-2">
+              <FileText className="w-3.5 h-3.5 text-[#18b892]" />
+              <span>04. Registration Notes &amp; Status</span>
             </div>
-          )}
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className={isEditing ? '' : 'sm:col-span-2'}>
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                  Registration Notes
+                </label>
+                <textarea
+                  rows={2}
+                  value={registrationNotes}
+                  onChange={(e) => setRegistrationNotes(e.target.value)}
+                  placeholder="Trade skill, experience, guarantor reference, or field notes..."
+                  className="w-full px-3.5 py-2.5 text-sm bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#18b892]/25 focus:border-[#18b892] resize-none"
+                />
+              </div>
+
+              {isEditing && (
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                    Status
+                  </label>
+                  <select
+                    value={status}
+                    onChange={(e) => setStatus(e.target.value as ContractWorkforceStatus)}
+                    className="w-full px-3.5 py-2.5 text-sm bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#18b892]/25 focus:border-[#18b892]"
+                  >
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                    <option value="suspended">Suspended</option>
+                  </select>
+                </div>
+              )}
+            </div>
+          </div>
 
           {/* Actions */}
           <div className="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
@@ -322,14 +384,14 @@ export const WorkforceDirectoryFormModal: React.FC<WorkforceDirectoryFormModalPr
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className="px-4 py-2.5 text-sm font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors cursor-pointer whitespace-nowrap"
+              className="px-4 py-2.5 text-sm font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors cursor-pointer whitespace-nowrap shrink-0"
             >
               Cancel
             </button>
             <button
               type="submit"
-              disabled={isSubmitting}
-              className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-white bg-[#18b892] hover:bg-[#139c7b] rounded-xl shadow-xs transition-colors cursor-pointer disabled:opacity-60 whitespace-nowrap"
+              disabled={isSubmitting || isLoadingProtected}
+              className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-white bg-[#18b892] hover:bg-[#139c7b] rounded-xl shadow-xs transition-colors cursor-pointer disabled:opacity-60 whitespace-nowrap shrink-0"
             >
               <CheckCircle2 className="w-4 h-4 shrink-0" />
               <span>

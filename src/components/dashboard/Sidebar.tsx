@@ -44,6 +44,7 @@ import {
 } from 'lucide-react';
 import { PWAInstallButton } from '../pwa/PWAInstallButton';
 import { BRAND_ASSETS } from '../../config/branding';
+import { useAuth } from '../../hooks/useAuth';
 
 export type DashboardNavKey =
   // COMMAND CENTRE
@@ -215,6 +216,41 @@ export const Sidebar: React.FC<SidebarProps> = ({
   userRole = 'Management / CEO',
   onCloseMobile,
 }) => {
+  const { hasAnyPermission } = useAuth();
+
+  const canAccessWorkforceDirectory = hasAnyPermission([
+    'View Workforce',
+    'workforce.view',
+    'Create Workforce',
+    'workforce.create',
+    'Update Workforce',
+    'workforce.update',
+    'Assign Workforce',
+    'workforce.assign',
+  ]);
+
+  const canAccessVendorsPartners = hasAnyPermission([
+    'View Vendors',
+    'vendors.view',
+    'Create Vendors',
+    'vendors.create',
+    'Update Vendors',
+    'vendors.update',
+  ]);
+
+  const visibleSections = React.useMemo(
+    () =>
+      SIDEBAR_SECTIONS.map((section) => ({
+        ...section,
+        items: section.items.filter((item) => {
+          if (item.key === 'workforce-directory') return canAccessWorkforceDirectory;
+          if (item.key === 'vendors-partners') return canAccessVendorsPartners;
+          return true;
+        }),
+      })).filter((section) => section.items.length > 0),
+    [canAccessWorkforceDirectory, canAccessVendorsPartners]
+  );
+
   // Collapsible section state
   const [collapsedSections, setCollapsedSections] = React.useState<Record<string, boolean>>(() => {
     try {
@@ -240,7 +276,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   // Ensure active module's section is never collapsed
   React.useEffect(() => {
-    const parentSection = SIDEBAR_SECTIONS.find((s) =>
+    const parentSection = visibleSections.find((s) =>
       s.items.some(
         (i) =>
           i.key === currentModule ||
@@ -250,7 +286,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     if (parentSection && collapsedSections[parentSection.title]) {
       setCollapsedSections((prev) => ({ ...prev, [parentSection.title]: false }));
     }
-  }, [currentModule]);
+  }, [currentModule, visibleSections]);
 
   const handleItemClick = (key: DashboardNavKey) => {
     onSelectModule(key);
@@ -340,7 +376,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       {/* Scrollable Navigation Sections */}
       <div className="flex-1 overflow-y-auto px-3 py-3 space-y-4 custom-scrollbar">
-        {SIDEBAR_SECTIONS.map((section) => {
+        {visibleSections.map((section) => {
           const isSectionCollapsed = Boolean(collapsedSections[section.title]);
           const containsActive = section.items.some(
             (i) =>

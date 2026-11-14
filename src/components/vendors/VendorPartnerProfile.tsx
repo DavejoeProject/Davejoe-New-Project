@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   ArrowLeft,
   Handshake,
@@ -12,8 +12,6 @@ import {
   Eye,
   EyeOff,
   Edit3,
-  UserX,
-  UserCheck,
   AlertCircle,
   ExternalLink,
   X,
@@ -21,18 +19,19 @@ import {
 } from 'lucide-react';
 import {
   VendorPartnerRecord,
+  VendorProtectedDetails,
   VendorPartnerStatus,
   VendorsPartnersService,
 } from '../../services/vendorsPartnersService';
 import { maskBankAccountNumber } from '../../services/workforceDirectoryService';
 import { formatDateNigerian } from '../../services/dashboardService';
+import { ConfirmActionModal } from '../common/ConfirmActionModal';
 
 interface VendorPartnerProfileProps {
   record: VendorPartnerRecord;
-  canManage: boolean;
+  canUpdate: boolean;
   canViewFinancials: boolean;
   canViewDocuments: boolean;
-  actorUserId?: string;
   onBack: () => void;
   onEdit: (record: VendorPartnerRecord) => void;
   onStatusUpdated: (message: string) => void;
@@ -47,37 +46,96 @@ const formatRecordTypeLabel = (type: string): string => {
 
 export const VendorPartnerProfile: React.FC<VendorPartnerProfileProps> = ({
   record,
-  canManage,
+  canUpdate,
   canViewFinancials,
   canViewDocuments,
-  actorUserId,
   onBack,
   onEdit,
   onStatusUpdated,
 }) => {
+  const [protectedDetails, setProtectedDetails] = useState<VendorProtectedDetails | null>(null);
+  const [protectedRestricted, setProtectedRestricted] = useState(false);
+  const [isLoadingProtected, setIsLoadingProtected] = useState(false);
+
   const [showFullAccount, setShowFullAccount] = useState(false);
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
   const [isFetchingDoc, setIsFetchingDoc] = useState(false);
   const [docError, setDocError] = useState<string | null>(null);
   const [signedPreviewUrl, setSignedPreviewUrl] = useState<string | null>(null);
 
-  const handleStatusChange = async (nextStatus: VendorPartnerStatus) => {
-    setIsUpdatingStatus(true);
-    setDocError(null);
-    const res = await VendorsPartnersService.updateStatus(
-      record.id,
-      nextStatus,
-      actorUserId,
-      record.status
-    );
-    setIsUpdatingStatus(false);
-    if (res.error) {
-      setDocError(res.error);
+  const [confirmState, setConfirmState] = useState<{
+    title: string;
+    message: string;
+    confirmLabel: string;
+    variant: 'danger' | 'warning' | 'primary';
+    onConfirm: () => Promise<void>;
+  } | null>(null);
+
+  const loadProtected = useCallback(async () => {
+    if (!canViewFinancials) {
+      setProtectedDetails(null);
+      setProtectedRestricted(true);
+      setIsLoadingProtected(false);
       return;
     }
-    onStatusUpdated(
-      `${record.business_name || record.full_name} marked as ${nextStatus}.`
-    );
+
+    setIsLoadingProtected(true);
+    const protRes = await VendorsPartnersService.getVendorProtectedDetails(record.id);
+    if (protRes.data) {
+      setProtectedDetails(protRes.data);
+      setProtectedRestricted(false);
+    } else if (protRes.restricted) {
+      setProtectedDetails(null);
+      setProtectedRestricted(true);
+    } else {
+      setProtectedDetails(null);
+      setProtectedRestricted(false);
+    }
+    setIsLoadingProtected(false);
+  }, [record.id, canViewFinancials]);
+
+  useEffect(() => {
+    loadProtected();
+  }, [loadProtected]);
+
+  const requestStatusChange = (nextStatus: VendorPartnerStatus) => {
+    if (record.status === nextStatus) return;
+
+    const variant =
+      nextStatus === 'suspended' ? 'danger' : nextStatus === 'inactive' ? 'warning' : 'primary';
+    const verb =
+      nextStatus === 'active'
+        ? 'Activate'
+        : nextStatus === 'suspended'
+        ? 'Suspend'
+        : 'Deactivate';
+
+    setConfirmState({
+      title: `${verb} Vendor / Partner`,
+      message: `Confirm changing ${record.business_name || record.full_name}'s status from "${
+        record.status
+      }" to "${nextStatus}"? Audit history will be preserved.`,
+      confirmLabel: verb,
+      variant,
+      onConfirm: async () => {
+        setIsUpdatingStatus(true);
+        setDocError(null);
+        const res = await VendorsPartnersService.updateStatus(
+          record.id,
+          nextStatus,
+          record.status
+        );
+        setIsUpdatingStatus(false);
+        setConfirmState(null);
+        if (res.error) {
+          setDocError(res.error);
+          return;
+        }
+        onStatusUpdated(
+          `${record.business_name || record.full_name} marked as ${nextStatus}.`
+        );
+      },
+    });
   };
 
   const handleOpenCacPreview = async () => {
@@ -136,6 +194,12 @@ export const VendorPartnerProfile: React.FC<VendorPartnerProfileProps> = ({
 
   const isPdfPath = (record.cac_certificate_path || '').toLowerCase().endsWith('.pdf');
 
+  const displayNok = protectedDetails?.next_of_kin ?? record.next_of_kin;
+  const displayNokPhone = protectedDetails?.next_of_kin_phone ?? record.next_of_kin_phone;
+  const displayBankName = protectedDetails?.bank_name ?? record.bank_name;
+  const displayAccountName = protectedDetails?.account_name ?? record.account_name;
+  const displayAccountNumber = protectedDetails?.account_number ?? record.account_number;
+
   return (
     <div className="space-y-6 pb-8">
       {/* Header Bar */}
@@ -168,7 +232,7 @@ export const VendorPartnerProfile: React.FC<VendorPartnerProfileProps> = ({
                     {record.status}
                   </span>
                   <span aria-hidden="true">·</span>
-                  <span className="tabular-nums">
+                  <span className="font-mono tabular-nums">
                     Registered {formatDateNigerian(record.created_at)}
                   </span>
                 </div>
@@ -176,7 +240,7 @@ export const VendorPartnerProfile: React.FC<VendorPartnerProfileProps> = ({
             </div>
           </div>
 
-          {canManage && (
+          {canUpdate && (
             <div className="flex flex-wrap items-center gap-2.5 shrink-0">
               <button
                 type="button"
@@ -187,27 +251,17 @@ export const VendorPartnerProfile: React.FC<VendorPartnerProfileProps> = ({
                 <span>Edit Record</span>
               </button>
 
-              {record.status === 'active' ? (
-                <button
-                  type="button"
-                  disabled={isUpdatingStatus}
-                  onClick={() => handleStatusChange('inactive')}
-                  className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-red-700 bg-red-50 border border-red-200 hover:bg-red-100 rounded-xl transition-colors cursor-pointer whitespace-nowrap shrink-0"
-                >
-                  <UserX className="w-4 h-4 shrink-0" />
-                  <span>Deactivate</span>
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  disabled={isUpdatingStatus}
-                  onClick={() => handleStatusChange('active')}
-                  className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 rounded-xl transition-colors cursor-pointer whitespace-nowrap shrink-0"
-                >
-                  <UserCheck className="w-4 h-4 shrink-0" />
-                  <span>Reactivate</span>
-                </button>
-              )}
+              <select
+                aria-label="Change vendor or partner status"
+                value={record.status}
+                disabled={isUpdatingStatus}
+                onChange={(e) => requestStatusChange(e.target.value as VendorPartnerStatus)}
+                className="px-3.5 py-2 text-sm font-semibold text-slate-700 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-[#18b892] cursor-pointer"
+              >
+                <option value="active">Status: Active</option>
+                <option value="inactive">Status: Inactive</option>
+                <option value="suspended">Status: Suspended</option>
+              </select>
             </div>
           )}
         </div>
@@ -235,7 +289,9 @@ export const VendorPartnerProfile: React.FC<VendorPartnerProfileProps> = ({
             </div>
             <div>
               <dt className="text-xs font-medium text-slate-400">Business Name</dt>
-              <dd className="text-slate-700 mt-0.5">{record.business_name || 'Individual / Not provided'}</dd>
+              <dd className="text-slate-700 mt-0.5">
+                {record.business_name || 'Individual / Not provided'}
+              </dd>
             </div>
             <div>
               <dt className="text-xs font-medium text-slate-400">Phone Number</dt>
@@ -254,32 +310,57 @@ export const VendorPartnerProfile: React.FC<VendorPartnerProfileProps> = ({
           </dl>
         </div>
 
-        {/* Next of Kin */}
+        {/* Next of Kin & Operational Scope */}
         <div className="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 space-y-4">
           <h3 className="text-sm font-bold text-slate-900 border-b border-slate-100 pb-2.5 flex items-center gap-2">
             <Shield className="w-4 h-4 text-[#18b892] shrink-0" />
             <span>Next of Kin &amp; Scope</span>
           </h3>
-          <dl className="space-y-3 text-sm">
-            <div>
-              <dt className="text-xs font-medium text-slate-400">Next of Kin</dt>
-              <dd className="font-semibold text-slate-900 mt-0.5">
-                {record.next_of_kin || 'Not recorded'}
-              </dd>
+
+          {!canViewFinancials || protectedRestricted ? (
+            <div className="space-y-4">
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-500 flex items-start gap-2.5">
+                <Lock className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
+                <span>
+                  Next of kin contact details are restricted. Requires{' '}
+                  <code className="font-mono">vendors.banking.view</code> authorization.
+                </span>
+              </div>
+              <div>
+                <div className="text-xs font-medium text-slate-400">Operational Notes</div>
+                <div className="text-xs text-slate-600 mt-0.5 leading-relaxed">
+                  {record.notes || 'No additional notes recorded.'}
+                </div>
+              </div>
             </div>
-            <div>
-              <dt className="text-xs font-medium text-slate-400">Next of Kin Phone Number</dt>
-              <dd className="font-mono tabular-nums text-slate-700 mt-0.5">
-                {record.next_of_kin_phone || 'Not recorded'}
-              </dd>
+          ) : isLoadingProtected ? (
+            <div className="space-y-3 animate-pulse">
+              <div className="h-4 bg-slate-100 rounded w-2/3" />
+              <div className="h-4 bg-slate-100 rounded w-1/2" />
+              <div className="h-10 bg-slate-100 rounded" />
             </div>
-            <div>
-              <dt className="text-xs font-medium text-slate-400">Operational Notes</dt>
-              <dd className="text-xs text-slate-600 mt-0.5 leading-relaxed">
-                {record.notes || 'No additional notes recorded.'}
-              </dd>
-            </div>
-          </dl>
+          ) : (
+            <dl className="space-y-3 text-sm">
+              <div>
+                <dt className="text-xs font-medium text-slate-400">Next of Kin</dt>
+                <dd className="font-semibold text-slate-900 mt-0.5">
+                  {displayNok || 'Not recorded'}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-xs font-medium text-slate-400">Next of Kin Phone Number</dt>
+                <dd className="font-mono tabular-nums text-slate-700 mt-0.5">
+                  {displayNokPhone || 'Not recorded'}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-xs font-medium text-slate-400">Operational Notes</dt>
+                <dd className="text-xs text-slate-600 mt-0.5 leading-relaxed">
+                  {record.notes || 'No additional notes recorded.'}
+                </dd>
+              </div>
+            </dl>
+          )}
         </div>
 
         {/* Settlement Banking Details */}
@@ -289,7 +370,7 @@ export const VendorPartnerProfile: React.FC<VendorPartnerProfileProps> = ({
               <Landmark className="w-4 h-4 text-[#18b892] shrink-0" />
               <span>Banking Details</span>
             </h3>
-            {canViewFinancials && record.account_number && (
+            {canViewFinancials && !protectedRestricted && displayAccountNumber && (
               <button
                 type="button"
                 onClick={() => setShowFullAccount((prev) => !prev)}
@@ -310,31 +391,40 @@ export const VendorPartnerProfile: React.FC<VendorPartnerProfileProps> = ({
             )}
           </div>
 
-          {!canViewFinancials ? (
+          {!canViewFinancials || protectedRestricted ? (
             <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-500 flex items-start gap-2.5">
               <Lock className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
               <span>
-                You do not hold financial inspection permissions (<code className="font-mono">vendors_partners.view_financials</code>) to view settlement account details.
+                Banking details require{' '}
+                <code className="font-mono">vendors.banking.view</code> authorization.
               </span>
+            </div>
+          ) : isLoadingProtected ? (
+            <div className="space-y-3 animate-pulse">
+              <div className="h-4 bg-slate-100 rounded w-2/3" />
+              <div className="h-4 bg-slate-100 rounded w-3/4" />
+              <div className="h-4 bg-slate-100 rounded w-1/2" />
             </div>
           ) : (
             <dl className="space-y-3 text-sm">
               <div>
                 <dt className="text-xs font-medium text-slate-400">Bank Name</dt>
                 <dd className="font-semibold text-slate-900 mt-0.5">
-                  {record.bank_name || 'Not recorded'}
+                  {displayBankName || 'Not recorded'}
                 </dd>
               </div>
               <div>
                 <dt className="text-xs font-medium text-slate-400">Account Name</dt>
-                <dd className="text-slate-700 mt-0.5">{record.account_name || 'Not recorded'}</dd>
+                <dd className="text-slate-700 mt-0.5">
+                  {displayAccountName || 'Not recorded'}
+                </dd>
               </div>
               <div>
                 <dt className="text-xs font-medium text-slate-400">Account Number</dt>
                 <dd className="font-mono tabular-nums font-semibold text-slate-900 mt-0.5">
                   {showFullAccount
-                    ? record.account_number || '—'
-                    : maskBankAccountNumber(record.account_number)}
+                    ? displayAccountNumber || '—'
+                    : maskBankAccountNumber(displayAccountNumber)}
                 </dd>
               </div>
             </dl>
@@ -351,7 +441,7 @@ export const VendorPartnerProfile: React.FC<VendorPartnerProfileProps> = ({
               <span>CAC Registration Certificate</span>
             </h3>
             <p className="text-xs text-slate-500 mt-0.5">
-              Stored in private storage bucket and served via short-lived signed access links.
+              Stored in private <code className="font-mono">vendor-documents</code> storage bucket and served via short-lived signed access links.
             </p>
           </div>
         </div>
@@ -360,7 +450,8 @@ export const VendorPartnerProfile: React.FC<VendorPartnerProfileProps> = ({
           <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-500 flex items-center gap-2.5">
             <Lock className="w-4 h-4 text-slate-400 shrink-0" />
             <span>
-              Document inspection requires <code className="font-mono">vendors_partners.view_documents</code> authorization.
+              Document inspection requires{' '}
+              <code className="font-mono">vendors.documents.view</code> authorization.
             </span>
           </div>
         ) : !record.cac_certificate_path ? (
@@ -454,6 +545,20 @@ export const VendorPartnerProfile: React.FC<VendorPartnerProfileProps> = ({
           </div>
         </div>
       )}
+
+      {/* Confirmation Dialog */}
+      <ConfirmActionModal
+        isOpen={Boolean(confirmState)}
+        title={confirmState?.title || ''}
+        message={confirmState?.message || ''}
+        confirmLabel={confirmState?.confirmLabel}
+        variant={confirmState?.variant || 'warning'}
+        isBusy={isUpdatingStatus}
+        onConfirm={() => {
+          if (confirmState) confirmState.onConfirm();
+        }}
+        onCancel={() => setConfirmState(null)}
+      />
     </div>
   );
 };

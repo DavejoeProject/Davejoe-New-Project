@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { supabase } from '../../lib/supabase';
 import { PWAInstallButton } from '../pwa/PWAInstallButton';
@@ -71,6 +71,7 @@ import { ServiceRequestsModule } from '../admin/ServiceRequestsModule';
 import { UnifiedInventoryModule } from '../inventory/UnifiedInventoryModule';
 import { WorkforceDirectoryModule } from '../workforce/WorkforceDirectoryModule';
 import { VendorsPartnersModule } from '../vendors/VendorsPartnersModule';
+import { AccessDenied } from '../AccessDenied';
 
 export type ExecutiveModuleKey =
   | 'overview'
@@ -96,7 +97,29 @@ export type ExecutiveModuleKey =
   | 'planning';
 
 export const ExecutiveDashboard: React.FC = () => {
-  const { user, profile, logout } = useAuth();
+  const { user, profile, logout, hasAnyPermission } = useAuth();
+  const navigate = useNavigate();
+
+  const canAccessWorkforceDirectory = hasAnyPermission([
+    'View Workforce',
+    'workforce.view',
+    'Create Workforce',
+    'workforce.create',
+    'Update Workforce',
+    'workforce.update',
+    'Assign Workforce',
+    'workforce.assign',
+  ]);
+
+  const canAccessVendorsPartners = hasAnyPermission([
+    'View Vendors',
+    'vendors.view',
+    'Create Vendors',
+    'vendors.create',
+    'Update Vendors',
+    'vendors.update',
+  ]);
+
   const [activeModule, setActiveModule] = useState<ExecutiveModuleKey>('overview');
   const [workforceSubTab, setWorkforceSubTab] = useState<'attendance' | 'directory'>('directory');
   const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(false);
@@ -159,6 +182,8 @@ export const ExecutiveDashboard: React.FC = () => {
       setActiveModule('workforce-directory');
     } else if (location.pathname.includes('/executive/vendors-partners')) {
       setActiveModule('vendors-partners');
+    } else if (location.pathname === '/executive' || location.pathname === '/executive/') {
+      setActiveModule('overview');
     }
   }, [location.pathname]);
 
@@ -194,8 +219,12 @@ export const ExecutiveDashboard: React.FC = () => {
         FinancialControlService.getExecutiveSummary(),
         supabase.from('roles').select('*').order('name', { ascending: true }),
         supabase.from('profiles').select('*', { count: 'exact', head: true }),
-        supabase.from('workforce_directory').select('id', { count: 'exact', head: true }),
-        supabase.from('vendors_partners').select('id', { count: 'exact', head: true }),
+        canAccessWorkforceDirectory
+          ? supabase.from('workforce_directory').select('id', { count: 'exact', head: true })
+          : Promise.resolve({ count: 0, error: null }),
+        canAccessVendorsPartners
+          ? supabase.from('vendors_partners').select('id', { count: 'exact', head: true })
+          : Promise.resolve({ count: 0, error: null }),
       ]);
 
       const capturedErrors: string[] = [];
@@ -294,7 +323,7 @@ export const ExecutiveDashboard: React.FC = () => {
       setIsLoading(false);
       setIsRefreshing(false);
     }
-  }, []);
+  }, [canAccessWorkforceDirectory, canAccessVendorsPartners]);
 
   useEffect(() => {
     fetchDashboardData();
@@ -346,8 +375,12 @@ export const ExecutiveDashboard: React.FC = () => {
       title: 'STAFF & TEAMS',
       items: [
         { key: 'workforce' as ExecutiveModuleKey, label: 'Staff', icon: Users, count: workforceList.length },
-        { key: 'workforce-directory' as ExecutiveModuleKey, label: 'Workforce', icon: HardHat, count: contractWorkforceCount },
-        { key: 'vendors-partners' as ExecutiveModuleKey, label: 'Vendors & Partners', icon: Handshake, count: vendorsPartnersCount },
+        ...(canAccessWorkforceDirectory
+          ? [{ key: 'workforce-directory' as ExecutiveModuleKey, label: 'Workforce', icon: HardHat, count: contractWorkforceCount }]
+          : []),
+        ...(canAccessVendorsPartners
+          ? [{ key: 'vendors-partners' as ExecutiveModuleKey, label: 'Vendors & Partners', icon: Handshake, count: vendorsPartnersCount }]
+          : []),
         { key: 'staff' as ExecutiveModuleKey, label: 'Staff Performance', icon: Award, count: conductList.length },
         { key: 'artisans' as ExecutiveModuleKey, label: 'Artisan Network', icon: HardHat, count: workforceList.length },
       ],
@@ -382,6 +415,19 @@ export const ExecutiveDashboard: React.FC = () => {
     setActiveModule(modKey);
     setSearchQuery('');
     setMobileDrawerOpen(false);
+    if (modKey === 'overview') {
+      if (location.pathname !== '/executive') navigate('/executive');
+    } else if (
+      modKey === 'workforce-directory' ||
+      modKey === 'vendors-partners' ||
+      modKey === 'users' ||
+      modKey === 'roles'
+    ) {
+      const target = `/executive/${modKey}`;
+      if (location.pathname !== target) navigate(target);
+    } else if (location.pathname !== '/executive') {
+      navigate('/executive');
+    }
   };
 
   const renderSidebarContent = (isMobile = false) => (
@@ -1309,14 +1355,30 @@ export const ExecutiveDashboard: React.FC = () => {
           )}
 
           {/* VIEW: CONTRACT WORKFORCE DIRECTORY */}
-          {activeModule === 'workforce-directory' && (
-            <WorkforceDirectoryModule onBackToDashboard={() => setActiveModule('overview')} />
-          )}
+          {activeModule === 'workforce-directory' &&
+            (canAccessWorkforceDirectory ? (
+              <WorkforceDirectoryModule onBackToDashboard={() => handleSelectModule('overview')} />
+            ) : (
+              <AccessDenied
+                isModuleRestricted
+                title="Workforce Directory Access Restricted"
+                message="You do not hold the required database permission (View Workforce) to access the Contract Workforce Directory."
+                onBack={() => handleSelectModule('overview')}
+              />
+            ))}
 
           {/* VIEW: VENDORS & PARTNERS DIRECTORY */}
-          {activeModule === 'vendors-partners' && (
-            <VendorsPartnersModule onBackToDashboard={() => setActiveModule('overview')} />
-          )}
+          {activeModule === 'vendors-partners' &&
+            (canAccessVendorsPartners ? (
+              <VendorsPartnersModule onBackToDashboard={() => handleSelectModule('overview')} />
+            ) : (
+              <AccessDenied
+                isModuleRestricted
+                title="Vendors & Partners Access Restricted"
+                message="You do not hold the required database permission (View Vendors) to access the Vendors & Partners Directory."
+                onBack={() => handleSelectModule('overview')}
+              />
+            ))}
 
           {/* ========================================================================= */}
           {/* VIEW 5: TECHNICAL INSPECTION AND QC (DRILL-DOWN)                         */}

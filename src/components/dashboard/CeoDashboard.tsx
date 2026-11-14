@@ -58,15 +58,36 @@ import { ServiceRequestsModule } from '../admin/ServiceRequestsModule';
 import { UnifiedInventoryModule } from '../inventory/UnifiedInventoryModule';
 import { WorkforceDirectoryModule } from '../workforce/WorkforceDirectoryModule';
 import { VendorsPartnersModule } from '../vendors/VendorsPartnersModule';
+import { AccessDenied } from '../AccessDenied';
 
 interface CeoDashboardProps {
   initialModule?: DashboardNavKey;
 }
 
 export const CeoDashboard: React.FC<CeoDashboardProps> = ({ initialModule = 'overview' }) => {
-  const { user, profile, logout } = useAuth();
+  const { user, profile, logout, hasAnyPermission } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+
+  const canAccessWorkforceDirectory = hasAnyPermission([
+    'View Workforce',
+    'workforce.view',
+    'Create Workforce',
+    'workforce.create',
+    'Update Workforce',
+    'workforce.update',
+    'Assign Workforce',
+    'workforce.assign',
+  ]);
+
+  const canAccessVendorsPartners = hasAnyPermission([
+    'View Vendors',
+    'vendors.view',
+    'Create Vendors',
+    'vendors.create',
+    'Update Vendors',
+    'vendors.update',
+  ]);
   const { projectId, workforceId, requestId, purchaseOrderId, deliveryId } = useParams<{
     projectId?: string;
     workforceId?: string;
@@ -607,13 +628,31 @@ export const CeoDashboard: React.FC<CeoDashboardProps> = ({ initialModule = 'ove
                   onBackToDashboard={() => handleSelectModule('overview')}
                 />
               ) : currentModule === 'workforce-directory' ? (
-                <WorkforceDirectoryModule
-                  onBackToDashboard={() => handleSelectModule('overview')}
-                />
+                canAccessWorkforceDirectory ? (
+                  <WorkforceDirectoryModule
+                    onBackToDashboard={() => handleSelectModule('overview')}
+                  />
+                ) : (
+                  <AccessDenied
+                    isModuleRestricted
+                    title="Workforce Directory Access Restricted"
+                    message="You do not hold the required database permission (View Workforce) to access the Contract Workforce Directory."
+                    onBack={() => handleSelectModule('overview')}
+                  />
+                )
               ) : currentModule === 'vendors-partners' ? (
-                <VendorsPartnersModule
-                  onBackToDashboard={() => handleSelectModule('overview')}
-                />
+                canAccessVendorsPartners ? (
+                  <VendorsPartnersModule
+                    onBackToDashboard={() => handleSelectModule('overview')}
+                  />
+                ) : (
+                  <AccessDenied
+                    isModuleRestricted
+                    title="Vendors & Partners Access Restricted"
+                    message="You do not hold the required database permission (View Vendors) to access the Vendors & Partners Directory."
+                    onBack={() => handleSelectModule('overview')}
+                  />
+                )
               ) : currentModule === 'workforce-performance' ? (
                 <WorkforcePerformanceModule
                   onBackToDashboard={() => handleSelectModule('overview')}

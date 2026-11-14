@@ -140,7 +140,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       const userPermissions = await AuthService.getUserPermissions(
         authUser.id,
-        isManagement || isAdmin || hasExecutiveDirector
+        isManagement || isAdmin
       );
       setPermissions(userPermissions);
 
@@ -300,20 +300,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const hasPermission = useCallback(
     (permission: string): boolean => {
-      // Leadership and system administrators share full application permissions.
+      // Only Management / CEO and Admin hold wildcard override across all application modules.
+      // All other roles, including executive_director, strictly obey assigned role_permissions.
       if (
         currentRoleKey === 'management' ||
-        currentRoleKey === 'executive_director' ||
         currentRoleKey === 'admin' ||
         hasRole('management') ||
-        hasRole('executive_director') ||
         hasRole('admin') ||
         permissions.includes('*')
       ) {
         return true;
       }
 
-      return permissions.includes(permission);
+      const target = permission.trim().toLowerCase();
+      return permissions.some((p) => p.trim().toLowerCase() === target);
     },
     [currentRoleKey, hasRole, permissions]
   );
@@ -322,14 +322,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     (perms: string[]): boolean => {
       if (
         currentRoleKey === 'management' ||
-        currentRoleKey === 'executive_director' ||
         currentRoleKey === 'admin' ||
         hasRole('management') ||
-        hasRole('executive_director') ||
         hasRole('admin') ||
         permissions.includes('*')
-      )
+      ) {
         return true;
+      }
       return perms.some((p) => hasPermission(p));
     },
     [currentRoleKey, hasRole, permissions, hasPermission]
@@ -339,14 +338,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     (perms: string[]): boolean => {
       if (
         currentRoleKey === 'management' ||
-        currentRoleKey === 'executive_director' ||
         currentRoleKey === 'admin' ||
         hasRole('management') ||
-        hasRole('executive_director') ||
         hasRole('admin') ||
         permissions.includes('*')
-      )
+      ) {
         return true;
+      }
       return perms.every((p) => hasPermission(p));
     },
     [currentRoleKey, hasRole, permissions, hasPermission]

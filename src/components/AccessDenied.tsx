@@ -4,7 +4,19 @@ import { useAuth } from '../hooks/useAuth';
 import { ShieldAlert, ArrowLeft } from 'lucide-react';
 import { getRouteForRole } from '../services/authService';
 
-export const AccessDenied: React.FC = () => {
+export interface AccessDeniedProps {
+  isModuleRestricted?: boolean;
+  title?: string;
+  message?: string;
+  onBack?: () => void;
+}
+
+export const AccessDenied: React.FC<AccessDeniedProps> = ({
+  isModuleRestricted = false,
+  title,
+  message,
+  onBack,
+}) => {
   const navigate = useNavigate();
   const { user, currentRoleKey, isInitialized, isLoading, logout } = useAuth();
 
@@ -16,6 +28,38 @@ export const AccessDenied: React.FC = () => {
         <p className="text-xs font-semibold text-slate-500 tracking-wide">
           Loading your workspace...
         </p>
+      </div>
+    );
+  }
+
+  // Inline module restriction state inside an already-authenticated dashboard shell
+  if (isModuleRestricted) {
+    return (
+      <div className="bg-white rounded-2xl border border-slate-200 p-8 sm:p-10 text-center max-w-lg mx-auto my-8 space-y-4">
+        <div className="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center mx-auto border border-amber-200">
+          <ShieldAlert className="w-6 h-6" strokeWidth={1.9} />
+        </div>
+        <div className="space-y-1.5">
+          <h2 className="text-lg font-bold text-slate-900">
+            {title || 'Access Denied'}
+          </h2>
+          <p className="text-sm text-slate-600 leading-relaxed">
+            {message ||
+              'You do not hold the required database permission to view or manage this module. Please contact Management or an Administrator to update your role permissions.'}
+          </p>
+        </div>
+        {onBack && (
+          <div className="pt-2">
+            <button
+              type="button"
+              onClick={onBack}
+              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[#18b892] hover:bg-[#139c7b] text-white text-sm font-semibold rounded-xl transition-colors cursor-pointer whitespace-nowrap"
+            >
+              <ArrowLeft className="w-4 h-4 shrink-0" />
+              <span>Return to Overview</span>
+            </button>
+          </div>
+        )}
       </div>
     );
   }
@@ -60,10 +104,11 @@ export const AccessDenied: React.FC = () => {
 
         {/* Message Headings */}
         <h1 className="text-xl font-bold text-slate-900 tracking-tight mb-2.5">
-          Access not assigned yet
+          {title || 'Access not assigned yet'}
         </h1>
         <p className="text-sm text-slate-600 leading-relaxed mb-7">
-          Your account has been authenticated, but no dashboard access has been assigned to your current role. Please contact a system administrator to configure your operational role.
+          {message ||
+            'Your account has been authenticated, but no dashboard access has been assigned to your current role. Please contact a system administrator to configure your operational role.'}
         </p>
 
         {/* Return to Login Action */}

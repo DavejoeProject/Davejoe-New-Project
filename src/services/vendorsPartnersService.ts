@@ -5,9 +5,21 @@ import { maskBankAccountNumber } from './workforceDirectoryService';
 export type VendorPartnerType = 'vendor' | 'partner' | 'both';
 export type VendorPartnerStatus = 'active' | 'inactive' | 'suspended';
 
-export const CAC_STORAGE_BUCKET = 'vendor-cac-documents';
+export const CAC_STORAGE_BUCKET = 'vendor-documents';
 const MAX_CAC_FILE_SIZE = 5 * 1024 * 1024; // 5MB
-const ALLOWED_CAC_TYPES = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp'];
+export const ALLOWED_CAC_TYPES = ['application/pdf', 'image/jpeg', 'image/png'];
+
+export const VENDOR_PUBLIC_COLUMNS =
+  'id, full_name, business_name, email_address, phone_number, record_type, cac_certificate_path, status, notes, created_by, updated_by, created_at, updated_at';
+
+export interface VendorProtectedDetails {
+  vendor_id: string;
+  next_of_kin: string | null;
+  next_of_kin_phone: string | null;
+  bank_name: string | null;
+  account_name: string | null;
+  account_number: string | null;
+}
 
 export interface VendorPartnerRecord {
   id: string;
@@ -15,11 +27,11 @@ export interface VendorPartnerRecord {
   business_name: string | null;
   email_address: string | null;
   phone_number: string;
-  next_of_kin: string | null;
-  next_of_kin_phone: string | null;
-  bank_name: string | null;
-  account_name: string | null;
-  account_number: string | null;
+  next_of_kin?: string | null;
+  next_of_kin_phone?: string | null;
+  bank_name?: string | null;
+  account_name?: string | null;
+  account_number?: string | null;
   record_type: VendorPartnerType | string;
   cac_certificate_path: string | null;
   status: VendorPartnerStatus | string;
@@ -33,6 +45,8 @@ export interface VendorPartnerRecord {
 export interface VendorsPartnersMetrics {
   totalCount: number;
   activeCount: number;
+  totalVendorsCount: number;
+  totalPartnersCount: number;
   vendorOnlyCount: number;
   partnerOnlyCount: number;
   bothCount: number;
@@ -54,6 +68,16 @@ export interface VendorPartnerInput {
   notes?: string;
 }
 
+function isMissingRpcError(error: any): boolean {
+  const code = String(error?.code || '');
+  const msg = String(error?.message || '').toLowerCase();
+  return (
+    code === 'PGRST202' ||
+    msg.includes('could not find the function') ||
+    (msg.includes('function') && msg.includes('does not exist'))
+  );
+}
+
 export class VendorsPartnersService {
   static async listVendorsPartners(filters?: {
     search?: string;
@@ -67,6 +91,8 @@ export class VendorsPartnersService {
     const emptyMetrics: VendorsPartnersMetrics = {
       totalCount: 0,
       activeCount: 0,
+      totalVendorsCount: 0,
+      totalPartnersCount: 0,
       vendorOnlyCount: 0,
       partnerOnlyCount: 0,
       bothCount: 0,
@@ -80,7 +106,7 @@ export class VendorsPartnersService {
     try {
       const { data, error } = await supabase
         .from('vendors_partners')
-        .select('*')
+        .select(VENDOR_PUBLIC_COLUMNS)
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -93,12 +119,18 @@ export class VendorsPartnersService {
         status: (r.status || 'active').toLowerCase(),
       })) as VendorPartnerRecord[];
 
+      const vendorOnlyCount = allRecords.filter((r) => r.record_type === 'vendor').length;
+      const partnerOnlyCount = allRecords.filter((r) => r.record_type === 'partner').length;
+      const bothCount = allRecords.filter((r) => r.record_type === 'both').length;
+
       const metrics: VendorsPartnersMetrics = {
         totalCount: allRecords.length,
         activeCount: allRecords.filter((r) => r.status === 'active').length,
-        vendorOnlyCount: allRecords.filter((r) => r.record_type === 'vendor').length,
-        partnerOnlyCount: allRecords.filter((r) => r.record_type === 'partner').length,
-        bothCount: allRecords.filter((r) => r.record_type === 'both').length,
+        totalVendorsCount: vendorOnlyCount + bothCount,
+        totalPartnersCount: partnerOnlyCount + bothCount,
+        vendorOnlyCount,
+        partnerOnlyCount,
+        bothCount,
         cacUploadedCount: allRecords.filter((r) => Boolean(r.cac_certificate_path)).length,
       };
 
@@ -135,6 +167,89 @@ export class VendorsPartnersService {
     }
   }
 
+  static async getVendorProtectedDetails(id: string): Promise<{
+    data: VendorProtectedDetails | null;
+    error: string | null;
+    restricted?: boolean;
+  }> {
+    if (!isSupabaseConfigured) {
+      return { data: null, error: 'Supabase is not configured.' };
+    }
+
+    try {
+      const { data, error } = await supabase.rpc('get_vendor_protected_details', {
+        p_vendor_id: id,
+      });
+
+      if (!error) {
+        const row = Array.isArray(data) ? data[0] : data;
+        if (!row) {
+          return {
+            data: {
+              vendor_id: id,
+              next_of_kin: null,
+              next_of_kin_phone: null,
+              bank_name: null,
+              account_name: null,
+              account_number: null,
+            },
+            error: null,
+          };
+        }
+        return {
+          data: {
+            vendor_id: row.vendor_id || id,
+            next_of_kin: row.next_of_kin ?? null,
+            next_of_kin_phone: row.next_of_kin_phone ?? null,
+            bank_name: row.bank_name ?? null,
+            account_name: row.account_name ?? null,
+            account_number: row.account_number ?? null,
+          },
+          error: null,
+        };
+      }
+
+      if (isMissingRpcError(error)) {
+        const fallbackRes = await supabase
+          .from('vendors_partners')
+          .select('id, next_of_kin, next_of_kin_phone, bank_name, account_name, account_number')
+          .eq('id', id)
+          .maybeSingle();
+
+        if (fallbackRes.error) {
+          const isPermErr =
+            fallbackRes.error.code === '42501' ||
+            fallbackRes.error.message.toLowerCase().includes('permission');
+          return { data: null, error: fallbackRes.error.message, restricted: isPermErr };
+        }
+
+        const fb = fallbackRes.data as any;
+        return {
+          data: fb
+            ? {
+                vendor_id: fb.id || id,
+                next_of_kin: fb.next_of_kin ?? null,
+                next_of_kin_phone: fb.next_of_kin_phone ?? null,
+                bank_name: fb.bank_name ?? null,
+                account_name: fb.account_name ?? null,
+                account_number: fb.account_number ?? null,
+              }
+            : null,
+          error: null,
+        };
+      }
+
+      const isRestricted =
+        error.code === '42501' || error.message.toLowerCase().includes('permission');
+      return { data: null, error: error.message, restricted: isRestricted };
+    } catch (err: any) {
+      return {
+        data: null,
+        error: err?.message || 'Unable to load protected vendor banking details.',
+      };
+    }
+  }
+
   static async uploadCacCertificate(
     file: File,
     ownerSlug: string
@@ -148,7 +263,7 @@ export class VendorsPartnersService {
     if (!ALLOWED_CAC_TYPES.includes(file.type)) {
       return {
         path: null,
-        error: 'Only PDF, JPG, PNG, or WebP files are permitted for CAC Certificates.',
+        error: 'Only PDF, JPG, or PNG files are permitted for CAC Certificates.',
       };
     }
 
@@ -156,10 +271,11 @@ export class VendorsPartnersService {
       .normalize('NFKD')
       .replace(/[^a-zA-Z0-9._-]/g, '-')
       .slice(-80);
-    const safeFolder = ownerSlug
-      .toLowerCase()
-      .replace(/[^a-z0-9]/g, '-')
-      .slice(0, 32) || 'entity';
+    const safeFolder =
+      ownerSlug
+        .toLowerCase()
+        .replace(/[^a-z0-9]/g, '-')
+        .slice(0, 32) || 'entity';
 
     const storagePath = `${safeFolder}/${Date.now()}-${safeFileName}`;
 
@@ -174,9 +290,21 @@ export class VendorsPartnersService {
       if (uploadErr) {
         return {
           path: null,
-          error: `CAC upload failed (${uploadErr.message}). Ensure the private storage bucket "${CAC_STORAGE_BUCKET}" and policies are provisioned.`,
+          error: `CAC upload failed (${uploadErr.message}). Ensure private storage bucket "${CAC_STORAGE_BUCKET}" and RLS policies are provisioned.`,
         };
       }
+
+      await AuditLogger.log({
+        action: 'UPLOAD_VENDOR_CAC_CERTIFICATE',
+        module: 'vendors_partners',
+        tableName: 'vendors_partners',
+        newValues: {
+          bucket: CAC_STORAGE_BUCKET,
+          cac_certificate_path: storagePath,
+          mime_type: file.type,
+          size_bytes: file.size,
+        },
+      });
 
       // Return ONLY the relative private storage path, never a public URL
       return { path: storagePath, error: null };
@@ -196,7 +324,11 @@ export class VendorsPartnersService {
     }
 
     // Reject public URLs or inline data URIs to uphold private storage policy
-    if (storagePath.startsWith('http://') || storagePath.startsWith('https://') || storagePath.startsWith('data:')) {
+    if (
+      storagePath.startsWith('http://') ||
+      storagePath.startsWith('https://') ||
+      storagePath.startsWith('data:')
+    ) {
       return {
         signedUrl: null,
         error: 'Stored certificate path is not a valid private storage reference.',
@@ -219,7 +351,10 @@ export class VendorsPartnersService {
         action: 'VIEW_VENDOR_CAC_CERTIFICATE',
         module: 'vendors_partners',
         tableName: 'vendors_partners',
-        newValues: { cac_certificate_path: storagePath },
+        newValues: {
+          bucket: CAC_STORAGE_BUCKET,
+          cac_certificate_path: storagePath,
+        },
       });
 
       return { signedUrl: data.signedUrl, error: null };
@@ -233,8 +368,7 @@ export class VendorsPartnersService {
 
   static async createVendorPartner(
     input: VendorPartnerInput,
-    cacFile: File | null,
-    actorUserId?: string
+    cacFile: File | null
   ): Promise<{ data: VendorPartnerRecord | null; error: string | null }> {
     const fullName = input.full_name?.trim();
     const phone = input.phone_number?.trim();
@@ -266,6 +400,7 @@ export class VendorsPartnersService {
         cacPath = uploadRes.path;
       }
 
+      // created_by / updated_by are populated server-side by trg_identity_vendors_partners
       const payload = {
         full_name: fullName,
         business_name: input.business_name?.trim() || null,
@@ -280,14 +415,12 @@ export class VendorsPartnersService {
         cac_certificate_path: cacPath,
         status: input.status || 'active',
         notes: input.notes?.trim() || null,
-        created_by: actorUserId || null,
-        updated_by: actorUserId || null,
       };
 
       const { data, error } = await supabase
         .from('vendors_partners')
         .insert(payload)
-        .select('*')
+        .select(VENDOR_PUBLIC_COLUMNS)
         .single();
 
       if (error) {
@@ -320,8 +453,8 @@ export class VendorsPartnersService {
     id: string,
     input: VendorPartnerInput,
     cacFile: File | null,
-    actorUserId?: string,
-    previous?: VendorPartnerRecord | null
+    previous?: VendorPartnerRecord | null,
+    preserveProtectedDetails = false
   ): Promise<{ data: VendorPartnerRecord | null; error: string | null }> {
     const fullName = input.full_name?.trim();
     const phone = input.phone_number?.trim();
@@ -336,7 +469,11 @@ export class VendorsPartnersService {
     if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return { data: null, error: 'Please provide a valid Email Address.' };
     }
-    if (input.account_number?.trim() && !/^\d{6,20}$/.test(input.account_number.trim())) {
+    if (
+      !preserveProtectedDetails &&
+      input.account_number?.trim() &&
+      !/^\d{6,20}$/.test(input.account_number.trim())
+    ) {
       return { data: null, error: 'Account Number must contain 6 to 20 digits.' };
     }
 
@@ -353,29 +490,32 @@ export class VendorsPartnersService {
         cacPath = uploadRes.path;
       }
 
-      const payload = {
+      // updated_by is set server-side via trigger auth.uid()
+      const payload: Record<string, any> = {
         full_name: fullName,
         business_name: input.business_name?.trim() || null,
         email_address: email || null,
         phone_number: phone,
-        next_of_kin: input.next_of_kin?.trim() || null,
-        next_of_kin_phone: input.next_of_kin_phone?.trim() || null,
-        bank_name: input.bank_name?.trim() || null,
-        account_name: input.account_name?.trim() || null,
-        account_number: input.account_number?.trim() || null,
         record_type: input.record_type || previous?.record_type || 'vendor',
         cac_certificate_path: cacPath,
         status: input.status || previous?.status || 'active',
         notes: input.notes?.trim() || null,
-        updated_by: actorUserId || null,
         updated_at: new Date().toISOString(),
       };
+
+      if (!preserveProtectedDetails) {
+        payload.next_of_kin = input.next_of_kin?.trim() || null;
+        payload.next_of_kin_phone = input.next_of_kin_phone?.trim() || null;
+        payload.bank_name = input.bank_name?.trim() || null;
+        payload.account_name = input.account_name?.trim() || null;
+        payload.account_number = input.account_number?.trim() || null;
+      }
 
       const { data, error } = await supabase
         .from('vendors_partners')
         .update(payload)
         .eq('id', id)
-        .select('*')
+        .select(VENDOR_PUBLIC_COLUMNS)
         .single();
 
       if (error) {
@@ -392,8 +532,12 @@ export class VendorsPartnersService {
               full_name: previous.full_name,
               business_name: previous.business_name,
               record_type: previous.record_type,
-              bank_name: previous.bank_name,
-              account_number: maskBankAccountNumber(previous.account_number),
+              ...(preserveProtectedDetails
+                ? {}
+                : {
+                    bank_name: previous.bank_name,
+                    account_number: maskBankAccountNumber(previous.account_number),
+                  }),
               status: previous.status,
             }
           : undefined,
@@ -401,8 +545,12 @@ export class VendorsPartnersService {
           full_name: payload.full_name,
           business_name: payload.business_name,
           record_type: payload.record_type,
-          bank_name: payload.bank_name,
-          account_number: maskBankAccountNumber(payload.account_number),
+          ...(preserveProtectedDetails
+            ? {}
+            : {
+                bank_name: payload.bank_name,
+                account_number: maskBankAccountNumber(payload.account_number),
+              }),
           has_cac: Boolean(cacPath),
           status: payload.status,
         },
@@ -417,7 +565,6 @@ export class VendorsPartnersService {
   static async updateStatus(
     id: string,
     status: VendorPartnerStatus,
-    actorUserId?: string,
     previousStatus?: string
   ): Promise<{ error: string | null }> {
     try {
@@ -425,7 +572,6 @@ export class VendorsPartnersService {
         .from('vendors_partners')
         .update({
           status,
-          updated_by: actorUserId || null,
           updated_at: new Date().toISOString(),
         })
         .eq('id', id);

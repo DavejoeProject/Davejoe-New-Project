@@ -4,6 +4,9 @@ import { AuditLogger } from '../lib/audit';
 export type ContractWorkforceStatus = 'active' | 'inactive' | 'suspended';
 export type WorkforceAssignmentStatus = 'active' | 'completed' | 'cancelled';
 
+export const WORKFORCE_PUBLIC_COLUMNS =
+  'id, full_name, address, phone_number, status, registration_notes, created_by, updated_by, created_at, updated_at';
+
 export interface ProjectSummary {
   id: string;
   name: string;
@@ -24,6 +27,21 @@ export interface WorkforceProjectAssignmentRecord {
   created_at: string;
   updated_at: string;
   project?: ProjectSummary | null;
+  worker?: {
+    id: string;
+    full_name: string;
+    phone_number: string;
+    status: string;
+  } | null;
+}
+
+export interface WorkforceProtectedDetails {
+  workforce_id: string;
+  next_of_kin: string | null;
+  next_of_kin_phone: string | null;
+  bank_name: string | null;
+  account_name: string | null;
+  account_number: string | null;
 }
 
 export interface WorkforceDirectoryRecord {
@@ -31,12 +49,13 @@ export interface WorkforceDirectoryRecord {
   full_name: string;
   address: string | null;
   phone_number: string;
-  next_of_kin: string | null;
-  next_of_kin_phone: string | null;
-  bank_name: string | null;
-  account_name: string | null;
-  account_number: string | null;
+  next_of_kin?: string | null;
+  next_of_kin_phone?: string | null;
+  bank_name?: string | null;
+  account_name?: string | null;
+  account_number?: string | null;
   status: ContractWorkforceStatus | string;
+  registration_notes: string | null;
   created_by: string | null;
   updated_by: string | null;
   created_at: string;
@@ -64,6 +83,7 @@ export interface WorkforceDirectoryInput {
   account_name?: string;
   account_number?: string;
   status?: ContractWorkforceStatus;
+  registration_notes?: string;
 }
 
 export interface AssignWorkforceProjectInput {
@@ -79,6 +99,16 @@ export function maskBankAccountNumber(accountNumber?: string | null): string {
   const clean = accountNumber.trim();
   if (clean.length <= 4) return '••••';
   return `${'•'.repeat(Math.max(4, clean.length - 4))}${clean.slice(-4)}`;
+}
+
+function isMissingRpcError(error: any): boolean {
+  const code = String(error?.code || '');
+  const msg = String(error?.message || '').toLowerCase();
+  return (
+    code === 'PGRST202' ||
+    msg.includes('could not find the function') ||
+    (msg.includes('function') && msg.includes('does not exist'))
+  );
 }
 
 export class WorkforceDirectoryService {
@@ -108,11 +138,13 @@ export class WorkforceDirectoryService {
       const [workersRes, assignmentsRes, projectsRes] = await Promise.all([
         supabase
           .from('workforce_directory')
-          .select('*')
+          .select(WORKFORCE_PUBLIC_COLUMNS)
           .order('created_at', { ascending: false }),
         supabase
           .from('workforce_project_assignments')
-          .select('*')
+          .select(
+            'id, workforce_id, project_id, assigned_at, assigned_by, expected_end_date, actual_end_date, assignment_status, assignment_notes, created_at, updated_at'
+          )
           .order('assigned_at', { ascending: false }),
         supabase
           .from('projects')
@@ -156,6 +188,7 @@ export class WorkforceDirectoryService {
         return {
           ...w,
           status: (w.status || 'active').toLowerCase(),
+          registration_notes: w.registration_notes ?? null,
           assignments: wAssignments,
           activeAssignmentsCount: activeCount,
         };
@@ -213,10 +246,16 @@ export class WorkforceDirectoryService {
 
     try {
       const [workerRes, assignmentsRes, projectsRes] = await Promise.all([
-        supabase.from('workforce_directory').select('*').eq('id', id).maybeSingle(),
+        supabase
+          .from('workforce_directory')
+          .select(WORKFORCE_PUBLIC_COLUMNS)
+          .eq('id', id)
+          .maybeSingle(),
         supabase
           .from('workforce_project_assignments')
-          .select('*')
+          .select(
+            'id, workforce_id, project_id, assigned_at, assigned_by, expected_end_date, actual_end_date, assignment_status, assignment_notes, created_at, updated_at'
+          )
           .eq('workforce_id', id)
           .order('assigned_at', { ascending: false }),
         supabase.from('projects').select('id, name, project_code, status'),
@@ -251,6 +290,7 @@ export class WorkforceDirectoryService {
         data: {
           ...(workerRes.data as any),
           status: ((workerRes.data as any).status || 'active').toLowerCase(),
+          registration_notes: (workerRes.data as any).registration_notes ?? null,
           assignments,
           activeAssignmentsCount: assignments.filter((a) => a.assignment_status === 'active').length,
         },
@@ -261,9 +301,172 @@ export class WorkforceDirectoryService {
     }
   }
 
+  static async getWorkforceProtectedDetails(id: string): Promise<{
+    data: WorkforceProtectedDetails | null;
+    error: string | null;
+    restricted?: boolean;
+  }> {
+    if (!isSupabaseConfigured) {
+      return { data: null, error: 'Supabase is not configured.' };
+    }
+
+    try {
+      const { data, error } = await supabase.rpc('get_workforce_protected_details', {
+        p_workforce_id: id,
+      });
+
+      if (!error) {
+        const row = Array.isArray(data) ? data[0] : data;
+        if (!row) {
+          return {
+            data: {
+              workforce_id: id,
+              next_of_kin: null,
+              next_of_kin_phone: null,
+              bank_name: null,
+              account_name: null,
+              account_number: null,
+            },
+            error: null,
+          };
+        }
+        return {
+          data: {
+            workforce_id: row.workforce_id || id,
+            next_of_kin: row.next_of_kin ?? null,
+            next_of_kin_phone: row.next_of_kin_phone ?? null,
+            bank_name: row.bank_name ?? null,
+            account_name: row.account_name ?? null,
+            account_number: row.account_number ?? null,
+          },
+          error: null,
+        };
+      }
+
+      if (isMissingRpcError(error)) {
+        const fallbackRes = await supabase
+          .from('workforce_directory')
+          .select('id, next_of_kin, next_of_kin_phone, bank_name, account_name, account_number')
+          .eq('id', id)
+          .maybeSingle();
+
+        if (fallbackRes.error) {
+          const isPermErr =
+            fallbackRes.error.code === '42501' ||
+            fallbackRes.error.message.toLowerCase().includes('permission');
+          return { data: null, error: fallbackRes.error.message, restricted: isPermErr };
+        }
+
+        const fb = fallbackRes.data as any;
+        return {
+          data: fb
+            ? {
+                workforce_id: fb.id || id,
+                next_of_kin: fb.next_of_kin ?? null,
+                next_of_kin_phone: fb.next_of_kin_phone ?? null,
+                bank_name: fb.bank_name ?? null,
+                account_name: fb.account_name ?? null,
+                account_number: fb.account_number ?? null,
+              }
+            : null,
+          error: null,
+        };
+      }
+
+      const isRestricted =
+        error.code === '42501' || error.message.toLowerCase().includes('permission');
+      return { data: null, error: error.message, restricted: isRestricted };
+    } catch (err: any) {
+      return {
+        data: null,
+        error: err?.message || 'Unable to load protected workforce banking details.',
+      };
+    }
+  }
+
+  static async listAllAssignments(filters?: {
+    search?: string;
+    assignmentStatus?: 'all' | 'active' | 'completed' | 'cancelled';
+  }): Promise<{
+    data: WorkforceProjectAssignmentRecord[];
+    error: string | null;
+  }> {
+    if (!isSupabaseConfigured) {
+      return { data: [], error: 'Supabase is not configured.' };
+    }
+
+    try {
+      const [assignmentsRes, workersRes, projectsRes] = await Promise.all([
+        supabase
+          .from('workforce_project_assignments')
+          .select(
+            'id, workforce_id, project_id, assigned_at, assigned_by, expected_end_date, actual_end_date, assignment_status, assignment_notes, created_at, updated_at'
+          )
+          .order('assigned_at', { ascending: false }),
+        supabase.from('workforce_directory').select('id, full_name, phone_number, status'),
+        supabase.from('projects').select('id, name, project_code, status'),
+      ]);
+
+      if (assignmentsRes.error) {
+        return { data: [], error: assignmentsRes.error.message };
+      }
+
+      const workersMap = new Map<
+        string,
+        { id: string; full_name: string; phone_number: string; status: string }
+      >();
+      (workersRes.data || []).forEach((w: any) => {
+        workersMap.set(w.id, {
+          id: w.id,
+          full_name: w.full_name,
+          phone_number: w.phone_number,
+          status: (w.status || 'active').toLowerCase(),
+        });
+      });
+
+      const projectsMap = new Map<string, ProjectSummary>();
+      (projectsRes.data || []).forEach((p: any) => {
+        projectsMap.set(p.id, {
+          id: p.id,
+          name: p.name,
+          project_code: p.project_code || null,
+          status: p.status || null,
+        });
+      });
+
+      let rows: WorkforceProjectAssignmentRecord[] = ((assignmentsRes.data || []) as any[]).map(
+        (row) => ({
+          ...row,
+          assignment_status: (row.assignment_status || 'active').toLowerCase(),
+          worker: workersMap.get(row.workforce_id) || null,
+          project: projectsMap.get(row.project_id) || null,
+        })
+      );
+
+      if (filters?.assignmentStatus && filters.assignmentStatus !== 'all') {
+        rows = rows.filter((r) => r.assignment_status === filters.assignmentStatus);
+      }
+
+      if (filters?.search && filters.search.trim()) {
+        const term = filters.search.trim().toLowerCase();
+        rows = rows.filter(
+          (r) =>
+            (r.worker?.full_name || '').toLowerCase().includes(term) ||
+            (r.worker?.phone_number || '').toLowerCase().includes(term) ||
+            (r.project?.name || '').toLowerCase().includes(term) ||
+            (r.project?.project_code || '').toLowerCase().includes(term) ||
+            (r.assignment_notes || '').toLowerCase().includes(term)
+        );
+      }
+
+      return { data: rows, error: null };
+    } catch (err: any) {
+      return { data: [], error: err?.message || 'Failed to load assignment history.' };
+    }
+  }
+
   static async createMember(
-    input: WorkforceDirectoryInput,
-    actorUserId?: string
+    input: WorkforceDirectoryInput
   ): Promise<{ data: WorkforceDirectoryRecord | null; error: string | null }> {
     const fullName = input.full_name?.trim();
     const phone = input.phone_number?.trim();
@@ -279,6 +482,7 @@ export class WorkforceDirectoryService {
     }
 
     try {
+      // created_by / updated_by are populated server-side by trg_identity_workforce_directory
       const payload = {
         full_name: fullName,
         address: input.address?.trim() || null,
@@ -289,14 +493,13 @@ export class WorkforceDirectoryService {
         account_name: input.account_name?.trim() || null,
         account_number: input.account_number?.trim() || null,
         status: input.status || 'active',
-        created_by: actorUserId || null,
-        updated_by: actorUserId || null,
+        registration_notes: input.registration_notes?.trim() || null,
       };
 
       const { data, error } = await supabase
         .from('workforce_directory')
         .insert(payload)
-        .select('*')
+        .select(WORKFORCE_PUBLIC_COLUMNS)
         .single();
 
       if (error) {
@@ -314,6 +517,7 @@ export class WorkforceDirectoryService {
           bank_name: payload.bank_name,
           account_number: maskBankAccountNumber(payload.account_number),
           status: payload.status,
+          has_registration_notes: Boolean(payload.registration_notes),
         },
       });
 
@@ -326,7 +530,6 @@ export class WorkforceDirectoryService {
   static async updateMember(
     id: string,
     input: WorkforceDirectoryInput,
-    actorUserId?: string,
     previous?: WorkforceDirectoryRecord | null
   ): Promise<{ data: WorkforceDirectoryRecord | null; error: string | null }> {
     const fullName = input.full_name?.trim();
@@ -343,6 +546,7 @@ export class WorkforceDirectoryService {
     }
 
     try {
+      // updated_by is set server-side via trigger auth.uid()
       const payload = {
         full_name: fullName,
         address: input.address?.trim() || null,
@@ -353,7 +557,7 @@ export class WorkforceDirectoryService {
         account_name: input.account_name?.trim() || null,
         account_number: input.account_number?.trim() || null,
         status: input.status || previous?.status || 'active',
-        updated_by: actorUserId || null,
+        registration_notes: input.registration_notes?.trim() || null,
         updated_at: new Date().toISOString(),
       };
 
@@ -361,7 +565,7 @@ export class WorkforceDirectoryService {
         .from('workforce_directory')
         .update(payload)
         .eq('id', id)
-        .select('*')
+        .select(WORKFORCE_PUBLIC_COLUMNS)
         .single();
 
       if (error) {
@@ -388,6 +592,7 @@ export class WorkforceDirectoryService {
           bank_name: payload.bank_name,
           account_number: maskBankAccountNumber(payload.account_number),
           status: payload.status,
+          has_registration_notes: Boolean(payload.registration_notes),
         },
       });
 
@@ -400,7 +605,6 @@ export class WorkforceDirectoryService {
   static async updateStatus(
     id: string,
     status: ContractWorkforceStatus,
-    actorUserId?: string,
     previousStatus?: string
   ): Promise<{ error: string | null }> {
     try {
@@ -408,7 +612,6 @@ export class WorkforceDirectoryService {
         .from('workforce_directory')
         .update({
           status,
-          updated_by: actorUserId || null,
           updated_at: new Date().toISOString(),
         })
         .eq('id', id);
@@ -445,8 +648,7 @@ export class WorkforceDirectoryService {
   }
 
   static async assignToProject(
-    input: AssignWorkforceProjectInput,
-    actorUserId?: string
+    input: AssignWorkforceProjectInput
   ): Promise<{ data: WorkforceProjectAssignmentRecord | null; error: string | null }> {
     if (!input.workforce_id || !input.project_id) {
       return { data: null, error: 'Please select a project to assign.' };
@@ -472,11 +674,11 @@ export class WorkforceDirectoryService {
         };
       }
 
+      // assigned_by is populated server-side via trg_identity_workforce_assignments
       const payload = {
         workforce_id: input.workforce_id,
         project_id: input.project_id,
         assigned_at: input.assigned_at || new Date().toISOString(),
-        assigned_by: actorUserId || null,
         expected_end_date: input.expected_end_date || null,
         assignment_status: 'active',
         assignment_notes: input.assignment_notes?.trim() || null,
@@ -485,7 +687,9 @@ export class WorkforceDirectoryService {
       const { data, error } = await supabase
         .from('workforce_project_assignments')
         .insert(payload)
-        .select('*')
+        .select(
+          'id, workforce_id, project_id, assigned_at, assigned_by, expected_end_date, actual_end_date, assignment_status, assignment_notes, created_at, updated_at'
+        )
         .single();
 
       if (error) {
@@ -514,8 +718,7 @@ export class WorkforceDirectoryService {
 
   static async updateAssignmentStatus(
     assignmentId: string,
-    status: 'completed' | 'cancelled',
-    actorUserId?: string
+    status: 'completed' | 'cancelled'
   ): Promise<{ error: string | null }> {
     try {
       const actualEndDate = new Date().toISOString().split('T')[0];
@@ -538,7 +741,6 @@ export class WorkforceDirectoryService {
         newValues: {
           assignment_status: status,
           actual_end_date: actualEndDate,
-          updated_by: actorUserId || null,
         },
       });
 
