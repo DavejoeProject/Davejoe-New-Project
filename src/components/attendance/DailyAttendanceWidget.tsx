@@ -18,6 +18,10 @@ import {
   formatTimeFromIso,
   getNigerianTodayIso,
 } from '../../services/attendanceService';
+import {
+  AssignedProjectsService,
+  AssignedProjectSummary,
+} from '../../services/assignedProjectsService';
 import { formatNigerianDate } from '../../services/materialsService';
 
 interface DailyAttendanceWidgetProps {
@@ -62,6 +66,8 @@ export const DailyAttendanceWidget: React.FC<DailyAttendanceWidgetProps> = ({
   });
 
   const [elapsedMinutes, setElapsedMinutes] = useState(0);
+  const [assignedProjects, setAssignedProjects] = useState<AssignedProjectSummary[]>([]);
+  const [selectedProjectId, setSelectedProjectId] = useState<string>('');
 
   const fetchStatus = useCallback(async () => {
     if (!user) {
@@ -71,8 +77,24 @@ export const DailyAttendanceWidget: React.FC<DailyAttendanceWidgetProps> = ({
     setLoading(true);
     setError(null);
     try {
-      const res = await AttendanceService.getUserTodayAttendanceStatus(user.id);
+      const [res, projRes] = await Promise.all([
+        AttendanceService.getUserTodayAttendanceStatus(user.id),
+        AssignedProjectsService.getMyAssignedProjects(user.id),
+      ]);
       setStatusData(res);
+
+      const loadedProjects = projRes.projects || [];
+      setAssignedProjects(loadedProjects);
+
+      if (loadedProjects.length > 0) {
+        const preferred =
+          loadedProjects.find((p) => p.is_starting_today && p.can_clock_in_today) ||
+          loadedProjects.find((p) => p.can_clock_in_today) ||
+          loadedProjects[0];
+        setSelectedProjectId((prev) =>
+          prev && loadedProjects.some((p) => p.project_id === prev) ? prev : preferred.project_id
+        );
+      }
 
       if (res.isClockedIn && res.clockInTime) {
         const diffMs = Date.now() - new Date(res.clockInTime).getTime();
@@ -143,6 +165,7 @@ export const DailyAttendanceWidget: React.FC<DailyAttendanceWidgetProps> = ({
 
       const res = await AttendanceService.clockInNonLeadershipUser({
         userId: user.id,
+        projectId: selectedProjectId || undefined,
         latitude: lat,
         longitude: lng,
       });
@@ -268,6 +291,52 @@ export const DailyAttendanceWidget: React.FC<DailyAttendanceWidgetProps> = ({
                 </div>
               )}
             </div>
+
+            {/* Project Target Selector when not yet clocked in */}
+            {!loading && !statusData.isClockedIn && !statusData.isClockedOut && assignedProjects.length > 0 && (() => {
+              const activeSel = assignedProjects.find((p) => p.project_id === selectedProjectId) || assignedProjects[0];
+              return (
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                  <div className="flex items-center gap-1.5 text-xs">
+                    <Building className="w-3.5 h-3.5 text-[#18b892] shrink-0" />
+                    <span className="font-semibold text-slate-600">Site:</span>
+                    {assignedProjects.length === 1 ? (
+                      <span className="font-bold text-slate-800">
+                        [{activeSel.project_code}] {activeSel.name}
+                      </span>
+                    ) : (
+                      <select
+                        value={selectedProjectId}
+                        onChange={(e) => setSelectedProjectId(e.target.value)}
+                        aria-label="Select assigned project for clock-in"
+                        className="h-8 px-2.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-800 outline-none focus:border-[#18b892]"
+                      >
+                        {assignedProjects.map((p) => (
+                          <option key={p.project_id} value={p.project_id}>
+                            [{p.project_code}] {p.name}
+                            {p.is_starting_today
+                              ? ' (Starts Today)'
+                              : p.is_upcoming && p.effective_start_date
+                              ? ` (Starts ${formatNigerianDate(p.effective_start_date)})`
+                              : ''}
+                          </option>
+                        ))}
+                      </select>
+                    )}
+                  </div>
+
+                  {activeSel.is_starting_today ? (
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                      Starts Today &bull; Ready
+                    </span>
+                  ) : activeSel.is_upcoming && activeSel.effective_start_date ? (
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                      Starts {formatNigerianDate(activeSel.effective_start_date)}
+                    </span>
+                  ) : null}
+                </div>
+              );
+            })()}
           </div>
         </div>
 
@@ -288,17 +357,36 @@ export const DailyAttendanceWidget: React.FC<DailyAttendanceWidgetProps> = ({
               <RefreshCw className="w-4 h-4 animate-spin text-[#18b892]" />
               <span>Verifying shift...</span>
             </div>
-          ) : !statusData.isClockedIn && !statusData.isClockedOut ? (
-            <button
-              type="button"
-              disabled={submitting}
-              onClick={handleClockIn}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-[#18b892] hover:bg-[#139c7b] active:scale-[0.98] text-white text-sm font-bold rounded-xl shadow-xs transition-all cursor-pointer disabled:opacity-50 min-h-[44px] whitespace-nowrap"
-            >
-              <Clock className="w-4 h-4 shrink-0" />
-              <span>{submitting ? 'Clocking In...' : 'Clock In for Today'}</span>
-            </button>
-          ) : statusData.isClockedIn ? (
+          ) : !statusData.isClockedIn && !statusData.isClockedOut ? (() => {
+            const activeSel = assignedProjects.find((p) => p.project_id === selectedProjectId);
+            const blockedByStartDate = Boolean(activeSel && activeSel.is_upcoming);
+            return (
+              <button
+                type="button"
+                disabled={submitting || blockedByStartDate}
+                onClick={handleClockIn}
+                title={
+                  blockedByStartDate && activeSel?.effective_start_date
+                    ? `Project starts on ${formatNigerianDate(activeSel.effective_start_date)}. You can clock in on that day.`
+                    : 'Record today attendance clock-in'
+                }
+                className={`w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 text-sm font-bold rounded-xl shadow-xs transition-all min-h-[44px] whitespace-nowrap ${
+                  blockedByStartDate
+                    ? 'bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed'
+                    : 'bg-[#18b892] hover:bg-[#139c7b] active:scale-[0.98] text-white cursor-pointer disabled:opacity-50'
+                }`}
+              >
+                <Clock className="w-4 h-4 shrink-0" />
+                <span>
+                  {submitting
+                    ? 'Clocking In...'
+                    : blockedByStartDate && activeSel?.effective_start_date
+                    ? `Starts ${formatNigerianDate(activeSel.effective_start_date)}`
+                    : 'Clock In for Today'}
+                </span>
+              </button>
+            );
+          })() : statusData.isClockedIn ? (
             <button
               type="button"
               disabled={submitting}

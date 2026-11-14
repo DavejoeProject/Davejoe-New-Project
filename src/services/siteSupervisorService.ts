@@ -1,6 +1,7 @@
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import { ensureValidSession } from '../lib/authSession';
 import { AttendanceService, AttendanceRecordItem, getNigerianTodayIso } from './attendanceService';
+import { AssignedProjectsService } from './assignedProjectsService';
 import { formatNigerianDate } from './materialsService';
 import { AuthService } from './authService';
 
@@ -9,16 +10,31 @@ export interface SupervisorProjectItem {
   project_code: string;
   name: string;
   description: string | null;
+  project_type?: string | null;
   status: string;
   start_date: string | null;
   expected_completion_date: string | null;
+  actual_completion_date?: string | null;
   address: string | null;
   city: string | null;
   state: string | null;
+  country?: string | null;
+  client_name?: string | null;
+  client_contact_person?: string | null;
+  client_phone?: string | null;
+  role_on_project?: string | null;
+  assignment_start_date?: string | null;
+  assignment_end_date?: string | null;
+  assignment_notes?: string | null;
+  effective_start_date?: string | null;
+  can_clock_in_today?: boolean;
+  is_starting_today?: boolean;
+  is_upcoming?: boolean;
   contract_value: number | null;
   workforce_count: number;
   today_attendance_count: number;
   open_tasks_count: number;
+  materials_count?: number;
   pending_requests_count?: number;
   open_qc_findings_count?: number;
 }
@@ -178,32 +194,32 @@ export class SiteSupervisorService {
       if (isPrivileged) return true;
 
       // 2. Explicit project membership
-      const { data: member } = await supabase
+      const { data: members } = await supabase
         .from('project_members')
         .select('id')
         .eq('project_id', projectId)
         .eq('user_id', userId)
-        .maybeSingle();
+        .limit(1);
 
-      if (member) return true;
+      if (members && members.length > 0) return true;
 
-      // 3. Workforce assignment link
-      const { data: wfMember } = await supabase
+      // 3. Workforce assignment link across ALL matching workforce_members rows (avoids .maybeSingle() PGRST116 trap)
+      const { data: wfMembers } = await supabase
         .from('workforce_members')
         .select('id')
-        .eq('profile_id', userId)
-        .maybeSingle();
+        .eq('profile_id', userId);
 
-      if (wfMember?.id) {
-        const { data: assignment } = await supabase
+      const wfIds = (wfMembers || []).map((w: any) => w.id);
+      if (wfIds.length > 0) {
+        const { data: assignments } = await supabase
           .from('project_workforce_assignments')
           .select('id')
           .eq('project_id', projectId)
-          .eq('workforce_member_id', wfMember.id)
+          .in('workforce_member_id', wfIds)
           .eq('is_active', true)
-          .maybeSingle();
+          .limit(1);
 
-        if (assignment) return true;
+        if (assignments && assignments.length > 0) return true;
       }
 
       return false;
@@ -214,8 +230,9 @@ export class SiteSupervisorService {
 
   /**
    * Resolves projects explicitly authorized for this supervisor.
-   * Access is strictly restricted to verified project assignments.
-   * No insecure fallback to arbitrary active/operational projects.
+   * Uses AssignedProjectsService (SECURITY DEFINER RPC + multi-row safe fallback)
+   * so supervisors always see ALL projects assigned to them with complete schedule/client details.
+   * Non-privileged supervisors with 0 assignments strictly receive an empty list.
    */
   static async getSupervisorProjects(userId: string): Promise<{
     projects: SupervisorProjectItem[];
@@ -228,86 +245,50 @@ export class SiteSupervisorService {
     try {
       await ensureValidSession();
 
-      // 1. Check explicit project_members table
-      const { data: projMembers } = await supabase
-        .from('project_members')
-        .select('project_id')
-        .eq('user_id', userId);
+      // 1. Authoritative assigned projects lookup (handles multiple workforce_members, project_members, & RLS)
+      const [{ projects: assignedList, error: assignedErr }, { assignedSlugs }] = await Promise.all([
+        AssignedProjectsService.getMyAssignedProjects(userId),
+        AuthService.getUserRolesDetailed(userId),
+      ]);
 
-      let assignedProjectIds: string[] = (projMembers || []).map((pm: any) => pm.project_id);
-
-      // 2. Check workforce member assignment link
-      const { data: memberData } = await supabase
-        .from('workforce_members')
-        .select('id')
-        .eq('profile_id', userId)
-        .maybeSingle();
-
-      if (memberData?.id) {
-        const { data: assignments } = await supabase
-          .from('project_workforce_assignments')
-          .select('project_id')
-          .eq('workforce_member_id', memberData.id)
-          .eq('is_active', true);
-
-        if (assignments && assignments.length > 0) {
-          const ids = assignments.map((a: any) => a.project_id);
-          assignedProjectIds = Array.from(new Set([...assignedProjectIds, ...ids]));
-        }
-      }
-
-      // Check if user has administrative oversight role
-      const { assignedSlugs } = await AuthService.getUserRolesDetailed(userId);
       const isPrivileged = assignedSlugs.some((s) =>
         ['admin', 'management', 'executive_director'].includes(s.toLowerCase().trim())
       );
 
-      // CRITICAL SECURITY RULE: If a site supervisor has no assigned projects,
-      // return an empty project list immediately. DO NOT fall back to general active projects.
-      if (!isPrivileged && assignedProjectIds.length === 0) {
+      // CRITICAL SECURITY RULE: Non-privileged supervisor with no assigned projects gets empty list.
+      if (!isPrivileged && assignedList.length === 0) {
+        return { projects: [], error: assignedErr };
+      }
+
+      const assignedMap = new Map(assignedList.map((a) => [a.project_id, a]));
+      let projectIds = assignedList.map((a) => a.project_id);
+      let rawProjects: any[] = [];
+
+      if (projectIds.length === 0 && isPrivileged) {
+        const { data: privProjs, error: privErr } = await supabase
+          .from('projects')
+          .select('*, clients ( id, name, contact_person, phone )')
+          .in('status', ['in_progress', 'snagging', 'approved', 'on_hold'])
+          .order('name');
+        if (privErr) return { projects: [], error: privErr.message };
+        rawProjects = privProjs || [];
+        projectIds = rawProjects.map((p: any) => p.id);
+      }
+
+      if (projectIds.length === 0) {
         return { projects: [], error: null };
       }
 
-      // Query projects table
-      let projQuery = supabase.from('projects').select('*');
-
-      if (assignedProjectIds.length > 0) {
-        projQuery = projQuery.in('id', assignedProjectIds);
-      } else if (isPrivileged) {
-        // Privileged management/admin oversight fallback to live operational statuses
-        projQuery = projQuery.in('status', ['in_progress', 'snagging', 'approved', 'on_hold']);
-      }
-
-      const { data: rawProjects, error: projErr } = await projQuery.order('name');
-      if (projErr) {
-        return { projects: [], error: projErr.message };
-      }
-
-      const projectsList = rawProjects || [];
-      if (projectsList.length === 0) {
-        return { projects: [], error: null };
-      }
-
-      const projectIds = projectsList.map((p: any) => p.id);
       const today = getNigerianTodayIso();
 
-      // Concurrently query workforce counts, today's attendance, open tasks, material requests, and inspection findings
-      const [assignRes, attRes, taskRes, reqRes, inspRes] = await Promise.all([
-        supabase
-          .from('project_workforce_assignments')
-          .select('project_id')
-          .in('project_id', projectIds)
-          .eq('is_active', true),
-        supabase
-          .from('attendance_records')
-          .select('project_id, status')
-          .in('project_id', projectIds)
-          .eq('attendance_date', today),
-        supabase
-          .from('project_tasks')
-          .select('project_id')
-          .in('project_id', projectIds)
-          .neq('status', 'completed'),
+      // Concurrently fetch supplemental supervisor stats (pending requests, QC findings, and contract_value if readable)
+      const [extraProjRes, reqRes, inspRes] = await Promise.all([
+        rawProjects.length === 0
+          ? supabase
+              .from('projects')
+              .select('id, contract_value')
+              .in('id', projectIds)
+          : Promise.resolve({ data: rawProjects }),
         supabase
           .from('material_requests')
           .select('project_id, status')
@@ -319,21 +300,9 @@ export class SiteSupervisorService {
           .in('project_id', projectIds),
       ]);
 
-      const workforceCountByProj: Record<string, number> = {};
-      (assignRes.data || []).forEach((a: any) => {
-        workforceCountByProj[a.project_id] = (workforceCountByProj[a.project_id] || 0) + 1;
-      });
-
-      const todayAttByProj: Record<string, number> = {};
-      (attRes.data || []).forEach((att: any) => {
-        if (att.status === 'present' || att.status === 'late') {
-          todayAttByProj[att.project_id] = (todayAttByProj[att.project_id] || 0) + 1;
-        }
-      });
-
-      const openTasksByProj: Record<string, number> = {};
-      (taskRes.data || []).forEach((t: any) => {
-        openTasksByProj[t.project_id] = (openTasksByProj[t.project_id] || 0) + 1;
+      const contractByProj: Record<string, number | null> = {};
+      (extraProjRes.data || []).forEach((p: any) => {
+        contractByProj[p.id] = p.contract_value != null ? Number(p.contract_value) : null;
       });
 
       const pendingRequestsByProj: Record<string, number> = {};
@@ -348,24 +317,95 @@ export class SiteSupervisorService {
         }
       });
 
-      const formatted: SupervisorProjectItem[] = projectsList.map((p: any) => ({
-        id: p.id,
-        project_code: p.project_code || p.code || 'PRJ',
-        name: p.name,
-        description: p.description || null,
-        status: p.status || 'in_progress',
-        start_date: p.start_date || null,
-        expected_completion_date: p.expected_completion_date || null,
-        address: p.address || null,
-        city: p.city || null,
-        state: p.state || null,
-        contract_value: p.contract_value != null ? Number(p.contract_value) : null,
-        workforce_count: workforceCountByProj[p.id] || 0,
-        today_attendance_count: todayAttByProj[p.id] || 0,
-        open_tasks_count: openTasksByProj[p.id] || 0,
-        pending_requests_count: pendingRequestsByProj[p.id] || 0,
-        open_qc_findings_count: qcIssuesByProj[p.id] || 0,
-      }));
+      if (assignedList.length > 0) {
+        const formatted: SupervisorProjectItem[] = assignedList.map((a) => ({
+          id: a.project_id,
+          project_code: a.project_code,
+          name: a.name,
+          description: a.description,
+          project_type: a.project_type,
+          status: a.status,
+          start_date: a.start_date,
+          expected_completion_date: a.expected_completion_date,
+          actual_completion_date: a.actual_completion_date,
+          address: a.address,
+          city: a.city,
+          state: a.state,
+          country: a.country,
+          client_name: a.client_name,
+          client_contact_person: a.client_contact_person,
+          client_phone: a.client_phone,
+          role_on_project: a.role_on_project,
+          assignment_start_date: a.assignment_start_date,
+          assignment_end_date: a.assignment_end_date,
+          assignment_notes: a.assignment_notes,
+          effective_start_date: a.effective_start_date,
+          can_clock_in_today: a.can_clock_in_today,
+          is_starting_today: a.is_starting_today,
+          is_upcoming: a.is_upcoming,
+          contract_value: contractByProj[a.project_id] ?? null,
+          workforce_count: a.workforce_count,
+          today_attendance_count: a.today_attendance_count,
+          open_tasks_count: a.open_tasks_count,
+          materials_count: a.materials_count,
+          pending_requests_count: pendingRequestsByProj[a.project_id] || 0,
+          open_qc_findings_count: qcIssuesByProj[a.project_id] || 0,
+        }));
+        return { projects: formatted, error: null };
+      }
+
+      // Privileged user with zero explicit assignments: map live operational projects
+      const [assignRes, attRes, taskRes] = await Promise.all([
+        supabase.from('project_workforce_assignments').select('project_id').in('project_id', projectIds).eq('is_active', true),
+        supabase.from('attendance_records').select('project_id, status').in('project_id', projectIds).eq('attendance_date', today),
+        supabase.from('project_tasks').select('project_id').in('project_id', projectIds).neq('status', 'completed'),
+      ]);
+
+      const wfCount: Record<string, number> = {};
+      (assignRes.data || []).forEach((r: any) => { wfCount[r.project_id] = (wfCount[r.project_id] || 0) + 1; });
+      const attCount: Record<string, number> = {};
+      (attRes.data || []).forEach((r: any) => {
+        if (r.status === 'present' || r.status === 'late') attCount[r.project_id] = (attCount[r.project_id] || 0) + 1;
+      });
+      const taskCount: Record<string, number> = {};
+      (taskRes.data || []).forEach((r: any) => { taskCount[r.project_id] = (taskCount[r.project_id] || 0) + 1; });
+
+      const formatted: SupervisorProjectItem[] = rawProjects.map((p: any) => {
+        const eff = p.start_date ? String(p.start_date).slice(0, 10) : null;
+        const isUpcoming = Boolean(eff && eff > today);
+        const isStartingToday = Boolean(eff && eff === today);
+        const closed = ['cancelled', 'closed', 'completed'].includes((p.status || '').toLowerCase());
+        const meta = assignedMap.get(p.id);
+        return {
+          id: p.id,
+          project_code: p.project_code || p.code || 'PRJ',
+          name: p.name,
+          description: p.description || null,
+          project_type: p.project_type || null,
+          status: p.status || 'in_progress',
+          start_date: p.start_date || null,
+          expected_completion_date: p.expected_completion_date || null,
+          actual_completion_date: p.actual_completion_date || null,
+          address: p.address || null,
+          city: p.city || null,
+          state: p.state || null,
+          country: p.country || null,
+          client_name: p.clients?.name || null,
+          client_contact_person: p.clients?.contact_person || null,
+          client_phone: p.clients?.phone || null,
+          role_on_project: meta?.role_on_project || 'Site Supervisor',
+          effective_start_date: eff,
+          can_clock_in_today: !isUpcoming && !closed,
+          is_starting_today: isStartingToday,
+          is_upcoming: isUpcoming,
+          contract_value: p.contract_value != null ? Number(p.contract_value) : null,
+          workforce_count: wfCount[p.id] || 0,
+          today_attendance_count: attCount[p.id] || 0,
+          open_tasks_count: taskCount[p.id] || 0,
+          pending_requests_count: pendingRequestsByProj[p.id] || 0,
+          open_qc_findings_count: qcIssuesByProj[p.id] || 0,
+        };
+      });
 
       return { projects: formatted, error: null };
     } catch (err: any) {

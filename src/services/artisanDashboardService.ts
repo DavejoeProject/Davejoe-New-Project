@@ -5,9 +5,8 @@ import {
   AttendanceRecordItem,
   AttendanceStatus,
   getNigerianTodayIso,
-  formatTimeFromIso,
 } from './attendanceService';
-import { formatNigerianDate } from './materialsService';
+import { AssignedProjectsService, AssignedProjectSummary } from './assignedProjectsService';
 
 export interface ArtisanWorkerProfile {
   id: string; // workforce_members.id
@@ -68,6 +67,7 @@ export interface ArtisanOvertimeRow {
 export interface ArtisanDashboardData {
   profile: ArtisanWorkerProfile;
   activeProject: ArtisanActiveProject | null;
+  assignedProjects: AssignedProjectSummary[];
   todayStatus: ArtisanTodayStatus;
   recentAttendance: AttendanceRecordItem[];
   recentProductivity: ArtisanProductivityRow[];
@@ -87,8 +87,8 @@ export class ArtisanDashboardService {
     try {
       await ensureValidSession();
 
-      // Query workforce_members where profile_id matches userId
-      const { data: wfMember, error: wfErr } = await supabase
+      // Query workforce_members where profile_id matches userId (multi-row safe)
+      const { data: wfMembers, error: wfErr } = await supabase
         .from('workforce_members')
         .select(`
           id,
@@ -110,11 +110,14 @@ export class ArtisanDashboardService {
           )
         `)
         .eq('profile_id', userId)
-        .maybeSingle();
+        .order('created_at', { ascending: false })
+        .limit(1);
 
       if (wfErr) {
         return { profile: null, error: wfErr.message };
       }
+
+      const wfMember = wfMembers?.[0] || null;
 
       if (wfMember) {
         const prof = (wfMember as any).profiles;
@@ -198,46 +201,31 @@ export class ArtisanDashboardService {
       const memberId = profile.id;
       const today = getNigerianTodayIso();
 
-      // 1. Fetch active assignment
-      const { data: assignmentData } = await supabase
-        .from('project_workforce_assignments')
-        .select(`
-          id,
-          project_id,
-          role_on_project,
-          start_date,
-          end_date,
-          is_active,
-          projects:project_id (
-            id,
-            name,
-            project_code,
-            address,
-            city,
-            state,
-            status
-          )
-        `)
-        .eq('workforce_member_id', memberId)
-        .eq('is_active', true)
-        .order('start_date', { ascending: false })
-        .limit(1)
-        .maybeSingle();
+      // 1. Fetch ALL assigned projects across project_workforce_assignments & project_members
+      const { projects: assignedProjects } = await AssignedProjectsService.getMyAssignedProjects(userId);
+
+      const primaryAssigned =
+        assignedProjects.find((p) => p.can_clock_in_today) || assignedProjects[0] || null;
 
       let activeProject: ArtisanActiveProject | null = null;
-      if (assignmentData && (assignmentData as any).projects) {
-        const p = (assignmentData as any).projects;
-        const loc = [p.address, p.city, p.state].filter(Boolean).join(', ') || null;
+      if (primaryAssigned) {
+        const loc =
+          [primaryAssigned.address, primaryAssigned.city, primaryAssigned.state]
+            .filter(Boolean)
+            .join(', ') || null;
         activeProject = {
-          assignmentId: assignmentData.id,
-          projectId: p.id,
-          projectName: p.name,
-          projectCode: p.project_code,
-          roleOnProject: assignmentData.role_on_project || profile.trade,
-          startDate: assignmentData.start_date || null,
-          endDate: assignmentData.end_date || null,
+          assignmentId: primaryAssigned.assignment_id || primaryAssigned.project_id,
+          projectId: primaryAssigned.project_id,
+          projectName: primaryAssigned.name,
+          projectCode: primaryAssigned.project_code,
+          roleOnProject: primaryAssigned.role_on_project || profile.trade,
+          startDate: primaryAssigned.effective_start_date || primaryAssigned.start_date || null,
+          endDate:
+            primaryAssigned.assignment_end_date ||
+            primaryAssigned.expected_completion_date ||
+            null,
           location: loc,
-          status: p.status || 'active',
+          status: primaryAssigned.status || 'active',
         };
       }
 
@@ -398,6 +386,7 @@ export class ArtisanDashboardService {
         data: {
           profile,
           activeProject,
+          assignedProjects,
           todayStatus,
           recentAttendance,
           recentProductivity,

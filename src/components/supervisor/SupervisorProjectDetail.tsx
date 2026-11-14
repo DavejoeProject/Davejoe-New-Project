@@ -44,6 +44,7 @@ import {
   ProjectActivityEntry,
 } from '../../services/projectControlService';
 import { formatNigerianDate, formatNaira } from '../../services/materialsService';
+import { AttendanceService } from '../../services/attendanceService';
 import { CreateDailyReportModal } from './CreateDailyReportModal';
 import { ClockInWorkerModal } from './ClockInWorkerModal';
 import { LogProductivityModal } from './LogProductivityModal';
@@ -112,7 +113,7 @@ export const SupervisorProjectDetail: React.FC<SupervisorProjectDetailProps> = (
       // 1. Fetch project header
       const { data: projData, error: projErr } = await supabase
         .from('projects')
-        .select('*')
+        .select('*, clients ( id, name, contact_person, phone, email )')
         .eq('id', projectId)
         .maybeSingle();
 
@@ -134,22 +135,8 @@ export const SupervisorProjectDetail: React.FC<SupervisorProjectDetailProps> = (
         ProjectControlService.getProjectMetrics(projectId),
         ProjectControlService.getProjectWorkforce(projectId),
         supabase.from('project_tasks').select('*').eq('project_id', projectId).order('created_at', { ascending: false }),
-        supabase.from('project_notes').select('*').eq('project_id', projectId).eq('note_type', 'daily_report').order('created_at', { ascending: false }),
-        supabase.from('attendance_records').select(`
-          id,
-          attendance_date,
-          status,
-          clock_in_time,
-          clock_out_time,
-          is_clocked_out,
-          workforce_member_id,
-          workforce_members (
-            id,
-            workforce_code,
-            trade,
-            profiles ( display_name, first_name, last_name )
-          )
-        `).eq('project_id', projectId).order('attendance_date', { ascending: false }).limit(30),
+        supabase.from('project_notes').select('*').eq('project_id', projectId).order('created_at', { ascending: false }),
+        AttendanceService.getAttendanceRegister({ projectIds: [projectId] }),
         supabase.from('productivity_records').select(`
           id,
           work_date,
@@ -174,7 +161,7 @@ export const SupervisorProjectDetail: React.FC<SupervisorProjectDetailProps> = (
       setMetrics(metricsRes.data);
       setWorkforce(workforceRes.data || []);
       setTasks(tasksRes.data || []);
-      setAttendanceRecords(attRes.data || []);
+      setAttendanceRecords((attRes.records || []).slice(0, 30));
       setProductivityRecords(prodRes.data || []);
       setMaterialRequirements(matDataRes.requirements || []);
       setMaterialRequests(matDataRes.requests || []);
@@ -312,7 +299,18 @@ export const SupervisorProjectDetail: React.FC<SupervisorProjectDetailProps> = (
                   <span>Target: {formatNigerianDate(project.expected_completion_date)}</span>
                 </span>
               )}
+              {(project as any)?.clients?.name && (
+                <span className="flex items-center gap-1">
+                  <Building2 className="w-3.5 h-3.5 text-[#18b892]" />
+                  <span>Client: {(project as any).clients.name}</span>
+                </span>
+              )}
             </div>
+            {project?.description && (
+              <p className="text-xs text-slate-600 mt-2.5 leading-relaxed max-w-3xl">
+                {project.description}
+              </p>
+            )}
           </div>
 
           <div className="flex items-center gap-2">

@@ -715,6 +715,34 @@ export class WorkforceService {
         return { error: error.message };
       }
 
+      // Non-blocking sync to project_members for staff with login profiles
+      try {
+        const { data: wfRow } = await supabase
+          .from('workforce_members')
+          .select('profile_id, trade')
+          .eq('id', payload.workforceMemberId)
+          .maybeSingle();
+
+        if (wfRow?.profile_id) {
+          const { data: existingPm } = await supabase
+            .from('project_members')
+            .select('id')
+            .eq('project_id', payload.projectId)
+            .eq('user_id', wfRow.profile_id)
+            .limit(1);
+
+          if (!existingPm || existingPm.length === 0) {
+            await supabase.from('project_members').insert({
+              project_id: payload.projectId,
+              user_id: wfRow.profile_id,
+              role: payload.roleOnProject?.trim() || wfRow.trade || 'staff',
+            });
+          }
+        }
+      } catch {
+        // DB trigger handles authoritative sync when migration is applied
+      }
+
       return { error: null };
     } catch (err: any) {
       return { error: err?.message || 'Failed to assign worker to project.' };

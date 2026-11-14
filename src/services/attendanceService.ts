@@ -105,6 +105,19 @@ export interface AttendanceFilterParams {
  * Returns today's ISO date string (YYYY-MM-DD) in West Africa Time / Nigerian local context
  */
 export function getNigerianTodayIso(): string {
+  try {
+    const formatted = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'Africa/Lagos',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    }).format(new Date());
+    if (/^\d{4}-\d{2}-\d{2}$/.test(formatted)) {
+      return formatted;
+    }
+  } catch {
+    // Fallback to browser local date
+  }
   const d = new Date();
   const year = d.getFullYear();
   const month = String(d.getMonth() + 1).padStart(2, '0');
@@ -142,29 +155,29 @@ export class AttendanceService {
       );
       if (isPrivileged) return true;
 
-      const { data: member } = await supabase
+      const { data: members } = await supabase
         .from('project_members')
         .select('id')
         .eq('project_id', projectId)
         .eq('user_id', userId)
-        .maybeSingle();
-      if (member) return true;
+        .limit(1);
+      if (members && members.length > 0) return true;
 
-      const { data: wfMember } = await supabase
+      const { data: wfMembers } = await supabase
         .from('workforce_members')
         .select('id')
-        .eq('profile_id', userId)
-        .maybeSingle();
+        .eq('profile_id', userId);
 
-      if (wfMember?.id) {
-        const { data: assignment } = await supabase
+      const wfIds = (wfMembers || []).map((w: any) => w.id);
+      if (wfIds.length > 0) {
+        const { data: assignments } = await supabase
           .from('project_workforce_assignments')
           .select('id')
           .eq('project_id', projectId)
-          .eq('workforce_member_id', wfMember.id)
+          .in('workforce_member_id', wfIds)
           .eq('is_active', true)
-          .maybeSingle();
-        if (assignment) return true;
+          .limit(1);
+        if (assignments && assignments.length > 0) return true;
       }
 
       return false;
@@ -813,14 +826,13 @@ export class AttendanceService {
       await ensureValidSession();
       const today = getNigerianTodayIso();
 
-      // 1. Find linked workforce_member record
-      const { data: wfMember } = await supabase
+      // 1. Find ALL linked workforce_member records (multi-row safe)
+      const { data: wfMembers } = await supabase
         .from('workforce_members')
         .select('id')
-        .eq('profile_id', userId)
-        .maybeSingle();
+        .eq('profile_id', userId);
 
-      const memberId = wfMember?.id;
+      const memberIds = (wfMembers || []).map((w: any) => w.id);
 
       // 2. Query today's attendance record
       let query = supabase
@@ -837,31 +849,31 @@ export class AttendanceService {
         `)
         .eq('attendance_date', today);
 
-      if (memberId) {
-        query = query.or(`workforce_member_id.eq.${memberId},recorded_by.eq.${userId}`);
+      if (memberIds.length > 0) {
+        query = query.or(`workforce_member_id.in.(${memberIds.join(',')}),recorded_by.eq.${userId}`);
       } else {
         query = query.eq('recorded_by', userId);
       }
 
       let record: any = null;
-      const { data: recordData, error } = await query.order('created_at', { ascending: false }).limit(1).maybeSingle();
+      const { data: recordRows, error } = await query.order('created_at', { ascending: false }).limit(1);
 
-      if (!error && recordData) {
-        record = recordData;
+      if (!error && recordRows && recordRows.length > 0) {
+        record = recordRows[0];
       } else if (error) {
         let fallbackQuery = supabase
           .from('attendance_records')
           .select('id, attendance_date, status, created_at, updated_at, actual_hours, project_id')
           .eq('attendance_date', today);
 
-        if (memberId) {
-          fallbackQuery = fallbackQuery.or(`workforce_member_id.eq.${memberId},recorded_by.eq.${userId}`);
+        if (memberIds.length > 0) {
+          fallbackQuery = fallbackQuery.or(`workforce_member_id.in.(${memberIds.join(',')}),recorded_by.eq.${userId}`);
         } else {
           fallbackQuery = fallbackQuery.eq('recorded_by', userId);
         }
 
-        const { data: fbData } = await fallbackQuery.order('created_at', { ascending: false }).limit(1).maybeSingle();
-        record = fbData;
+        const { data: fbRows } = await fallbackQuery.order('created_at', { ascending: false }).limit(1);
+        record = fbRows?.[0] || null;
       }
 
       if (!record) return fallback;
@@ -957,16 +969,17 @@ export class AttendanceService {
     };
     const tradeLabel = profile?.job_title || roleTrades[primaryRole] || 'Enterprise Staff';
 
-    // Phase 1: Check if already explicitly linked by profile_id
+    // Phase 1: Check if already explicitly linked by profile_id (multi-row safe)
     try {
-      const { data: existingWf, error: existingErr } = await supabase
+      const { data: existingWfs, error: existingErr } = await supabase
         .from('workforce_members')
         .select('id, workforce_code, trade')
         .eq('profile_id', userId)
-        .maybeSingle();
+        .order('created_at', { ascending: false })
+        .limit(1);
 
-      if (!existingErr && existingWf?.id) {
-        return existingWf.id;
+      if (!existingErr && existingWfs && existingWfs[0]?.id) {
+        return existingWfs[0].id;
       }
     } catch (err) {
       console.warn('[AttendanceService] Phase 1 check error:', err);
@@ -1049,14 +1062,15 @@ export class AttendanceService {
 
     // Phase 5: Re-check if parallel action or DB trigger created the record
     try {
-      const { data: recheckedWf } = await supabase
+      const { data: recheckedWfs } = await supabase
         .from('workforce_members')
         .select('id')
         .eq('profile_id', userId)
-        .maybeSingle();
+        .order('created_at', { ascending: false })
+        .limit(1);
 
-      if (recheckedWf?.id) {
-        return recheckedWf.id;
+      if (recheckedWfs && recheckedWfs[0]?.id) {
+        return recheckedWfs[0].id;
       }
     } catch {
       // Non-blocking
@@ -1069,6 +1083,9 @@ export class AttendanceService {
    * Universal Clock-In for ALL Active Authorized Staff Roles:
    * Site Supervisor, Technical QC, Procurement & Logistics, Accounts & Finance,
    * Artisan, Social Media Manager, Admin, Management / CEO, and Executive Director.
+   *
+   * Enforces project start-date readiness: assigned staff can clock in on or after
+   * the project/assignment start date (Africa/Lagos), not before it begins.
    */
   static async clockInNonLeadershipUser(params: {
     userId: string;
@@ -1081,6 +1098,31 @@ export class AttendanceService {
     try {
       const { session } = await ensureValidSession();
       if (!session?.user) return { success: false, error: 'User is not authenticated.' };
+
+      const today = getNigerianTodayIso();
+
+      // 0. Try authoritative SECURITY DEFINER RPC clock_in_to_project if deployed
+      try {
+        const { data: rpcRes, error: rpcErr } = await supabase.rpc('clock_in_to_project', {
+          p_project_id: params.projectId || null,
+          p_latitude: params.latitude ?? null,
+          p_longitude: params.longitude ?? null,
+        });
+
+        if (!rpcErr && rpcRes && typeof rpcRes === 'object') {
+          const payload = rpcRes as { success?: boolean; error?: string; attendance_id?: string; project_name?: string };
+          if (payload.success) {
+            return { success: true, data: payload, error: null };
+          }
+          if (payload.error) {
+            return { success: false, error: payload.error };
+          }
+        } else if (rpcErr && rpcErr.code !== 'PGRST202' && !rpcErr.message?.includes('Could not find the function')) {
+          console.warn('[AttendanceService] clock_in_to_project RPC warning:', rpcErr.message);
+        }
+      } catch {
+        // Fallback below if RPC is not yet deployed
+      }
 
       // 1. Verify user profile and account status
       const { data: profile } = await supabase
@@ -1113,26 +1155,74 @@ export class AttendanceService {
         };
       }
 
-      // 4. Resolve target project
+      // 4. Resolve target project & enforce start-date readiness
+      const { AssignedProjectsService } = await import('./assignedProjectsService');
+      const { projects: assignedProjects } = await AssignedProjectsService.getMyAssignedProjects(params.userId);
+
       let targetProjectId = params.projectId;
-      if (!targetProjectId) {
-        // Check active assignment
-        const { data: assign } = await supabase
-          .from('project_workforce_assignments')
-          .select('project_id')
-          .eq('workforce_member_id', workforceMemberId)
-          .eq('is_active', true)
-          .limit(1)
-          .maybeSingle();
-
-        if (assign?.project_id) {
-          targetProjectId = assign.project_id;
+      if (targetProjectId) {
+        const matchedAssigned = assignedProjects.find((p) => p.project_id === targetProjectId);
+        if (matchedAssigned) {
+          if (matchedAssigned.is_upcoming && matchedAssigned.effective_start_date) {
+            return {
+              success: false,
+              error: `Project "${matchedAssigned.name}" is scheduled to start on ${formatNigerianDate(matchedAssigned.effective_start_date)}. You can clock in on that day.`,
+            };
+          }
+          if (!matchedAssigned.can_clock_in_today) {
+            return {
+              success: false,
+              error: `Project "${matchedAssigned.name}" is currently ${matchedAssigned.status.toUpperCase()} and is not open for daily clock-in.`,
+            };
+          }
         } else {
-          // Fallback to first available enterprise project
-          const { data: proj } = await supabase.from('projects').select('id').limit(1).maybeSingle();
-          targetProjectId = proj?.id;
+          // Verify start date if selected directly
+          const { data: projRow } = await supabase
+            .from('projects')
+            .select('id, name, start_date, status')
+            .eq('id', targetProjectId)
+            .maybeSingle();
+          if (projRow?.start_date && String(projRow.start_date).slice(0, 10) > today) {
+            return {
+              success: false,
+              error: `Project "${projRow.name}" is scheduled to start on ${formatNigerianDate(projRow.start_date)}. You can clock in on that day.`,
+            };
+          }
+        }
+      } else {
+        if (assignedProjects.length > 0) {
+          const eligible =
+            assignedProjects.find((p) => p.is_starting_today && p.can_clock_in_today) ||
+            assignedProjects.find((p) => p.can_clock_in_today);
 
-          // If no projects exist in database, create a default operational project
+          if (eligible) {
+            targetProjectId = eligible.project_id;
+          } else {
+            const upcomingSorted = assignedProjects
+              .filter((p) => p.effective_start_date)
+              .sort((a, b) => (a.effective_start_date || '').localeCompare(b.effective_start_date || ''));
+            const nextProj = upcomingSorted[0];
+            if (nextProj?.effective_start_date) {
+              return {
+                success: false,
+                error: `Your assigned project "${nextProj.name}" is scheduled to start on ${formatNigerianDate(nextProj.effective_start_date)}. You can clock in on the start date.`,
+              };
+            }
+          }
+        }
+
+        if (!targetProjectId) {
+          // Fallback to first available operational project for unallocated head-office staff
+          const { data: projRows } = await supabase
+            .from('projects')
+            .select('id, start_date')
+            .order('created_at', { ascending: true })
+            .limit(10);
+          const readyProj = (projRows || []).find(
+            (p: any) => !p.start_date || String(p.start_date).slice(0, 10) <= today
+          );
+          targetProjectId = readyProj?.id || projRows?.[0]?.id;
+
           if (!targetProjectId) {
             try {
               const { data: defaultProj } = await supabase
@@ -1163,25 +1253,22 @@ export class AttendanceService {
         };
       }
 
-      const today = getNigerianTodayIso();
+      // 5. Prevent duplicate clock-in for today across ALL matching workforce_member_ids
+      const { data: allWfRows } = await supabase
+        .from('workforce_members')
+        .select('id')
+        .eq('profile_id', params.userId);
+      const allWfIds = Array.from(new Set([workforceMemberId, ...(allWfRows || []).map((w: any) => w.id)]));
 
-      // 5. Prevent duplicate clock-in for today
-      // Match by either workforce_member_id OR recorded_by to prevent any double shifts
-      let dupQuery = supabase
+      const { data: existingShifts } = await supabase
         .from('attendance_records')
         .select('id, status, created_at')
-        .eq('attendance_date', today);
-
-      if (workforceMemberId) {
-        dupQuery = dupQuery.or(`workforce_member_id.eq.${workforceMemberId},recorded_by.eq.${params.userId}`);
-      } else {
-        dupQuery = dupQuery.eq('recorded_by', params.userId);
-      }
-
-      const { data: existingShift } = await dupQuery
+        .eq('attendance_date', today)
+        .or(`workforce_member_id.in.(${allWfIds.join(',')}),recorded_by.eq.${params.userId}`)
         .order('created_at', { ascending: false })
-        .limit(1)
-        .maybeSingle();
+        .limit(1);
+
+      const existingShift = existingShifts?.[0] || null;
 
       if (existingShift) {
         return {
@@ -1223,7 +1310,6 @@ export class AttendanceService {
 
       if (insErr) {
         console.warn('[AttendanceService] Insert with join failed, retrying simple insert:', insErr.message);
-        // Fallback retry without foreign table projection in case join expansion failed
         const { data: retryData, error: retryErr } = await supabase
           .from('attendance_records')
           .insert(payload)
@@ -1240,7 +1326,7 @@ export class AttendanceService {
 
       return { success: true, data: insertedRecord, error: null };
     } catch (err: any) {
-      console.error('[AttendanceService] clockInNonLeadershipUser error:', err);
+      console.warn('[AttendanceService] clockInNonLeadershipUser warning:', err);
       return { success: false, error: err.message || 'Failed to record clock-in.' };
     }
   }
@@ -1340,14 +1426,13 @@ export class AttendanceService {
     try {
       await ensureValidSession();
 
-      // Find linked workforce member id
-      const { data: wfMember } = await supabase
+      // Find ALL linked workforce member ids (multi-row safe)
+      const { data: wfMembers } = await supabase
         .from('workforce_members')
         .select('id')
-        .eq('profile_id', userId)
-        .maybeSingle();
+        .eq('profile_id', userId);
 
-      const memberId = wfMember?.id;
+      const memberIds = (wfMembers || []).map((w: any) => w.id);
 
       let query = supabase
         .from('attendance_records')
@@ -1362,8 +1447,8 @@ export class AttendanceService {
           projects:project_id(id, name, project_code)
         `);
 
-      if (memberId) {
-        query = query.or(`workforce_member_id.eq.${memberId},recorded_by.eq.${userId}`);
+      if (memberIds.length > 0) {
+        query = query.or(`workforce_member_id.in.(${memberIds.join(',')}),recorded_by.eq.${userId}`);
       } else {
         query = query.eq('recorded_by', userId);
       }

@@ -17,6 +17,7 @@ import {
   User,
   ClipboardList,
   RotateCcw,
+  FolderKanban,
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import {
@@ -28,10 +29,12 @@ import { ATTENDANCE_STATUS_CONFIG, formatTimeFromIso } from '../../services/atte
 import { RequestOvertimeModal } from './RequestOvertimeModal';
 import { TaskInstructionsPanel } from '../tasks/TaskInstructionsPanel';
 import { ProjectMaterialRemnantsModule } from '../remnants/ProjectMaterialRemnantsModule';
+import { AssignedProjectsSection } from '../projects/AssignedProjectsSection';
 
 export const ArtisanDashboard: React.FC = () => {
   const { user, profile, logout } = useAuth();
-  const [artisanTab, setArtisanTab] = useState<'shift' | 'tasks' | 'remnants' | 'history' | 'profile'>('shift');
+  const [artisanTab, setArtisanTab] = useState<'shift' | 'projects' | 'tasks' | 'remnants' | 'history' | 'profile'>('shift');
+  const [selectedProjectId, setSelectedProjectId] = useState<string>('');
 
   const [data, setData] = useState<ArtisanDashboardData | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -63,6 +66,15 @@ export const ArtisanDashboard: React.FC = () => {
         setErrorMessage(res.error);
       } else {
         setData(res.data);
+        const list = res.data?.assignedProjects || [];
+        const preferred =
+          list.find((p) => p.can_clock_in_today) ||
+          list[0] ||
+          null;
+        setSelectedProjectId((prev) => {
+          if (prev && list.some((p) => p.project_id === prev)) return prev;
+          return preferred?.project_id || res.data?.activeProject?.projectId || '';
+        });
       }
 
       setIsLoading(false);
@@ -74,6 +86,12 @@ export const ArtisanDashboard: React.FC = () => {
   useEffect(() => {
     fetchArtisanData();
   }, [fetchArtisanData]);
+
+  const assignedProjects = data?.assignedProjects || [];
+  const selectedAssignedProject =
+    assignedProjects.find((p) => p.project_id === selectedProjectId) ||
+    assignedProjects[0] ||
+    null;
 
   // Handle Self Clock-In
   const handleClockIn = async () => {
@@ -97,7 +115,7 @@ export const ArtisanDashboard: React.FC = () => {
 
     const res = await ArtisanDashboardService.selfClockIn({
       userId: user.id,
-      projectId: data?.activeProject?.projectId,
+      projectId: selectedAssignedProject?.project_id || data?.activeProject?.projectId,
       latitude: coords.latitude,
       longitude: coords.longitude,
     });
@@ -251,6 +269,7 @@ export const ArtisanDashboard: React.FC = () => {
         <div className="bg-white p-1.5 rounded-2xl border border-slate-200/80 shadow-2xs flex items-center gap-1 overflow-x-auto no-scrollbar touch-pan-x flex-nowrap">
           {[
             { key: 'shift', label: "Today's Shift", icon: Clock },
+            { key: 'projects', label: `My Projects (${assignedProjects.length})`, icon: FolderKanban },
             { key: 'tasks', label: 'My Task Instructions', icon: ClipboardList },
             { key: 'remnants', label: 'Report Material Remnants', icon: RotateCcw },
             { key: 'history', label: 'Attendance History', icon: Calendar },
@@ -332,17 +351,51 @@ export const ArtisanDashboard: React.FC = () => {
               </div>
             </div>
 
-            {/* State-Aware Action Button */}
-            <div className="flex justify-start md:justify-end">
+            {/* State-Aware Action Button & Project Selector */}
+            <div className="flex flex-col items-stretch md:items-end gap-2">
+              {!data?.todayStatus.hasRecord && assignedProjects.length > 0 && (
+                <div className="w-full md:w-64">
+                  <label className="block text-[10px] font-bold uppercase text-slate-400 mb-1">
+                    Project Site for Shift
+                  </label>
+                  <select
+                    value={selectedAssignedProject?.project_id || ''}
+                    onChange={(e) => setSelectedProjectId(e.target.value)}
+                    className="w-full h-9 px-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 outline-none focus:border-[#18b892]"
+                  >
+                    {assignedProjects.map((proj) => (
+                      <option key={proj.project_id} value={proj.project_id}>
+                        {proj.project_code ? `[${proj.project_code}] ` : ''}
+                        {proj.name}
+                        {!proj.can_clock_in_today && proj.effective_start_date
+                          ? ` (Starts ${formatNigerianDate(proj.effective_start_date)})`
+                          : proj.is_starting_today
+                          ? ' (Starts Today)'
+                          : ''}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
               {!data?.todayStatus.hasRecord ? (
                 <button
                   type="button"
                   onClick={handleClockIn}
-                  disabled={isClocking}
-                  className="w-full md:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#18b892] hover:bg-[#016f4e] text-white text-xs font-bold rounded-xl shadow-sm transition-all disabled:opacity-50 cursor-pointer"
+                  disabled={
+                    isClocking ||
+                    (selectedAssignedProject ? !selectedAssignedProject.can_clock_in_today : false)
+                  }
+                  className="w-full md:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#18b892] hover:bg-[#016f4e] text-white text-xs font-bold rounded-xl shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                 >
                   <Clock className="w-4 h-4" />
-                  <span>{isClocking ? 'Recording...' : 'CLOCK IN TODAY'}</span>
+                  <span>
+                    {isClocking
+                      ? 'Recording...'
+                      : selectedAssignedProject && !selectedAssignedProject.can_clock_in_today && selectedAssignedProject.effective_start_date
+                      ? `Starts ${formatNigerianDate(selectedAssignedProject.effective_start_date)}`
+                      : 'CLOCK IN TODAY'}
+                  </span>
                 </button>
               ) : !data.todayStatus.isClockedOut ? (
                 <button
@@ -367,55 +420,14 @@ export const ArtisanDashboard: React.FC = () => {
           </div>
         </div>
 
-        {/* 2. My Project Card */}
-        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs p-6 space-y-4">
-          <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-            <div className="flex items-center gap-2">
-              <Building className="w-5 h-5 text-[#18b892]" />
-              <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
-                My Assigned Project
-              </h3>
-            </div>
-            {data?.activeProject && (
-              <span className="text-xs font-mono font-bold text-[#18b892] bg-[#E6F4EA] px-2 py-0.5 rounded-md border border-[#18b892]/20">
-                {data.activeProject.projectCode}
-              </span>
-            )}
-          </div>
-
-          {!data?.activeProject ? (
-            <div className="py-6 text-center text-xs text-slate-500">
-              No active project assignment recorded yet. Your Site Supervisor will link you to an operational project.
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 pt-2">
-              <div>
-                <span className="text-[10px] font-bold uppercase text-slate-400 block mb-0.5">Project</span>
-                <span className="text-sm font-bold text-slate-900">{data.activeProject.projectName}</span>
-              </div>
-
-              <div>
-                <span className="text-[10px] font-bold uppercase text-slate-400 block mb-0.5">Role on Project</span>
-                <span className="text-xs font-semibold text-slate-800">{data.activeProject.roleOnProject}</span>
-              </div>
-
-              <div>
-                <span className="text-[10px] font-bold uppercase text-slate-400 block mb-0.5">Location</span>
-                <span className="text-xs text-slate-600 flex items-center gap-1">
-                  <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                  <span className="truncate">{data.activeProject.location || 'Site Location'}</span>
-                </span>
-              </div>
-
-              <div>
-                <span className="text-[10px] font-bold uppercase text-slate-400 block mb-0.5">Assignment</span>
-                <span className="text-xs text-slate-600">
-                  {data.activeProject.startDate ? formatNigerianDate(data.activeProject.startDate) : 'Active'}
-                </span>
-              </div>
-            </div>
-          )}
-        </div>
+        {/* 2. All Assigned Projects & Full Details */}
+        <AssignedProjectsSection
+          title="My Assigned Projects"
+          subtitle="All projects assigned to your trade — inspect complete site details, team, tasks, and clock in on the project start date."
+          compact
+          onOpenProjectDetails={() => setArtisanTab('projects')}
+          onClockInSuccess={() => fetchArtisanData(true)}
+        />
 
         {/* 3. Split Grid: My Work (Productivity) & My Overtime */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -511,14 +523,23 @@ export const ArtisanDashboard: React.FC = () => {
         </div>
         )}
 
+        {/* All Assigned Projects Tab */}
+        {artisanTab === 'projects' && (
+          <AssignedProjectsSection
+            title="My Assigned Projects"
+            subtitle="Complete details, client info, site roster, BOQ materials, task instructions, and start-day clock-in for every project assigned to you."
+            onClockInSuccess={() => fetchArtisanData(true)}
+          />
+        )}
+
         {/* 2. My Task Instructions & Technical Specifications */}
         {artisanTab === 'tasks' && (
-          <TaskInstructionsPanel projectId={data?.activeProject?.projectId} />
+          <TaskInstructionsPanel projectId={selectedAssignedProject?.project_id || data?.activeProject?.projectId} />
         )}
 
         {/* 3. Report Material Remnants on Site */}
         {artisanTab === 'remnants' && (
-          <ProjectMaterialRemnantsModule initialProjectId={data?.activeProject?.projectId} />
+          <ProjectMaterialRemnantsModule initialProjectId={selectedAssignedProject?.project_id || data?.activeProject?.projectId} />
         )}
 
         {/* 4. My Recent Attendance History (Last 14 Days) */}
@@ -640,8 +661,8 @@ export const ArtisanDashboard: React.FC = () => {
           onClose={() => setIsOvertimeModalOpen(false)}
           onSuccess={() => fetchArtisanData(true)}
           userId={user.id}
-          projectId={data?.activeProject?.projectId}
-          projectName={data?.activeProject?.projectName}
+          projectId={selectedAssignedProject?.project_id || data?.activeProject?.projectId}
+          projectName={selectedAssignedProject?.name || data?.activeProject?.projectName}
         />
       )}
     </div>

@@ -24,10 +24,11 @@ import { DailyAttendanceWidget } from '../attendance/DailyAttendanceWidget';
 import { ProjectMaterialRemnantsModule } from '../remnants/ProjectMaterialRemnantsModule';
 import { ToolsEquipmentModule } from '../tools/ToolsEquipmentModule';
 import { TaskInstructionsPanel } from '../tasks/TaskInstructionsPanel';
+import { AssignedProjectsSection } from '../projects/AssignedProjectsSection';
 
 export const TechnicalDashboard: React.FC = () => {
   const { user, profile, logout } = useAuth();
-  const [activeTab, setActiveTab] = useState<'inspections' | 'tasks' | 'tools' | 'remnants'>('inspections');
+  const [activeTab, setActiveTab] = useState<'inspections' | 'projects' | 'tasks' | 'tools' | 'remnants'>('inspections');
   const [inspections, setInspections] = useState<any[]>([]);
   const [projects, setProjects] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -205,6 +206,7 @@ export const TechnicalDashboard: React.FC = () => {
         <div className="bg-white p-1.5 rounded-2xl border border-slate-200/80 shadow-2xs flex items-center gap-1 overflow-x-auto no-scrollbar touch-pan-x flex-nowrap">
           {[
             { key: 'inspections', label: 'Technical Inspections', icon: ClipboardCheck },
+            { key: 'projects', label: 'My Assigned Projects', icon: FolderKanban },
             { key: 'tasks', label: 'Task Verification & Handovers', icon: FileCheck },
             { key: 'tools', label: 'Tools Return & Condition Audits', icon: Wrench },
             { key: 'remnants', label: 'Remnants Quality Review', icon: RotateCcw },
@@ -491,6 +493,15 @@ export const TechnicalDashboard: React.FC = () => {
           )}
         </div>
         </div>
+        )}
+
+        {/* Tab: My Assigned Projects */}
+        {activeTab === 'projects' && (
+          <AssignedProjectsSection
+            title="My Assigned Projects"
+            subtitle="Projects assigned to your technical & QC supervision — inspect full project scope, tasks, BOQ materials, and clock in on start date."
+            onClockInSuccess={handleRefresh}
+          />
         )}
 
         {/* Tab 2: Task Verification & Quality Review */}

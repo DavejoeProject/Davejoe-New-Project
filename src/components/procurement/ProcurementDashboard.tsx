@@ -27,10 +27,11 @@ import { ToolsEquipmentModule } from '../tools/ToolsEquipmentModule';
 import { CreatePurchaseOrderModal } from '../dashboard/CreatePurchaseOrderModal';
 import { NewMaterialRequestModal } from '../dashboard/NewMaterialRequestModal';
 import { RecordDeliveryModal } from '../dashboard/RecordDeliveryModal';
+import { AssignedProjectsSection } from '../projects/AssignedProjectsSection';
 
 export const ProcurementDashboard: React.FC = () => {
   const { user, profile, logout } = useAuth();
-  const [activeTab, setActiveTab] = useState<'orders' | 'requests' | 'deliveries' | 'suppliers' | 'remnants' | 'tools'>('orders');
+  const [activeTab, setActiveTab] = useState<'orders' | 'requests' | 'deliveries' | 'suppliers' | 'projects' | 'remnants' | 'tools'>('orders');
 
   const [purchaseOrders, setPurchaseOrders] = useState<any[]>([]);
   const [materialRequests, setMaterialRequests] = useState<any[]>([]);
@@ -296,6 +297,15 @@ export const ProcurementDashboard: React.FC = () => {
           </button>
           <button
             type="button"
+            onClick={() => setActiveTab('projects')}
+            className={`min-h-[42px] px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-colors cursor-pointer ${
+              activeTab === 'projects' ? 'bg-[#18b892] text-white shadow-xs' : 'text-slate-600 hover:bg-slate-100'
+            }`}
+          >
+            My Assigned Projects
+          </button>
+          <button
+            type="button"
             onClick={() => setActiveTab('remnants')}
             className={`min-h-[42px] px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-colors cursor-pointer ${
               activeTab === 'remnants' ? 'bg-[#18b892] text-white shadow-xs' : 'text-slate-600 hover:bg-slate-100'
@@ -502,6 +512,15 @@ export const ProcurementDashboard: React.FC = () => {
               </div>
             )}
           </div>
+        )}
+
+        {/* TAB: MY ASSIGNED PROJECTS */}
+        {activeTab === 'projects' && (
+          <AssignedProjectsSection
+            title="My Assigned Projects"
+            subtitle="Projects assigned to you — inspect full site specifications, client details, BOQ materials, and clock in on start date."
+            onClockInSuccess={handleRefresh}
+          />
         )}
 
         {/* TAB 5: MATERIAL REMNANTS & RECOVERY */}

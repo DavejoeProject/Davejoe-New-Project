@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import {
   HardHat,
   Calendar,
@@ -35,6 +35,8 @@ import { formatNigerianDate, formatNaira } from '../../services/materialsService
 import { ATTENDANCE_STATUS_CONFIG, formatTimeFromIso } from '../../services/attendanceService';
 import { AttendanceRegister } from '../attendance/AttendanceRegister';
 import { DailyAttendanceWidget } from '../attendance/DailyAttendanceWidget';
+import { AssignedProjectsSection } from '../projects/AssignedProjectsSection';
+import { SupervisorProjectDetail } from './SupervisorProjectDetail';
 import { ProjectMaterialRemnantsModule } from '../remnants/ProjectMaterialRemnantsModule';
 import { ToolsEquipmentModule } from '../tools/ToolsEquipmentModule';
 import { TaskInstructionsPanel } from '../tasks/TaskInstructionsPanel';
@@ -60,8 +62,9 @@ export type SupervisorNavKey =
 export const SupervisorDashboard: React.FC = () => {
   const { user, profile, logout } = useAuth();
   const navigate = useNavigate();
+  const { projectId: routeProjectId } = useParams<{ projectId?: string }>();
 
-  const [activeTab, setActiveTab] = useState<SupervisorNavKey>('today');
+  const [activeTab, setActiveTab] = useState<SupervisorNavKey>(() => (routeProjectId ? 'projects' : 'today'));
   const [data, setData] = useState<SupervisorDashboardData | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
@@ -69,6 +72,7 @@ export const SupervisorDashboard: React.FC = () => {
 
   // Selected project for project workspace drill-down
   const [selectedProject, setSelectedProject] = useState<SupervisorProjectItem | null>(null);
+  const activeDetailProjectId = selectedProject?.id || routeProjectId || null;
 
   // Modals
   const [isClockInOpen, setIsClockInOpen] = useState<boolean>(false);
@@ -317,6 +321,7 @@ export const SupervisorDashboard: React.FC = () => {
                 onClick={() => {
                   setActiveTab(t.key as SupervisorNavKey);
                   setSelectedProject(null);
+                  if (routeProjectId) navigate('/supervisor');
                 }}
                 className={`flex items-center gap-2 px-3.5 py-2.5 min-h-[42px] rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
                   isActive
@@ -332,10 +337,24 @@ export const SupervisorDashboard: React.FC = () => {
         </div>
 
         {/* Tab 1: Today's Operations */}
-        {activeTab === 'today' && (
+        {activeTab === 'today' && !activeDetailProjectId && (
           <div className="space-y-6">
             {/* Daily Self Attendance for Site Supervisor */}
-            <DailyAttendanceWidget />
+            <DailyAttendanceWidget onAttendanceChanged={() => fetchDashboardData(true)} />
+
+            {/* Assigned Projects Quick Overview & Start-Day Clock-In */}
+            <AssignedProjectsSection
+              title="My Assigned Projects"
+              subtitle="All projects assigned to your supervision — view full site details or clock in on the project start date."
+              compact
+              onOpenProjectDetails={(proj) => {
+                const matched = data?.projects.find((p) => p.id === proj.project_id) || null;
+                if (matched) setSelectedProject(matched);
+                else navigate(`/supervisor/projects/${proj.project_id}`);
+                setActiveTab('projects');
+              }}
+              onClockInSuccess={() => fetchDashboardData(true)}
+            />
 
             {/* Split Grid: Today's Attendance Snapshot vs Today's Productivity Logs */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -541,29 +560,33 @@ export const SupervisorDashboard: React.FC = () => {
           </div>
         )}
 
-        {/* Tab 2: My Projects */}
-        {activeTab === 'projects' && (
-          <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-base font-bold text-slate-900">Assigned Project Operations</h3>
-                <p className="text-xs text-slate-500">
-                  Projects under your site supervision, personnel muster, and progress oversight.
-                </p>
-              </div>
-            </div>
+        {/* Project Detail Workspace View (triggered from Today's Operations, My Projects, or /supervisor/projects/:projectId) */}
+        {activeDetailProjectId && (
+          <SupervisorProjectDetail
+            projectId={activeDetailProjectId}
+            onBack={() => {
+              setSelectedProject(null);
+              if (routeProjectId) navigate('/supervisor');
+            }}
+            supervisorProjects={data?.projects || []}
+          />
+        )}
 
-            {isLoading ? (
-              <div className="py-12 text-center text-xs text-slate-400">Loading projects...</div>
-            ) : (data?.projects.length || 0) === 0 ? (
-              <div className="py-12 text-center bg-white rounded-2xl border border-slate-200 p-8">
-                <Building className="w-10 h-10 text-slate-300 mx-auto mb-2" />
-                <h4 className="text-sm font-bold text-slate-800">No projects currently assigned</h4>
-                <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
-                  You are not yet linked to active projects in the workforce assignment directory. Contact Management.
-                </p>
-              </div>
-            ) : (
+        {/* Tab 2: My Projects */}
+        {activeTab === 'projects' && !activeDetailProjectId && (
+          <div className="space-y-6">
+            <AssignedProjectsSection
+              title="Assigned Project Operations"
+              subtitle="Projects under your site supervision — click View Details for full site workspace, team roster, tasks, BOQ materials, and reports."
+              onOpenProjectDetails={(proj) => {
+                const matched = data?.projects.find((p) => p.id === proj.project_id) || null;
+                if (matched) setSelectedProject(matched);
+                else navigate(`/supervisor/projects/${proj.project_id}`);
+              }}
+              onClockInSuccess={() => fetchDashboardData(true)}
+            />
+
+            {(data?.projects.length || 0) > 0 && (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {data?.projects.map((proj) => {
                   const loc = [proj.address, proj.city, proj.state].filter(Boolean).join(', ') || 'Site location pending';
@@ -571,7 +594,7 @@ export const SupervisorDashboard: React.FC = () => {
                   return (
                     <div
                       key={proj.id}
-                      className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-2xs flex flex-col justify-between hover:border-slate-300 transition-all"
+                      className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-2xs flex flex-col justify-between hover:border-[#18b892]/50 transition-all"
                     >
                       <div>
                         <div className="flex items-center justify-between gap-2 mb-2">
@@ -579,15 +602,29 @@ export const SupervisorDashboard: React.FC = () => {
                             {proj.project_code}
                           </span>
                           <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 uppercase">
-                            {proj.status}
+                            {proj.status.replace(/_/g, ' ')}
                           </span>
                         </div>
 
                         <h4 className="text-sm font-bold text-slate-900 leading-snug">{proj.name}</h4>
+                        {proj.description && (
+                          <p className="text-xs text-slate-600 line-clamp-2 mt-1">{proj.description}</p>
+                        )}
                         <p className="text-xs text-slate-500 flex items-center gap-1 mt-1.5">
                           <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                           <span className="truncate">{loc}</span>
                         </p>
+                        {(proj.effective_start_date || proj.start_date) && (
+                          <p className="text-[11px] text-slate-500 flex items-center gap-1 mt-1">
+                            <Calendar className="w-3.5 h-3.5 text-[#18b892] shrink-0" />
+                            <span>
+                              Start: {formatNigerianDate(proj.effective_start_date || proj.start_date)}
+                              {proj.expected_completion_date
+                                ? ` → ${formatNigerianDate(proj.expected_completion_date)}`
+                                : ''}
+                            </span>
+                          </p>
+                        )}
 
                         {/* Project Operational Stats */}
                         <div className="grid grid-cols-3 gap-2 mt-4 pt-4 border-t border-slate-100 text-center">
@@ -619,22 +656,27 @@ export const SupervisorDashboard: React.FC = () => {
                       </div>
 
                       {/* Card Action */}
-                      <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
+                      <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between gap-2 flex-wrap">
                         <button
                           type="button"
-                          onClick={() => {
-                            setIsClockInOpen(true);
-                          }}
-                          className="text-xs font-bold text-[#18b892] hover:underline cursor-pointer"
+                          onClick={() => setSelectedProject(proj)}
+                          className="inline-flex items-center gap-1 text-xs font-bold text-slate-800 hover:text-[#18b892] cursor-pointer"
                         >
-                          + Clock In
+                          <Eye className="w-3.5 h-3.5" />
+                          <span>Site Workspace</span>
                         </button>
 
                         <button
                           type="button"
-                          onClick={() => {
-                            setIsLogProductivityOpen(true);
-                          }}
+                          onClick={() => setIsClockInOpen(true)}
+                          className="text-xs font-bold text-[#18b892] hover:underline cursor-pointer"
+                        >
+                          + Clock In Worker
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setIsLogProductivityOpen(true)}
                           className="text-xs font-bold text-purple-700 hover:underline cursor-pointer"
                         >
                           + Log Output
@@ -649,14 +691,14 @@ export const SupervisorDashboard: React.FC = () => {
         )}
 
         {/* Tab 3: Attendance & Muster */}
-        {activeTab === 'attendance' && (
+        {activeTab === 'attendance' && !activeDetailProjectId && (
           <div className="space-y-4">
             <AttendanceRegister hideTopNav={true} />
           </div>
         )}
 
         {/* Tab 4: Productivity Logs */}
-        {activeTab === 'productivity' && (
+        {activeTab === 'productivity' && !activeDetailProjectId && (
           <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs p-6 space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
               <div>
@@ -726,7 +768,7 @@ export const SupervisorDashboard: React.FC = () => {
         )}
 
         {/* Tab 5: Site Issues */}
-        {activeTab === 'issues' && (
+        {activeTab === 'issues' && !activeDetailProjectId && (
           <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs p-6 space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
               <div>
@@ -801,7 +843,7 @@ export const SupervisorDashboard: React.FC = () => {
         )}
 
         {/* Tab 6: Profile & Session Scope */}
-        {activeTab === 'profile' && (
+        {activeTab === 'profile' && !activeDetailProjectId && (
           <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs p-6 max-w-xl">
             <div className="flex items-center gap-4 pb-6 border-b border-slate-100">
               <div className="w-16 h-16 rounded-2xl bg-[#18b892] text-white flex items-center justify-center font-bold text-2xl shadow-sm">
@@ -843,17 +885,17 @@ export const SupervisorDashboard: React.FC = () => {
         )}
 
         {/* Tab: Mandatory Task Instructions & Handover */}
-        {activeTab === 'tasks' && (
+        {activeTab === 'tasks' && !activeDetailProjectId && (
           <TaskInstructionsPanel projectId={selectedProject?.id} />
         )}
 
         {/* Tab: Tools & Equipment Custody & Returns */}
-        {activeTab === 'tools' && (
+        {activeTab === 'tools' && !activeDetailProjectId && (
           <ToolsEquipmentModule />
         )}
 
         {/* Tab: Material Remnants & Reconciliation */}
-        {activeTab === 'remnants' && (
+        {activeTab === 'remnants' && !activeDetailProjectId && (
           <ProjectMaterialRemnantsModule initialProjectId={selectedProject?.id} />
         )}
       </main>

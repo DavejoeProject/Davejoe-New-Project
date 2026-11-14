@@ -57,9 +57,11 @@ import { UnifiedInventoryModule } from '../inventory/UnifiedInventoryModule';
 import { WorkforceDirectoryModule } from '../workforce/WorkforceDirectoryModule';
 import { VendorsPartnersModule } from '../vendors/VendorsPartnersModule';
 import { AccessDenied } from '../AccessDenied';
+import { AssignedProjectsSection } from '../projects/AssignedProjectsSection';
 
 type AdminTab =
   | 'dashboard'
+  | 'my-projects'
   | 'users'
   | 'workforce'
   | 'workforce-directory'
@@ -121,6 +123,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ initialTab }) =>
     if (path.includes('/admin/vendors-partners')) return 'vendors-partners';
     if (path.includes('/admin/workforce') || path.includes('/admin/staff') || path.includes('/staff')) return 'workforce';
     if (path.includes('/admin/attendance')) return 'attendance';
+    if (path.includes('/admin/my-projects')) return 'my-projects';
     if (path.includes('/admin/projects')) return 'projects';
     if (path.includes('/admin/clients')) return 'clients';
     if (path.includes('/admin/photos')) return 'photos';
@@ -257,6 +260,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ initialTab }) =>
       title: 'OPERATIONS & SITES',
       items: [
         { key: 'dashboard' as AdminTab, label: 'Control Centre', icon: LayoutDashboard },
+        { key: 'my-projects' as AdminTab, label: 'My Assigned Projects', icon: FolderKanban },
         { key: 'projects' as AdminTab, label: 'Projects', icon: FolderKanban, count: metrics.projectsCount },
         { key: 'tasks' as AdminTab, label: 'Task Specifications', icon: ClipboardList },
         { key: 'workforce' as AdminTab, label: 'Staff', icon: Users, count: metrics.workforceCount },
@@ -494,6 +498,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ initialTab }) =>
             <div className="min-w-0">
               <h1 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight truncate">
                 {activeTab === 'dashboard' && 'Admin Dashboard'}
+                {activeTab === 'my-projects' && 'My Assigned Projects'}
                 {activeTab === 'users' && 'User Management'}
                 {activeTab === 'roles' && 'Roles & Permissions'}
                 {activeTab === 'audit-logs' && 'Audit Logs'}
@@ -513,6 +518,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ initialTab }) =>
               </h1>
               <p className="text-xs text-slate-500 hidden sm:block truncate">
                 {activeTab === 'dashboard' && 'Manage staff, projects, materials, commercial sales, and administrative operations.'}
+                {activeTab === 'my-projects' && 'Projects assigned to you — review full project details, client contacts, team roster, and clock in on start date.'}
                 {activeTab === 'users' && 'Manage users, profiles, roles and system access.'}
                 {activeTab === 'roles' && 'Role-Based Access Control configuration, permissions and security boundaries.'}
                 {activeTab === 'audit-logs' && 'Read-only security logs and chronological operational history.'}
@@ -567,7 +573,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ initialTab }) =>
           {activeTab === 'dashboard' && (
             <div className="space-y-6">
               {/* Daily Attendance Timekeeping for Admin */}
-              <DailyAttendanceWidget />
+              <DailyAttendanceWidget onAttendanceChanged={handleRefresh} />
+
+              {/* Projects Assigned Specifically to Admin */}
+              <AssignedProjectsSection
+                title="My Assigned Projects"
+                subtitle="Projects assigned directly to you — inspect complete project details or clock in on the project start date."
+                compact
+                onOpenProjectDetails={() => handleSelectTab('my-projects')}
+                onClockInSuccess={handleRefresh}
+              />
 
               {/* Metric KPI Cards */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -838,6 +853,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ initialTab }) =>
                 </div>
               </div>
             </div>
+          )}
+
+          {/* TAB: MY ASSIGNED PROJECTS */}
+          {activeTab === 'my-projects' && (
+            <AssignedProjectsSection
+              title="My Assigned Projects"
+              subtitle="Projects specifically assigned to you — inspect full site details, client info, team roster, BOQ materials, and clock in on start date."
+              onClockInSuccess={handleRefresh}
+            />
           )}
 
           {/* TAB 2: 9.7A USER MANAGEMENT */}
