@@ -209,7 +209,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ initialTab }) =>
         supabase.from('projects').select('*', { count: 'exact' }).limit(10),
         supabase.from('roles').select('*', { count: 'exact' }).limit(20),
         supabase.from('audit_logs').select('*', { count: 'exact' }).order('created_at', { ascending: false }).limit(6),
-        WorkforceService.getCompletePersonnelDirectory().catch(() => null),
+        WorkforceService.getCompletePersonnelDirectory({ excludeLeadershipRoles: true }).catch(() => null),
         canAccessWorkforceDirectory
           ? supabase.from('workforce_directory').select('id', { count: 'exact', head: true })
           : Promise.resolve({ count: 0, error: null }),
@@ -587,7 +587,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ initialTab }) =>
                     {isLoading ? '...' : metrics.workforceCount}
                   </div>
                   <p className="text-xs sm:text-sm text-slate-500 mt-1.5 flex items-center justify-between">
-                    <span>Staff roster across 9 roles</span>
+                    <span>Operational &amp; admin staff roster</span>
                     <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-[#18b892] group-hover:translate-x-0.5 transition-all" />
                   </p>
                 </div>
@@ -874,7 +874,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ initialTab }) =>
                   onBackToWorkforce={() => navigate('/admin/workforce')}
                 />
               ) : (
-                <WorkforceModule onBackToDashboard={() => setActiveTab('dashboard')} />
+                <WorkforceModule
+                  excludeLeadershipRoles
+                  onBackToDashboard={() => setActiveTab('dashboard')}
+                />
               )}
             </div>
           )}

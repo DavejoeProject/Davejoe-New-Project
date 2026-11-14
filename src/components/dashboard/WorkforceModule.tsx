@@ -21,6 +21,7 @@ import {
   Mail,
   UserCheck,
   AlertTriangle,
+  FolderPlus,
 } from 'lucide-react';
 import {
   WorkforceService,
@@ -37,14 +38,19 @@ import { WorkforceNavTabs } from './WorkforceNavTabs';
 
 interface WorkforceModuleProps {
   onBackToDashboard?: () => void;
+  excludeLeadershipRoles?: boolean;
 }
 
-export const WorkforceModule: React.FC<WorkforceModuleProps> = ({ onBackToDashboard }) => {
+export const WorkforceModule: React.FC<WorkforceModuleProps> = ({
+  onBackToDashboard,
+  excludeLeadershipRoles,
+}) => {
   const navigate = useNavigate();
   const location = useLocation();
 
   const isManagementRoute = location.pathname.startsWith('/management');
   const isExecutiveRoute = location.pathname.startsWith('/executive');
+  const shouldExcludeLeadership = excludeLeadershipRoles ?? location.pathname.startsWith('/admin');
   const baseStaffPath = isManagementRoute
     ? '/management/workforce'
     : isExecutiveRoute
@@ -70,10 +76,17 @@ export const WorkforceModule: React.FC<WorkforceModuleProps> = ({ onBackToDashbo
       social_media_manager: 0,
     },
   });
+  const [uniqueRoles, setUniqueRoles] = useState<{ slug: string; name: string }[]>(() =>
+    ALL_NINE_ROLES.filter(
+      (r) => !shouldExcludeLeadership || (r.slug !== 'management' && r.slug !== 'executive_director')
+    ).map((r) => ({ slug: r.slug, name: r.name }))
+  );
   const [uniqueTrades, setUniqueTrades] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [schemaWarning, setSchemaWarning] = useState<string | null>(null);
+  const [resolvingActionId, setResolvingActionId] = useState<string | null>(null);
 
   // Filters
   const [searchQuery, setSearchQuery] = useState('');
@@ -114,6 +127,7 @@ export const WorkforceModule: React.FC<WorkforceModuleProps> = ({ onBackToDashbo
         status: statusFilter,
         trade: tradeFilter,
         assignmentStatus: assignmentFilter,
+        excludeLeadershipRoles: shouldExcludeLeadership,
       });
 
       if (res.error) {
@@ -121,18 +135,65 @@ export const WorkforceModule: React.FC<WorkforceModuleProps> = ({ onBackToDashbo
       } else {
         setPersonnel(res.data);
         setMetrics(res.metrics);
+        setUniqueRoles(res.uniqueRoles);
         setUniqueTrades(res.uniqueTrades);
+        setSchemaWarning(res.schemaWarning || null);
       }
 
       setIsLoading(false);
       setIsRefreshing(false);
     },
-    [searchQuery, roleFilter, statusFilter, tradeFilter, assignmentFilter]
+    [searchQuery, roleFilter, statusFilter, tradeFilter, assignmentFilter, shouldExcludeLeadership]
   );
 
   useEffect(() => {
     fetchPersonnel();
   }, [fetchPersonnel]);
+
+  const handleOpenAssignModal = async (person: PersonnelRecord) => {
+    setResolvingActionId(`assign:${person.id}`);
+    const res = await WorkforceService.ensureWorkforceMemberForStaff({
+      profileId: person.profileId,
+      workforceId: person.workforceId,
+      fullName: person.fullName,
+      phone: person.phone,
+      trade: person.trade,
+      primaryRoleSlug: person.primaryRoleSlug,
+    });
+    setResolvingActionId(null);
+
+    if (res.error || !res.data) {
+      setErrorMessage(res.error || 'Unable to prepare this staff member for project assignment.');
+      return;
+    }
+
+    setAssigningMember(res.data);
+  };
+
+  const handleOpenControlCentre = async (person: PersonnelRecord) => {
+    if (person.workforceId) {
+      navigate(`${baseStaffPath}/${person.workforceId}`);
+      return;
+    }
+
+    setResolvingActionId(`centre:${person.id}`);
+    const res = await WorkforceService.ensureWorkforceMemberForStaff({
+      profileId: person.profileId,
+      workforceId: person.workforceId,
+      fullName: person.fullName,
+      phone: person.phone,
+      trade: person.trade,
+      primaryRoleSlug: person.primaryRoleSlug,
+    });
+    setResolvingActionId(null);
+
+    if (res.error || !res.data) {
+      setErrorMessage(res.error || 'Unable to open Control Centre for this staff member.');
+      return;
+    }
+
+    navigate(`${baseStaffPath}/${res.data.id}`);
+  };
 
   // Role badge helper
   const getRoleConfig = (slug: string) => {
@@ -198,7 +259,9 @@ export const WorkforceModule: React.FC<WorkforceModuleProps> = ({ onBackToDashbo
               <span>Staff Directory</span>
             </h1>
             <p className="text-sm text-slate-600 mt-1 max-w-2xl leading-relaxed">
-              Complete operational directory across all nine roles, administrative personnel, site supervisors, artisans, and active project assignments.
+              {shouldExcludeLeadership
+                ? 'All registered administrative, operational, technical, and field staff accounts across assigned roles — ready for project deployment (Management/CEO and Executive Director excluded).'
+                : 'Complete operational directory across all nine roles, administrative personnel, site supervisors, artisans, and active project assignments.'}
             </p>
           </div>
 
@@ -231,6 +294,17 @@ export const WorkforceModule: React.FC<WorkforceModuleProps> = ({ onBackToDashbo
       {/* Navigation Sub-Tabs */}
       <WorkforceNavTabs activeTab="directory" />
 
+      {/* Database Migration Notice when RPC/RLS is not yet applied */}
+      {schemaWarning && (
+        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-3 text-amber-900 shadow-2xs">
+          <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+          <div className="text-xs sm:text-sm space-y-1">
+            <p className="font-bold">Database Migration Required for Full Staff Visibility</p>
+            <p className="text-amber-800 leading-relaxed">{schemaWarning}</p>
+          </div>
+        </div>
+      )}
+
       {/* Summary KPI Cards Row */}
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-3.5 sm:gap-4">
         <div className="bg-white rounded-xl border border-slate-200/90 p-4 sm:p-5 shadow-2xs">
@@ -240,7 +314,9 @@ export const WorkforceModule: React.FC<WorkforceModuleProps> = ({ onBackToDashbo
           <span className="text-3xl sm:text-4xl font-bold text-slate-900 mt-1.5 block font-mono tracking-tight">
             {metrics.totalPersonnel}
           </span>
-          <span className="text-xs text-slate-500 font-medium mt-0.5 block">Across all 9 roles</span>
+          <span className="text-xs text-slate-500 font-medium mt-0.5 block">
+            {shouldExcludeLeadership ? 'Operational & admin roles' : 'Across all 9 roles'}
+          </span>
         </div>
 
         <div className="bg-white rounded-xl border border-slate-200/90 p-4 sm:p-5 shadow-2xs">
@@ -287,7 +363,7 @@ export const WorkforceModule: React.FC<WorkforceModuleProps> = ({ onBackToDashbo
       {/* Role Distribution Bar */}
       <div className="bg-white p-4 sm:p-5 rounded-xl border border-slate-200/90 shadow-2xs">
         <span className="text-xs font-bold uppercase tracking-wider text-slate-500 block mb-3">
-          Filter by Role ({ALL_NINE_ROLES.length} System Roles)
+          Filter by Role ({uniqueRoles.length} {shouldExcludeLeadership ? 'Operational & Admin Roles' : 'System Roles'})
         </span>
         <div className="flex flex-wrap gap-2">
           <button
@@ -301,7 +377,7 @@ export const WorkforceModule: React.FC<WorkforceModuleProps> = ({ onBackToDashbo
           >
             All Roles ({metrics.totalPersonnel})
           </button>
-          {ALL_NINE_ROLES.map((r) => {
+          {uniqueRoles.map((r) => {
             const count = metrics.byRoleCount[r.slug] || 0;
             const isSelected = roleFilter === r.slug;
             return (
@@ -486,16 +562,18 @@ export const WorkforceModule: React.FC<WorkforceModuleProps> = ({ onBackToDashbo
                 {personnel.map((person) => {
                   const roleCfg = getRoleConfig(person.primaryRoleSlug);
                   const activeAssign = person.activeAssignment;
+                  const rolesToShow =
+                    person.assignedRoles.length > 0
+                      ? person.assignedRoles
+                      : [{ id: person.primaryRoleSlug, name: person.primaryRoleName || roleCfg.name, slug: person.primaryRoleSlug }];
+                  const isResolvingAssign = resolvingActionId === `assign:${person.id}`;
+                  const isResolvingCentre = resolvingActionId === `centre:${person.id}`;
 
                   return (
                     <tr
                       key={person.id}
                       className="hover:bg-slate-50/80 transition-colors group cursor-pointer"
-                      onClick={() => {
-                        if (person.workforceId) {
-                          navigate(`${baseStaffPath}/${person.workforceId}`);
-                        }
-                      }}
+                      onClick={() => handleOpenControlCentre(person)}
                     >
                       {/* Name & Avatar */}
                       <td className="py-4 px-4">
@@ -523,13 +601,21 @@ export const WorkforceModule: React.FC<WorkforceModuleProps> = ({ onBackToDashbo
 
                       {/* Role & Department */}
                       <td className="py-4 px-3">
-                        <div className="space-y-1">
-                          <span
-                            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold border whitespace-nowrap ${roleCfg.badgeClasses}`}
-                          >
-                            <Shield className="w-3.5 h-3.5 shrink-0" />
-                            <span>{roleCfg.name}</span>
-                          </span>
+                        <div className="space-y-1.5">
+                          <div className="flex flex-wrap gap-1.5">
+                            {rolesToShow.map((assignedRole) => {
+                              const cfg = getRoleConfig(assignedRole.slug);
+                              return (
+                                <span
+                                  key={`${person.id}-${assignedRole.slug}-${assignedRole.id}`}
+                                  className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold border whitespace-nowrap ${cfg.badgeClasses}`}
+                                >
+                                  <Shield className="w-3.5 h-3.5 shrink-0" />
+                                  <span>{assignedRole.name || cfg.name}</span>
+                                </span>
+                              );
+                            })}
+                          </div>
                           <div className="text-xs text-slate-500 font-medium">
                             {person.department} • {person.trade}
                           </div>
@@ -586,27 +672,32 @@ export const WorkforceModule: React.FC<WorkforceModuleProps> = ({ onBackToDashbo
                             {person.workforceCode}
                           </span>
                         ) : (
-                          <span className="text-xs text-slate-400 italic">Office Account</span>
+                          <span className="text-xs text-slate-500 font-medium">Staff Account</span>
                         )}
                       </td>
 
                       {/* Actions */}
                       <td className="py-4 px-4 text-right" onClick={(e) => e.stopPropagation()}>
-                        <div className="flex items-center justify-end gap-1.5">
-                          {person.workforceId ? (
-                            <button
-                              type="button"
-                              onClick={() => navigate(`${baseStaffPath}/${person.workforceId}`)}
-                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#18b892]/10 hover:bg-[#18b892] hover:text-white text-[#18b892] text-xs font-bold transition-all cursor-pointer border border-[#18b892]/25 whitespace-nowrap"
-                              title="Open Staff Control Centre"
-                            >
-                              <span>Control Centre</span>
-                            </button>
-                          ) : (
-                            <span className="text-xs text-slate-400 font-medium px-2 py-1 bg-slate-50 rounded whitespace-nowrap">
-                              System User
-                            </span>
-                          )}
+                        <div className="flex items-center justify-end gap-2">
+                          <button
+                            type="button"
+                            disabled={Boolean(resolvingActionId) || person.status === 'suspended' || person.status === 'inactive'}
+                            onClick={() => handleOpenAssignModal(person)}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#18b892] hover:bg-[#139c7b] text-white text-xs font-bold transition-all cursor-pointer shadow-2xs disabled:opacity-50 whitespace-nowrap"
+                            title="Assign this staff member to a project"
+                          >
+                            <FolderPlus className="w-3.5 h-3.5 shrink-0" />
+                            <span>{isResolvingAssign ? 'Preparing...' : 'Assign Project'}</span>
+                          </button>
+                          <button
+                            type="button"
+                            disabled={Boolean(resolvingActionId)}
+                            onClick={() => handleOpenControlCentre(person)}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-all cursor-pointer border border-slate-200 disabled:opacity-50 whitespace-nowrap"
+                            title="Open Staff Control Centre"
+                          >
+                            <span>{isResolvingCentre ? 'Opening...' : 'Control Centre'}</span>
+                          </button>
                         </div>
                       </td>
                     </tr>

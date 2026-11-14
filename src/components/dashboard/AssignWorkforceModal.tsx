@@ -19,7 +19,17 @@ export const AssignWorkforceModal: React.FC<AssignWorkforceModalProps> = ({
   onAssigned,
 }) => {
   const [workers, setWorkers] = useState<
-    Array<{ id: string; workforce_code: string; trade: string; status: string; displayName: string }>
+    Array<{
+      id: string;
+      workforce_code: string;
+      trade: string;
+      status: string;
+      displayName: string;
+      profileId?: string | null;
+      phone?: string | null;
+      primaryRoleSlug?: string;
+      rawTrade?: string;
+    }>
   >([]);
   const [activeAssignedWorkerIds, setActiveAssignedWorkerIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
@@ -111,6 +121,8 @@ export const AssignWorkforceModal: React.FC<AssignWorkforceModalProps> = ({
       return false;
     }
 
+    const selectedStaff = workers.find((w) => w.id === selectedWorkerId);
+
     setIsSubmitting(true);
     const res = await ProjectControlService.assignWorkforce({
       projectId,
@@ -118,6 +130,10 @@ export const AssignWorkforceModal: React.FC<AssignWorkforceModalProps> = ({
       startDate: startDate || null,
       endDate: endDate || null,
       notes: notes.trim() || null,
+      displayName: selectedStaff?.displayName,
+      phone: selectedStaff?.phone,
+      trade: selectedStaff?.rawTrade || selectedStaff?.trade,
+      primaryRoleSlug: selectedStaff?.primaryRoleSlug,
     });
     setIsSubmitting(false);
 

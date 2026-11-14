@@ -104,7 +104,7 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
       });
       onUserCreated();
     } catch (err: any) {
-      console.error('[CreateUserModal] Error creating user:', err);
+      console.warn('[CreateUserModal] User creation validation notice:', err?.message || err);
       setError(err?.message || 'Failed to create user account. Please check parameters.');
     } finally {
       setIsSubmitting(false);
@@ -277,7 +277,10 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
                         type="email"
                         required
                         value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                        onChange={(e) => {
+                          setEmail(e.target.value);
+                          if (error) setError(null);
+                        }}
                         placeholder="name@davejoe.com"
                         className="w-full pl-8.5 pr-3 h-9 bg-slate-50/70 border border-slate-200 rounded-xl text-xs text-slate-800 outline-none focus:bg-white focus:border-[#18b892] focus:ring-1 focus:ring-[#18b892]"
                       />

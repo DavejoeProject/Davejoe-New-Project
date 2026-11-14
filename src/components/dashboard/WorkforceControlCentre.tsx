@@ -213,7 +213,13 @@ export const WorkforceControlCentre: React.FC<WorkforceControlCentreProps> = ({
 
   // Helper for project navigation
   const handleNavigateToProject = (projectId: string) => {
-    navigate(`/management/projects/${projectId}`);
+    const pathname = window.location.pathname;
+    const prefix = pathname.startsWith('/admin')
+      ? '/admin'
+      : pathname.startsWith('/executive')
+        ? '/executive'
+        : '/management';
+    navigate(`${prefix}/projects/${projectId}`);
   };
 
   // -------------------------------------------------------------

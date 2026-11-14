@@ -1,6 +1,7 @@
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import { ProjectRecord } from './projectService';
 import { formatNaira, formatDateNigerian } from './dashboardService';
+import { WorkforceService } from './workforceService';
 
 export interface ProjectWorkforceItem {
   id: string;
@@ -482,6 +483,10 @@ export class ProjectControlService {
       trade: string;
       status: string;
       displayName: string;
+      profileId?: string | null;
+      phone?: string | null;
+      primaryRoleSlug?: string;
+      rawTrade?: string;
     }>;
     error: string | null;
   }> {
@@ -490,6 +495,36 @@ export class ProjectControlService {
     }
 
     try {
+      const dirRes = await WorkforceService.getCompletePersonnelDirectory({
+        excludeLeadershipRoles: true,
+      });
+
+      if (!dirRes.error && dirRes.data.length > 0) {
+        const formatted = dirRes.data
+          .filter((p) => p.status !== 'suspended' && p.status !== 'inactive' && (p.workforceId || p.profileId))
+          .map((p) => {
+            const roleLabels =
+              p.assignedRoles.length > 0
+                ? p.assignedRoles.map((r) => r.name).join(', ')
+                : p.primaryRoleName || p.trade;
+
+            return {
+              id: p.workforceId || `profile:${p.profileId}`,
+              workforce_code: p.workforceCode || 'STAFF',
+              trade: roleLabels,
+              status: p.status,
+              displayName: p.fullName,
+              profileId: p.profileId,
+              phone: p.phone,
+              primaryRoleSlug: p.primaryRoleSlug,
+              rawTrade: p.trade,
+            };
+          })
+          .sort((a, b) => a.displayName.localeCompare(b.displayName));
+
+        return { data: formatted, error: null };
+      }
+
       const { data, error } = await supabase
         .from('workforce_members')
         .select(`
@@ -533,7 +568,7 @@ export class ProjectControlService {
   }
 
   /**
-   * Assigns a real workforce member to a project
+   * Assigns a real workforce member or staff profile to a project
    */
   static async assignWorkforce(payload: {
     projectId: string;
@@ -541,18 +576,58 @@ export class ProjectControlService {
     startDate?: string | null;
     endDate?: string | null;
     notes?: string | null;
+    displayName?: string;
+    phone?: string | null;
+    trade?: string | null;
+    primaryRoleSlug?: string;
   }): Promise<{ error: string | null }> {
     if (!isSupabaseConfigured) {
       return { error: 'Database is not configured.' };
     }
 
     try {
+      let resolvedWorkforceId = payload.workforceMemberId;
+
+      if (resolvedWorkforceId.startsWith('profile:')) {
+        const profileId = resolvedWorkforceId.replace('profile:', '');
+        const ensured = await WorkforceService.ensureWorkforceMemberForStaff({
+          profileId,
+          fullName: payload.displayName || 'Staff Member',
+          phone: payload.phone,
+          trade: payload.trade,
+          primaryRoleSlug: payload.primaryRoleSlug,
+        });
+        if (ensured.error || !ensured.data) {
+          return { error: ensured.error || 'Unable to prepare staff member for project assignment.' };
+        }
+        resolvedWorkforceId = ensured.data.id;
+      }
+
+      const { data: existingActive } = await supabase
+        .from('project_workforce_assignments')
+        .select('id')
+        .eq('project_id', payload.projectId)
+        .eq('workforce_member_id', resolvedWorkforceId)
+        .eq('is_active', true)
+        .limit(1)
+        .maybeSingle();
+
+      if (existingActive?.id) {
+        return { error: 'This staff member is already actively assigned to this project.' };
+      }
+
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
       const { error } = await supabase.from('project_workforce_assignments').insert({
         project_id: payload.projectId,
-        workforce_member_id: payload.workforceMemberId,
+        workforce_member_id: resolvedWorkforceId,
         start_date: payload.startDate || null,
         end_date: payload.endDate || null,
         notes: payload.notes?.trim() || null,
+        is_active: true,
+        assigned_by: user?.id || null,
       });
 
       if (error) {

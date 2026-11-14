@@ -219,6 +219,36 @@ export class AdminService {
     }
     if (roleSlugs.length === 0) throw new Error('Select at least one role.');
 
+    // 0. Check if a profile with this email already exists in the directory
+    const { data: existingProfile } = await supabase
+      .from('profiles')
+      .select('id, email, status')
+      .ilike('email', email)
+      .limit(1)
+      .maybeSingle();
+
+    if (existingProfile?.id) {
+      throw new Error(
+        `An account with email "${email}" already exists in User Management (${existingProfile.status || 'active'}). Edit that user to update their roles or status.`
+      );
+    }
+
+    // Also check via get_staff_directory RPC in case direct profiles RLS hides other profiles
+    const { data: rpcDirCheck } = await supabase
+      .rpc('get_staff_directory', { p_exclude_leadership: false });
+    if (Array.isArray(rpcDirCheck)) {
+      const matchedRpcProfile = rpcDirCheck.find(
+        (row: any) => typeof row?.email === 'string' && row.email.trim().toLowerCase() === email
+      );
+      if (matchedRpcProfile?.profile_id) {
+        throw new Error(
+          `An account with email "${email}" already exists in User Management (${matchedRpcProfile.profile_status || 'active'}). Edit that user to update their roles or status.`
+        );
+      }
+    }
+
+    let rpcFallbackReason = 'Not found or unavailable';
+
     // 1. Try PostgreSQL RPC admin_create_user first
     // This executes directly against the database via PostgREST and does NOT require Edge Function deployment.
     try {
@@ -266,6 +296,10 @@ export class AdminService {
         }
       }
 
+      if (rpcError) {
+        rpcFallbackReason = rpcError.message || rpcError.code || rpcFallbackReason;
+      }
+
       // If the RPC returned an application error (e.g. user already exists or caller unauthorized), throw it directly
       if (
         rpcError &&
@@ -277,6 +311,9 @@ export class AdminService {
         throw new Error(rpcError.message);
       }
     } catch (rpcErr: any) {
+      if (rpcErr?.message) {
+        rpcFallbackReason = rpcErr.message;
+      }
       // Re-throw explicit application-level errors from the database
       if (
         rpcErr.message &&
@@ -287,7 +324,7 @@ export class AdminService {
       ) {
         throw rpcErr;
       }
-      console.warn('[AdminService] Database RPC admin_create_user not found or unavailable; attempting Edge Function fallback:', rpcErr?.message);
+      console.warn('[AdminService] Database RPC admin_create_user unavailable; attempting fallback:', rpcFallbackReason);
     }
 
     // 2. Try the admin-manage-user Edge Function
@@ -330,7 +367,7 @@ export class AdminService {
 
       return result;
     } catch (edgeErr: any) {
-      console.warn('[AdminService] Edge Function unreachable; transitioning to direct Supabase Auth engine:', edgeErr?.message);
+      console.warn('[AdminService] Edge Function unavailable; transitioning to Direct Auth signup:', edgeErr?.message);
 
       // 3. Resilient Fallback: Direct Supabase Auth engine via isolated ephemeral client
       // Uses standard GoTrue auth endpoint (/auth/v1/signup). Does not alter current admin session.
@@ -359,8 +396,11 @@ export class AdminService {
         });
 
         if (signUpError) {
-          if (signUpError.message?.toLowerCase().includes('already registered')) {
-            throw new Error(`An account with email "${email}" already exists.`);
+          const lowerMsg = (signUpError.message || '').toLowerCase();
+          if (lowerMsg.includes('already registered') || lowerMsg.includes('already exists')) {
+            throw new Error(
+              `An account with email "${email}" already exists in authentication records. Check User Management or use a different email address.`
+            );
           }
           throw new Error(signUpError.message || 'Authentication service could not register account.');
         }
@@ -386,21 +426,28 @@ export class AdminService {
         }
 
         // Assign requested roles using authenticated administrator session
-        const { data: matchedRoles } = await supabase
+        const { data: matchedRoles, error: rolesLookupError } = await supabase
           .from('roles')
           .select('id, slug, name')
           .in('slug', roleSlugs);
+
+        if (rolesLookupError) {
+          console.warn('[AdminService] Role lookup notice:', rolesLookupError.message);
+        }
 
         if (matchedRoles && matchedRoles.length > 0) {
           const { data: sessionInfo } = await supabase.auth.getSession();
           const currentCallerId = sessionInfo?.session?.user?.id || null;
 
           for (const role of matchedRoles) {
-            await supabase.from('user_roles').upsert({
+            const { error: urErr } = await supabase.from('user_roles').upsert({
               user_id: newUserId,
               role_id: role.id,
               assigned_by: currentCallerId,
             }, { onConflict: 'user_id,role_id' });
+            if (urErr) {
+              console.warn(`[AdminService] Role assignment notice (${role.slug}):`, urErr.message);
+            }
           }
         }
 
@@ -422,23 +469,22 @@ export class AdminService {
           console.warn('[AdminService] Audit log write warning (non-fatal):', auditErr);
         }
 
-        console.log('[AdminService] User created successfully via Direct Auth Engine:', {
-          userId: newUserId,
-          email,
-          roles: roleSlugs,
-        });
-
         return {
           success: true,
           user_id: newUserId,
           assigned_roles: roleSlugs,
         };
       } catch (authFallbackErr: any) {
-        console.error('[AdminService] All user creation engines failed:', {
-          rpcError: 'Not found or unavailable',
-          edgeError: edgeErr?.message,
-          authError: authFallbackErr?.message,
-        });
+        const msg = authFallbackErr?.message || 'Failed to create user account.';
+        if (msg.toLowerCase().includes('already exists')) {
+          console.warn('[AdminService] Duplicate email blocked during user creation:', email);
+        } else {
+          console.warn('[AdminService] User creation fallback failure:', {
+            rpcReason: rpcFallbackReason,
+            edgeReason: edgeErr?.message,
+            authReason: msg,
+          });
+        }
         throw authFallbackErr;
       }
     }
@@ -515,6 +561,64 @@ export class AdminService {
     const to = from + limit - 1;
 
     try {
+      // 0. Prefer get_staff_directory RPC when available so Admin, Exec, and Management all see full profiles & roles
+      const { data: rpcRows, error: rpcDirError } = await supabase.rpc('get_staff_directory', {
+        p_exclude_leadership: false,
+      });
+
+      if (!rpcDirError && Array.isArray(rpcRows)) {
+        let allItems: AdminUserListItem[] = (rpcRows as any[]).map((row) => {
+          const rawRoles = Array.isArray(row.assigned_roles) ? row.assigned_roles : [];
+          return {
+            id: row.profile_id,
+            email: row.email || null,
+            first_name: row.first_name || null,
+            last_name: row.last_name || null,
+            display_name: row.display_name || null,
+            phone: row.phone || null,
+            job_title: row.job_title || null,
+            status: (row.profile_status || 'active') as AdminUserListItem['status'],
+            created_at: row.profile_created_at,
+            updated_at: row.profile_created_at,
+            roles: rawRoles
+              .filter((r: any) => r && (r.slug || r.name))
+              .map((r: any) => ({
+                id: String(r.id || r.slug),
+                name: String(r.name || r.slug),
+                slug: String(r.slug || r.name),
+              })),
+            workforce: row.workforce_id
+              ? {
+                  id: row.workforce_id,
+                  trade: row.workforce_trade || 'General',
+                  workforce_code: row.workforce_code || undefined,
+                }
+              : null,
+          };
+        });
+
+        if (params?.roleSlug && params.roleSlug !== 'all') {
+          allItems = allItems.filter((u) => u.roles.some((r) => r.slug === params.roleSlug));
+        }
+        if (params?.status && params.status !== 'all') {
+          allItems = allItems.filter((u) => u.status === params.status);
+        }
+        if (params?.search && params.search.trim()) {
+          const term = params.search.trim().toLowerCase();
+          allItems = allItems.filter((u) =>
+            [u.display_name, u.first_name, u.last_name, u.email, u.job_title]
+              .filter(Boolean)
+              .some((v) => String(v).toLowerCase().includes(term))
+          );
+        }
+
+        const total = allItems.length;
+        return {
+          users: allItems.slice(from, to + 1),
+          totalCount: total,
+        };
+      }
+
       // 1. If filtering by role, first get all user_ids matching that role
       let userIdsForRole: string[] | null = null;
       if (params?.roleSlug && params.roleSlug !== 'all') {

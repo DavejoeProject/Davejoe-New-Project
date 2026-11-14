@@ -1,4 +1,26 @@
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
+import { normalizeRoleKey } from './authService';
+
+function isLeadershipRole(slug?: string | null, name?: string | null): boolean {
+  const s = (slug || '').toLowerCase().trim().replace(/[-\s]+/g, '_');
+  const n = (name || '').toLowerCase().trim();
+  if (
+    s === 'management' ||
+    s === 'ceo' ||
+    s === 'managing_director' ||
+    s === 'executive_director' ||
+    s === 'executive_director_business_operations_strategy'
+  ) {
+    return true;
+  }
+  return (
+    n === 'management' ||
+    n === 'ceo' ||
+    n === 'managing director' ||
+    n.includes('management / ceo') ||
+    n.includes('executive director')
+  );
+}
 
 export type WorkforceStatus = 'active' | 'inactive' | 'suspended' | 'terminated';
 
@@ -177,6 +199,7 @@ export interface PersonnelFilter {
   status?: string;
   assignmentStatus?: 'all' | 'assigned' | 'available';
   trade?: string;
+  excludeLeadershipRoles?: boolean;
 }
 
 export interface AssignableProject {
@@ -660,6 +683,19 @@ export class WorkforceService {
     }
 
     try {
+      const { data: existingActive } = await supabase
+        .from('project_workforce_assignments')
+        .select('id')
+        .eq('project_id', payload.projectId)
+        .eq('workforce_member_id', payload.workforceMemberId)
+        .eq('is_active', true)
+        .limit(1)
+        .maybeSingle();
+
+      if (existingActive?.id) {
+        return { error: 'This staff member is already actively assigned to the selected project.' };
+      }
+
       const {
         data: { user },
       } = await supabase.auth.getUser();
@@ -682,6 +718,97 @@ export class WorkforceService {
       return { error: null };
     } catch (err: any) {
       return { error: err?.message || 'Failed to assign worker to project.' };
+    }
+  }
+
+  /**
+   * Resolves or creates a public.workforce_members identity for any registered staff user
+   * so Admin/Management/Exec can assign them to projects or open their Control Centre.
+   */
+  static async ensureWorkforceMemberForStaff(person: {
+    profileId?: string | null;
+    workforceId?: string | null;
+    fullName: string;
+    phone?: string | null;
+    trade?: string | null;
+    primaryRoleSlug?: string;
+  }): Promise<{ data: WorkforceMemberRecord | null; error: string | null }> {
+    if (!isSupabaseConfigured) {
+      return { data: null, error: 'Database is not configured.' };
+    }
+
+    try {
+      if (person.workforceId) {
+        return await this.getWorkforceMemberById(person.workforceId);
+      }
+
+      if (!person.profileId) {
+        return { data: null, error: 'Cannot resolve workforce record without a profile or workforce ID.' };
+      }
+
+      // 1. Check if a workforce_members record already exists for this profile
+      const { data: existingByProfile } = await supabase
+        .from('workforce_members')
+        .select('id')
+        .eq('profile_id', person.profileId)
+        .limit(1)
+        .maybeSingle();
+
+      if (existingByProfile?.id) {
+        return await this.getWorkforceMemberById(existingByProfile.id);
+      }
+
+      // 2. Try server-side SECURITY DEFINER RPC ensure_user_workforce_member
+      const { data: rpcWfId, error: rpcErr } = await supabase.rpc('ensure_user_workforce_member', {
+        p_user_id: person.profileId,
+      });
+
+      if (!rpcErr && typeof rpcWfId === 'string' && rpcWfId) {
+        return await this.getWorkforceMemberById(rpcWfId);
+      }
+
+      // 3. Direct insert fallback if RPC is unavailable or user status requires direct linking
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      const normSlug = normalizeRoleKey(person.primaryRoleSlug) || person.primaryRoleSlug || 'staff';
+      const prefixMap: Record<string, string> = {
+        supervisor: 'SUP',
+        technical: 'QC',
+        procurement: 'LOG',
+        accounts: 'ACC',
+        artisan: 'ART',
+        social_media_manager: 'SMM',
+        admin: 'ADM',
+      };
+      const prefix = prefixMap[normSlug] || 'STF';
+      const randSuffix = Math.random().toString(36).substring(2, 8).toUpperCase();
+
+      const { data: inserted, error: insertError } = await supabase
+        .from('workforce_members')
+        .insert({
+          workforce_code: `${prefix}-${randSuffix}`,
+          trade: person.trade?.trim() || 'Enterprise Staff',
+          status: 'active',
+          phone: person.phone?.trim() || null,
+          profile_id: person.profileId,
+          created_by: user?.id || null,
+          notes: `Linked from Staff Directory (${person.fullName})`,
+        })
+        .select('id')
+        .single();
+
+      if (insertError) {
+        return { data: null, error: insertError.message };
+      }
+
+      return await this.getWorkforceMemberById(inserted.id);
+    } catch (err: any) {
+      return {
+        data: null,
+        error: err?.message || 'Failed to prepare staff record for project assignment.',
+      };
     }
   }
 
@@ -751,7 +878,13 @@ export class WorkforceService {
     uniqueRoles: { slug: string; name: string }[];
     uniqueTrades: string[];
     error: string | null;
+    schemaWarning?: string | null;
   }> {
+    const excludeLeadership = Boolean(filter?.excludeLeadershipRoles);
+    const baseRoles = ALL_NINE_ROLES.filter(
+      (r) => !excludeLeadership || !isLeadershipRole(r.slug, r.name)
+    );
+
     const emptyResult = {
       data: [],
       metrics: {
@@ -772,9 +905,10 @@ export class WorkforceService {
           social_media_manager: 0,
         },
       },
-      uniqueRoles: ALL_NINE_ROLES.map((r) => ({ slug: r.slug, name: r.name })),
+      uniqueRoles: baseRoles.map((r) => ({ slug: r.slug, name: r.name })),
       uniqueTrades: [],
       error: null,
+      schemaWarning: null as string | null,
     };
 
     if (!isSupabaseConfigured) {
@@ -782,15 +916,15 @@ export class WorkforceService {
     }
 
     try {
-      // 1. Fetch all profiles, user_roles, workforce members and assignments in parallel
+      // 1. Query authoritative staff directory RPC + roles + workforce_members + assignments
       const [
-        { data: profilesData, error: profilesError },
-        { data: userRolesData, error: userRolesError },
-        { data: workforceData, error: workforceError },
-        { data: assignmentsData, error: assignmentsError },
+        rpcDirectoryRes,
+        { data: dbRolesData },
+        { data: workforceData },
+        { data: assignmentsData },
       ] = await Promise.all([
-        supabase.from('profiles').select('*').order('created_at', { ascending: false }),
-        supabase.from('user_roles').select('user_id, roles(id, name, slug)'),
+        supabase.rpc('get_staff_directory', { p_exclude_leadership: excludeLeadership }),
+        supabase.from('roles').select('id, name, slug').order('name'),
         supabase.from('workforce_members').select('*').order('created_at', { ascending: false }),
         supabase.from('project_workforce_assignments').select(`
           id,
@@ -811,27 +945,91 @@ export class WorkforceService {
         `).order('created_at', { ascending: false }),
       ]);
 
-      if (profilesError) {
-        return { ...emptyResult, error: `Profiles error: ${profilesError.message}` };
-      }
-
-      // Map roles by user_id
+      let profilesData: any[] = [];
+      let schemaWarning: string | null = null;
       const rolesByUser: Record<string, { id: string; name: string; slug: string }[]> = {};
-      if (userRolesData) {
-        for (const item of userRolesData as any[]) {
-          if (!rolesByUser[item.user_id]) rolesByUser[item.user_id] = [];
-          if (item.roles) {
-            rolesByUser[item.user_id].push({
-              id: item.roles.id,
-              name: item.roles.name,
-              slug: item.roles.slug,
-            });
+      const rpcLinkedWorkforceByProfile: Record<string, any> = {};
+
+      if (!rpcDirectoryRes.error && Array.isArray(rpcDirectoryRes.data)) {
+        for (const row of rpcDirectoryRes.data as any[]) {
+          profilesData.push({
+            id: row.profile_id,
+            email: row.email,
+            first_name: row.first_name,
+            last_name: row.last_name,
+            display_name: row.display_name,
+            phone: row.phone,
+            job_title: row.job_title,
+            status: row.profile_status || 'active',
+            created_at: row.profile_created_at,
+          });
+          const rawRoles = Array.isArray(row.assigned_roles) ? row.assigned_roles : [];
+          rolesByUser[row.profile_id] = rawRoles
+            .filter((r: any) => r && (r.slug || r.name))
+            .map((r: any) => ({
+              id: String(r.id || r.slug || r.name),
+              name: String(r.name || r.slug),
+              slug: String(r.slug || r.name),
+            }));
+          if (row.workforce_id) {
+            rpcLinkedWorkforceByProfile[row.profile_id] = {
+              id: row.workforce_id,
+              workforce_code: row.workforce_code,
+              trade: row.workforce_trade,
+              status: row.workforce_status,
+              phone: row.workforce_phone,
+              profile_id: row.profile_id,
+            };
           }
+        }
+      } else {
+        if (rpcDirectoryRes.error) {
+          console.warn(
+            '[WorkforceService] get_staff_directory RPC unavailable; falling back to direct table queries:',
+            rpcDirectoryRes.error.message
+          );
+        }
+
+        // Fallback to direct table queries if get_staff_directory RPC is not deployed yet
+        const [
+          { data: directProfiles, error: profilesError },
+          { data: userRolesData, error: userRolesError },
+        ] = await Promise.all([
+          supabase.from('profiles').select('*').order('created_at', { ascending: false }),
+          supabase.from('user_roles').select('user_id, roles(id, name, slug)'),
+        ]);
+
+        if (profilesError) {
+          return { ...emptyResult, error: `Profiles error: ${profilesError.message}` };
+        }
+
+        if (userRolesError) {
+          console.warn('[WorkforceService] user_roles fallback query warning:', userRolesError.message);
+        }
+
+        profilesData = directProfiles || [];
+
+        if (userRolesData) {
+          for (const item of userRolesData as any[]) {
+            if (!rolesByUser[item.user_id]) rolesByUser[item.user_id] = [];
+            if (item.roles) {
+              rolesByUser[item.user_id].push({
+                id: item.roles.id,
+                name: item.roles.name,
+                slug: item.roles.slug,
+              });
+            }
+          }
+        }
+
+        if (rpcDirectoryRes.error && (profilesData.length <= 1 || Boolean(userRolesError))) {
+          schemaWarning =
+            'Supabase database migration "20261114000002_admin_staff_directory_and_project_assignment.sql" has not been executed yet. Current database Row-Level Security is restricting visibility to your own profile. Run that migration in the Supabase SQL Editor to populate all staff profiles and assigned roles here.';
         }
       }
 
-      // Map workforce members by profile_id and by workforce id
-      const workforceByProfileId: Record<string, any> = {};
+      // Map workforce members by profile_id
+      const workforceByProfileId: Record<string, any> = { ...rpcLinkedWorkforceByProfile };
       const allWorkforceMembers = workforceData || [];
       for (const w of allWorkforceMembers) {
         if (w.profile_id) {
@@ -857,32 +1055,58 @@ export class WorkforceService {
       const processedWorkforceIds = new Set<string>();
       const tradeSet = new Set<string>();
 
-      // Role configuration lookup
       const roleConfigMap = new Map(ALL_NINE_ROLES.map((r) => [r.slug, r]));
+      const dynamicRoleMap = new Map<string, { slug: string; name: string }>();
+      for (const r of baseRoles) {
+        dynamicRoleMap.set(r.slug, { slug: r.slug, name: r.name });
+      }
+      for (const dbRole of (dbRolesData as any[]) || []) {
+        const canonicalSlug = normalizeRoleKey(dbRole.slug) || normalizeRoleKey(dbRole.name) || dbRole.slug;
+        if (!canonicalSlug) continue;
+        if (excludeLeadership && isLeadershipRole(canonicalSlug, dbRole.name)) continue;
+        if (!dynamicRoleMap.has(canonicalSlug)) {
+          dynamicRoleMap.set(canonicalSlug, { slug: canonicalSlug, name: dbRole.name || canonicalSlug });
+        }
+      }
+
+      const priorityOrder = [
+        'management',
+        'executive_director',
+        'admin',
+        'technical',
+        'supervisor',
+        'procurement',
+        'accounts',
+        'social_media_manager',
+        'artisan',
+      ];
 
       for (const prof of profilesData || []) {
-        const uRoles = rolesByUser[prof.id] || [];
+        const rawRoles = rolesByUser[prof.id] || [];
+        // Deduplicate assigned roles by slug
+        const dedupedRoleMap = new Map<string, { id: string; name: string; slug: string }>();
+        for (const r of rawRoles) {
+          const canon = normalizeRoleKey(r.slug) || normalizeRoleKey(r.name) || r.slug.toLowerCase().trim();
+          if (!dedupedRoleMap.has(canon)) {
+            const stdCfg = roleConfigMap.get(canon);
+            dedupedRoleMap.set(canon, {
+              id: r.id,
+              name: stdCfg?.name || r.name,
+              slug: canon,
+            });
+          }
+        }
+        const uRoles = Array.from(dedupedRoleMap.values());
+
         const wf = workforceByProfileId[prof.id] || null;
         if (wf) processedWorkforceIds.add(wf.id);
 
         // Derive primary role slug
-        let primarySlug = 'artisan';
-        let primaryName = 'Artisan / Site Trades';
-        let department = 'Field Execution';
+        let primarySlug = wf ? 'artisan' : 'unassigned';
+        let primaryName = wf ? 'Artisan / Site Trades' : (prof.job_title || 'Staff Account');
+        let department = wf ? 'Field Execution' : 'Operations';
 
         if (uRoles.length > 0) {
-          // Sort to prioritize leadership roles
-          const priorityOrder = [
-            'management',
-            'executive_director',
-            'admin',
-            'technical',
-            'supervisor',
-            'procurement',
-            'accounts',
-            'social_media_manager',
-            'artisan',
-          ];
           const bestRole = uRoles.slice().sort((a, b) => {
             const idxA = priorityOrder.indexOf(a.slug);
             const idxB = priorityOrder.indexOf(b.slug);
@@ -893,15 +1117,30 @@ export class WorkforceService {
           const conf = roleConfigMap.get(bestRole.slug);
           primaryName = conf?.name || bestRole.name;
           department = conf?.department || 'Operations';
-        } else if (prof.job_title) {
-          const lowerTitle = prof.job_title.toLowerCase();
-          for (const r of ALL_NINE_ROLES) {
-            if (lowerTitle.includes(r.slug) || lowerTitle.includes(r.name.toLowerCase())) {
-              primarySlug = r.slug;
-              primaryName = r.name;
-              department = r.department;
-              break;
+
+          for (const r of uRoles) {
+            if (excludeLeadership && isLeadershipRole(r.slug, r.name)) continue;
+            if (!dynamicRoleMap.has(r.slug)) {
+              dynamicRoleMap.set(r.slug, { slug: r.slug, name: r.name });
             }
+          }
+        } else if (prof.job_title) {
+          const normTitleRole = normalizeRoleKey(prof.job_title);
+          if (normTitleRole && roleConfigMap.has(normTitleRole)) {
+            const conf = roleConfigMap.get(normTitleRole)!;
+            primarySlug = conf.slug;
+            primaryName = conf.name;
+            department = conf.department;
+          }
+        }
+
+        // Exclude Management/CEO and Executive Director accounts when requested (e.g., Admin Staff view)
+        if (excludeLeadership) {
+          const hasLeadershipAssignment =
+            uRoles.some((r) => isLeadershipRole(r.slug, r.name)) ||
+            isLeadershipRole(primarySlug, primaryName);
+          if (hasLeadershipAssignment) {
+            continue;
           }
         }
 
@@ -957,7 +1196,7 @@ export class WorkforceService {
             primaryRoleSlug: 'artisan',
             primaryRoleName: 'Artisan / Site Trades',
             department: 'Field Execution',
-            assignedRoles: [{ id: 'artisan', name: 'Artisan / Workforce', slug: 'artisan' }],
+            assignedRoles: [{ id: 'artisan', name: 'Artisan / Site Trades', slug: 'artisan' }],
             status: (wf.status as any) || 'active',
             isWorkforceMember: true,
             workforceCode: wf.workforce_code,
@@ -969,7 +1208,7 @@ export class WorkforceService {
         }
       }
 
-      // 3. Compute Metrics
+      // 3. Compute Metrics across visible records
       const totalPersonnel = records.length;
       let activePersonnel = 0;
       let suspendedPersonnel = 0;
@@ -993,8 +1232,18 @@ export class WorkforceService {
         if (p.activeAssignment) assignedPersonnel++;
         if (p.status === 'active' && !p.activeAssignment) availablePersonnel++;
 
-        const slug = p.primaryRoleSlug;
-        byRoleCount[slug] = (byRoleCount[slug] || 0) + 1;
+        const countedSlugs = new Set<string>();
+        if (p.assignedRoles.length > 0) {
+          for (const r of p.assignedRoles) {
+            countedSlugs.add(r.slug);
+          }
+        } else if (p.primaryRoleSlug && p.primaryRoleSlug !== 'unassigned') {
+          countedSlugs.add(p.primaryRoleSlug);
+        }
+
+        for (const s of countedSlugs) {
+          byRoleCount[s] = (byRoleCount[s] || 0) + 1;
+        }
       }
 
       // 4. Apply Filters
@@ -1003,6 +1252,7 @@ export class WorkforceService {
       if (filter?.search && filter.search.trim()) {
         const term = filter.search.trim().toLowerCase();
         filtered = filtered.filter((p) => {
+          const allRolesText = p.assignedRoles.map((r) => `${r.name} ${r.slug}`).join(' ').toLowerCase();
           return (
             p.fullName.toLowerCase().includes(term) ||
             (p.email || '').toLowerCase().includes(term) ||
@@ -1010,6 +1260,7 @@ export class WorkforceService {
             (p.workforceCode || '').toLowerCase().includes(term) ||
             p.trade.toLowerCase().includes(term) ||
             p.primaryRoleName.toLowerCase().includes(term) ||
+            allRolesText.includes(term) ||
             (p.activeAssignment?.projects?.name || '').toLowerCase().includes(term)
           );
         });
@@ -1018,8 +1269,12 @@ export class WorkforceService {
       if (filter?.role && filter.role !== 'all') {
         const targetRole = filter.role.toLowerCase().trim();
         filtered = filtered.filter((p) => {
-          if (p.primaryRoleSlug === targetRole) return true;
-          return p.assignedRoles.some((r) => r.slug.toLowerCase().trim() === targetRole);
+          if (p.primaryRoleSlug.toLowerCase().trim() === targetRole) return true;
+          return p.assignedRoles.some(
+            (r) =>
+              r.slug.toLowerCase().trim() === targetRole ||
+              (normalizeRoleKey(r.slug) || '') === targetRole
+          );
         });
       }
 
@@ -1050,9 +1305,10 @@ export class WorkforceService {
           availablePersonnel,
           byRoleCount,
         },
-        uniqueRoles: ALL_NINE_ROLES.map((r) => ({ slug: r.slug, name: r.name })),
+        uniqueRoles: Array.from(dynamicRoleMap.values()),
         uniqueTrades: Array.from(tradeSet).sort(),
         error: null,
+        schemaWarning,
       };
     } catch (err: any) {
       console.error('[WorkforceService] getCompletePersonnelDirectory error:', err);
