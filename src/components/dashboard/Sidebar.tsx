@@ -39,6 +39,8 @@ import {
   ClipboardList,
   Calculator,
   FileQuestion,
+  HardHat,
+  Handshake,
 } from 'lucide-react';
 import { PWAInstallButton } from '../pwa/PWAInstallButton';
 import { BRAND_ASSETS } from '../../config/branding';
@@ -60,6 +62,8 @@ export type DashboardNavKey =
   | 'tasks'
   // WORKFORCE
   | 'workforce'
+  | 'workforce-directory'
+  | 'vendors-partners'
   | 'workforce-performance'
   | 'attendance'
   | 'productivity'
@@ -139,6 +143,8 @@ export const SIDEBAR_SECTIONS: NavSectionConfig[] = [
     title: 'STAFF',
     items: [
       { key: 'workforce', label: 'Staff', icon: Users },
+      { key: 'workforce-directory', label: 'Workforce', icon: HardHat },
+      { key: 'vendors-partners', label: 'Vendors & Partners', icon: Handshake },
       { key: 'workforce-performance', label: 'Performance', icon: TrendingUp },
       { key: 'attendance', label: 'Attendance', icon: CalendarCheck },
       { key: 'productivity', label: 'Productivity', icon: Activity },

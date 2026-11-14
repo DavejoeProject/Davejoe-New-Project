@@ -38,6 +38,7 @@ import {
   Boxes,
   Package,
   FileQuestion,
+  Handshake,
 } from 'lucide-react';
 import { DailyAttendanceWidget } from '../attendance/DailyAttendanceWidget';
 import { ProjectMaterialRemnantsModule } from '../remnants/ProjectMaterialRemnantsModule';
@@ -53,11 +54,15 @@ import { ServiceRequestsModule } from './ServiceRequestsModule';
 import { MaterialsDirectoryModule } from '../dashboard/MaterialsDirectoryModule';
 import { AddMaterialModal } from '../dashboard/AddMaterialModal';
 import { UnifiedInventoryModule } from '../inventory/UnifiedInventoryModule';
+import { WorkforceDirectoryModule } from '../workforce/WorkforceDirectoryModule';
+import { VendorsPartnersModule } from '../vendors/VendorsPartnersModule';
 
 type AdminTab =
   | 'dashboard'
   | 'users'
   | 'workforce'
+  | 'workforce-directory'
+  | 'vendors-partners'
   | 'projects'
   | 'attendance'
   | 'clients'
@@ -91,6 +96,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ initialTab }) =>
     if (path.includes('/admin/roles')) return 'roles';
     if (path.includes('/admin/audit-logs')) return 'audit-logs';
     if (path.includes('/admin/settings')) return 'settings';
+    if (path.includes('/admin/workforce-directory')) return 'workforce-directory';
+    if (path.includes('/admin/vendors-partners')) return 'vendors-partners';
     if (path.includes('/admin/workforce') || path.includes('/admin/staff') || path.includes('/staff')) return 'workforce';
     if (path.includes('/admin/attendance')) return 'attendance';
     if (path.includes('/admin/projects')) return 'projects';
@@ -149,6 +156,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ initialTab }) =>
   const [metrics, setMetrics] = useState({
     usersCount: 0,
     workforceCount: 0,
+    contractWorkforceCount: 0,
+    vendorsPartnersCount: 0,
     projectsCount: 0,
     rolesCount: 0,
     recentAuditCount: 0,
@@ -171,6 +180,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ initialTab }) =>
         { count: rCount, data: rData },
         { count: aCount, data: aData },
         personnelRes,
+        contractDirRes,
+        vendorsRes,
       ] = await Promise.all([
         supabase.from('profiles').select('*', { count: 'exact' }).limit(10),
         supabase.from('workforce_members').select('*', { count: 'exact' }).limit(10),
@@ -178,6 +189,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ initialTab }) =>
         supabase.from('roles').select('*', { count: 'exact' }).limit(20),
         supabase.from('audit_logs').select('*', { count: 'exact' }).order('created_at', { ascending: false }).limit(6),
         WorkforceService.getCompletePersonnelDirectory().catch(() => null),
+        supabase.from('workforce_directory').select('id', { count: 'exact', head: true }),
+        supabase.from('vendors_partners').select('id', { count: 'exact', head: true }),
       ]);
 
       const totalStaff = personnelRes?.metrics?.totalPersonnel || uCount || (wData ? wData.length : 0);
@@ -185,6 +198,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ initialTab }) =>
       setMetrics({
         usersCount: uCount || (uData ? uData.length : 0),
         workforceCount: totalStaff,
+        contractWorkforceCount: contractDirRes?.count || 0,
+        vendorsPartnersCount: vendorsRes?.count || 0,
         projectsCount: pCount || (pData ? pData.length : 0),
         rolesCount: rCount || (rData ? rData.length : 0),
         recentAuditCount: aCount || (aData ? aData.length : 0),
@@ -220,6 +235,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ initialTab }) =>
         { key: 'projects' as AdminTab, label: 'Projects', icon: FolderKanban, count: metrics.projectsCount },
         { key: 'tasks' as AdminTab, label: 'Task Specifications', icon: ClipboardList },
         { key: 'workforce' as AdminTab, label: 'Staff', icon: Users, count: metrics.workforceCount },
+        { key: 'workforce-directory' as AdminTab, label: 'Workforce', icon: HardHat, count: metrics.contractWorkforceCount },
+        { key: 'vendors-partners' as AdminTab, label: 'Vendors & Partners', icon: Handshake, count: metrics.vendorsPartnersCount },
         { key: 'attendance' as AdminTab, label: 'Attendance Muster', icon: CalendarCheck },
         { key: 'clients' as AdminTab, label: 'Clients', icon: Building2 },
       ],
@@ -453,6 +470,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ initialTab }) =>
                 {activeTab === 'audit-logs' && 'Audit Logs'}
                 {activeTab === 'settings' && 'Administration Settings'}
                 {activeTab === 'workforce' && 'Staff Directory'}
+                {activeTab === 'workforce-directory' && 'Workforce Directory'}
+                {activeTab === 'vendors-partners' && 'Vendors & Partners'}
                 {activeTab === 'projects' && 'Enterprise Projects'}
                 {activeTab === 'clients' && 'Client Management'}
                 {activeTab === 'photos' && 'Job Completion Photos'}
@@ -470,6 +489,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ initialTab }) =>
                 {activeTab === 'audit-logs' && 'Read-only security logs and chronological operational history.'}
                 {activeTab === 'settings' && 'System configuration, live Supabase connectivity and diagnostics.'}
                 {activeTab === 'workforce' && 'All registered persons, roles, and profiles across Davejoe.'}
+                {activeTab === 'workforce-directory' && 'Contract artisans and external field workforce assigned to projects without login accounts.'}
+                {activeTab === 'vendors-partners' && 'Suppliers, trade partners, settlement banking details, and private CAC documents.'}
                 {activeTab === 'projects' && 'Enterprise construction and civil engineering projects.'}
                 {activeTab === 'clients' && 'Corporate and residential client accounts.'}
                 {activeTab === 'tasks' && 'Issue mandatory specifications, PPE, deliverables, and verify task handovers.'}
@@ -826,6 +847,20 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ initialTab }) =>
               ) : (
                 <WorkforceModule onBackToDashboard={() => setActiveTab('dashboard')} />
               )}
+            </div>
+          )}
+
+          {/* TAB: CONTRACT WORKFORCE DIRECTORY */}
+          {activeTab === 'workforce-directory' && (
+            <div className="space-y-4">
+              <WorkforceDirectoryModule onBackToDashboard={() => handleSelectTab('dashboard')} />
+            </div>
+          )}
+
+          {/* TAB: VENDORS & PARTNERS DIRECTORY */}
+          {activeTab === 'vendors-partners' && (
+            <div className="space-y-4">
+              <VendorsPartnersModule onBackToDashboard={() => handleSelectTab('dashboard')} />
             </div>
           )}
 

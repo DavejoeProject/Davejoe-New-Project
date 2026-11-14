@@ -59,6 +59,7 @@ import {
   RotateCcw,
   Wrench,
   Calculator,
+  Handshake,
 } from 'lucide-react';
 import { ProjectMaterialRemnantsModule } from '../remnants/ProjectMaterialRemnantsModule';
 import { ToolsEquipmentModule } from '../tools/ToolsEquipmentModule';
@@ -68,12 +69,16 @@ import { AttendanceModule } from '../dashboard/AttendanceModule';
 import { WorkforceModule } from '../dashboard/WorkforceModule';
 import { ServiceRequestsModule } from '../admin/ServiceRequestsModule';
 import { UnifiedInventoryModule } from '../inventory/UnifiedInventoryModule';
+import { WorkforceDirectoryModule } from '../workforce/WorkforceDirectoryModule';
+import { VendorsPartnersModule } from '../vendors/VendorsPartnersModule';
 
 export type ExecutiveModuleKey =
   | 'overview'
   | 'leads'
   | 'projects'
   | 'workforce'
+  | 'workforce-directory'
+  | 'vendors-partners'
   | 'qc'
   | 'materials'
   | 'procurement'
@@ -139,6 +144,8 @@ export const ExecutiveDashboard: React.FC = () => {
   const [alertsList, setAlertsList] = useState<any[]>([]);
   const [rolesList, setRolesList] = useState<any[]>([]);
   const [usersCount, setUsersCount] = useState<number>(0);
+  const [contractWorkforceCount, setContractWorkforceCount] = useState<number>(0);
+  const [vendorsPartnersCount, setVendorsPartnersCount] = useState<number>(0);
 
   const location = useLocation();
 
@@ -148,6 +155,10 @@ export const ExecutiveDashboard: React.FC = () => {
       setActiveModule('users');
     } else if (location.pathname.includes('/executive/roles')) {
       setActiveModule('roles');
+    } else if (location.pathname.includes('/executive/workforce-directory')) {
+      setActiveModule('workforce-directory');
+    } else if (location.pathname.includes('/executive/vendors-partners')) {
+      setActiveModule('vendors-partners');
     }
   }, [location.pathname]);
 
@@ -167,6 +178,8 @@ export const ExecutiveDashboard: React.FC = () => {
         finSummaryRes,
         rolesRes,
         profilesRes,
+        contractDirRes,
+        vendorsRes,
       ] = await Promise.all([
         supabase.from('projects').select('*').order('created_at', { ascending: false }),
         supabase.from('workforce_members').select('*').order('created_at', { ascending: false }),
@@ -181,6 +194,8 @@ export const ExecutiveDashboard: React.FC = () => {
         FinancialControlService.getExecutiveSummary(),
         supabase.from('roles').select('*').order('name', { ascending: true }),
         supabase.from('profiles').select('*', { count: 'exact', head: true }),
+        supabase.from('workforce_directory').select('id', { count: 'exact', head: true }),
+        supabase.from('vendors_partners').select('id', { count: 'exact', head: true }),
       ]);
 
       const capturedErrors: string[] = [];
@@ -221,6 +236,8 @@ export const ExecutiveDashboard: React.FC = () => {
       setFinancialSummary(finSummaryRes.data);
       setRolesList(rolesRes.data || []);
       setUsersCount(profilesRes.count || (profilesRes.data ? profilesRes.data.length : 0));
+      setContractWorkforceCount(contractDirRes?.count || 0);
+      setVendorsPartnersCount(vendorsRes?.count || 0);
 
       // Compute Top-Level KPIs from real data:
       // 1. Active Projects
@@ -329,6 +346,8 @@ export const ExecutiveDashboard: React.FC = () => {
       title: 'STAFF & TEAMS',
       items: [
         { key: 'workforce' as ExecutiveModuleKey, label: 'Staff', icon: Users, count: workforceList.length },
+        { key: 'workforce-directory' as ExecutiveModuleKey, label: 'Workforce', icon: HardHat, count: contractWorkforceCount },
+        { key: 'vendors-partners' as ExecutiveModuleKey, label: 'Vendors & Partners', icon: Handshake, count: vendorsPartnersCount },
         { key: 'staff' as ExecutiveModuleKey, label: 'Staff Performance', icon: Award, count: conductList.length },
         { key: 'artisans' as ExecutiveModuleKey, label: 'Artisan Network', icon: HardHat, count: workforceList.length },
       ],
@@ -1287,6 +1306,16 @@ export const ExecutiveDashboard: React.FC = () => {
                 <WorkforceModule onBackToDashboard={() => setActiveModule('overview')} />
               )}
             </div>
+          )}
+
+          {/* VIEW: CONTRACT WORKFORCE DIRECTORY */}
+          {activeModule === 'workforce-directory' && (
+            <WorkforceDirectoryModule onBackToDashboard={() => setActiveModule('overview')} />
+          )}
+
+          {/* VIEW: VENDORS & PARTNERS DIRECTORY */}
+          {activeModule === 'vendors-partners' && (
+            <VendorsPartnersModule onBackToDashboard={() => setActiveModule('overview')} />
           )}
 
           {/* ========================================================================= */}

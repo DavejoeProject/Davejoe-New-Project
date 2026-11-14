@@ -234,6 +234,22 @@ export default function App() {
             }
           />
           <Route
+            path="/management/workforce-directory"
+            element={
+              <ManagementRouteGuard>
+                <CeoDashboard initialModule="workforce-directory" />
+              </ManagementRouteGuard>
+            }
+          />
+          <Route
+            path="/management/vendors-partners"
+            element={
+              <ManagementRouteGuard>
+                <CeoDashboard initialModule="vendors-partners" />
+              </ManagementRouteGuard>
+            }
+          />
+          <Route
             path="/management/workforce/performance"
             element={
               <ManagementRouteGuard>

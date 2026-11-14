@@ -56,6 +56,8 @@ import { TaskInstructionsPanel } from '../tasks/TaskInstructionsPanel';
 import { ProjectPlanningModule } from '../planning/ProjectPlanningModule';
 import { ServiceRequestsModule } from '../admin/ServiceRequestsModule';
 import { UnifiedInventoryModule } from '../inventory/UnifiedInventoryModule';
+import { WorkforceDirectoryModule } from '../workforce/WorkforceDirectoryModule';
+import { VendorsPartnersModule } from '../vendors/VendorsPartnersModule';
 
 interface CeoDashboardProps {
   initialModule?: DashboardNavKey;
@@ -90,6 +92,18 @@ export const CeoDashboard: React.FC<CeoDashboardProps> = ({ initialModule = 'ove
     }
     if (location.pathname === '/management/projects' || location.pathname.startsWith('/management/projects/')) {
       return 'all-projects';
+    }
+    if (
+      location.pathname === '/management/workforce-directory' ||
+      location.pathname.startsWith('/management/workforce-directory/')
+    ) {
+      return 'workforce-directory';
+    }
+    if (
+      location.pathname === '/management/vendors-partners' ||
+      location.pathname.startsWith('/management/vendors-partners/')
+    ) {
+      return 'vendors-partners';
     }
     // Workforce routes
     if (location.pathname === '/management/workforce/performance') {
@@ -207,6 +221,16 @@ export const CeoDashboard: React.FC<CeoDashboardProps> = ({ initialModule = 'ove
       setCurrentModule('planning');
     } else if (location.pathname === '/management/projects' || location.pathname.startsWith('/management/projects/')) {
       setCurrentModule('all-projects');
+    } else if (
+      location.pathname === '/management/workforce-directory' ||
+      location.pathname.startsWith('/management/workforce-directory/')
+    ) {
+      setCurrentModule('workforce-directory');
+    } else if (
+      location.pathname === '/management/vendors-partners' ||
+      location.pathname.startsWith('/management/vendors-partners/')
+    ) {
+      setCurrentModule('vendors-partners');
     } else if (location.pathname === '/management/workforce/performance') {
       setCurrentModule('workforce-performance');
     } else if (location.pathname === '/management/workforce/attendance') {
@@ -299,6 +323,14 @@ export const CeoDashboard: React.FC<CeoDashboardProps> = ({ initialModule = 'ove
     } else if (mod === 'workforce') {
       if (location.pathname !== '/management/workforce') {
         navigate('/management/workforce');
+      }
+    } else if (mod === 'workforce-directory') {
+      if (location.pathname !== '/management/workforce-directory') {
+        navigate('/management/workforce-directory');
+      }
+    } else if (mod === 'vendors-partners') {
+      if (location.pathname !== '/management/vendors-partners') {
+        navigate('/management/vendors-partners');
       }
     } else if (mod === 'workforce-performance') {
       if (location.pathname !== '/management/workforce/performance') {
@@ -572,6 +604,14 @@ export const CeoDashboard: React.FC<CeoDashboardProps> = ({ initialModule = 'ove
                 />
               ) : currentModule === 'workforce' ? (
                 <WorkforceModule
+                  onBackToDashboard={() => handleSelectModule('overview')}
+                />
+              ) : currentModule === 'workforce-directory' ? (
+                <WorkforceDirectoryModule
+                  onBackToDashboard={() => handleSelectModule('overview')}
+                />
+              ) : currentModule === 'vendors-partners' ? (
+                <VendorsPartnersModule
                   onBackToDashboard={() => handleSelectModule('overview')}
                 />
               ) : currentModule === 'workforce-performance' ? (
