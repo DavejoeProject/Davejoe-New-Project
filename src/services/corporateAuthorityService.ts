@@ -368,7 +368,7 @@ export class CorporateAuthorityService {
       .from('client_project_access')
       .select(`
         *,
-        contact:client_contacts(*),
+        contact:client_contacts!client_project_access_client_contact_id_fkey(*),
         project:projects(id, project_code, name, status, contract_value, verified_progress_pct)
       `)
       .eq('client_id', clientId)

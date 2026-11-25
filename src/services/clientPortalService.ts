@@ -951,7 +951,9 @@ export class ClientPortalService {
   static async getProjectAccessList(filters?: { clientId?: string; projectId?: string }): Promise<ClientProjectAccess[]> {
     let query = supabase
       .from('client_project_access')
-      .select('*, client:clients(*), contact:client_contacts(*), project:projects(*)')
+      .select(
+        '*, client:clients(*), contact:client_contacts!client_project_access_client_contact_id_fkey(*), project:projects(*)'
+      )
       .order('created_at', { ascending: false });
 
     if (filters?.clientId) query = query.eq('client_id', filters.clientId);
@@ -1096,7 +1098,9 @@ export class ClientPortalService {
   }> {
     const { data, error } = await supabase
       .from('client_project_access')
-      .select('*, client:clients(*), contact:client_contacts(*), project:projects(*)')
+      .select(
+        '*, client:clients(*), contact:client_contacts!client_project_access_client_contact_id_fkey(*), project:projects(*)'
+      )
       .eq('user_id', userId)
       .eq('is_active', true)
       .is('revoked_at', null)
