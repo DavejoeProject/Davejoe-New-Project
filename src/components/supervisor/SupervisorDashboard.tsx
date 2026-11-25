@@ -46,10 +46,15 @@ import { RecordAttendanceModal } from './RecordAttendanceModal';
 import { LogProductivityModal } from './LogProductivityModal';
 import { ReportSiteIssueModal } from './ReportSiteIssueModal';
 import { NewMaterialRequestModal } from '../dashboard/NewMaterialRequestModal';
+import { ClientPortalOperationsModule } from '../client-portal/ClientPortalOperationsModule';
+import { NotificationBell, MenuAlertBadge } from '../common/NotificationBell';
+import { useNotifications } from '../../context/NotificationContext';
+import { AppNotification } from '../../services/notificationService';
 
 export type SupervisorNavKey =
   | 'today'
   | 'projects'
+  | 'client-protection'
   | 'tasks'
   | 'tools'
   | 'remnants'
@@ -61,6 +66,7 @@ export type SupervisorNavKey =
 
 export const SupervisorDashboard: React.FC = () => {
   const { user, profile, logout } = useAuth();
+  const { getModuleUnreadCount } = useNotifications();
   const navigate = useNavigate();
   const { projectId: routeProjectId } = useParams<{ projectId?: string }>();
 
@@ -145,6 +151,25 @@ export const SupervisorDashboard: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3">
+            <NotificationBell
+              onNavigateNotification={(notification: AppNotification) => {
+                const mod = notification.source_module;
+                setSelectedProject(null);
+                if (mod === 'tasks') setActiveTab('tasks');
+                else if (mod === 'work_packages' || mod === 'completions' || mod === 'technical_qc' || mod === 'client_portal') {
+                  setActiveTab('client-protection');
+                } else if (mod === 'overtime' || mod === 'workforce') {
+                  setActiveTab('attendance');
+                } else if (mod === 'projects' && notification.project_id) {
+                  setActiveTab('projects');
+                  navigate(`/supervisor/projects/${notification.project_id}`);
+                } else {
+                  setActiveTab('projects');
+                }
+                return true;
+              }}
+            />
+
             <button
               type="button"
               onClick={() => fetchDashboardData(true)}
@@ -302,15 +327,16 @@ export const SupervisorDashboard: React.FC = () => {
         {/* Operational Navigation Tabs */}
         <div className="bg-white p-1.5 rounded-2xl border border-slate-200/80 shadow-2xs flex items-center gap-1 overflow-x-auto no-scrollbar touch-pan-x flex-nowrap">
           {[
-            { key: 'today', label: "Today's Operations", icon: Clock },
-            { key: 'projects', label: 'My Projects', icon: Building },
-            { key: 'tasks', label: 'Task Instructions', icon: ClipboardList },
-            { key: 'tools', label: 'Tools & Equipment', icon: Wrench },
-            { key: 'remnants', label: 'Material Remnants', icon: RotateCcw },
-            { key: 'attendance', label: 'Attendance & Muster', icon: UserCheck },
-            { key: 'productivity', label: 'Productivity Logs', icon: TrendingUp },
-            { key: 'issues', label: 'Site Tasks & Issues', icon: AlertTriangle },
-            { key: 'profile', label: 'Supervisor Profile', icon: Shield },
+            { key: 'today', label: "Today's Operations", icon: Clock, alertCount: 0 },
+            { key: 'projects', label: 'My Projects', icon: Building, alertCount: getModuleUnreadCount(['projects']) },
+            { key: 'client-protection', label: 'Area Completions & Evidence', icon: CheckCircle2, alertCount: getModuleUnreadCount(['work_packages', 'completions', 'technical_qc']) },
+            { key: 'tasks', label: 'Task Instructions', icon: ClipboardList, alertCount: getModuleUnreadCount(['tasks']) },
+            { key: 'tools', label: 'Tools & Equipment', icon: Wrench, alertCount: 0 },
+            { key: 'remnants', label: 'Material Remnants', icon: RotateCcw, alertCount: getModuleUnreadCount(['materials']) },
+            { key: 'attendance', label: 'Attendance & Muster', icon: UserCheck, alertCount: getModuleUnreadCount(['overtime', 'workforce']) },
+            { key: 'productivity', label: 'Productivity Logs', icon: TrendingUp, alertCount: 0 },
+            { key: 'issues', label: 'Site Tasks & Issues', icon: AlertTriangle, alertCount: 0 },
+            { key: 'profile', label: 'Supervisor Profile', icon: Shield, alertCount: 0 },
           ].map((t) => {
             const Icon = t.icon;
             const isActive = activeTab === t.key;
@@ -331,6 +357,7 @@ export const SupervisorDashboard: React.FC = () => {
               >
                 <Icon className="w-3.5 h-3.5" />
                 <span>{t.label}</span>
+                <MenuAlertBadge count={t.alertCount} active={isActive} />
               </button>
             );
           })}
@@ -897,6 +924,11 @@ export const SupervisorDashboard: React.FC = () => {
         {/* Tab: Material Remnants & Reconciliation */}
         {activeTab === 'remnants' && !activeDetailProjectId && (
           <ProjectMaterialRemnantsModule initialProjectId={selectedProject?.id} />
+        )}
+
+        {/* Tab: Area Completions, Progress & Condition Evidence (Conflict-of-interest protected) */}
+        {activeTab === 'client-protection' && !activeDetailProjectId && (
+          <ClientPortalOperationsModule mode="supervisor" />
         )}
       </main>
 

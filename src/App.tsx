@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import { NotificationProvider } from './context/NotificationContext';
 import { LoginPage } from './components/LoginPage';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { ManagementRouteGuard } from './components/ManagementRouteGuard';
@@ -19,6 +20,8 @@ import { TechnicalDashboard } from './components/technical/TechnicalDashboard';
 import { ProcurementDashboard } from './components/procurement/ProcurementDashboard';
 import { AccountsDashboard } from './components/accounts/AccountsDashboard';
 import { AttendanceRegister } from './components/attendance/AttendanceRegister';
+import { ClientPortalDashboard } from './components/client-portal/ClientPortalDashboard';
+import { ClientInvitationAcceptPage } from './components/client-portal/ClientInvitationAcceptPage';
 import { useAuth } from './hooks/useAuth';
 import { PWAInstallPrompt } from './components/pwa/PWAInstallPrompt';
 import { PWAUpdateToast } from './components/pwa/PWAUpdateToast';
@@ -117,6 +120,9 @@ const RootRedirect: React.FC = () => {
     if (currentRoleKey === 'social_media_manager') {
       return <Navigate to="/social-media" replace />;
     }
+    if (currentRoleKey === 'client_partner') {
+      return <Navigate to="/client" replace />;
+    }
     return <Navigate to="/access-denied" replace />;
   }
 
@@ -126,11 +132,31 @@ const RootRedirect: React.FC = () => {
 export default function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
+      <NotificationProvider>
+        <BrowserRouter>
         <Routes>
           <Route path="/" element={<RootRedirect />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/access-denied" element={<AccessDenied />} />
+
+          {/* Secure Client / Project Partner Invitation Onboarding & Portal */}
+          <Route path="/client/invite/:token" element={<ClientInvitationAcceptPage />} />
+          <Route
+            path="/client"
+            element={
+              <ProtectedRoute allowedRoles={['client_partner', 'management', 'executive_director']}>
+                <ClientPortalDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/client/*"
+            element={
+              <ProtectedRoute allowedRoles={['client_partner', 'management', 'executive_director']}>
+                <ClientPortalDashboard />
+              </ProtectedRoute>
+            }
+          />
 
           {/* Protected Executive Director Command Centre: database role 'executive_director' */}
           <Route
@@ -226,6 +252,14 @@ export default function App() {
             }
           />
           <Route
+            path="/management/work-packages"
+            element={
+              <ManagementRouteGuard>
+                <CeoDashboard initialModule="work-packages" />
+              </ManagementRouteGuard>
+            }
+          />
+          <Route
             path="/management/workforce"
             element={
               <ManagementRouteGuard>
@@ -246,6 +280,22 @@ export default function App() {
             element={
               <ManagementRouteGuard>
                 <CeoDashboard initialModule="vendors-partners" />
+              </ManagementRouteGuard>
+            }
+          />
+          <Route
+            path="/management/client-portal"
+            element={
+              <ManagementRouteGuard>
+                <CeoDashboard initialModule="client-portal" />
+              </ManagementRouteGuard>
+            }
+          />
+          <Route
+            path="/management/clients"
+            element={
+              <ManagementRouteGuard>
+                <CeoDashboard initialModule="client-portal" />
               </ManagementRouteGuard>
             }
           />
@@ -796,7 +846,8 @@ export default function App() {
         <PWAInstallPrompt />
         <PWAUpdateToast />
         <PWAOfflineIndicator />
-      </BrowserRouter>
+        </BrowserRouter>
+      </NotificationProvider>
     </AuthProvider>
   );
 }

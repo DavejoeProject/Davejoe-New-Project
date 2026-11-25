@@ -30,9 +30,13 @@ import { RequestOvertimeModal } from './RequestOvertimeModal';
 import { TaskInstructionsPanel } from '../tasks/TaskInstructionsPanel';
 import { ProjectMaterialRemnantsModule } from '../remnants/ProjectMaterialRemnantsModule';
 import { AssignedProjectsSection } from '../projects/AssignedProjectsSection';
+import { NotificationBell, MenuAlertBadge } from '../common/NotificationBell';
+import { useNotifications } from '../../context/NotificationContext';
+import { AppNotification } from '../../services/notificationService';
 
 export const ArtisanDashboard: React.FC = () => {
   const { user, profile, logout } = useAuth();
+  const { getModuleUnreadCount } = useNotifications();
   const [artisanTab, setArtisanTab] = useState<'shift' | 'projects' | 'tasks' | 'remnants' | 'history' | 'profile'>('shift');
   const [selectedProjectId, setSelectedProjectId] = useState<string>('');
 
@@ -181,6 +185,17 @@ export const ArtisanDashboard: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3">
+            <NotificationBell
+              onNavigateNotification={(notification: AppNotification) => {
+                const mod = notification.source_module;
+                if (mod === 'tasks') setArtisanTab('tasks');
+                else if (mod === 'projects') setArtisanTab('projects');
+                else if (mod === 'overtime') setArtisanTab('history');
+                else setArtisanTab('shift');
+                return true;
+              }}
+            />
+
             <button
               type="button"
               onClick={() => fetchArtisanData(true)}
@@ -268,12 +283,12 @@ export const ArtisanDashboard: React.FC = () => {
         {/* Navigation Tabs */}
         <div className="bg-white p-1.5 rounded-2xl border border-slate-200/80 shadow-2xs flex items-center gap-1 overflow-x-auto no-scrollbar touch-pan-x flex-nowrap">
           {[
-            { key: 'shift', label: "Today's Shift", icon: Clock },
-            { key: 'projects', label: `My Projects (${assignedProjects.length})`, icon: FolderKanban },
-            { key: 'tasks', label: 'My Task Instructions', icon: ClipboardList },
-            { key: 'remnants', label: 'Report Material Remnants', icon: RotateCcw },
-            { key: 'history', label: 'Attendance History', icon: Calendar },
-            { key: 'profile', label: 'Artisan Profile', icon: Shield },
+            { key: 'shift', label: "Today's Shift", icon: Clock, alertCount: getModuleUnreadCount(['overtime']) },
+            { key: 'projects', label: `My Projects (${assignedProjects.length})`, icon: FolderKanban, alertCount: getModuleUnreadCount(['projects']) },
+            { key: 'tasks', label: 'My Task Instructions', icon: ClipboardList, alertCount: getModuleUnreadCount(['tasks']) },
+            { key: 'remnants', label: 'Report Material Remnants', icon: RotateCcw, alertCount: getModuleUnreadCount(['materials']) },
+            { key: 'history', label: 'Attendance History', icon: Calendar, alertCount: 0 },
+            { key: 'profile', label: 'Artisan Profile', icon: Shield, alertCount: 0 },
           ].map((t) => {
             const Icon = t.icon;
             const isActive = artisanTab === t.key;
@@ -290,6 +305,7 @@ export const ArtisanDashboard: React.FC = () => {
               >
                 <Icon className="w-3.5 h-3.5" />
                 <span>{t.label}</span>
+                <MenuAlertBadge count={t.alertCount} active={isActive} />
               </button>
             );
           })}

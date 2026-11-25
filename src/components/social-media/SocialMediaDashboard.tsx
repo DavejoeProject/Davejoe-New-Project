@@ -4,6 +4,7 @@ import { Images, LogOut, Sparkles, Building2, ShieldCheck } from 'lucide-react';
 import { JobCompletionPhotoLibrary } from '../photos/JobCompletionPhotoLibrary';
 import { DailyAttendanceWidget } from '../attendance/DailyAttendanceWidget';
 import { AssignedProjectsSection } from '../projects/AssignedProjectsSection';
+import { NotificationBell } from '../common/NotificationBell';
 
 export const SocialMediaDashboard: React.FC = () => {
   const { user, profile, hasRole, currentRoleKey, logout } = useAuth();
@@ -41,6 +42,7 @@ export const SocialMediaDashboard: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-3">
+            <NotificationBell />
             <div className="hidden sm:flex flex-col text-right">
               <span className="text-xs font-bold text-slate-800">{displayName}</span>
               <span className="text-[10px] text-slate-400">Social Media &amp; Content</span>

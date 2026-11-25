@@ -138,6 +138,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         assignedSlugs.some((s) => s.toLowerCase().trim() === 'social_media_manager') ||
         roles.some((r) => normalizeRoleKey(r) === 'social_media_manager');
 
+      const isClientPartner =
+        assignedSlugs.some((s) => s.toLowerCase().trim() === 'client_partner') ||
+        roles.some((r) => normalizeRoleKey(r) === 'client_partner');
+
       const userPermissions = await AuthService.getUserPermissions(
         authUser.id,
         isManagement || isAdmin
@@ -167,6 +171,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         validatedRoleKey = 'artisan';
       } else if (isSocialMedia) {
         validatedRoleKey = 'social_media_manager';
+      } else if (isClientPartner) {
+        validatedRoleKey = 'client_partner';
       } else if (assignedSlugs.length > 0) {
         validatedRoleKey = normalizeRoleKey(assignedSlugs[0]);
       } else if (roles.length > 0) {
@@ -394,6 +400,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       if (pathname.startsWith('/social-media') || pathname.startsWith('/social')) {
         return currentRoleKey === 'social_media_manager' || hasRole('social_media_manager');
+      }
+      if (pathname.startsWith('/client')) {
+        return currentRoleKey === 'client_partner' || hasRole('client_partner');
       }
       return false;
     },

@@ -19,16 +19,22 @@ import {
   AlertOctagon,
   Wrench,
   RotateCcw,
+  ShieldCheck,
 } from 'lucide-react';
 import { DailyAttendanceWidget } from '../attendance/DailyAttendanceWidget';
 import { ProjectMaterialRemnantsModule } from '../remnants/ProjectMaterialRemnantsModule';
 import { ToolsEquipmentModule } from '../tools/ToolsEquipmentModule';
 import { TaskInstructionsPanel } from '../tasks/TaskInstructionsPanel';
 import { AssignedProjectsSection } from '../projects/AssignedProjectsSection';
+import { ClientPortalOperationsModule } from '../client-portal/ClientPortalOperationsModule';
+import { NotificationBell, MenuAlertBadge } from '../common/NotificationBell';
+import { useNotifications } from '../../context/NotificationContext';
+import { AppNotification } from '../../services/notificationService';
 
 export const TechnicalDashboard: React.FC = () => {
   const { user, profile, logout } = useAuth();
-  const [activeTab, setActiveTab] = useState<'inspections' | 'projects' | 'tasks' | 'tools' | 'remnants'>('inspections');
+  const { getModuleUnreadCount } = useNotifications();
+  const [activeTab, setActiveTab] = useState<'inspections' | 'client-qc' | 'projects' | 'tasks' | 'tools' | 'remnants'>('inspections');
   const [inspections, setInspections] = useState<any[]>([]);
   const [projects, setProjects] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -170,6 +176,17 @@ export const TechnicalDashboard: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+          <NotificationBell
+            onNavigateNotification={(notification: AppNotification) => {
+              const mod = notification.source_module;
+              if (mod === 'tasks') setActiveTab('tasks');
+              else if (mod === 'projects') setActiveTab('projects');
+              else if (mod === 'work_packages' || mod === 'completions' || mod === 'specifications' || mod === 'variations' || mod === 'client_portal') setActiveTab('client-qc');
+              else setActiveTab('inspections');
+              return true;
+            }}
+          />
+
           <button
             type="button"
             onClick={handleRefresh}
@@ -205,11 +222,12 @@ export const TechnicalDashboard: React.FC = () => {
         {/* Operational Navigation Tabs */}
         <div className="bg-white p-1.5 rounded-2xl border border-slate-200/80 shadow-2xs flex items-center gap-1 overflow-x-auto no-scrollbar touch-pan-x flex-nowrap">
           {[
-            { key: 'inspections', label: 'Technical Inspections', icon: ClipboardCheck },
-            { key: 'projects', label: 'My Assigned Projects', icon: FolderKanban },
-            { key: 'tasks', label: 'Task Verification & Handovers', icon: FileCheck },
-            { key: 'tools', label: 'Tools Return & Condition Audits', icon: Wrench },
-            { key: 'remnants', label: 'Remnants Quality Review', icon: RotateCcw },
+            { key: 'inspections', label: 'Technical Inspections', icon: ClipboardCheck, alertCount: getModuleUnreadCount(['technical_qc']) },
+            { key: 'client-qc', label: 'Pre-Work & Area QC', icon: ShieldCheck, alertCount: getModuleUnreadCount(['work_packages', 'completions', 'specifications', 'variations', 'client_portal']) },
+            { key: 'projects', label: 'My Assigned Projects', icon: FolderKanban, alertCount: getModuleUnreadCount(['projects']) },
+            { key: 'tasks', label: 'Task Verification & Handovers', icon: FileCheck, alertCount: getModuleUnreadCount(['tasks']) },
+            { key: 'tools', label: 'Tools Return & Condition Audits', icon: Wrench, alertCount: 0 },
+            { key: 'remnants', label: 'Remnants Quality Review', icon: RotateCcw, alertCount: 0 },
           ].map((t) => {
             const Icon = t.icon;
             const isActive = activeTab === t.key;
@@ -226,6 +244,7 @@ export const TechnicalDashboard: React.FC = () => {
               >
                 <Icon className="w-3.5 h-3.5" />
                 <span>{t.label}</span>
+                <MenuAlertBadge count={t.alertCount} active={isActive} />
               </button>
             );
           })}
@@ -512,6 +531,9 @@ export const TechnicalDashboard: React.FC = () => {
 
         {/* Tab 4: Material Remnants Quality Inspection */}
         {activeTab === 'remnants' && <ProjectMaterialRemnantsModule />}
+
+        {/* Tab 5: Pre-Work Surface Inspections, Area Completion QC & Subsequent Damage */}
+        {activeTab === 'client-qc' && <ClientPortalOperationsModule mode="qc" />}
       </main>
 
       {/* Record Inspection Modal */}

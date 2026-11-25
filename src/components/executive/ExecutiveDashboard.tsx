@@ -63,6 +63,8 @@ import {
 } from 'lucide-react';
 import { ProjectMaterialRemnantsModule } from '../remnants/ProjectMaterialRemnantsModule';
 import { ToolsEquipmentModule } from '../tools/ToolsEquipmentModule';
+import { ClientPortalOperationsModule } from '../client-portal/ClientPortalOperationsModule';
+import { WorkPackagesWorkspaceModule } from '../client-portal/WorkPackagesWorkspaceModule';
 import { TaskInstructionsPanel } from '../tasks/TaskInstructionsPanel';
 import { ProjectPlanningModule } from '../planning/ProjectPlanningModule';
 import { AttendanceModule } from '../dashboard/AttendanceModule';
@@ -72,11 +74,15 @@ import { UnifiedInventoryModule } from '../inventory/UnifiedInventoryModule';
 import { WorkforceDirectoryModule } from '../workforce/WorkforceDirectoryModule';
 import { VendorsPartnersModule } from '../vendors/VendorsPartnersModule';
 import { AccessDenied } from '../AccessDenied';
+import { NotificationBell, MenuAlertBadge } from '../common/NotificationBell';
+import { useNotifications } from '../../context/NotificationContext';
+import { AppNotification } from '../../services/notificationService';
 
 export type ExecutiveModuleKey =
   | 'overview'
   | 'leads'
   | 'projects'
+  | 'work-packages'
   | 'workforce'
   | 'workforce-directory'
   | 'vendors-partners'
@@ -98,6 +104,7 @@ export type ExecutiveModuleKey =
 
 export const ExecutiveDashboard: React.FC = () => {
   const { user, profile, logout, hasAnyPermission } = useAuth();
+  const { getModuleUnreadCount } = useNotifications();
   const navigate = useNavigate();
 
   const canAccessWorkforceDirectory = hasAnyPermission([
@@ -174,7 +181,9 @@ export const ExecutiveDashboard: React.FC = () => {
 
   // Sync active module if navigated via deep link
   useEffect(() => {
-    if (location.pathname.includes('/executive/users')) {
+    if (location.pathname.includes('/executive/work-packages')) {
+      setActiveModule('work-packages');
+    } else if (location.pathname.includes('/executive/users')) {
       setActiveModule('users');
     } else if (location.pathname.includes('/executive/roles')) {
       setActiveModule('roles');
@@ -364,6 +373,7 @@ export const ExecutiveDashboard: React.FC = () => {
       items: [
         { key: 'planning' as ExecutiveModuleKey, label: 'Project Planning & Projections', icon: Calculator },
         { key: 'projects' as ExecutiveModuleKey, label: 'Projects', icon: FolderKanban, count: projectsList.length },
+        { key: 'work-packages' as ExecutiveModuleKey, label: 'Work Packages', icon: Layers },
         { key: 'tasks' as ExecutiveModuleKey, label: 'Task Specifications & Handovers', icon: ClipboardCheck },
         { key: 'qc' as ExecutiveModuleKey, label: 'Technical Inspection & QC', icon: ClipboardCheck, count: inspectionsList.length },
         { key: 'materials' as ExecutiveModuleKey, label: 'Materials Overview', icon: Package, count: materialsList.length },
@@ -418,6 +428,7 @@ export const ExecutiveDashboard: React.FC = () => {
     if (modKey === 'overview') {
       if (location.pathname !== '/executive') navigate('/executive');
     } else if (
+      modKey === 'work-packages' ||
       modKey === 'workforce-directory' ||
       modKey === 'vendors-partners' ||
       modKey === 'users' ||
@@ -428,6 +439,94 @@ export const ExecutiveDashboard: React.FC = () => {
     } else if (location.pathname !== '/executive') {
       navigate('/executive');
     }
+  };
+
+  const getExecutiveModuleUnreadCount = (key: ExecutiveModuleKey): number => {
+    switch (key) {
+      case 'work-packages':
+        return getModuleUnreadCount(['work_packages']);
+      case 'alerts':
+        return getModuleUnreadCount(['approvals']);
+      case 'projects':
+        return getModuleUnreadCount(['projects']);
+      case 'tasks':
+        return getModuleUnreadCount(['tasks']);
+      case 'qc':
+        return getModuleUnreadCount(['technical_qc']);
+      case 'procurement':
+        return getModuleUnreadCount(['procurement']);
+      case 'materials':
+        return getModuleUnreadCount(['materials']);
+      case 'finance':
+        return getModuleUnreadCount(['finance']);
+      case 'workforce':
+        return getModuleUnreadCount(['workforce', 'overtime']);
+      case 'clients':
+        return getModuleUnreadCount([
+          'client_portal',
+          'quotations',
+          'specifications',
+          'variations',
+          'completions',
+          'requests_complaints',
+        ]);
+      default:
+        return 0;
+    }
+  };
+
+  const handleNavigateNotification = (notification: AppNotification): boolean => {
+    const mod = notification.source_module;
+    if (mod === 'work_packages') {
+      setActiveModule('work-packages');
+      navigate(
+        notification.project_id
+          ? `/executive/work-packages?projectId=${notification.project_id}`
+          : '/executive/work-packages'
+      );
+      return true;
+    }
+    if (mod === 'tasks') {
+      handleSelectModule('tasks');
+      return true;
+    }
+    if (mod === 'technical_qc') {
+      handleSelectModule('qc');
+      return true;
+    }
+    if (mod === 'procurement') {
+      handleSelectModule('procurement');
+      return true;
+    }
+    if (mod === 'materials') {
+      handleSelectModule('materials');
+      return true;
+    }
+    if (mod === 'finance') {
+      handleSelectModule('finance');
+      return true;
+    }
+    if (mod === 'overtime' || mod === 'workforce') {
+      handleSelectModule('workforce');
+      return true;
+    }
+    if (
+      mod === 'client_portal' ||
+      mod === 'quotations' ||
+      mod === 'specifications' ||
+      mod === 'variations' ||
+      mod === 'completions' ||
+      mod === 'requests_complaints'
+    ) {
+      handleSelectModule('clients');
+      return true;
+    }
+    if (mod === 'approvals') {
+      handleSelectModule('alerts');
+      return true;
+    }
+    handleSelectModule('projects');
+    return true;
   };
 
   const renderSidebarContent = (isMobile = false) => (
@@ -502,43 +601,51 @@ export const ExecutiveDashboard: React.FC = () => {
                     {section.items.map((item) => {
                       const Icon = item.icon;
                       const isActive = activeModule === item.key;
+                      const alertCount = getExecutiveModuleUnreadCount(item.key);
                       return (
                         <button
                           key={item.key}
                           type="button"
                           onClick={() => handleSelectModule(item.key)}
                           title={sidebarCollapsed && !isMobile ? item.label : undefined}
-                          className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold transition-colors cursor-pointer text-left ${
+                          className={`relative w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold transition-colors cursor-pointer text-left ${
                             isActive
                               ? 'bg-[#18b892] text-white shadow-xs'
                               : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                           } ${sidebarCollapsed && !isMobile ? 'justify-center px-0' : ''}`}
                         >
                           <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : 'text-slate-400'}`} />
-                          {(!sidebarCollapsed || isMobile) && (
-                            <div className="flex items-center justify-between flex-1 min-w-0">
+                          {!sidebarCollapsed || isMobile ? (
+                            <div className="flex items-center justify-between gap-1.5 flex-1 min-w-0">
                               <span className="truncate">{item.label}</span>
-                              {item.count != null && (
-                                <span
-                                  className={`ml-2 text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
-                                    isActive
-                                      ? 'bg-white/20 text-white'
-                                      : 'bg-slate-100 text-slate-500'
-                                  }`}
-                                >
-                                  {item.count}
-                                </span>
-                              )}
-                              {item.isUnconfigured && (
-                                <span
-                                  className={`ml-1 text-[9px] px-1 py-0.2 rounded font-medium ${
-                                    isActive ? 'bg-white/20 text-white' : 'bg-amber-50 text-amber-700'
-                                  }`}
-                                >
-                                  Setup
-                                </span>
-                              )}
+                              <div className="flex items-center gap-1 shrink-0">
+                                {alertCount > 0 && (
+                                  <MenuAlertBadge count={alertCount} active={isActive} />
+                                )}
+                                {item.count != null && (
+                                  <span
+                                    className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
+                                      isActive
+                                        ? 'bg-white/20 text-white'
+                                        : 'bg-slate-100 text-slate-500'
+                                    }`}
+                                  >
+                                    {item.count}
+                                  </span>
+                                )}
+                                {item.isUnconfigured && (
+                                  <span
+                                    className={`text-[9px] px-1 py-0.2 rounded font-medium ${
+                                      isActive ? 'bg-white/20 text-white' : 'bg-amber-50 text-amber-700'
+                                    }`}
+                                  >
+                                    Setup
+                                  </span>
+                                )}
+                              </div>
                             </div>
+                          ) : (
+                            <MenuAlertBadge count={alertCount} active={isActive} compact />
                           )}
                         </button>
                       );
@@ -644,6 +751,8 @@ export const ExecutiveDashboard: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-2.5 shrink-0">
+            <NotificationBell onNavigateNotification={handleNavigateNotification} />
+
             <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-emerald-50 text-[#18b892] border border-emerald-200">
               <ShieldCheck className="w-3.5 h-3.5 text-[#18b892]" />
               Executive Control Active
@@ -1638,59 +1747,10 @@ export const ExecutiveDashboard: React.FC = () => {
           )}
 
           {/* ========================================================================= */}
-          {/* VIEW 9: CLIENT EXPERIENCE (DRILL-DOWN)                                    */}
+          {/* VIEW 9: CLIENT EXPERIENCE & PROJECT PARTNER PORTAL                        */}
           {/* ========================================================================= */}
           {activeModule === 'clients' && (
-            <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs p-6 space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-slate-100">
-                <div>
-                  <h2 className="text-base font-bold text-slate-900">Client Directory & Account Experience</h2>
-                  <p className="text-xs text-slate-500">
-                    Enterprise and residential client relationships, commercial accounts and contacts.
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setActiveModule('overview')}
-                  className="text-xs font-semibold text-[#18b892] hover:underline cursor-pointer"
-                >
-                  &larr; Overview
-                </button>
-              </div>
-
-              {clientsList.length === 0 ? (
-                <div className="py-16 text-center text-xs text-slate-400 border border-dashed border-slate-200 rounded-xl">
-                  No client records found in public.clients table.
-                </div>
-              ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left text-xs">
-                    <thead>
-                      <tr className="border-b border-slate-100 bg-slate-50/50 text-slate-400 font-semibold uppercase tracking-wider text-[11px]">
-                        <th className="py-3 px-4">Client Name</th>
-                        <th className="py-3 px-4">Email / Contact</th>
-                        <th className="py-3 px-4">Company</th>
-                        <th className="py-3 px-4">Status</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100">
-                      {clientsList.map((c) => (
-                        <tr key={c.id} className="hover:bg-slate-50/60 transition-colors">
-                          <td className="py-3.5 px-4 font-bold text-slate-900">{c.name}</td>
-                          <td className="py-3.5 px-4 text-slate-600">{c.email || c.phone || '—'}</td>
-                          <td className="py-3.5 px-4 text-slate-600">{c.company || '—'}</td>
-                          <td className="py-3.5 px-4">
-                            <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-[#18b892]">
-                              {c.status || 'Active'}
-                            </span>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </div>
+            <ClientPortalOperationsModule onBackToDashboard={() => setActiveModule('overview')} />
           )}
 
           {/* ========================================================================= */}
@@ -1949,6 +2009,11 @@ export const ExecutiveDashboard: React.FC = () => {
 
           {/* VIEW 18: PROJECT MATERIAL REMNANTS & RECOVERY */}
           {activeModule === 'remnants' && <ProjectMaterialRemnantsModule />}
+
+          {/* VIEW 19: WORK PACKAGES PORTFOLIO WORKSPACE */}
+          {activeModule === 'work-packages' && (
+            <WorkPackagesWorkspaceModule onBackToDashboard={() => handleSelectModule('overview')} />
+          )}
         </div>
       </main>
     </div>

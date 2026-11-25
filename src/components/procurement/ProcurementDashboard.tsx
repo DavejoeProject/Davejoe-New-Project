@@ -28,9 +28,13 @@ import { CreatePurchaseOrderModal } from '../dashboard/CreatePurchaseOrderModal'
 import { NewMaterialRequestModal } from '../dashboard/NewMaterialRequestModal';
 import { RecordDeliveryModal } from '../dashboard/RecordDeliveryModal';
 import { AssignedProjectsSection } from '../projects/AssignedProjectsSection';
+import { NotificationBell, MenuAlertBadge } from '../common/NotificationBell';
+import { useNotifications } from '../../context/NotificationContext';
+import { AppNotification } from '../../services/notificationService';
 
 export const ProcurementDashboard: React.FC = () => {
   const { user, profile, logout } = useAuth();
+  const { getModuleUnreadCount } = useNotifications();
   const [activeTab, setActiveTab] = useState<'orders' | 'requests' | 'deliveries' | 'suppliers' | 'projects' | 'remnants' | 'tools'>('orders');
 
   const [purchaseOrders, setPurchaseOrders] = useState<any[]>([]);
@@ -130,7 +134,17 @@ export const ProcurementDashboard: React.FC = () => {
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5 sm:gap-3">
+          <NotificationBell
+            onNavigateNotification={(notification: AppNotification) => {
+              const mod = notification.source_module;
+              if (mod === 'materials') setActiveTab('requests');
+              else if (mod === 'projects') setActiveTab('projects');
+              else setActiveTab('orders');
+              return true;
+            }}
+          />
+
           <button
             type="button"
             onClick={handleRefresh}
@@ -262,20 +276,22 @@ export const ProcurementDashboard: React.FC = () => {
           <button
             type="button"
             onClick={() => setActiveTab('orders')}
-            className={`min-h-[42px] px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-colors cursor-pointer ${
+            className={`inline-flex items-center gap-2 min-h-[42px] px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-colors cursor-pointer ${
               activeTab === 'orders' ? 'bg-[#18b892] text-white shadow-xs' : 'text-slate-600 hover:bg-slate-100'
             }`}
           >
-            Purchase Orders ({purchaseOrders.length})
+            <span>Purchase Orders ({purchaseOrders.length})</span>
+            <MenuAlertBadge count={getModuleUnreadCount(['procurement'])} active={activeTab === 'orders'} />
           </button>
           <button
             type="button"
             onClick={() => setActiveTab('requests')}
-            className={`min-h-[42px] px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-colors cursor-pointer ${
+            className={`inline-flex items-center gap-2 min-h-[42px] px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-colors cursor-pointer ${
               activeTab === 'requests' ? 'bg-[#18b892] text-white shadow-xs' : 'text-slate-600 hover:bg-slate-100'
             }`}
           >
-            Site Material Requests ({materialRequests.length})
+            <span>Site Material Requests ({materialRequests.length})</span>
+            <MenuAlertBadge count={getModuleUnreadCount(['materials'])} active={activeTab === 'requests'} />
           </button>
           <button
             type="button"
@@ -298,11 +314,12 @@ export const ProcurementDashboard: React.FC = () => {
           <button
             type="button"
             onClick={() => setActiveTab('projects')}
-            className={`min-h-[42px] px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-colors cursor-pointer ${
+            className={`inline-flex items-center gap-2 min-h-[42px] px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-colors cursor-pointer ${
               activeTab === 'projects' ? 'bg-[#18b892] text-white shadow-xs' : 'text-slate-600 hover:bg-slate-100'
             }`}
           >
-            My Assigned Projects
+            <span>My Assigned Projects</span>
+            <MenuAlertBadge count={getModuleUnreadCount(['projects'])} active={activeTab === 'projects'} />
           </button>
           <button
             type="button"

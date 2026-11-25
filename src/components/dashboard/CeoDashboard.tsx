@@ -45,7 +45,6 @@ import {
 } from 'lucide-react';
 import { ProjectControlCentre } from './ProjectControlCentre';
 import { GlobalSearchModal } from './GlobalSearchModal';
-import { NotificationsDrawer, NotificationItem } from './NotificationsDrawer';
 import { supabase } from '../../lib/supabase';
 import { UserManagementView } from '../admin/UserManagementView';
 import { RolesPermissionsView } from '../admin/RolesPermissionsView';
@@ -58,6 +57,9 @@ import { ServiceRequestsModule } from '../admin/ServiceRequestsModule';
 import { UnifiedInventoryModule } from '../inventory/UnifiedInventoryModule';
 import { WorkforceDirectoryModule } from '../workforce/WorkforceDirectoryModule';
 import { VendorsPartnersModule } from '../vendors/VendorsPartnersModule';
+import { ClientPortalOperationsModule } from '../client-portal/ClientPortalOperationsModule';
+import { WorkPackagesWorkspaceModule } from '../client-portal/WorkPackagesWorkspaceModule';
+import { AppNotification } from '../../services/notificationService';
 import { AccessDenied } from '../AccessDenied';
 
 interface CeoDashboardProps {
@@ -102,6 +104,14 @@ export const CeoDashboard: React.FC<CeoDashboardProps> = ({ initialModule = 'ove
   );
 
   const getModuleFromPath = (): DashboardNavKey => {
+    if (
+      location.pathname === '/management/client-portal' ||
+      location.pathname.startsWith('/management/client-portal/') ||
+      location.pathname === '/management/clients' ||
+      location.pathname.startsWith('/management/clients/')
+    ) {
+      return 'client-portal';
+    }
     if (location.pathname === '/management/service-requests' || location.pathname.startsWith('/management/service-requests/')) {
       return 'service-requests';
     }
@@ -110,6 +120,9 @@ export const CeoDashboard: React.FC<CeoDashboardProps> = ({ initialModule = 'ove
     }
     if (location.pathname === '/management/planning' || location.pathname.startsWith('/management/planning/')) {
       return 'planning';
+    }
+    if (location.pathname === '/management/work-packages' || location.pathname.startsWith('/management/work-packages/')) {
+      return 'work-packages';
     }
     if (location.pathname === '/management/projects' || location.pathname.startsWith('/management/projects/')) {
       return 'all-projects';
@@ -238,8 +251,17 @@ export const CeoDashboard: React.FC<CeoDashboardProps> = ({ initialModule = 'ove
 
   // Sync route on location change
   useEffect(() => {
-    if (location.pathname === '/management/planning' || location.pathname.startsWith('/management/planning/')) {
+    if (
+      location.pathname === '/management/client-portal' ||
+      location.pathname.startsWith('/management/client-portal/') ||
+      location.pathname === '/management/clients' ||
+      location.pathname.startsWith('/management/clients/')
+    ) {
+      setCurrentModule('client-portal');
+    } else if (location.pathname === '/management/planning' || location.pathname.startsWith('/management/planning/')) {
       setCurrentModule('planning');
+    } else if (location.pathname === '/management/work-packages' || location.pathname.startsWith('/management/work-packages/')) {
+      setCurrentModule('work-packages');
     } else if (location.pathname === '/management/projects' || location.pathname.startsWith('/management/projects/')) {
       setCurrentModule('all-projects');
     } else if (
@@ -325,7 +347,11 @@ export const CeoDashboard: React.FC<CeoDashboardProps> = ({ initialModule = 'ove
 
   const handleSelectModule = (mod: DashboardNavKey) => {
     setCurrentModule(mod);
-    if (mod === 'service-requests') {
+    if (mod === 'client-portal') {
+      if (location.pathname !== '/management/client-portal') {
+        navigate('/management/client-portal');
+      }
+    } else if (mod === 'service-requests') {
       if (location.pathname !== '/management/service-requests') {
         navigate('/management/service-requests');
       }
@@ -336,6 +362,10 @@ export const CeoDashboard: React.FC<CeoDashboardProps> = ({ initialModule = 'ove
     } else if (mod === 'planning') {
       if (location.pathname !== '/management/planning') {
         navigate('/management/planning');
+      }
+    } else if (mod === 'work-packages') {
+      if (location.pathname !== '/management/work-packages') {
+        navigate('/management/work-packages');
       }
     } else if (mod === 'all-projects') {
       if (location.pathname !== '/management/projects') {
@@ -470,11 +500,7 @@ export const CeoDashboard: React.FC<CeoDashboardProps> = ({ initialModule = 'ove
 
   // Overlays
   const [searchOpen, setSearchOpen] = useState<boolean>(false);
-  const [notificationsOpen, setNotificationsOpen] = useState<boolean>(false);
   const [selectedProject, setSelectedProject] = useState<ProjectItem | null>(null);
-
-  // Real notifications (clean empty array - no fabricated demo items)
-  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
 
   // Load real database data only
   useEffect(() => {
@@ -506,8 +532,56 @@ export const CeoDashboard: React.FC<CeoDashboardProps> = ({ initialModule = 'ove
     }
   };
 
-  const handleMarkAllNotificationsRead = () => {
-    setNotifications((prev) => prev.map((n) => ({ ...n, unread: false })));
+  const handleNavigateNotification = (notification: AppNotification): boolean => {
+    const mod = notification.source_module;
+    if (mod === 'work_packages') {
+      const target = notification.project_id
+        ? `/management/work-packages?projectId=${notification.project_id}`
+        : '/management/work-packages';
+      setCurrentModule('work-packages');
+      navigate(target);
+      return true;
+    }
+    if (mod === 'approvals') {
+      handleSelectModule('approvals');
+      return true;
+    }
+    if (mod === 'tasks') {
+      handleSelectModule('tasks');
+      return true;
+    }
+    if (mod === 'technical_qc') {
+      handleSelectModule('inspections');
+      return true;
+    }
+    if (mod === 'overtime' || mod === 'workforce') {
+      handleSelectModule('overtime');
+      return true;
+    }
+    if (mod === 'procurement' || mod === 'materials') {
+      handleSelectModule('material-requests');
+      return true;
+    }
+    if (mod === 'finance') {
+      handleSelectModule('project-costs');
+      return true;
+    }
+    if (
+      mod === 'client_portal' ||
+      mod === 'variations' ||
+      mod === 'requests_complaints' ||
+      mod === 'quotations' ||
+      mod === 'specifications' ||
+      mod === 'completions'
+    ) {
+      handleSelectModule('client-portal');
+      return true;
+    }
+    if (notification.project_id) {
+      navigate(`/management/projects/${notification.project_id}`);
+      return true;
+    }
+    return false;
   };
 
   const userName =
@@ -564,9 +638,8 @@ export const CeoDashboard: React.FC<CeoDashboardProps> = ({ initialModule = 'ove
         {/* Top Header */}
         <Header
           onOpenSearch={() => setSearchOpen(true)}
-          onOpenNotifications={() => setNotificationsOpen(true)}
-          unreadNotificationsCount={notifications.filter((n) => n.unread).length}
           onSelectModule={handleSelectModule}
+          onNavigateNotification={handleNavigateNotification}
           onLogout={handleLogout}
           onToggleMobileSidebar={() => setMobileSidebarOpen(true)}
           userName={userName}
@@ -606,6 +679,14 @@ export const CeoDashboard: React.FC<CeoDashboardProps> = ({ initialModule = 'ove
                   onSelectModule={handleSelectModule}
                   userName={userName}
                   userRole={userRole}
+                />
+              ) : currentModule === 'work-packages' ? (
+                <WorkPackagesWorkspaceModule
+                  onBackToDashboard={() => handleSelectModule('overview')}
+                />
+              ) : currentModule === 'client-portal' ? (
+                <ClientPortalOperationsModule
+                  onBackToDashboard={() => handleSelectModule('overview')}
                 />
               ) : currentModule === 'service-requests' ? (
                 <ServiceRequestsModule
@@ -814,16 +895,6 @@ export const CeoDashboard: React.FC<CeoDashboardProps> = ({ initialModule = 'ove
           navigate(`/management/projects/${proj.id}`);
         }}
         onSelectModule={handleSelectModule}
-      />
-
-      <NotificationsDrawer
-        isOpen={notificationsOpen}
-        onClose={() => setNotificationsOpen(false)}
-        notifications={notifications}
-        onMarkAllRead={handleMarkAllNotificationsRead}
-        onSelectNotification={(item) => {
-          if (item.module) handleSelectModule(item.module);
-        }}
       />
     </div>
   );

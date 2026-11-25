@@ -27,6 +27,7 @@ import {
   RotateCcw,
   Scale,
   Trash2,
+  Layers,
 } from 'lucide-react';
 import {
   ProjectRecord,
@@ -55,13 +56,17 @@ import { AssignMaterialModal } from './AssignMaterialModal';
 import { WorkerDetailModal } from './WorkerDetailModal';
 import { PurchaseOrderDetailModal } from './PurchaseOrderDetailModal';
 import { DeliveryDetailModal } from './DeliveryDetailModal';
+import { ClientPortalOperationsModule } from '../client-portal/ClientPortalOperationsModule';
+import { WorkPackagesControlPanel } from '../client-portal/WorkPackagesControlPanel';
 
 export type ProjectControlTab =
   | 'overview'
+  | 'work-packages'
   | 'workforce'
   | 'materials'
   | 'procurement'
   | 'financials'
+  | 'client-portal'
   | 'activity';
 
 export type MaterialsSubTab =
@@ -525,10 +530,12 @@ export const ProjectControlCentre: React.FC<ProjectControlCentreProps> = ({
         <div className="flex border-b border-slate-200 px-3 sm:px-6 bg-slate-50/50 overflow-x-auto custom-scrollbar">
           {[
             { key: 'overview', label: 'Overview', icon: Building2 },
+            { key: 'work-packages', label: 'Work Packages', icon: Layers },
             { key: 'workforce', label: 'Staff', icon: Users },
             { key: 'materials', label: 'Materials', icon: Package },
             { key: 'procurement', label: 'Procurement', icon: ShoppingBag },
             { key: 'financials', label: 'Financial Control', icon: CircleDollarSign },
+            { key: 'client-portal', label: 'Client & Protection', icon: ShieldCheck },
             { key: 'activity', label: 'Activity', icon: History },
           ].map((tab) => {
             const Icon = tab.icon;
@@ -1737,6 +1744,23 @@ export const ProjectControlCentre: React.FC<ProjectControlCentreProps> = ({
                 ))}
               </div>
             )}
+          </div>
+        )}
+
+        {activeTab === 'work-packages' && (
+          <div className="p-4 sm:p-6">
+            <WorkPackagesControlPanel
+              projectId={projectId}
+              projectLabel={project.project_code}
+              canManage={true}
+              canApprove={true}
+            />
+          </div>
+        )}
+
+        {activeTab === 'client-portal' && (
+          <div className="p-4 sm:p-6">
+            <ClientPortalOperationsModule mode="project" fixedProjectId={projectId} />
           </div>
         )}
       </div>

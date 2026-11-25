@@ -25,7 +25,8 @@ export type StandardRoleKey =
   | 'procurement'
   | 'accounts'
   | 'artisan'
-  | 'social_media_manager';
+  | 'social_media_manager'
+  | 'client_partner';
 
 
 export interface RoleConfig {
@@ -107,6 +108,19 @@ export const ROLE_CONFIGS: Record<StandardRoleKey, RoleConfig> = {
       'social media',
     ],
   },
+  client_partner: {
+    key: 'client_partner',
+    label: 'Client / Project Partner',
+    route: '/client',
+    aliases: [
+      'client_partner',
+      'client / project partner',
+      'client',
+      'project_partner',
+      'project partner',
+      'main_contractor_portal',
+    ],
+  },
 };
 
 /**
@@ -127,6 +141,8 @@ export function normalizeRoleKey(roleInput: string | null | undefined): Standard
   if (normalizedSlug === 'technical') return 'technical';
   if (normalizedSlug === 'procurement') return 'procurement';
   if (normalizedSlug === 'accounts') return 'accounts';
+  if (normalizedSlug === 'social_media_manager') return 'social_media_manager';
+  if (normalizedSlug === 'client_partner') return 'client_partner';
 
   for (const [key, config] of Object.entries(ROLE_CONFIGS) as [StandardRoleKey, RoleConfig][]) {
     if (cleaned === key.replace(/_/g, ' ') || cleaned === config.label.toLowerCase()) {
@@ -155,6 +171,8 @@ export function normalizeRoleKey(roleInput: string | null | undefined): Standard
   if (cleaned.includes('procurement') || cleaned.includes('logistics')) return 'procurement';
   if (cleaned.includes('account') || cleaned.includes('finance')) return 'accounts';
   if (cleaned.includes('artisan') || cleaned.includes('workforce')) return 'artisan';
+  if (cleaned.includes('social media')) return 'social_media_manager';
+  if (cleaned.includes('client partner') || cleaned.includes('project partner') || cleaned === 'client') return 'client_partner';
 
   return null;
 }
@@ -313,6 +331,8 @@ export class AuthService {
       { id: '6', name: 'Accounts', slug: 'accounts' },
       { id: '7', name: 'Artisan / Workforce', slug: 'artisan' },
       { id: '8', name: 'Executive Director — Business Operations & Strategy', slug: 'executive_director' },
+      { id: '9', name: 'Social Media Manager', slug: 'social_media_manager' },
+      { id: '10', name: 'Client / Project Partner', slug: 'client_partner' },
     ];
   }
 
@@ -767,6 +787,7 @@ const activeRoles: StandardRoleKey[] = [
   'accounts',
   'artisan',
   'social_media_manager',
+  'client_partner',
 ];
 
 
@@ -977,6 +998,20 @@ const activeRoles: StandardRoleKey[] = [
         assignedRoles,
         primaryRoleKey: 'artisan',
         redirectRoute: '/artisan',
+      };
+    }
+
+    const isClientPartner =
+      assignedSlugs.some((s) => normalizeRoleKey(s) === 'client_partner') ||
+      assignedRoles.some((r) => normalizeRoleKey(r) === 'client_partner');
+
+    if (isClientPartner) {
+      return {
+        user,
+        profile,
+        assignedRoles,
+        primaryRoleKey: 'client_partner',
+        redirectRoute: '/client',
       };
     }
 

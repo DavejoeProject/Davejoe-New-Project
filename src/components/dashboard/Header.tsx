@@ -1,12 +1,15 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Search, Bell, ChevronDown, User, Settings, Shield, LogOut, Menu } from 'lucide-react';
+import { Search, ChevronDown, User, Settings, LogOut, Menu } from 'lucide-react';
 import { DashboardNavKey } from './Sidebar';
+import { NotificationBell } from '../common/NotificationBell';
+import { AppNotification } from '../../services/notificationService';
 
 interface HeaderProps {
   onOpenSearch: () => void;
-  onOpenNotifications: () => void;
-  unreadNotificationsCount: number;
+  onOpenNotifications?: () => void;
+  unreadNotificationsCount?: number;
   onSelectModule: (module: DashboardNavKey) => void;
+  onNavigateNotification?: (notification: AppNotification) => boolean | void;
   onLogout: () => void;
   onToggleMobileSidebar?: () => void;
   userName?: string;
@@ -15,9 +18,8 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({
   onOpenSearch,
-  onOpenNotifications,
-  unreadNotificationsCount,
   onSelectModule,
+  onNavigateNotification,
   onLogout,
   onToggleMobileSidebar,
   userName = 'Mayowa',
@@ -69,19 +71,8 @@ export const Header: React.FC<HeaderProps> = ({
 
       {/* Right Controls: Notifications & User Profile */}
       <div className="flex items-center gap-2 sm:gap-3 ml-2 sm:ml-4 shrink-0">
-        {/* Notification Bell */}
-        <button
-          type="button"
-          onClick={onOpenNotifications}
-          className="relative w-10 h-10 rounded-xl hover:bg-slate-100 flex items-center justify-center text-slate-600 hover:text-slate-900 transition-colors cursor-pointer"
-          title="Notifications"
-          aria-label="View notifications"
-        >
-          <Bell className="w-[18px] h-[18px]" strokeWidth={1.8} />
-          {unreadNotificationsCount > 0 && (
-            <span className="absolute top-2.5 right-2.5 w-2.5 h-2.5 rounded-full bg-red-500 ring-2 ring-white" />
-          )}
-        </button>
+        {/* Centralized Real-Time Notification Bell */}
+        <NotificationBell onNavigateNotification={onNavigateNotification} />
 
         {/* User Profile Area */}
         <div className="relative" ref={dropdownRef}>

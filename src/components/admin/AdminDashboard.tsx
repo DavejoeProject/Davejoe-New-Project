@@ -39,6 +39,7 @@ import {
   Package,
   FileQuestion,
   Handshake,
+  Layers,
 } from 'lucide-react';
 import { DailyAttendanceWidget } from '../attendance/DailyAttendanceWidget';
 import { ProjectMaterialRemnantsModule } from '../remnants/ProjectMaterialRemnantsModule';
@@ -53,11 +54,16 @@ import { WorkforceService } from '../../services/workforceService';
 import { ServiceRequestsModule } from './ServiceRequestsModule';
 import { MaterialsDirectoryModule } from '../dashboard/MaterialsDirectoryModule';
 import { AddMaterialModal } from '../dashboard/AddMaterialModal';
+import { ClientPortalOperationsModule } from '../client-portal/ClientPortalOperationsModule';
+import { WorkPackagesWorkspaceModule } from '../client-portal/WorkPackagesWorkspaceModule';
 import { UnifiedInventoryModule } from '../inventory/UnifiedInventoryModule';
 import { WorkforceDirectoryModule } from '../workforce/WorkforceDirectoryModule';
 import { VendorsPartnersModule } from '../vendors/VendorsPartnersModule';
 import { AccessDenied } from '../AccessDenied';
 import { AssignedProjectsSection } from '../projects/AssignedProjectsSection';
+import { NotificationBell, MenuAlertBadge } from '../common/NotificationBell';
+import { useNotifications } from '../../context/NotificationContext';
+import { AppNotification } from '../../services/notificationService';
 
 type AdminTab =
   | 'dashboard'
@@ -67,6 +73,7 @@ type AdminTab =
   | 'workforce-directory'
   | 'vendors-partners'
   | 'projects'
+  | 'work-packages'
   | 'attendance'
   | 'clients'
   | 'roles'
@@ -86,6 +93,7 @@ export interface AdminDashboardProps {
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({ initialTab }) => {
   const { user, profile, logout, hasAnyPermission } = useAuth();
+  const { getModuleUnreadCount } = useNotifications();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -124,6 +132,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ initialTab }) =>
     if (path.includes('/admin/workforce') || path.includes('/admin/staff') || path.includes('/staff')) return 'workforce';
     if (path.includes('/admin/attendance')) return 'attendance';
     if (path.includes('/admin/my-projects')) return 'my-projects';
+    if (path.includes('/admin/work-packages')) return 'work-packages';
     if (path.includes('/admin/projects')) return 'projects';
     if (path.includes('/admin/clients')) return 'clients';
     if (path.includes('/admin/photos')) return 'photos';
@@ -262,6 +271,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ initialTab }) =>
         { key: 'dashboard' as AdminTab, label: 'Control Centre', icon: LayoutDashboard },
         { key: 'my-projects' as AdminTab, label: 'My Assigned Projects', icon: FolderKanban },
         { key: 'projects' as AdminTab, label: 'Projects', icon: FolderKanban, count: metrics.projectsCount },
+        { key: 'work-packages' as AdminTab, label: 'Work Packages', icon: Layers },
         { key: 'tasks' as AdminTab, label: 'Task Specifications', icon: ClipboardList },
         { key: 'workforce' as AdminTab, label: 'Staff', icon: Users, count: metrics.workforceCount },
         ...(canAccessWorkforceDirectory
@@ -307,6 +317,83 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ initialTab }) =>
   ];
 
   const adminDisplayName = profile?.display_name || user?.email?.split('@')[0] || 'Administrator';
+
+  const getAdminTabUnreadCount = (tab: AdminTab): number => {
+    switch (tab) {
+      case 'work-packages':
+        return getModuleUnreadCount(['work_packages']);
+      case 'projects':
+        return getModuleUnreadCount(['projects', 'technical_qc']);
+      case 'tasks':
+        return getModuleUnreadCount(['tasks']);
+      case 'clients':
+        return getModuleUnreadCount([
+          'client_portal',
+          'approvals',
+          'quotations',
+          'specifications',
+          'variations',
+          'completions',
+          'requests_complaints',
+        ]);
+      case 'workforce':
+        return getModuleUnreadCount(['workforce', 'overtime']);
+      case 'materials':
+        return getModuleUnreadCount(['materials', 'procurement']);
+      case 'service-requests':
+        return getModuleUnreadCount(['service_requests']);
+      default:
+        return 0;
+    }
+  };
+
+  const handleNavigateNotification = (notification: AppNotification): boolean => {
+    const mod = notification.source_module;
+    if (mod === 'work_packages') {
+      setActiveTab('work-packages');
+      navigate(
+        notification.project_id
+          ? `/admin/work-packages?projectId=${notification.project_id}`
+          : '/admin/work-packages'
+      );
+      return true;
+    }
+    if (mod === 'service_requests') {
+      handleSelectTab('service-requests');
+      return true;
+    }
+    if (mod === 'tasks') {
+      handleSelectTab('tasks');
+      return true;
+    }
+    if (mod === 'materials' || mod === 'procurement') {
+      handleSelectTab('materials');
+      return true;
+    }
+    if (mod === 'overtime' || mod === 'workforce') {
+      handleSelectTab('workforce');
+      return true;
+    }
+    if (
+      mod === 'client_portal' ||
+      mod === 'approvals' ||
+      mod === 'quotations' ||
+      mod === 'specifications' ||
+      mod === 'variations' ||
+      mod === 'completions' ||
+      mod === 'requests_complaints'
+    ) {
+      handleSelectTab('clients');
+      return true;
+    }
+    if (notification.project_id) {
+      setActiveTab('projects');
+      navigate(`/admin/projects/${notification.project_id}`);
+      return true;
+    }
+    handleSelectTab('projects');
+    return true;
+  };
 
   // Render navigation inside sidebar or mobile drawer
   const renderSidebarContent = (isMobile = false) => (
@@ -381,32 +468,40 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ initialTab }) =>
                     {section.items.map((item) => {
                       const Icon = item.icon;
                       const isActive = activeTab === item.key;
+                      const alertCount = getAdminTabUnreadCount(item.key);
                       return (
                         <button
                           key={item.key}
                           type="button"
                           onClick={() => handleSelectTab(item.key)}
                           title={sidebarCollapsed && !isMobile ? item.label : undefined}
-                          className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all cursor-pointer text-left ${
+                          className={`relative w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all cursor-pointer text-left ${
                             isActive
                               ? 'bg-[#18b892] text-white shadow-xs font-semibold'
                               : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                           } ${sidebarCollapsed && !isMobile ? 'justify-center px-0' : ''}`}
                         >
                           <Icon className={`w-4.5 h-4.5 shrink-0 ${isActive ? 'text-white' : 'text-slate-400 group-hover:text-slate-600'}`} />
-                          {(!sidebarCollapsed || isMobile) && (
-                            <div className="flex items-center justify-between flex-1 min-w-0">
+                          {!sidebarCollapsed || isMobile ? (
+                            <div className="flex items-center justify-between gap-1.5 flex-1 min-w-0">
                               <span className="truncate">{item.label}</span>
-                              {item.count != null && (
-                                <span
-                                  className={`ml-2 text-xs font-mono px-2 py-0.5 rounded-full font-bold ${
-                                    isActive ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-600'
-                                  }`}
-                                >
-                                  {item.count}
-                                </span>
-                              )}
+                              <div className="flex items-center gap-1.5 shrink-0">
+                                {alertCount > 0 && (
+                                  <MenuAlertBadge count={alertCount} active={isActive} />
+                                )}
+                                {item.count != null && (
+                                  <span
+                                    className={`text-xs font-mono px-2 py-0.5 rounded-full font-bold ${
+                                      isActive ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-600'
+                                    }`}
+                                  >
+                                    {item.count}
+                                  </span>
+                                )}
+                              </div>
                             </div>
+                          ) : (
+                            <MenuAlertBadge count={alertCount} active={isActive} compact />
                           )}
                         </button>
                       );
@@ -507,6 +602,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ initialTab }) =>
                 {activeTab === 'workforce-directory' && 'Workforce Directory'}
                 {activeTab === 'vendors-partners' && 'Vendors & Partners'}
                 {activeTab === 'projects' && 'Enterprise Projects'}
+                {activeTab === 'work-packages' && 'Work Packages'}
                 {activeTab === 'clients' && 'Client Management'}
                 {activeTab === 'photos' && 'Job Completion Photos'}
                 {activeTab === 'tasks' && 'Task Instructions & Specifications'}
@@ -527,6 +623,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ initialTab }) =>
                 {activeTab === 'workforce-directory' && 'Contract artisans and external field workforce assigned to projects without login accounts.'}
                 {activeTab === 'vendors-partners' && 'Suppliers, trade partners, settlement banking details, and private CAC documents.'}
                 {activeTab === 'projects' && 'Enterprise construction and civil engineering projects.'}
+                {activeTab === 'work-packages' && 'Structured trade packages, responsible supervisors, milestone verification, and blockers.'}
                 {activeTab === 'clients' && 'Corporate and residential client accounts.'}
                 {activeTab === 'tasks' && 'Issue mandatory specifications, PPE, deliverables, and verify task handovers.'}
                 {activeTab === 'tools' && 'Track tool assignments, dispatch custody, returns, and damage condition audits.'}
@@ -538,7 +635,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ initialTab }) =>
             </div>
           </div>
 
-          <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
+          <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
+            <NotificationBell onNavigateNotification={handleNavigateNotification} />
+
             <button
               type="button"
               onClick={() => setIsAddMaterialModalOpen(true)}
@@ -561,7 +660,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ initialTab }) =>
               <span className="hidden sm:inline">Refresh</span>
             </button>
 
-            <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-50 text-[#18b892] border border-[#18b892]/25 whitespace-nowrap">
+            <span className="hidden md:inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-50 text-[#18b892] border border-[#18b892]/25 whitespace-nowrap">
               Admin Active
             </span>
           </div>
@@ -973,6 +1072,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ initialTab }) =>
             </div>
           )}
 
+          {/* TAB: WORK PACKAGES */}
+          {activeTab === 'work-packages' && (
+            <WorkPackagesWorkspaceModule onBackToDashboard={() => handleSelectTab('dashboard')} />
+          )}
+
           {/* TAB: ATTENDANCE */}
           {activeTab === 'attendance' && (
             <div className="space-y-4">
@@ -980,19 +1084,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ initialTab }) =>
             </div>
           )}
 
-          {/* TAB 8: CLIENTS */}
+          {/* TAB 8: CLIENTS & CLIENT PORTAL */}
           {activeTab === 'clients' && (
-            <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs p-6 space-y-4">
-              <div>
-                <h2 className="text-base font-bold text-slate-900">Client Management</h2>
-                <p className="text-xs text-slate-500">
-                  Corporate and residential client accounts.
-                </p>
-              </div>
-              <div className="py-12 text-center text-sm text-slate-400 border border-dashed border-slate-200 rounded-xl">
-                No client records configured yet in the database.
-              </div>
-            </div>
+            <ClientPortalOperationsModule onBackToDashboard={() => handleSelectTab('dashboard')} />
           )}
 
           {/* TAB 9: TASK INSTRUCTIONS & HANDOVER */}

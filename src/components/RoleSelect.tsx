@@ -12,6 +12,7 @@ import {
   Hammer,
   Briefcase,
   Share2,
+  Building2,
 } from 'lucide-react';
 
 export interface RoleDefinition {
@@ -80,12 +81,19 @@ export const ROLE_DEFINITIONS: RoleDefinition[] = [
     icon: Hammer,
   },
   {
-  slug: 'social_media_manager',
-  name: 'Social Media Manager',
-  description: 'View and download job completion photos',
-  isActive: true,
-  icon: Share2,
-},
+    slug: 'social_media_manager',
+    name: 'Social Media Manager',
+    description: 'View and download job completion photos',
+    isActive: true,
+    icon: Share2,
+  },
+  {
+    slug: 'client_partner',
+    name: 'Client / Project Partner',
+    description: 'Track projects, approvals, progress & reports',
+    isActive: true,
+    icon: Building2,
+  },
 ];
 
 interface RoleSelectProps {
@@ -118,7 +126,9 @@ export const RoleSelect: React.FC<RoleSelectProps> = ({
       (value.toLowerCase().includes('account') && r.slug === 'accounts') ||
       (value.toLowerCase().includes('supervisor') && r.slug === 'supervisor') ||
       (value.toLowerCase().includes('procurement') && r.slug === 'procurement') ||
-      (value.toLowerCase().includes('technical') && r.slug === 'technical')
+      (value.toLowerCase().includes('technical') && r.slug === 'technical') ||
+      (value.toLowerCase().includes('social') && r.slug === 'social_media_manager') ||
+      ((value.toLowerCase().includes('client') || value.toLowerCase().includes('partner')) && r.slug === 'client_partner')
   ) || null;
 
   // Close dropdown on click outside

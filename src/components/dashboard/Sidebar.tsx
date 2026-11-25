@@ -41,10 +41,14 @@ import {
   FileQuestion,
   HardHat,
   Handshake,
+  Building2,
+  Layers,
 } from 'lucide-react';
 import { PWAInstallButton } from '../pwa/PWAInstallButton';
 import { BRAND_ASSETS } from '../../config/branding';
 import { useAuth } from '../../hooks/useAuth';
+import { useNotifications } from '../../context/NotificationContext';
+import { MenuAlertBadge } from '../common/NotificationBell';
 
 export type DashboardNavKey =
   // COMMAND CENTRE
@@ -53,10 +57,12 @@ export type DashboardNavKey =
   | 'alerts'
   // COMMERCIAL & SERVICE REQUESTS
   | 'service-requests'
+  | 'client-portal'
   // PROJECT PLANNING & PROJECTIONS
   | 'planning'
   // PROJECTS
   | 'all-projects'
+  | 'work-packages'
   | 'project-performance'
   | 'milestones'
   | 'inspections'
@@ -121,6 +127,7 @@ export const SIDEBAR_SECTIONS: NavSectionConfig[] = [
   {
     title: 'COMMERCIAL & INTAKE',
     items: [
+      { key: 'client-portal', label: 'Client Portal & Protection', icon: Building2 },
       { key: 'service-requests', label: 'Service Requests', icon: FileQuestion },
     ],
   },
@@ -134,6 +141,7 @@ export const SIDEBAR_SECTIONS: NavSectionConfig[] = [
     title: 'PROJECTS',
     items: [
       { key: 'all-projects', label: 'All Projects', icon: FolderKanban },
+      { key: 'work-packages', label: 'Work Packages', icon: Layers },
       { key: 'project-performance', label: 'Project Performance', icon: TrendingUp },
       { key: 'milestones', label: 'Milestones', icon: Flag },
       { key: 'inspections', label: 'Inspections', icon: ClipboardCheck },
@@ -217,6 +225,46 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onCloseMobile,
 }) => {
   const { hasAnyPermission } = useAuth();
+  const { getModuleUnreadCount } = useNotifications();
+
+  const getSidebarItemUnreadCount = React.useCallback(
+    (key: DashboardNavKey): number => {
+      switch (key) {
+        case 'approvals':
+          return getModuleUnreadCount(['approvals']);
+        case 'work-packages':
+          return getModuleUnreadCount(['work_packages']);
+        case 'all-projects':
+          return getModuleUnreadCount(['projects']);
+        case 'inspections':
+          return getModuleUnreadCount(['technical_qc']);
+        case 'tasks':
+          return getModuleUnreadCount(['tasks']);
+        case 'client-portal':
+          return getModuleUnreadCount([
+            'client_portal',
+            'quotations',
+            'specifications',
+            'variations',
+            'completions',
+            'requests_complaints',
+          ]);
+        case 'overtime':
+          return getModuleUnreadCount(['overtime', 'workforce']);
+        case 'material-requests':
+          return getModuleUnreadCount(['materials']);
+        case 'procurement':
+          return getModuleUnreadCount(['procurement']);
+        case 'project-costs':
+          return getModuleUnreadCount(['finance']);
+        case 'service-requests':
+          return getModuleUnreadCount(['service_requests']);
+        default:
+          return 0;
+      }
+    },
+    [getModuleUnreadCount]
+  );
 
   const canAccessWorkforceDirectory = hasAnyPermission([
     'View Workforce',
@@ -419,6 +467,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     const isActive =
                       currentModule === item.key ||
                       (item.key === 'materials' && currentModule === 'materials-directory');
+                    const alertCount = getSidebarItemUnreadCount(item.key);
 
                     return (
                       <button
@@ -426,7 +475,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                         type="button"
                         onClick={() => handleItemClick(item.key)}
                         title={collapsed ? item.label : undefined}
-                        className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-colors cursor-pointer group text-left min-h-[42px] ${
+                        className={`relative w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-colors cursor-pointer group text-left min-h-[42px] ${
                           isActive
                             ? 'bg-[#18b892] text-white shadow-xs font-bold'
                             : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70'
@@ -440,8 +489,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
                           }`}
                           strokeWidth={isActive ? 2.2 : 1.9}
                         />
-                        {!collapsed && (
-                          <span className="truncate text-sm font-semibold">{item.label}</span>
+                        {!collapsed ? (
+                          <>
+                            <span className="truncate text-sm font-semibold flex-1">{item.label}</span>
+                            <MenuAlertBadge count={alertCount} active={isActive} />
+                          </>
+                        ) : (
+                          <MenuAlertBadge count={alertCount} active={isActive} compact />
                         )}
                       </button>
                     );
