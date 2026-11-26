@@ -13,6 +13,7 @@ import {
   RefreshCw,
   Plus,
   Shield,
+  ShieldAlert,
   Phone,
   User,
   ClipboardList,
@@ -31,6 +32,7 @@ import { TaskInstructionsPanel } from '../tasks/TaskInstructionsPanel';
 import { ProjectMaterialRemnantsModule } from '../remnants/ProjectMaterialRemnantsModule';
 import { AssignedProjectsSection } from '../projects/AssignedProjectsSection';
 import { NotificationBell, MenuAlertBadge } from '../common/NotificationBell';
+import { ImproperRequestReportModal } from '../common/ImproperRequestReportModal';
 import { useNotifications } from '../../context/NotificationContext';
 import { AppNotification } from '../../services/notificationService';
 
@@ -47,8 +49,9 @@ export const ArtisanDashboard: React.FC = () => {
   const [clockActionMessage, setClockActionMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // Overtime Modal
+  // Overtime & Confidential Disclosure Modals
   const [isOvertimeModalOpen, setIsOvertimeModalOpen] = useState<boolean>(false);
+  const [isConfidentialDisclosureOpen, setIsConfidentialDisclosureOpen] = useState<boolean>(false);
 
   // Time of day greeting
   const getGreeting = () => {
@@ -195,6 +198,16 @@ export const ArtisanDashboard: React.FC = () => {
                 return true;
               }}
             />
+
+            <button
+              type="button"
+              onClick={() => setIsConfidentialDisclosureOpen(true)}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold text-rose-700 bg-rose-50/70 hover:bg-rose-50 border border-rose-200/80 rounded-xl transition-colors cursor-pointer"
+              title="Confidentially report an improper request or conduct issue directly to Leadership"
+            >
+              <ShieldAlert className="w-3.5 h-3.5" />
+              <span className="hidden md:inline">Report Conduct</span>
+            </button>
 
             <button
               type="button"
@@ -681,6 +694,17 @@ export const ArtisanDashboard: React.FC = () => {
           projectName={selectedAssignedProject?.name || data?.activeProject?.projectName}
         />
       )}
+
+      <ImproperRequestReportModal
+        isOpen={isConfidentialDisclosureOpen}
+        onClose={() => setIsConfidentialDisclosureOpen(false)}
+        projects={(data?.assignedProjects || []).map((p) => ({
+          id: p.project_id,
+          name: p.name,
+          project_code: p.project_code,
+        }))}
+        reporterName={workerName}
+      />
     </div>
   );
 };

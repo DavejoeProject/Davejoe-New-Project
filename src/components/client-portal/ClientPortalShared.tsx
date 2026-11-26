@@ -10,9 +10,12 @@ import {
   Loader2,
   Download,
   Eye,
+  Lock,
+  Volume2,
 } from 'lucide-react';
 import {
   ClientPortalService,
+  CONFIDENTIAL_EVIDENCE_BUCKET,
   MediaEvidenceItem,
   ProgressVerificationStage,
   VariationWorkflowStage,
@@ -168,7 +171,7 @@ export const VariationStepper: React.FC<{ stage: VariationWorkflowStage }> = ({ 
 };
 
 // ==============================================================================
-// PRIVATE STORAGE EVIDENCE UPLOADER
+// PRIVATE STORAGE EVIDENCE UPLOADER (STANDARD & CONFIDENTIAL VAULT)
 // ==============================================================================
 export const EvidenceUploader: React.FC<{
   projectId: string;
@@ -177,23 +180,35 @@ export const EvidenceUploader: React.FC<{
   items: MediaEvidenceItem[];
   onChange: (items: MediaEvidenceItem[]) => void;
   label?: string;
-}> = ({ projectId, category, uploadedByName, items, onChange, label = 'Attach Photo / Video / PDF Evidence' }) => {
+  isConfidential?: boolean;
+}> = ({
+  projectId,
+  category,
+  uploadedByName,
+  items,
+  onChange,
+  label = 'Attach Photo / Video / PDF Evidence',
+  isConfidential = false,
+}) => {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const effectiveScopeId = projectId || (isConfidential ? 'general' : '');
+
   const handleFiles = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
-    if (!files.length || !projectId) return;
+    if (!files.length || !effectiveScopeId) return;
     setError(null);
     setUploading(true);
     try {
       const uploaded: MediaEvidenceItem[] = [];
       for (const file of files) {
         const item = await ClientPortalService.uploadEvidenceFile({
-          projectId,
+          projectId: effectiveScopeId,
           category,
           file,
           uploadedByName,
+          isConfidential,
         });
         uploaded.push(item);
       }
@@ -209,42 +224,73 @@ export const EvidenceUploader: React.FC<{
   return (
     <div className="space-y-2">
       <div className="flex flex-wrap items-center gap-3">
-        <label className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-xs font-medium text-slate-700 cursor-pointer transition-colors">
-          {uploading ? <Loader2 className="w-3.5 h-3.5 animate-spin text-[#18b892]" /> : <Upload className="w-3.5 h-3.5 text-[#18b892]" />}
+        <label
+          className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border text-xs font-medium cursor-pointer transition-colors ${
+            isConfidential
+              ? 'border-rose-200 bg-rose-50/60 hover:bg-rose-50 text-rose-800'
+              : 'border-slate-200 bg-white hover:bg-slate-50 text-slate-700'
+          }`}
+        >
+          {uploading ? (
+            <Loader2 className={`w-3.5 h-3.5 animate-spin ${isConfidential ? 'text-rose-600' : 'text-[#18b892]'}`} />
+          ) : isConfidential ? (
+            <Lock className="w-3.5 h-3.5 text-rose-600" />
+          ) : (
+            <Upload className="w-3.5 h-3.5 text-[#18b892]" />
+          )}
           <span>{uploading ? 'Uploading...' : label}</span>
           <input
             type="file"
             multiple
-            accept="image/jpeg,image/png,image/webp,video/mp4,video/quicktime,video/webm,application/pdf"
+            accept={
+              isConfidential
+                ? 'image/jpeg,image/png,image/webp,video/mp4,video/quicktime,video/webm,application/pdf,audio/mpeg,audio/mp4,audio/wav,audio/webm,audio/ogg,audio/x-m4a'
+                : 'image/jpeg,image/png,image/webp,video/mp4,video/quicktime,video/webm,application/pdf'
+            }
             onChange={handleFiles}
-            disabled={uploading || !projectId}
+            disabled={uploading || !effectiveScopeId}
             className="hidden"
           />
         </label>
-        <span className="text-[11px] text-slate-400">JPG, PNG, WebP, MP4, WebM, PDF · max 25MB</span>
+        <span className="text-[11px] text-slate-400">
+          {isConfidential
+            ? 'Private confidential vault · JPG, PNG, WebP, MP4, PDF, Audio · max 25MB'
+            : 'JPG, PNG, WebP, MP4, WebM, PDF · max 25MB'}
+        </span>
       </div>
 
       {error && <p className="text-xs text-rose-600">{error}</p>}
 
       {items.length > 0 && (
         <div className="flex flex-wrap gap-2">
-          {items.map((item, idx) => (
-            <div
-              key={`${item.storage_path}-${idx}`}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border border-slate-200 bg-slate-50 text-xs text-slate-700"
-            >
-              <Paperclip className="w-3 h-3 text-slate-400" />
-              <span className="max-w-[180px] truncate">{item.file_name}</span>
-              <button
-                type="button"
-                onClick={() => onChange(items.filter((_, i) => i !== idx))}
-                className="text-slate-400 hover:text-rose-600 cursor-pointer"
-                aria-label="Remove attachment"
+          {items.map((item, idx) => {
+            const inConfidentialVault = item.bucket_id === CONFIDENTIAL_EVIDENCE_BUCKET;
+            return (
+              <div
+                key={`${item.storage_path}-${idx}`}
+                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border text-xs ${
+                  inConfidentialVault
+                    ? 'border-rose-200 bg-rose-50/70 text-rose-800'
+                    : 'border-slate-200 bg-slate-50 text-slate-700'
+                }`}
               >
-                <X className="w-3 h-3" />
-              </button>
-            </div>
-          ))}
+                {inConfidentialVault ? (
+                  <Lock className="w-3 h-3 text-rose-500" />
+                ) : (
+                  <Paperclip className="w-3 h-3 text-slate-400" />
+                )}
+                <span className="max-w-[180px] truncate">{item.file_name}</span>
+                <button
+                  type="button"
+                  onClick={() => onChange(items.filter((_, i) => i !== idx))}
+                  className="text-slate-400 hover:text-rose-600 cursor-pointer"
+                  aria-label="Remove attachment"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </div>
+            );
+          })}
         </div>
       )}
     </div>
@@ -267,7 +313,11 @@ export const EvidenceMediaGallery: React.FC<{
       const next: Record<string, string> = {};
       for (const item of items || []) {
         if (!item.storage_path) continue;
-        const url = await ClientPortalService.getSignedEvidenceUrl(item.storage_path);
+        const url = await ClientPortalService.getSignedEvidenceUrl(
+          item.storage_path,
+          3600,
+          item.bucket_id
+        );
         if (url) next[item.storage_path] = url;
       }
       if (active) setSignedUrls(next);
@@ -291,11 +341,15 @@ export const EvidenceMediaGallery: React.FC<{
           const url = signedUrls[item.storage_path];
           const isImage = item.mime_type?.startsWith('image/');
           const isVideo = item.mime_type?.startsWith('video/');
+          const isAudio = item.mime_type?.startsWith('audio/');
+          const isConfidential = item.bucket_id === CONFIDENTIAL_EVIDENCE_BUCKET;
 
           return (
             <div
               key={`${item.storage_path}-${idx}`}
-              className="group relative rounded-lg border border-slate-200 bg-white overflow-hidden flex items-center gap-2 pr-2.5"
+              className={`group relative rounded-lg border bg-white overflow-hidden flex items-center gap-2 pr-2.5 ${
+                isConfidential ? 'border-rose-200/90' : 'border-slate-200'
+              }`}
             >
               {isImage && url ? (
                 <button
@@ -306,13 +360,28 @@ export const EvidenceMediaGallery: React.FC<{
                   <img src={url} alt={item.file_name} className="w-full h-full object-cover" />
                 </button>
               ) : (
-                <div className="w-10 h-10 shrink-0 bg-slate-50 flex items-center justify-center text-slate-500">
-                  {isVideo ? <Film className="w-4 h-4" /> : isImage ? <ImageIcon className="w-4 h-4" /> : <FileText className="w-4 h-4" />}
+                <div
+                  className={`w-10 h-10 shrink-0 flex items-center justify-center ${
+                    isConfidential ? 'bg-rose-50 text-rose-600' : 'bg-slate-50 text-slate-500'
+                  }`}
+                >
+                  {isVideo ? (
+                    <Film className="w-4 h-4" />
+                  ) : isAudio ? (
+                    <Volume2 className="w-4 h-4" />
+                  ) : isImage ? (
+                    <ImageIcon className="w-4 h-4" />
+                  ) : (
+                    <FileText className="w-4 h-4" />
+                  )}
                 </div>
               )}
 
               <div className="min-w-0 py-1.5">
-                <p className="text-xs font-medium text-slate-700 max-w-[150px] truncate">{item.file_name}</p>
+                <p className="text-xs font-medium text-slate-700 max-w-[160px] truncate flex items-center gap-1">
+                  {isConfidential && <Lock className="w-3 h-3 text-rose-500 shrink-0" />}
+                  <span className="truncate">{item.file_name}</span>
+                </p>
                 <div className="flex items-center gap-2 mt-0.5">
                   {url && (
                     <>
@@ -350,7 +419,12 @@ export const EvidenceMediaGallery: React.FC<{
           >
             <div className="px-4 py-3 border-b border-slate-200 flex items-center justify-between gap-4">
               <div className="min-w-0">
-                <p className="text-sm font-semibold text-slate-900 truncate">{previewItem.item.file_name}</p>
+                <p className="text-sm font-semibold text-slate-900 truncate flex items-center gap-1.5">
+                  {previewItem.item.bucket_id === CONFIDENTIAL_EVIDENCE_BUCKET && (
+                    <Lock className="w-3.5 h-3.5 text-rose-600 shrink-0" />
+                  )}
+                  <span className="truncate">{previewItem.item.file_name}</span>
+                </p>
                 {previewItem.item.caption && (
                   <p className="text-xs text-slate-500 truncate">{previewItem.item.caption}</p>
                 )}
@@ -381,6 +455,12 @@ export const EvidenceMediaGallery: React.FC<{
                 />
               ) : previewItem.item.mime_type?.startsWith('video/') ? (
                 <video src={previewItem.url} controls className="max-h-[72vh] max-w-full rounded-lg" />
+              ) : previewItem.item.mime_type?.startsWith('audio/') ? (
+                <div className="w-full max-w-lg bg-white rounded-xl border border-slate-200 p-6 space-y-3 text-center">
+                  <Volume2 className="w-8 h-8 text-slate-500 mx-auto" />
+                  <p className="text-xs font-medium text-slate-700">{previewItem.item.file_name}</p>
+                  <audio src={previewItem.url} controls className="w-full" />
+                </div>
               ) : (
                 <iframe
                   src={previewItem.url}

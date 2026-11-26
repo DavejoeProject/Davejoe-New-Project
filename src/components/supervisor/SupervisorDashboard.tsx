@@ -20,6 +20,7 @@ import {
   SlidersHorizontal,
   ChevronRight,
   Shield,
+  ShieldAlert,
   FileText,
   Wrench,
   RotateCcw,
@@ -48,6 +49,7 @@ import { ReportSiteIssueModal } from './ReportSiteIssueModal';
 import { NewMaterialRequestModal } from '../dashboard/NewMaterialRequestModal';
 import { ClientPortalOperationsModule } from '../client-portal/ClientPortalOperationsModule';
 import { NotificationBell, MenuAlertBadge } from '../common/NotificationBell';
+import { ImproperRequestReportModal } from '../common/ImproperRequestReportModal';
 import { useNotifications } from '../../context/NotificationContext';
 import { AppNotification } from '../../services/notificationService';
 
@@ -83,6 +85,7 @@ export const SupervisorDashboard: React.FC = () => {
   // Modals
   const [isClockInOpen, setIsClockInOpen] = useState<boolean>(false);
   const [isClockOutOpen, setIsClockOutOpen] = useState<boolean>(false);
+  const [isConfidentialDisclosureOpen, setIsConfidentialDisclosureOpen] = useState<boolean>(false);
   const [isRecordAttendanceOpen, setIsRecordAttendanceOpen] = useState<boolean>(false);
   const [isLogProductivityOpen, setIsLogProductivityOpen] = useState<boolean>(false);
   const [isReportIssueOpen, setIsReportIssueOpen] = useState<boolean>(false);
@@ -169,6 +172,16 @@ export const SupervisorDashboard: React.FC = () => {
                 return true;
               }}
             />
+
+            <button
+              type="button"
+              onClick={() => setIsConfidentialDisclosureOpen(true)}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold text-rose-700 bg-rose-50/70 hover:bg-rose-50 border border-rose-200/80 rounded-xl transition-colors cursor-pointer"
+              title="Confidentially report an improper request or conduct issue directly to Leadership"
+            >
+              <ShieldAlert className="w-3.5 h-3.5" />
+              <span className="hidden lg:inline">Report Conduct</span>
+            </button>
 
             <button
               type="button"
@@ -973,6 +986,17 @@ export const SupervisorDashboard: React.FC = () => {
         onClose={() => setIsRequestMaterialOpen(false)}
         onRequestCreated={() => fetchDashboardData(true)}
         preselectedProjectId={data?.projects[0]?.id}
+      />
+
+      <ImproperRequestReportModal
+        isOpen={isConfidentialDisclosureOpen}
+        onClose={() => setIsConfidentialDisclosureOpen(false)}
+        projects={(data?.projects || []).map((p) => ({
+          id: p.id,
+          name: p.name,
+          project_code: p.project_code,
+        }))}
+        reporterName={supervisorName}
       />
     </div>
   );

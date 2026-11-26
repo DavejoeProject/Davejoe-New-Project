@@ -75,6 +75,7 @@ import { UnifiedInventoryModule } from '../inventory/UnifiedInventoryModule';
 import { WorkforceDirectoryModule } from '../workforce/WorkforceDirectoryModule';
 import { VendorsPartnersModule } from '../vendors/VendorsPartnersModule';
 import { AccessDenied } from '../AccessDenied';
+import { ConfidentialDisclosuresPanel } from '../dashboard/ConfidentialDisclosuresPanel';
 import { NotificationBell, MenuAlertBadge } from '../common/NotificationBell';
 import { useNotifications } from '../../context/NotificationContext';
 import { AppNotification } from '../../services/notificationService';
@@ -1820,6 +1821,10 @@ export const ExecutiveDashboard: React.FC = () => {
                   </table>
                 </div>
               )}
+
+              <div className="pt-4 border-t border-slate-100">
+                <ConfidentialDisclosuresPanel />
+              </div>
             </div>
           )}
 

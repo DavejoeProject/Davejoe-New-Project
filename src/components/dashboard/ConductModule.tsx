@@ -8,6 +8,7 @@ import {
   RefreshCw,
   AlertCircle,
   ExternalLink,
+  Lock,
 } from 'lucide-react';
 import {
   WorkforcePerformanceService,
@@ -17,7 +18,9 @@ import {
   ConductSeverity,
 } from '../../services/workforcePerformanceService';
 import { formatDateNigerian } from '../../services/dashboardService';
+import { useAuth } from '../../hooks/useAuth';
 import { WorkforceNavTabs } from './WorkforceNavTabs';
+import { ConfidentialDisclosuresPanel } from './ConfidentialDisclosuresPanel';
 
 interface ConductModuleProps {
   onBackToDashboard?: () => void;
@@ -25,6 +28,9 @@ interface ConductModuleProps {
 
 export const ConductModule: React.FC<ConductModuleProps> = ({ onBackToDashboard }) => {
   const navigate = useNavigate();
+  const { hasRole } = useAuth();
+  const isLeadership = hasRole('management') || hasRole('executive_director');
+  const [conductSubView, setConductSubView] = useState<'logs' | 'disclosures'>('logs');
 
   const [records, setRecords] = useState<ConductItem[]>([]);
   const [metrics, setMetrics] = useState({
@@ -155,8 +161,41 @@ export const ConductModule: React.FC<ConductModuleProps> = ({ onBackToDashboard 
       {/* Navigation Sub-Tabs */}
       <WorkforceNavTabs activeTab="conduct" />
 
-      {/* Summary KPI Cards Row */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+      {/* Leadership-Only Confidential Worker Disclosures Toggle */}
+      {isLeadership && (
+        <div className="inline-flex items-center gap-1 p-1 rounded-xl bg-slate-100 border border-slate-200/80">
+          <button
+            type="button"
+            onClick={() => setConductSubView('logs')}
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
+              conductSubView === 'logs'
+                ? 'bg-white text-slate-900 shadow-2xs'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            Workforce Conduct Logs
+          </button>
+          <button
+            type="button"
+            onClick={() => setConductSubView('disclosures')}
+            className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
+              conductSubView === 'disclosures'
+                ? 'bg-white text-rose-700 shadow-2xs'
+                : 'text-slate-600 hover:text-rose-700'
+            }`}
+          >
+            <Lock className="w-3.5 h-3.5" />
+            <span>Confidential Worker Disclosures</span>
+          </button>
+        </div>
+      )}
+
+      {isLeadership && conductSubView === 'disclosures' ? (
+        <ConfidentialDisclosuresPanel />
+      ) : (
+        <>
+          {/* Summary KPI Cards Row */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
         <div className="bg-white rounded-xl border border-slate-200/80 p-4 shadow-2xs">
           <span className="text-[10.5px] text-slate-400 font-bold uppercase tracking-wider block">
             TOTAL CONDUCT LOGS
@@ -463,6 +502,8 @@ export const ConductModule: React.FC<ConductModuleProps> = ({ onBackToDashboard 
             </span>
           </div>
         </div>
+      )}
+        </>
       )}
     </div>
   );

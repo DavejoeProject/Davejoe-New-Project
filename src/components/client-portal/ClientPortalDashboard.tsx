@@ -2558,6 +2558,9 @@ export const ClientPortalDashboard: React.FC = () => {
                           setTicketKind('request');
                           setTicketCategory(REQUEST_CATEGORIES[0].value);
                           setTicketConfidential(false);
+                          setTicketAttachments((prev) =>
+                            prev.filter((item) => item.bucket_id !== 'confidential-case-evidence')
+                          );
                         }}
                         className={`py-1.5 rounded-md text-xs font-semibold cursor-pointer ${
                           ticketKind === 'request' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600'
@@ -2637,13 +2640,24 @@ export const ClientPortalDashboard: React.FC = () => {
                         <input
                           type="checkbox"
                           checked={ticketConfidential}
-                          onChange={(e) => setTicketConfidential(e.target.checked)}
+                          onChange={(e) => {
+                            const nextVal = e.target.checked;
+                            setTicketConfidential(nextVal);
+                            // Prevent mixing standard and confidential storage bucket attachments
+                            setTicketAttachments((prev) =>
+                              prev.filter((item) =>
+                                nextVal
+                                  ? item.bucket_id === 'confidential-case-evidence'
+                                  : item.bucket_id !== 'confidential-case-evidence'
+                              )
+                            );
+                          }}
                           className="mt-0.5 accent-rose-600"
                         />
                         <span>
                           <strong>Confidential Management Escalation</strong>
                           <span className="block text-[11px] text-rose-700 mt-0.5">
-                            Routes directly to Davejoe Management & Executive Director. Completely hidden from site supervisors and site teams.
+                            Routes directly to Davejoe Management & Executive Director in an isolated private evidence vault. Completely hidden from site teams and other project parties.
                           </span>
                         </span>
                       </label>
@@ -2651,11 +2665,16 @@ export const ClientPortalDashboard: React.FC = () => {
 
                     <EvidenceUploader
                       projectId={bundle.project.id}
-                      category="client_tickets"
+                      category={ticketKind === 'complaint' && ticketConfidential ? 'confidential_complaints' : 'client_tickets'}
                       uploadedByName={actorName}
                       items={ticketAttachments}
                       onChange={setTicketAttachments}
-                      label="Attach Photo / Video Evidence"
+                      isConfidential={ticketKind === 'complaint' && ticketConfidential}
+                      label={
+                        ticketKind === 'complaint' && ticketConfidential
+                          ? 'Attach Confidential Evidence (Private Vault)'
+                          : 'Attach Photo / Video Evidence'
+                      }
                     />
 
                     <button

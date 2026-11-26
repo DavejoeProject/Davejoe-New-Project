@@ -76,10 +76,13 @@ export type VariationWorkflowStage =
   | 'technically_verified'
   | 'financially_reconciled';
 
+export type EvidenceBucketId = 'client-portal-evidence' | 'confidential-case-evidence';
+
 export interface MediaEvidenceItem {
   storage_path: string;
   file_name: string;
   mime_type: string;
+  bucket_id?: EvidenceBucketId;
   caption?: string;
   uploaded_at: string;
   uploaded_by_name?: string;
@@ -485,6 +488,7 @@ export interface ClientRequestComplaint {
   submitted_by_name?: string | null;
   is_confidential_management: boolean;
   subject_user_id?: string | null;
+  independent_reviewer_id?: string | null;
   status: 'open' | 'in_review' | 'action_in_progress' | 'awaiting_client' | 'resolved' | 'closed';
   assigned_to_user_id?: string | null;
   assigned_to_name?: string | null;
@@ -557,6 +561,7 @@ export interface ClientWeeklySummary {
   upcoming_activities?: string | null;
   pending_client_decisions?: string | null;
   status: 'draft' | 'reviewed' | 'released';
+  contains_subcontract_financials?: boolean;
   prepared_by?: string | null;
   prepared_by_name?: string | null;
   reviewed_by?: string | null;
@@ -609,7 +614,8 @@ export interface ProjectPortalBundle {
 // LABELS & SAFETY HELPERS
 // ==============================================================================
 
-export const EVIDENCE_BUCKET = 'client-portal-evidence';
+export const EVIDENCE_BUCKET: EvidenceBucketId = 'client-portal-evidence';
+export const CONFIDENTIAL_EVIDENCE_BUCKET: EvidenceBucketId = 'confidential-case-evidence';
 export const MAX_EVIDENCE_BYTES = 25 * 1024 * 1024;
 export const ALLOWED_EVIDENCE_MIMES = new Set([
   'image/jpeg',
@@ -619,6 +625,21 @@ export const ALLOWED_EVIDENCE_MIMES = new Set([
   'video/quicktime',
   'video/webm',
   'application/pdf',
+]);
+export const ALLOWED_CONFIDENTIAL_MIMES = new Set([
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+  'video/mp4',
+  'video/quicktime',
+  'video/webm',
+  'application/pdf',
+  'audio/mpeg',
+  'audio/mp4',
+  'audio/wav',
+  'audio/webm',
+  'audio/ogg',
+  'audio/x-m4a',
 ]);
 
 export const ACCOUNT_TYPE_LABELS: Record<ClientAccountType, string> = {
@@ -795,22 +816,41 @@ export class ClientPortalService {
     file: File;
     caption?: string;
     uploadedByName?: string;
+    isConfidential?: boolean;
   }): Promise<MediaEvidenceItem> {
-    const { projectId, category, file, caption, uploadedByName } = params;
+    const { projectId, category, file, caption, uploadedByName, isConfidential } = params;
+    const allowedMimes = isConfidential ? ALLOWED_CONFIDENTIAL_MIMES : ALLOWED_EVIDENCE_MIMES;
 
-    if (!ALLOWED_EVIDENCE_MIMES.has(file.type)) {
-      throw new Error('Unsupported file type. Upload JPG, PNG, WebP, MP4, MOV, WebM, or PDF files only.');
+    if (!allowedMimes.has(file.type)) {
+      throw new Error(
+        isConfidential
+          ? 'Unsupported file type. Upload JPG, PNG, WebP, MP4, MOV, WebM, PDF, or audio (MP3, M4A, WAV, OGG) files only.'
+          : 'Unsupported file type. Upload JPG, PNG, WebP, MP4, MOV, WebM, or PDF files only.'
+      );
     }
     if (file.size > MAX_EVIDENCE_BYTES) {
       throw new Error('File exceeds the 25MB limit for project evidence uploads.');
     }
 
-    const safeCategory = category.replace(/[^a-zA-Z0-9_-]/g, '');
+    const safeCategory = category.replace(/[^a-zA-Z0-9_-]/g, '') || 'evidence';
     const safeName = sanitizeFileName(file.name);
-    const storagePath = `${projectId}/${safeCategory}/${Date.now()}_${safeName}`;
+    const targetBucket: EvidenceBucketId = isConfidential ? CONFIDENTIAL_EVIDENCE_BUCKET : EVIDENCE_BUCKET;
+
+    let storagePath: string;
+    if (isConfidential) {
+      const { data: userData, error: userErr } = await supabase.auth.getUser();
+      const uid = userData?.user?.id;
+      if (userErr || !uid) {
+        throw new Error('Active authenticated session required to upload confidential evidence.');
+      }
+      const scopeSegment = projectId && projectId.trim() ? projectId.trim() : 'general';
+      storagePath = `${scopeSegment}/${uid}/${safeCategory}/${Date.now()}_${safeName}`;
+    } else {
+      storagePath = `${projectId}/${safeCategory}/${Date.now()}_${safeName}`;
+    }
 
     const { error } = await supabase.storage
-      .from(EVIDENCE_BUCKET)
+      .from(targetBucket)
       .upload(storagePath, file, {
         contentType: file.type,
         upsert: false,
@@ -824,24 +864,30 @@ export class ClientPortalService {
       storage_path: storagePath,
       file_name: file.name,
       mime_type: file.type,
+      bucket_id: targetBucket,
       caption: caption?.trim() || undefined,
       uploaded_at: new Date().toISOString(),
       uploaded_by_name: uploadedByName,
     };
   }
 
-  static async getSignedEvidenceUrl(storagePath: string, expiresInSeconds = 3600): Promise<string | null> {
+  static async getSignedEvidenceUrl(
+    storagePath: string,
+    expiresInSeconds = 3600,
+    bucketId?: EvidenceBucketId
+  ): Promise<string | null> {
     if (!storagePath) return null;
     if (storagePath.startsWith('http://') || storagePath.startsWith('https://')) {
       return isSafeHttpUrl(storagePath) ? storagePath : null;
     }
 
+    const resolvedBucket: EvidenceBucketId = bucketId || EVIDENCE_BUCKET;
     const { data, error } = await supabase.storage
-      .from(EVIDENCE_BUCKET)
+      .from(resolvedBucket)
       .createSignedUrl(storagePath, expiresInSeconds);
 
     if (error || !data?.signedUrl) {
-      console.warn('[ClientPortalService] Signed URL error:', error?.message);
+      console.warn(`[ClientPortalService] Signed URL error (${resolvedBucket}):`, error?.message);
       return null;
     }
     return isSafeHttpUrl(data.signedUrl) ? data.signedUrl : null;
@@ -1096,23 +1142,50 @@ export class ClientPortalService {
     contact: ClientContact | null;
     account: ClientAccount | null;
   }> {
-    const { data, error } = await supabase
-      .from('client_project_access')
-      .select(
-        '*, client:clients(*), contact:client_contacts!client_project_access_client_contact_id_fkey(*), project:projects(*)'
-      )
-      .eq('user_id', userId)
-      .eq('is_active', true)
-      .is('revoked_at', null)
-      .order('granted_at', { ascending: false });
+    const [accessRes, maskedProjectsRes] = await Promise.all([
+      supabase
+        .from('client_project_access')
+        .select(
+          '*, client:clients(*), contact:client_contacts!client_project_access_client_contact_id_fkey(*), project:projects(*)'
+        )
+        .eq('user_id', userId)
+        .eq('is_active', true)
+        .is('revoked_at', null)
+        .order('granted_at', { ascending: false }),
+      supabase.rpc('get_client_authorized_projects', { p_project_id: null }),
+    ]);
 
-    if (error) throw new Error(error.message);
-    const records = ((data || []) as unknown as Array<ClientProjectAccess & { project?: Record<string, any> | null }>)
-      .filter((r) => Boolean(r.project))
-      .map((r) => ({
-        ...r,
-        project: r.project ? normalizeProjectSummary(r.project) : undefined,
-      }));
+    if (accessRes.error) throw new Error(accessRes.error.message);
+
+    // Prefer DB-boundary masked project records from get_client_authorized_projects when available
+    const maskedById = new Map<string, Record<string, any>>();
+    if (!maskedProjectsRes.error && Array.isArray(maskedProjectsRes.data)) {
+      for (const item of maskedProjectsRes.data as Record<string, any>[]) {
+        if (item?.id) maskedById.set(String(item.id), item);
+      }
+    }
+
+    const records = ((accessRes.data || []) as unknown as Array<ClientProjectAccess & { project?: Record<string, any> | null }>)
+      .filter((r) => Boolean(r.project) || maskedById.has(r.project_id))
+      .map((r) => {
+        const dbMasked = maskedById.get(r.project_id);
+        const rawProject = dbMasked || r.project;
+        if (!rawProject) return { ...r, project: undefined };
+        const summary = normalizeProjectSummary(rawProject);
+        // Defense-in-depth mirror if remote DB has not yet applied Release 1A migration
+        const isSubcontractModel =
+          summary.project_delivery_model === 'main_contractor_subcontract' ||
+          summary.project_delivery_model === 'multi_party_commercial';
+        if (!r.can_view_financials || (isSubcontractModel && r.hide_subcontract_pricing)) {
+          summary.contract_value = null;
+          summary.budget_amount = null;
+        }
+        return {
+          ...r,
+          project: summary,
+        };
+      });
+
     return {
       accessRecords: records,
       contact: records[0]?.contact || null,
@@ -1132,6 +1205,7 @@ export class ClientPortalService {
 
     const [
       projectRes,
+      maskedProjectRes,
       packagesRes,
       specsRes,
       quotesRes,
@@ -1141,14 +1215,16 @@ export class ClientPortalService {
       damageRes,
       variationsRes,
       requestsRes,
-      summariesRes,
+      summariesRpcRes,
+      summariesFallbackRes,
       photosRes,
     ] = await Promise.all([
-      supabase
-        .from('projects')
-        .select('*')
-        .eq('id', projectId)
-        .single(),
+      isClientView
+        ? Promise.resolve({ data: null, error: null })
+        : supabase.from('projects').select('*').eq('id', projectId).single(),
+      isClientView
+        ? supabase.rpc('get_client_authorized_projects', { p_project_id: projectId })
+        : Promise.resolve({ data: null, error: null }),
       supabase.from('project_work_packages').select('*').eq('project_id', projectId).order('sort_order', { ascending: true }),
       supabase
         .from('project_specifications')
@@ -1191,11 +1267,16 @@ export class ClientPortalService {
         .select('*')
         .eq('project_id', projectId)
         .order('created_at', { ascending: false }),
-      supabase
-        .from('client_weekly_summaries')
-        .select('*')
-        .eq('project_id', projectId)
-        .order('week_end_date', { ascending: false }),
+      isClientView
+        ? supabase.rpc('get_client_weekly_summaries', { p_project_id: projectId })
+        : Promise.resolve({ data: null, error: null }),
+      !isClientView
+        ? supabase
+            .from('client_weekly_summaries')
+            .select('*')
+            .eq('project_id', projectId)
+            .order('week_end_date', { ascending: false })
+        : Promise.resolve({ data: null, error: null }),
       supabase
         .from('job_completion_photos')
         .select(
@@ -1207,13 +1288,41 @@ export class ClientPortalService {
         .order('created_at', { ascending: false }),
     ]);
 
-    if (projectRes.error) throw new Error(projectRes.error.message);
+    let rawProjectData: Record<string, any> | null = null;
+    if (isClientView) {
+      if (!maskedProjectRes.error && Array.isArray(maskedProjectRes.data) && maskedProjectRes.data.length > 0) {
+        rawProjectData = maskedProjectRes.data[0] as Record<string, any>;
+      } else {
+        // Graceful fallback if Release 1A migration has not been applied to remote Supabase yet
+        const fallbackProj = await supabase.from('projects').select('*').eq('id', projectId).single();
+        if (fallbackProj.error) throw new Error(fallbackProj.error.message);
+        rawProjectData = fallbackProj.data as Record<string, any>;
+      }
+    } else {
+      if (projectRes.error) throw new Error(projectRes.error.message);
+      rawProjectData = projectRes.data as Record<string, any>;
+    }
 
-    const project = normalizeProjectSummary(projectRes.data as Record<string, any>);
+    const project = normalizeProjectSummary(rawProjectData);
     let quotations = (quotesRes.data || []) as ClientQuotationContract[];
     let variations = (variationsRes.data || []) as ProjectVariation[];
     let specifications = (specsRes.data || []) as ProjectSpecification[];
-    let summaries = (summariesRes.data || []) as ClientWeeklySummary[];
+    let summaries: ClientWeeklySummary[] = [];
+
+    if (isClientView) {
+      if (!summariesRpcRes.error && Array.isArray(summariesRpcRes.data)) {
+        summaries = summariesRpcRes.data as ClientWeeklySummary[];
+      } else {
+        const fallbackSummaries = await supabase
+          .from('client_weekly_summaries')
+          .select('*')
+          .eq('project_id', projectId)
+          .order('week_end_date', { ascending: false });
+        summaries = (fallbackSummaries.data || []) as ClientWeeklySummary[];
+      }
+    } else {
+      summaries = (summariesFallbackRes.data || []) as ClientWeeklySummary[];
+    }
 
     // Resolve signed URLs for client-visible completion photos linked via area_completion_id
     const rawPhotos = ((photosRes.data || []) as unknown as Array<{
@@ -2480,9 +2589,23 @@ export class ClientPortalService {
     preparedByName: string;
   }): Promise<ClientWeeklySummary> {
     // Pull actual recorded data from live tables — zero mock numbers
+    // Exclude subcontract-confidential items from client-facing weekly summary snapshots
     const bundle = await this.getProjectPortalBundle(params.projectId, { isClientView: false });
+    const isSubcontractProject =
+      bundle.project.project_delivery_model === 'main_contractor_subcontract' ||
+      bundle.project.project_delivery_model === 'multi_party_commercial';
 
-    const snapshot = {
+    const nonConfidentialApprovedVariationsTotal = bundle.variations
+      .filter(
+        (v) =>
+          !v.is_subcontract_confidential &&
+          ['client_approved', 'work_instruction_issued', 'in_execution', 'technically_verified', 'financially_reconciled'].includes(
+            v.workflow_stage
+          )
+      )
+      .reduce((sum, v) => sum + Number(v.reconciled_amount ?? v.estimated_cost ?? 0), 0);
+
+    const snapshot: ClientWeeklySummary['snapshot_data'] = {
       verified_progress_pct: Number(bundle.project.verified_progress_pct || 0),
       areas_qc_verified: bundle.areaCompletions.filter((a) =>
         ['qc_verified', 'submitted_for_acknowledgement', 'client_acknowledged', 'released_for_subsequent_trades', 'formally_handed_over'].includes(
@@ -2492,12 +2615,16 @@ export class ClientPortalService {
       areas_client_acknowledged: bundle.areaCompletions.filter((a) => a.client_acknowledgement_status === 'acknowledged').length,
       areas_released: bundle.areaCompletions.filter((a) => a.area_released).length,
       pending_spec_approvals: bundle.specifications.filter((s) => s.status === 'awaiting_approval' || s.status === 'submitted').length,
-      pending_quotation_approvals: bundle.quotations.filter((q) => q.status === 'issued').length,
-      pending_variation_approvals: bundle.variations.filter((v) => v.workflow_stage === 'awaiting_client_approval').length,
+      pending_quotation_approvals: bundle.quotations.filter((q) => q.status === 'issued' && !q.is_subcontract_confidential).length,
+      pending_variation_approvals: bundle.variations.filter(
+        (v) => v.workflow_stage === 'awaiting_client_approval' && !v.is_subcontract_confidential
+      ).length,
       open_prework_concerns: bundle.preworkInspections.filter((p) => !p.clearance_to_proceed).length,
       open_damage_incidents: bundle.damageIncidents.filter((d) => d.resolution_status !== 'resolved' && d.resolution_status !== 'closed').length,
-      open_requests: bundle.requestsComplaints.filter((r) => r.status !== 'resolved' && r.status !== 'closed').length,
-      approved_variations_total: bundle.financialSummary.approvedVariationsTotal,
+      open_requests: bundle.requestsComplaints.filter(
+        (r) => !r.is_confidential_management && r.status !== 'resolved' && r.status !== 'closed'
+      ).length,
+      ...(isSubcontractProject ? {} : { approved_variations_total: nonConfidentialApprovedVariationsTotal }),
     };
 
     const { data, error } = await supabase

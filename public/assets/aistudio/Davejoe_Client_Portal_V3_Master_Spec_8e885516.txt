@@ -1,0 +1,1150 @@
+# DAVEJOE INTERIORS
+# UNIFIED CLIENT EXPERIENCE & PROJECT PARTNER PORTAL
+## Master Product Requirements and Developer Implementation Brief
+*Version 3.0 — Consolidated Specification*
+
+*Status:* Proposed development requirements  
+*Applies to:* B2C clients, diaspora homeowners, direct corporate clients, main contractors, subcontracting relationships and multi-party construction projects.
+
+*Instruction to Developer:* This document replaces all earlier Client Portal briefs and addenda. Use this as the single master specification for planning, architecture, design and development.
+
+---
+
+# PART A — BUSINESS VISION AND SYSTEM ARCHITECTURE
+
+## 1. Project Vision
+
+Davejoe Interiors wants to create a premium, seamless digital customer and project-partner experience integrated directly into its existing Operations Management System.
+
+The portal must support the complete relationship between Davejoe and its clients, from the first enquiry through quotation, contract acceptance, execution, quality verification, handover, reviews, aftercare and repeat business.
+
+The portal must make communication transparent, preserve evidence, reduce disputes, support remote supervision and establish accountability.
+
+It must protect both Davejoe Interiors and its clients.
+
+The portal must not be a standalone website or complaint form. It must share data with the Company's CRM, project management, estimation, technical/QC, site reporting, procurement, logistics, finance and management dashboards.
+
+## 2. Supported Customer and Project Types
+
+The system must support five configurations:
+
+*A. B2C Residential:* Individual homeowners, landlords and private clients engaging Davejoe directly.
+
+*B. B2C Diaspora / Remote:* Homeowners and investors outside Nigeria who need detailed remote visibility of their projects.
+
+*C. B2B Direct Corporate:* Companies, banks, offices, hotels, schools, hospitals, property developers and other organisations contracting Davejoe directly.
+
+*D. B2B Subcontracting:* Main contractors, interior design companies and construction firms engaging Davejoe for painting, screeding, POP, drywall, special effects or other finishing packages.
+
+*E. B2B Multi-Party Projects:* Projects involving property owners, main contractors, consultants, architects, engineers, project managers, Quantity Surveyors, facilities teams and several subcontractors.
+
+These are configurable experiences within one system, not five separate applications.
+
+Remote monitoring must also be available to B2B customers.
+
+## 3. Core Principles
+
+- One customer account may contain multiple projects.
+- Each project has a unique ID and secure workspace.
+- Each project may contain multiple work packages and areas.
+- Every approval must identify the authorised approver.
+- Significant decisions must be recorded and version-controlled.
+- All client-facing progress claims must reflect verified information.
+- Client complaints must reach appropriate Management independently of site personnel.
+- Staff must see only information relevant to their roles.
+- The Executive Director — Business Operations & Strategy and Managing Director/CEO must have comprehensive authorised oversight.
+- The portal must be simple for clients and rigorous behind the scenes.
+- It must work well on smartphones and slower internet connections.
+- It must preserve historical records even after project closure.
+
+---
+
+# PART B — CUSTOMER ACCOUNTS, PROJECTS AND ACCESS
+
+## 4. Customer and Organisation Accounts
+
+Each customer must have a central profile containing:
+
+- Individual or company name.
+- Verified contact details.
+- Email and WhatsApp number.
+- Preferred communication channel.
+- Billing information.
+- Authorised representatives.
+- Associated projects.
+- Historical quotations and contracts.
+- Invoices and payments.
+- Aftercare history.
+- Referral records.
+- Communication preferences.
+
+For corporate customers, the system must support multiple contacts with different authority levels.
+
+For example, a designer may approve a colour but not additional expenditure. A Quantity Surveyor may review a variation but not authorise payment.
+
+## 5. Multiple Projects and Returning Customers
+
+A customer must not need a new unrelated account whenever they engage Davejoe.
+
+Examples:
+
+- A homeowner paints a residence this year and renovates another property next year.
+- A bank engages Davejoe for several branches.
+- A main contractor awards Davejoe painting work on three different projects.
+- A diaspora homeowner requests a touch-up six months after completion.
+
+The same customer account should display the relevant projects.
+
+Each project must maintain its own contract, specifications, documents, financial records, complaints and approvals.
+
+Minor aftercare should link to the original project. Substantial new work should generate a new linked project.
+
+## 6. Secure Access
+
+Clients receive a secure invitation through official email or WhatsApp.
+
+The portal should support simple, passwordless access where appropriate.
+
+Requirements:
+
+- Identity verification.
+- Expiring or revocable invitations.
+- Project-specific permissions.
+- Secure sessions.
+- Stronger authentication for sensitive approvals.
+- Immediate access revocation.
+- Protection against cross-client data exposure.
+- Audit logs.
+
+A project link alone must not provide unrestricted permanent access.
+
+---
+
+# PART C — CLIENT JOURNEY AND COMMERCIAL WORKFLOW
+
+## 7. Initial Client Experience
+
+A prospective client should be able to:
+
+- Receive a quotation link.
+- Review the proposed scope.
+- Review specifications and exclusions.
+- Review prices.
+- Read applicable terms and policies.
+- Download documents.
+- Request clarification.
+- Request a revised quotation.
+- Accept or decline.
+- Access approved payment instructions.
+
+After contract acceptance and satisfaction of applicable mobilisation conditions, additional project features become available.
+
+## 8. Quotation, Contract and Terms Acceptance
+
+The portal must support:
+
+- Residential quotations.
+- Corporate quotations.
+- Tender submissions.
+- Purchase orders.
+- Letters of award.
+- Subcontract agreements.
+- Formal contracts.
+- Variation quotations.
+
+The system must not assume that all clients accept Davejoe-generated quotations.
+
+Some B2B customers will issue their own contracts or purchase orders.
+
+Every agreement must record:
+
+- Contract/quotation number.
+- Document version.
+- Approved scope.
+- Pricing.
+- Exclusions.
+- Payment terms.
+- Relevant policies.
+- Authorised acceptance.
+- Date and time.
+- Supporting evidence.
+
+The client should be able to accept electronically where appropriate.
+
+Viewing a quotation must not count as acceptance.
+
+Material revisions require fresh approval.
+
+The governing contract's agreed document hierarchy and instruction procedures must be respected.
+
+## 9. Payment and Invoice Experience
+
+Clients should be able to:
+
+- View invoices.
+- Download invoices.
+- View payment schedules.
+- Access authorised payment instructions.
+- Upload payment evidence.
+- View verified payments.
+- Download receipts.
+- View approved variations and outstanding balances.
+
+Payments must be verified through authorised finance reconciliation.
+
+For corporate and subcontract projects, support:
+
+- Purchase-order references.
+- Progress claims.
+- Payment certificates.
+- Retention.
+- Approved deductions.
+- Certified values.
+- Final account status.
+
+Commercial information must be restricted to authorised users.
+
+---
+
+# PART D — PROJECT BRIEF, SPECIFICATIONS AND APPROVALS
+
+## 10. Digital Project Brief
+
+Every project must contain a structured Project Brief.
+
+It should include:
+
+- Project description.
+- Contractual customer.
+- Project location.
+- Work packages.
+- Approved scope.
+- Rooms, floors, zones or work areas.
+- Quantities and measurements.
+- Surface preparation.
+- Products and materials.
+- Colours and manufacturer codes.
+- Finishes.
+- Primer/coating systems.
+- Number of coats.
+- Relevant drawings.
+- Approved samples.
+- Exclusions.
+- Schedule.
+- Important technical notes.
+
+Clients must be able to review the approved brief.
+
+## 11. Room-by-Room and Area-by-Area Specifications
+
+For homeowners, display specifications by room.
+
+For commercial projects, display by floor, zone, room, elevation or work package.
+
+Example:
+
+*Kitchen*
+- Approved colour: Yellow.
+- Brand: Dulux.
+- Colour code: [Actual code].
+- Finish: [Specified finish].
+- Number of coats: [Approved specification].
+- Status: Approved.
+
+*Floor 6 — Ceiling*
+- Work package: POP and painting.
+- Drawing reference: [Reference].
+- Approved finish: [Specification].
+- Status: Awaiting technical clearance.
+
+The system must support photographs, sample references and drawing attachments.
+
+Screen colour previews must not be presented as exact substitutes for physical samples.
+
+## 12. Approval and Revision Control
+
+Each specification must have:
+
+- Version number.
+- Prepared by.
+- Date prepared.
+- Relevant approver.
+- Approval status.
+- Date approved.
+- Supporting documents.
+- Revision history.
+
+Statuses should include:
+
+Draft → Submitted → Awaiting Approval → Approved → Superseded / Rejected.
+
+An approved specification must not be silently edited.
+
+A later change must create a new version while preserving the original.
+
+## 13. Pre-Work Surface Inspection
+
+Technical/QC must record:
+
+- Existing substrate condition.
+- Screeding/plastering quality.
+- Cracks.
+- Dampness.
+- Unevenness.
+- Damage.
+- Photographs and videos.
+- Recommended correction.
+- Scope responsibility.
+- Cost implications.
+- Client/main-contractor decision.
+- Clearance to proceed.
+
+Where another contractor performed defective preparation, Davejoe must document observable defects and notify the appropriate authorised party.
+
+A decision to proceed despite identified limitations must be recorded.
+
+Such acknowledgement does not excuse Davejoe's own defective workmanship or authorise unsafe work.
+
+---
+
+# PART E — VERIFIED PROGRESS, EVIDENCE AND AREA PROTECTION
+
+## 14. Project Progress Monitoring
+
+The portal must provide:
+
+- Current project stage.
+- Planned milestones.
+- Completed activities.
+- Work in progress.
+- Upcoming work.
+- Pending client decisions.
+- Delays.
+- Technical concerns.
+- Verified progress.
+- Relevant photographs and videos.
+
+Progress must distinguish between:
+
+1. Reported by Site Supervisor.
+2. Inspected by Technical/QC.
+3. Verified as completed.
+4. Acknowledged by authorised client/main contractor.
+5. Formally handed over where applicable.
+
+These statuses must not be combined into one vague “completed” label.
+
+## 15. Area Completion, Condition Evidence & Handover Control
+
+*This is a mandatory core module for every project type, especially multi-contractor projects.*
+
+Davejoe frequently completes painting or finishing work before other contractors have finished their own activities.
+
+Other trades may subsequently damage completed walls, ceilings, screeding, POP or finishes.
+
+The system must provide dated, structured evidence of the condition of Davejoe's work before another trade enters or before the area is released.
+
+### 15.1 Area-Based Completion Record
+
+Every project should support individual area completion records.
+
+Examples:
+
+- Living Room.
+- Master Bedroom.
+- Floor 2 Corridor.
+- Floor 6 Conference Room.
+- Floor 8 POP Ceiling.
+- Staircase A.
+- External Elevation B.
+
+Each record should contain:
+
+- Project ID.
+- Work package.
+- Area/location.
+- Approved specification version.
+- Date work was reported completed.
+- Work performed.
+- Quantities where relevant.
+- Number of coats or applicable finish details.
+- Site Supervisor.
+- Assigned team.
+- Completion photographs.
+- Completion videos where appropriate.
+- Technical inspection.
+- Snag status.
+- Verification outcome.
+- Date/time of verification.
+- Client/main-contractor acknowledgement.
+- Handover status.
+
+### 15.2 Completion Evidence Workflow
+
+1. Site Supervisor marks an area as ready for inspection.
+2. Supervisor uploads clear photographs and relevant evidence.
+3. Technical/QC reviews the work.
+4. Technical/QC records pass, conditional pass or failure.
+5. Failed work generates a snag or corrective action.
+6. Verified work is submitted to the appropriate client/main-contractor representative for acknowledgement where required.
+7. The system records acknowledgement, comments, rejection or pending response.
+8. The area may then be released or handed over according to the governing project procedure.
+
+The developer must distinguish internal verification from external acknowledgement.
+
+### 15.3 Evidence Standards
+
+Evidence should include:
+
+- Wide-angle photographs identifying the area.
+- Close-up photographs of relevant finishes.
+- Date and time information.
+- Photographer/uploader identity.
+- Area reference.
+- Specification reference.
+- Relevant inspection notes.
+- Supporting video where necessary.
+
+Where possible, preserve original file metadata.
+
+A timestamp generated during upload must not be misrepresented as the time the image was captured.
+
+Evidence must be stored securely and protected against unauthorised alteration.
+
+### 15.4 Area Release to Other Trades
+
+The system should support a status such as:
+
+*“Davejoe Work Verified — Area Released for Subsequent Trades.”*
+
+This may be used when Davejoe has finished its assigned work and other contractors need access.
+
+The record should show:
+
+- Condition at release.
+- Outstanding snags, if any.
+- Date of release.
+- Receiving representative where applicable.
+- Any agreed protection measures.
+- Access or coordination notes.
+- Whether formal contractual handover has occurred.
+
+Area release must not automatically mean that all contractual risk or responsibility has transferred.
+
+### 15.5 Subsequent Damage Reporting
+
+If another contractor damages completed work, Davejoe personnel should be able to create a *Subsequent Damage / Rework Incident*.
+
+The record must include:
+
+- Original completion record.
+- Earlier photographs.
+- Date the damage was discovered.
+- New photographs.
+- Description of damage.
+- Location.
+- Known or suspected cause.
+- Relevant contractors or activities.
+- Witness information where available.
+- Technical assessment.
+- Proposed correction.
+- Cost/time implications.
+- Notification to the authorised customer/main contractor.
+- Response and final resolution.
+
+The system must not automatically declare another contractor liable merely because damage was discovered after Davejoe completed its work.
+
+Responsibility must be assessed using evidence and the governing contract.
+
+### 15.6 Rework Classification
+
+Rework must be categorised as:
+
+- Davejoe workmanship defect.
+- Client-requested change.
+- Main-contractor instruction.
+- Damage by another trade.
+- Pre-existing substrate issue.
+- Material issue.
+- Accidental damage.
+- Cause under investigation.
+- Other.
+
+The classification should be supported by evidence and authorised technical review.
+
+### 15.7 Commercial Follow-Up
+
+Where rework is outside Davejoe's original responsibility, the system should create a linked variation or claim record where appropriate.
+
+It must capture:
+
+- Original completed work.
+- Damage evidence.
+- Required remedial work.
+- Labour and materials.
+- Cost estimate.
+- Programme impact.
+- Contractual notice.
+- Authorised approval.
+- Execution and verification.
+
+Where the issue is attributable to Davejoe's workmanship, the system should generate the appropriate corrective work order without automatically charging the client.
+
+### 15.8 Example
+
+Davejoe completes painting on Floor 2.
+
+The Site Supervisor uploads completion photographs.
+
+Technical/QC verifies the area.
+
+The main contractor's authorised representative acknowledges the condition.
+
+An electrical contractor later damages the wall while installing fittings.
+
+Davejoe uploads photographs of the new damage and links them to the earlier completion record.
+
+The Technical Officer reviews the evidence.
+
+The appropriate main contractor representative receives a damage notice and proposed remedy.
+
+If the repair is chargeable under the contract, the correct variation procedure is followed before execution, subject to any urgent protective work required.
+
+This process creates evidence, improves coordination and helps prevent unfair allocation of rework costs.
+
+## 16. Before-and-After Comparison
+
+The portal should allow authorised users to compare:
+
+- Pre-work condition.
+- Work in progress.
+- Verified completion.
+- Condition at area release.
+- Subsequent damage.
+- Repaired condition.
+
+Clients should be able to see the relevant evidence according to their permissions.
+
+This feature is particularly useful for diaspora clients and corporate project managers.
+
+---
+
+# PART F — DIASPORA AND REMOTE PROJECT EXPERIENCE
+
+## 17. Remote Project Dashboard
+
+Diaspora clients should have detailed remote visibility without needing to call the site routinely.
+
+The dashboard should show:
+
+- Project stage.
+- Verified progress.
+- Room-by-room completion.
+- Latest photographs/videos.
+- Upcoming activities.
+- Outstanding approvals.
+- Technical inspection results.
+- Delays and concerns.
+- Approved variations.
+- Financial status.
+- Expected completion date.
+- Official Company contacts.
+
+The information must come from actual project records.
+
+## 18. Visual Progress Journal
+
+Support:
+
+- Before-work photographs.
+- Progress photographs.
+- Completed-area photographs.
+- Short videos.
+- Inspection evidence.
+- Material-delivery evidence where relevant.
+- Snag correction photographs.
+- Optional 360-degree walkthroughs.
+
+All media must be linked to the relevant project area and stage.
+
+## 19. Remote Walkthroughs
+
+Clients should be able to request a scheduled virtual walkthrough.
+
+The Company may integrate an approved video-meeting service.
+
+Important instructions arising from the walkthrough must be recorded in the project system.
+
+Recording requires appropriate notice and authorisation.
+
+## 20. Weekly Project Summary
+
+The system should produce a weekly client report containing:
+
+- Work completed.
+- Work verified.
+- Photographic highlights.
+- Upcoming activities.
+- Outstanding approvals.
+- Issues and delays.
+- Approved variations.
+- Relevant payment milestones.
+
+The report should be generated from recorded data and reviewed before release.
+
+## 21. Time Zones and Local Representatives
+
+Support:
+
+- Client time-zone preferences.
+- Suitable notification scheduling.
+- Local representatives with restricted permissions.
+- Remote approvals.
+- Revocation of delegated authority.
+
+A local representative may view progress or attend inspections without automatically receiving authority to approve additional expenditure.
+
+The same remote-monitoring features should be available to B2B clients managing projects from other cities or countries.
+
+---
+
+# PART G — B2B AND SUBCONTRACT PROJECT MANAGEMENT
+
+## 22. Multi-Organisation Projects
+
+A project may involve:
+
+- Property owner.
+- Main contractor.
+- Davejoe Interiors.
+- Architect.
+- Engineer.
+- Quantity Surveyor.
+- Project Manager.
+- Facilities Manager.
+- Other subcontractors.
+
+Each organisation must have appropriate project access.
+
+The end property owner must not automatically see Davejoe's subcontract prices, margins or commercial negotiations with the main contractor.
+
+## 23. Contract Authority Matrix
+
+For every B2B project, record who can:
+
+- Issue technical instructions.
+- Approve drawings.
+- Approve samples.
+- Request changes.
+- Approve variation costs.
+- Approve time extensions.
+- Verify completed work.
+- Certify payment.
+- Accept handover.
+
+A request from an unauthorised person must not automatically become an approved work instruction.
+
+## 24. Work Packages
+
+Support multiple work packages such as:
+
+- Painting.
+- Screeding.
+- POP.
+- Drywall.
+- Special effects.
+- Wall coverings.
+- Flooring.
+
+Each work package should have its own scope, specifications, quantities, programme, site reports, technical inspections, variations, payment records and completion status.
+
+## 25. Requests for Information (RFIs)
+
+Davejoe must be able to raise formal RFIs where drawings, specifications or responsibilities are unclear.
+
+Each RFI must contain:
+
+- Reference number.
+- Question.
+- Related area/work package.
+- Drawing references.
+- Supporting evidence.
+- Recipient.
+- Submission date.
+- Response.
+- Status.
+- Potential cost/time impact.
+
+An RFI response must not automatically be treated as a paid variation approval.
+
+## 26. Site Instructions
+
+Distinguish:
+
+- Informal observation.
+- Client request.
+- Technical clarification.
+- Formal site instruction.
+- Approved variation.
+- Emergency safety instruction.
+
+Site Supervisors may receive instructions but must record and escalate them appropriately.
+
+The portal must support external instructions from main contractors and their own project-management systems.
+
+## 27. B2B Progress Claims and Certification
+
+Support:
+
+- Work-done quantities.
+- Progress valuations.
+- Supporting photographs.
+- Inspection records.
+- Payment applications.
+- Certified amounts.
+- Retention.
+- Approved deductions.
+- Outstanding balances.
+- Final account records.
+
+This information must connect to the finance dashboard.
+
+---
+
+# PART H — CLIENT REQUESTS, COMPLAINTS AND COMMUNICATION
+
+## 28. Client Request Centre
+
+Clients should be able to:
+
+- Ask questions.
+- Request additional work.
+- Request colour changes.
+- Request material changes.
+- Report concerns.
+- Request inspections.
+- Request callbacks.
+- Request aftercare.
+
+Each submission must generate a unique reference number.
+
+## 29. Complaint Centre
+
+Clients must be able to report:
+
+- Poor workmanship.
+- Wrong colour.
+- Delay.
+- Damage.
+- Unprofessional behaviour.
+- Unauthorised payment requests.
+- Missing materials.
+- Unsafe conduct.
+- Poor site coordination.
+- Other concerns.
+
+Allow supporting:
+
+- Photographs.
+- Videos.
+- Documents.
+- Screenshots.
+- Relevant lawfully obtained audio recordings.
+
+Uploads must be protected by appropriate privacy, security and retention controls.
+
+## 30. Confidential Management Complaints
+
+Provide a confidential reporting route for allegations involving site personnel.
+
+Complaints about a Site Supervisor must not be controlled by that Supervisor.
+
+Sensitive cases should go to authorised Management and independent reviewers.
+
+## 31. Multichannel Communication
+
+Clients may use:
+
+- Client Portal.
+- Official WhatsApp.
+- Official email.
+- Official Company telephone.
+
+The portal is the central system of record, not the only permitted communication channel.
+
+Material conversations must be recorded or summarised in the project system.
+
+Supported integrations may capture communications automatically.
+
+Where integration is unavailable, authorised personnel must log the communication manually.
+
+## 32. Complaint and Request Workflow
+
+Received → Acknowledged → Assigned → Under Review → Action Required → Resolved → Closed.
+
+Each record should contain:
+
+- Project.
+- Request type.
+- Description.
+- Priority.
+- Responsible department.
+- Assigned officer.
+- Supporting evidence.
+- Response deadline.
+- Status.
+- Resolution history.
+
+Overdue or critical matters must be escalated.
+
+---
+
+# PART I — VARIATIONS AND CHANGE CONTROL
+
+## 33. Additional Work Requests
+
+The portal must support:
+
+- Extra painting.
+- Additional coats.
+- Colour changes.
+- Screeding repairs.
+- POP alterations.
+- Cleaning.
+- Dismantling.
+- Material removal.
+- Additional installations.
+- Other scope changes.
+
+No employee or artisan may independently agree to additional paid work.
+
+## 34. Variation Workflow
+
+1. Request received.
+2. Technical assessment.
+3. Scope and quantity verification.
+4. Cost/time assessment.
+5. Internal commercial approval.
+6. Client/main-contractor approval under the governing contract.
+7. Revised work instruction.
+8. Execution.
+9. Technical verification.
+10. Financial reconciliation.
+
+The system must preserve original and revised specifications.
+
+For B2B contracts, support instructed-but-unpriced, disputed and pending variations where required by the contract.
+
+## 35. Colour Change Example
+
+Client approves dark grey.
+
+Davejoe completes two coats.
+
+Client requests light grey.
+
+The system retains the original approval and completion evidence.
+
+Technical/QC assesses the additional work.
+
+A revised quotation is issued where appropriate.
+
+The authorised client accepts before the revised work is executed.
+
+If Davejoe applied the wrong colour against the approved specification, the issue must instead be investigated as a potential workmanship or execution defect.
+
+---
+
+# PART J — SITE CONDUCT AND COMPANY CONTROLS
+
+## 36. Unauthorised Work and Payments
+
+All personnel must comply with Company policies prohibiting unauthorised:
+
+- Private jobs connected to assigned projects.
+- Direct payments for Company work.
+- Commercial negotiations.
+- Material removal or resale.
+- Specification changes.
+- Client diversion.
+- Concealment of complaints.
+- Misuse of Company resources.
+
+The system should provide workers with a way to report improper requests.
+
+## 37. Operational Roles
+
+*Admin:* Client registration, quotation dispatch, communication intake, follow-up, approved mobilisation and administrative coordination.
+
+*Technical/QC:* Surface inspections, technical assessments, specification verification, defect investigation and quality certification.
+
+*Site Supervisor:* Assigned workers, site reporting, progress evidence, work instructions, material requests and incident reporting.
+
+*Logistics/Procurement:* Approved material sourcing and movements, with appropriate separation of permissions.
+
+*Accounts:* Invoices, reconciliation, approved payments and financial reporting.
+
+*Artisans/Subcontractors:* Assigned tasks and approved work instructions only.
+
+*Managing Director/CEO and Executive Director — Business Operations & Strategy:* Comprehensive authorised executive oversight.
+
+---
+
+# PART K — HANDOVER, REVIEWS AND AFTERCARE
+
+## 38. Handover
+
+The portal must support:
+
+- Technical completion inspection.
+- Snag list.
+- Corrective actions.
+- Area completion evidence.
+- Client/main-contractor acknowledgement.
+- Required completion documentation.
+- Final financial reconciliation.
+- Administrative closeout.
+
+For B2B projects, distinguish physical completion, practical completion, defects-liability obligations and final account closure.
+
+## 39. Written and Video Reviews
+
+At an appropriate closeout stage, invite clients to submit:
+
+- Written reviews.
+- Video testimonials.
+- Private feedback.
+- Referrals.
+
+Participation must be voluntary.
+
+Clients must not be forced to provide a positive review or video before receiving handover documents or legitimate aftercare.
+
+Separate permission is required to publish identifiable testimonials or project images.
+
+## 40. Testimonial Appreciation Offer
+
+Davejoe may offer a future-service incentive, subject to Management approval.
+
+Proposed example:
+
+A 10% discount on the labour component of one future eligible service for a qualifying voluntary video testimonial.
+
+The offer must have clear eligibility, expiry, exclusions and a maximum discount cap.
+
+It must not depend on giving a positive rating.
+
+Any published incentivised testimonial should be appropriately disclosed.
+
+## 41. Aftercare
+
+Clients should be able to request:
+
+- Warranty inspections.
+- Touch-ups.
+- Repairs.
+- Maintenance.
+- Additional work.
+- New projects.
+
+The system should classify the request and link it to the original project.
+
+Where appropriate, a new linked project should be created.
+
+---
+
+# PART L — NOTIFICATIONS, ANALYTICS AND SECURITY
+
+## 42. Notifications
+
+Send appropriate notifications for:
+
+- Quotation ready.
+- Acceptance recorded.
+- Payment verified.
+- Approval required.
+- New complaint.
+- Variation issued.
+- Technical concern.
+- Verified milestone.
+- Area completion.
+- Area release.
+- Subsequent damage incident.
+- Handover.
+- Aftercare updates.
+
+Clients should be able to manage non-essential notification preferences.
+
+## 43. Executive Dashboard
+
+Management should be able to monitor:
+
+- Leads.
+- Quotation conversion.
+- Active projects.
+- Outstanding approvals.
+- Verified completion.
+- Areas awaiting handover.
+- Damage after completion.
+- Rework causes and costs.
+- Client complaints.
+- Variations.
+- Outstanding payments.
+- Delays.
+- Quality performance.
+- Client satisfaction.
+- Repeat business.
+- Referrals.
+- Aftercare requests.
+
+Reports should be filterable by project, work package, period, client and responsible department.
+
+## 44. Security and Data Protection
+
+Implement:
+
+- Secure authentication.
+- Server-side permissions.
+- Project and organisation access boundaries.
+- Encryption.
+- Secure file storage.
+- Malware scanning.
+- Audit logs.
+- Document versioning.
+- Secure backups.
+- Data retention controls.
+- Consent management.
+- Restricted confidential complaints.
+- Access revocation.
+- Appropriate Nigerian data-protection compliance.
+
+The developer must conduct permission and security testing before launch.
+
+---
+
+# PART M — DEVELOPMENT PRIORITIES
+
+## 45. Phase 1 — Core Portal and Evidence Controls
+
+Build:
+
+1. Customer accounts.
+2. Secure project access.
+3. B2C/B2B project modes.
+4. Quotation/contract acceptance.
+5. Project briefs and specifications.
+6. Colour approvals.
+7. Surface inspections.
+8. Client complaints.
+9. Change requests.
+10. Variation approvals.
+11. Site progress reporting.
+12. *Area completion and condition evidence.*
+13. *Technical verification and area release records.*
+14. *Subsequent damage reporting.*
+15. Basic diaspora project visibility.
+16. Role-based permissions.
+17. Executive oversight.
+
+The data architecture must support advanced B2B functions even if they are introduced later.
+
+## 46. Phase 2 — Advanced B2B and Remote Experience
+
+Add:
+
+- Work-package management.
+- Corporate approval hierarchy.
+- RFIs.
+- Formal site instructions.
+- Progress claims.
+- Payment certification.
+- Retention tracking.
+- Weekly remote reports.
+- Enhanced progress journal.
+- Virtual walkthrough coordination.
+- Advanced document control.
+- Aftercare management.
+
+## 47. Phase 3 — Customer Experience and Automation
+
+Add:
+
+- Supported WhatsApp/email integrations.
+- Automated reminders.
+- Advanced analytics.
+- Written/video review workflows.
+- Referral management.
+- Customer loyalty offers.
+- Advanced reporting.
+- Corporate multi-project portfolios.
+
+---
+
+# PART N — REQUIRED TEST SCENARIOS
+
+The developer must demonstrate the following:
+
+1. A homeowner approves room colours electronically.
+2. Davejoe applies a different colour and the client reports it.
+3. A client changes an approved colour after work has commenced.
+4. A client receives a warning about poor screeding.
+5. A diaspora homeowner reviews verified progress from abroad.
+6. A diaspora homeowner reviews dated photographs and videos.
+7. A corporate customer has separate technical and financial approvers.
+8. A main contractor awards Davejoe a painting subcontract.
+9. Davejoe raises an RFI concerning defective preparation.
+10. Davejoe completes painting in an office area and uploads evidence.
+11. Technical/QC verifies the completed area.
+12. The main contractor acknowledges the area's condition.
+13. Another contractor subsequently damages the completed wall.
+14. Davejoe records the new damage and links it to the original completion evidence.
+15. A technical reviewer assesses the cause and proposed remedy.
+16. The system generates an appropriate variation or corrective work order.
+17. A client reports an unauthorised payment request by a Site Supervisor.
+18. The accused Supervisor cannot access or close the confidential complaint.
+19. A client submits a complaint through official WhatsApp and it appears in the central project record.
+20. A corporate client requests work at another location.
+21. A homeowner requests a touch-up six months after handover.
+22. A client provides optional written or video feedback.
+23. Management views all relevant active projects, complaints, variations and risks through its executive dashboard.
+
+---
+
+# PART O — DEVELOPER DELIVERABLES
+
+Before implementation, provide:
+
+1. Proposed architecture and integration with the existing Davejoe Operations Management System.
+2. Database/entity relationship diagram.
+3. Client, organisation, project and work-package data model.
+4. Roles and permissions matrix.
+5. Contract approval authority model.
+6. Mobile and desktop wireframes.
+7. Residential client journey.
+8. Diaspora client journey.
+9. Direct corporate client journey.
+10. Main contractor/subcontract journey.
+11. Quotation and acceptance workflow.
+12. Colour and specification approval workflow.
+13. Surface inspection workflow.
+14. Complaint and variation workflow.
+15. *Area completion, condition evidence and subsequent damage workflow.*
+16. Finance and payment integration design.
+17. Security and privacy plan.
+18. Development phases, estimated cost and timeline.
+19. Testing and deployment plan.
+20. Ongoing support, backup and maintenance plan.
+
+## FINAL INSTRUCTION TO DEVELOPER
+
+The Unified Davejoe Interiors Client Experience & Project Partner Portal must be built as a core component of the Company's digital operations platform.
+
+It must support individual homeowners, diaspora clients, corporate customers, main contractors and multi-party construction projects through one integrated system.
+
+It must provide effortless client access while enforcing clear contractual authority, reliable documentation, technical quality control, secure communication, verified completion evidence and proper variation management.
+
+*A central requirement is that Davejoe must be able to demonstrate what was agreed, what was executed, what condition the work was in when verified or released, what subsequently changed, and who authorised each decision.*
+
+The system must provide a transparent, accountable and professional experience for clients while allowing Davejoe's management to oversee multiple projects without depending on undocumented verbal reports.
+
+*This Version 3.0 document is the consolidated master specification and supersedes all earlier Client Portal briefs and addenda.*
