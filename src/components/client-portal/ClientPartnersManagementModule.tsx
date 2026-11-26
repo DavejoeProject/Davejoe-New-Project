@@ -170,11 +170,13 @@ export const ClientPartnersManagementModule: React.FC<ClientPartnersManagementMo
 }) => {
   const [partners, setPartners] = useState<ClientPartnerRecord[]>([]);
   const [projects, setProjects] = useState<AssignableProjectSummary[]>([]);
+  const [projectsLoading, setProjectsLoading] = useState(true);
+  const [projectsError, setProjectsError] = useState<string | null>(null);
   const [clientAccounts, setClientAccounts] = useState<ClientAccount[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [migrationPending, setMigrationPending] = useState(false);
+  const [migrationNotice, setMigrationNotice] = useState<string | null>(null);
   const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
   // Filters & Pagination
@@ -263,10 +265,29 @@ export const ClientPartnersManagementModule: React.FC<ClientPartnersManagementMo
     }, 4500);
   }, []);
 
+  const refreshAssignableProjects = useCallback(async () => {
+    setProjectsLoading(true);
+    setProjectsError(null);
+    try {
+      const res = await ClientPartnerService.listAssignableProjects();
+      if (res.error) {
+        setProjectsError(res.error);
+      } else {
+        setProjects(res.data);
+        setProjectsError(null);
+      }
+    } catch (err: any) {
+      setProjectsError(err?.message || 'Failed to load assignable projects.');
+    } finally {
+      setProjectsLoading(false);
+    }
+  }, []);
+
   const loadData = useCallback(async (quiet = false) => {
     if (!quiet) setIsLoading(true);
     else setIsRefreshing(true);
     setError(null);
+    setProjectsLoading(true);
 
     try {
       const [partnersRes, projectsRes, clientsRes] = await Promise.all([
@@ -277,14 +298,19 @@ export const ClientPartnersManagementModule: React.FC<ClientPartnersManagementMo
 
       if (partnersRes.error) {
         setError(partnersRes.error);
+        setMigrationNotice(null);
       } else {
         setPartners(partnersRes.data);
-        setMigrationPending(Boolean(partnersRes.migrationPending));
+        setMigrationNotice(partnersRes.migrationNotice || null);
       }
 
-      if (!projectsRes.error) {
+      if (projectsRes.error) {
+        setProjectsError(projectsRes.error);
+      } else {
         setProjects(projectsRes.data);
+        setProjectsError(null);
       }
+
       if (!clientsRes.error) {
         setClientAccounts(clientsRes.data);
       }
@@ -293,6 +319,7 @@ export const ClientPartnersManagementModule: React.FC<ClientPartnersManagementMo
     } finally {
       setIsLoading(false);
       setIsRefreshing(false);
+      setProjectsLoading(false);
     }
   }, []);
 
@@ -384,6 +411,7 @@ export const ClientPartnersManagementModule: React.FC<ClientPartnersManagementMo
   const handleOpenCreateModal = () => {
     resetCreateForm();
     setCreateOpen(true);
+    void refreshAssignableProjects();
   };
 
   const handleCreatePartner = async (e: React.FormEvent) => {
@@ -786,15 +814,13 @@ export const ClientPartnersManagementModule: React.FC<ClientPartnersManagementMo
         </div>
       </div>
 
-      {/* Migration Notice (only if RPC isn't yet deployed on remote DB) */}
-      {migrationPending && (
+      {/* Database Function Notice (shown only when get_client_partners_directory RPC is missing or needs patching) */}
+      {migrationNotice && (
         <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 flex items-start gap-2.5">
           <Info className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
           <div>
-            <p className="font-bold">Database Migration Pending</p>
-            <p className="mt-0.5 text-amber-800 leading-relaxed">
-              Run migration <code className="font-mono bg-amber-100 px-1 py-0.5 rounded">20261125000005_client_partners_separation_and_management.sql</code> in Supabase SQL Editor to enable full last-login tracking, direct account provisioning, and automatic project-assignment notifications.
-            </p>
+            <p className="font-bold">Database Function Update Required</p>
+            <p className="mt-0.5 text-amber-800 leading-relaxed">{migrationNotice}</p>
           </div>
         </div>
       )}
@@ -1461,13 +1487,24 @@ export const ClientPartnersManagementModule: React.FC<ClientPartnersManagementMo
 
                   {/* Initial Project Assignments */}
                   <div className="space-y-2.5 pt-2 border-t border-slate-100">
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between gap-2">
                       <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">
                         Assign Initial Projects ({newProjectIds.length} selected)
                       </label>
-                      <span className="text-[10px] text-slate-400">
-                        Clients only see explicitly assigned projects
-                      </span>
+                      <div className="flex items-center gap-2.5">
+                        <span className="text-[10px] text-slate-400">
+                          Clients only see explicitly assigned projects
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => void refreshAssignableProjects()}
+                          disabled={projectsLoading}
+                          className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#18b892] hover:underline disabled:opacity-50 cursor-pointer"
+                        >
+                          <RefreshCw className={`w-3 h-3 ${projectsLoading ? 'animate-spin' : ''}`} />
+                          Refresh
+                        </button>
+                      </div>
                     </div>
 
                     <input
@@ -1478,10 +1515,33 @@ export const ClientPartnersManagementModule: React.FC<ClientPartnersManagementMo
                       className="w-full h-8 px-3 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 outline-none focus:bg-white focus:border-[#18b892]"
                     />
 
+                    {projectsError && (
+                      <div className="p-2.5 rounded-xl bg-red-50 border border-red-200 text-xs text-red-700 flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <AlertCircle className="w-3.5 h-3.5 shrink-0 text-red-600" />
+                          <span className="truncate">Could not load projects: {projectsError}</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => void refreshAssignableProjects()}
+                          className="px-2 py-1 rounded-lg bg-white border border-red-200 text-red-700 font-semibold text-[11px] hover:bg-red-50 shrink-0 cursor-pointer"
+                        >
+                          Retry
+                        </button>
+                      </div>
+                    )}
+
                     <div className="max-h-40 overflow-y-auto border border-slate-200 rounded-xl divide-y divide-slate-100">
-                      {filteredCreateProjects.length === 0 ? (
+                      {projectsLoading && projects.length === 0 ? (
+                        <div className="p-4 text-center text-xs text-slate-500 flex items-center justify-center gap-2">
+                          <RefreshCw className="w-3.5 h-3.5 animate-spin text-[#18b892]" />
+                          <span>Loading projects...</span>
+                        </div>
+                      ) : filteredCreateProjects.length === 0 ? (
                         <div className="p-4 text-center text-xs text-slate-400">
-                          No projects available to select.
+                          {projects.length === 0
+                            ? 'No projects found in the database yet.'
+                            : 'No projects match your filter.'}
                         </div>
                       ) : (
                         filteredCreateProjects.map((proj) => {
@@ -1677,8 +1737,12 @@ export const ClientPartnersManagementModule: React.FC<ClientPartnersManagementMo
                     <button
                       type="button"
                       onClick={() => {
-                        setAssignPanelOpen((prev) => !prev);
+                        const nextOpen = !assignPanelOpen;
+                        setAssignPanelOpen(nextOpen);
                         setAssignAuthorities({ ...DEFAULT_CLIENT_PARTNER_AUTHORITIES });
+                        if (nextOpen) {
+                          void refreshAssignableProjects();
+                        }
                       }}
                       className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#18b892] hover:bg-[#139c7b] text-white text-xs font-bold cursor-pointer shrink-0"
                     >
@@ -1703,24 +1767,77 @@ export const ClientPartnersManagementModule: React.FC<ClientPartnersManagementMo
                         </button>
                       </div>
 
+                      {projectsError && (
+                        <div className="p-2.5 rounded-xl bg-red-50 border border-red-200 text-xs text-red-700 flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <AlertCircle className="w-3.5 h-3.5 shrink-0 text-red-600" />
+                            <span className="leading-snug">
+                              Failed to load projects: {projectsError}
+                            </span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => void refreshAssignableProjects()}
+                            className="px-2.5 py-1 rounded-lg bg-white border border-red-200 text-red-700 font-semibold text-[11px] hover:bg-red-50 shrink-0 cursor-pointer"
+                          >
+                            Retry
+                          </button>
+                        </div>
+                      )}
+
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
-                          <label className="block text-[11px] font-bold text-slate-700 mb-1">
-                            Select Project *
-                          </label>
+                          <div className="flex items-center justify-between mb-1">
+                            <label className="block text-[11px] font-bold text-slate-700">
+                              Select Project *
+                            </label>
+                            <button
+                              type="button"
+                              onClick={() => void refreshAssignableProjects()}
+                              disabled={projectsLoading}
+                              className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#18b892] hover:underline disabled:opacity-50 cursor-pointer"
+                            >
+                              <RefreshCw
+                                className={`w-3 h-3 ${projectsLoading ? 'animate-spin' : ''}`}
+                              />
+                              Refresh
+                            </button>
+                          </div>
                           <select
                             value={assignProjectId}
                             onChange={(e) => setAssignProjectId(e.target.value)}
-                            className="w-full h-9 px-3 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 outline-none focus:border-[#18b892]"
+                            disabled={projectsLoading && availableProjectsForSelectedPartner.length === 0}
+                            className="w-full h-9 px-3 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 outline-none focus:border-[#18b892] disabled:bg-slate-50 disabled:text-slate-400"
                           >
-                            <option value="">Choose a project...</option>
-                            {availableProjectsForSelectedPartner.map((proj) => (
-                              <option key={proj.id} value={proj.id}>
-                                {proj.project_code ? `[${proj.project_code}] ` : ''}
-                                {proj.name}
-                              </option>
-                            ))}
+                            <option value="">
+                              {projectsLoading && projects.length === 0
+                                ? 'Loading projects...'
+                                : availableProjectsForSelectedPartner.length === 0
+                                  ? projects.length > 0
+                                    ? 'All existing projects are already assigned'
+                                    : 'No projects available yet'
+                                  : 'Choose a project...'}
+                            </option>
+                            {availableProjectsForSelectedPartner.map((proj) => {
+                              const statusText = proj.status
+                                ? ` — ${proj.status.replace(/_/g, ' ')}`
+                                : '';
+                              return (
+                                <option key={proj.id} value={proj.id}>
+                                  {proj.project_code ? `[${proj.project_code}] ` : ''}
+                                  {proj.name}
+                                  {statusText}
+                                </option>
+                              );
+                            })}
                           </select>
+                          {!projectsLoading && !projectsError && availableProjectsForSelectedPartner.length === 0 && (
+                            <p className="mt-1 text-[10px] text-slate-500">
+                              {projects.length > 0
+                                ? 'This partner already has active access to all existing projects.'
+                                : 'No projects have been created in the system yet.'}
+                            </p>
+                          )}
                         </div>
 
                         <div>

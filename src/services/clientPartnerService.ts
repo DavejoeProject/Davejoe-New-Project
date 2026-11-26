@@ -127,13 +127,45 @@ function normalizeStatus(value?: string | null): ClientPartnerAccountStatus {
   return 'active';
 }
 
+function composeProjectLocation(row: Record<string, any> | null | undefined): string | null {
+  if (!row) return null;
+  if (typeof row.location === 'string' && row.location.trim().length > 0) {
+    return row.location.trim();
+  }
+  const parts = [row.address, row.city, row.state, row.country].filter(
+    (v): v is string => typeof v === 'string' && v.trim().length > 0
+  );
+  return parts.length > 0 ? parts.map((p) => p.trim()).join(', ') : null;
+}
+
+function isMissingRpcError(err: { code?: string; message?: string } | null | undefined): boolean {
+  if (!err) return false;
+  if (err.code === '42883' || err.code === 'PGRST202') return true;
+  const msg = (err.message || '').toLowerCase();
+  return (
+    msg.includes('could not find the function') ||
+    (msg.includes('function') && msg.includes('does not exist'))
+  );
+}
+
+function isStaleColumnError(err: { code?: string; message?: string } | null | undefined): boolean {
+  if (!err) return false;
+  if (err.code === '42703') return true;
+  const msg = (err.message || '').toLowerCase();
+  return msg.includes('column') && msg.includes('does not exist');
+}
+
 export class ClientPartnerService {
   /**
    * Lists all registered Client / Project Partner accounts (strictly isolated from internal Staff).
    * Uses the authoritative `get_client_partners_directory` RPC (includes auth.users.last_sign_in_at)
-   * with a resilient fallback using explicit PostgREST FK hints if the migration hasn't been applied yet.
+   * with a resilient fallback using explicit PostgREST FK hints if the RPC needs creation/patching.
    */
-  static async listClientPartners(): Promise<{ data: ClientPartnerRecord[]; error: string | null; migrationPending?: boolean }> {
+  static async listClientPartners(): Promise<{
+    data: ClientPartnerRecord[];
+    error: string | null;
+    migrationNotice?: string | null;
+  }> {
     try {
       const { data: rpcData, error: rpcError } = await supabase.rpc('get_client_partners_directory');
       if (!rpcError && Array.isArray(rpcData)) {
@@ -158,19 +190,19 @@ export class ClientPartnerService {
           active_project_count: Number(row.active_project_count || 0),
           assigned_projects: Array.isArray(row.assigned_projects) ? row.assigned_projects : [],
         }));
-        return { data: mapped, error: null };
+        return { data: mapped, error: null, migrationNotice: null };
       }
 
-      // Fallback when RPC has not yet been deployed to the remote Supabase instance
-      const isMissingRpc =
-        rpcError &&
-        (rpcError.code === '42883' ||
-          rpcError.message?.includes('does not exist') ||
-          rpcError.message?.includes('Could not find the function'));
+      const missingRpc = isMissingRpcError(rpcError);
+      const staleColumn = isStaleColumnError(rpcError);
 
-      if (!isMissingRpc && rpcError) {
-        return { data: [], error: rpcError.message };
+      if (!missingRpc && !staleColumn && rpcError) {
+        return { data: [], error: rpcError.message, migrationNotice: null };
       }
+
+      const migrationNotice = missingRpc
+        ? 'Run migrations 20261125000005_client_partners_separation_and_management.sql and 20261125000006_fix_client_partners_directory_and_projects_rpc.sql in Supabase SQL Editor to enable full last-login tracking and direct partner provisioning.'
+        : 'Run patch migration 20261125000006_fix_client_partners_directory_and_projects_rpc.sql in Supabase SQL Editor to update get_client_partners_directory() for the actual projects address columns and restore last-login tracking.';
 
       const [rolesRes, userRolesRes, profilesRes, contactsRes, accessRes] = await Promise.all([
         supabase.from('roles').select('id, slug'),
@@ -185,7 +217,7 @@ export class ClientPartnerService {
         supabase
           .from('client_project_access')
           .select(
-            '*, contact:client_contacts!client_project_access_client_contact_id_fkey(*), project:projects(id, name, project_code, status, location)'
+            '*, contact:client_contacts!client_project_access_client_contact_id_fkey(*), project:projects(*)'
           )
           .order('granted_at', { ascending: false }),
       ]);
@@ -235,9 +267,9 @@ export class ClientPartnerService {
           access_id: a.id,
           project_id: a.project_id,
           project_name: a.project?.name || 'Assigned Project',
-          project_code: a.project?.project_code || null,
+          project_code: a.project?.project_code || a.project?.code || null,
           project_status: a.project?.status || null,
-          project_location: a.project?.location || null,
+          project_location: composeProjectLocation(a.project),
           party_role: (a.party_role || 'owner') as PartyRole,
           is_active: a.is_active === true,
           granted_at: a.granted_at,
@@ -294,7 +326,7 @@ export class ClientPartnerService {
       });
 
       results.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-      return { data: results, error: null, migrationPending: true };
+      return { data: results, error: null, migrationNotice };
     } catch (err: any) {
       return { data: [], error: err?.message || 'Failed to load Client/Project Partners.' };
     }
@@ -476,18 +508,53 @@ export class ClientPartnerService {
   }
 
   /**
-   * Lists all projects available for assignment.
+   * Lists all existing projects eligible for assignment by authorized Management,
+   * Executive Director, or Admin users. Uses the dedicated authorized RPC first
+   * and falls back cleanly to `projects.select('*')` (composing location from
+   * actual address/city/state/country columns so it never fails on a missing
+   * `location` column).
    */
   static async listAssignableProjects(): Promise<{ data: AssignableProjectSummary[]; error: string | null }> {
     try {
+      const { data: rpcData, error: rpcError } = await supabase.rpc(
+        'get_assignable_projects_for_client_partners'
+      );
+
+      if (!rpcError && Array.isArray(rpcData)) {
+        const mapped: AssignableProjectSummary[] = rpcData.map((row: any) => ({
+          id: String(row.id),
+          name: String(row.name || 'Untitled Project'),
+          project_code: row.project_code || null,
+          status: row.status || null,
+          location: row.location || null,
+          client_id: row.client_id || null,
+        }));
+        return { data: mapped, error: null };
+      }
+
+      if (rpcError && !isMissingRpcError(rpcError)) {
+        return { data: [], error: rpcError.message };
+      }
+
+      // Direct table fallback using SELECT * (matches ClientPortalService.getAllProjectsSummary)
       const { data, error } = await supabase
         .from('projects')
-        .select('id, name, project_code, status, location, client_id')
+        .select('*')
         .order('created_at', { ascending: false });
+
       if (error) return { data: [], error: error.message };
-      return { data: (data || []) as AssignableProjectSummary[], error: null };
+
+      const mapped: AssignableProjectSummary[] = (data || []).map((row: any) => ({
+        id: String(row.id),
+        name: String(row.name || row.title || row.project_name || 'Untitled Project'),
+        project_code: row.project_code || row.code || null,
+        status: row.status || null,
+        location: composeProjectLocation(row),
+        client_id: row.client_id || null,
+      }));
+      return { data: mapped, error: null };
     } catch (err: any) {
-      return { data: [], error: err?.message || 'Failed to load projects.' };
+      return { data: [], error: err?.message || 'Failed to load assignable projects.' };
     }
   }
 

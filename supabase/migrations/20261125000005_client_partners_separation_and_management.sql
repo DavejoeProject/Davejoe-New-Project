@@ -346,7 +346,21 @@ BEGIN
             'project_name', pr.name,
             'project_code', pr.project_code,
             'project_status', pr.status,
-            'project_location', pr.location,
+            'project_location', NULLIF(
+              trim(
+                COALESCE(
+                  NULLIF(trim(COALESCE(to_jsonb(pr)->>'location', '')), ''),
+                  concat_ws(
+                    ', ',
+                    NULLIF(trim(COALESCE(to_jsonb(pr)->>'address', '')), ''),
+                    NULLIF(trim(COALESCE(to_jsonb(pr)->>'city', '')), ''),
+                    NULLIF(trim(COALESCE(to_jsonb(pr)->>'state', '')), ''),
+                    NULLIF(trim(COALESCE(to_jsonb(pr)->>'country', '')), '')
+                  )
+                )
+              ),
+              ''
+            ),
             'party_role', cpa.party_role,
             'is_active', cpa.is_active,
             'granted_at', cpa.granted_at,
