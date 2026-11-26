@@ -58,6 +58,7 @@ import { UnifiedInventoryModule } from '../inventory/UnifiedInventoryModule';
 import { WorkforceDirectoryModule } from '../workforce/WorkforceDirectoryModule';
 import { VendorsPartnersModule } from '../vendors/VendorsPartnersModule';
 import { ClientPortalOperationsModule } from '../client-portal/ClientPortalOperationsModule';
+import { ClientPartnersManagementModule } from '../client-portal/ClientPartnersManagementModule';
 import { WorkPackagesWorkspaceModule } from '../client-portal/WorkPackagesWorkspaceModule';
 import { AppNotification } from '../../services/notificationService';
 import { AccessDenied } from '../AccessDenied';
@@ -252,6 +253,11 @@ export const CeoDashboard: React.FC<CeoDashboardProps> = ({ initialModule = 'ove
   // Sync route on location change
   useEffect(() => {
     if (
+      location.pathname === '/management/client-partners' ||
+      location.pathname.startsWith('/management/client-partners/')
+    ) {
+      setCurrentModule('client-partners');
+    } else if (
       location.pathname === '/management/client-portal' ||
       location.pathname.startsWith('/management/client-portal/') ||
       location.pathname === '/management/clients' ||
@@ -347,7 +353,11 @@ export const CeoDashboard: React.FC<CeoDashboardProps> = ({ initialModule = 'ove
 
   const handleSelectModule = (mod: DashboardNavKey) => {
     setCurrentModule(mod);
-    if (mod === 'client-portal') {
+    if (mod === 'client-partners') {
+      if (location.pathname !== '/management/client-partners') {
+        navigate('/management/client-partners');
+      }
+    } else if (mod === 'client-portal') {
       if (location.pathname !== '/management/client-portal') {
         navigate('/management/client-portal');
       }
@@ -682,6 +692,10 @@ export const CeoDashboard: React.FC<CeoDashboardProps> = ({ initialModule = 'ove
                 />
               ) : currentModule === 'work-packages' ? (
                 <WorkPackagesWorkspaceModule
+                  onBackToDashboard={() => handleSelectModule('overview')}
+                />
+              ) : currentModule === 'client-partners' ? (
+                <ClientPartnersManagementModule
                   onBackToDashboard={() => handleSelectModule('overview')}
                 />
               ) : currentModule === 'client-portal' ? (

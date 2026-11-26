@@ -321,12 +321,14 @@ export const UserManagementView: React.FC<UserManagementViewProps> = ({
               }}
               className="w-full h-10 px-3 bg-slate-50/70 border border-slate-200 rounded-xl text-sm text-slate-700 outline-none focus:bg-white focus:border-[#18b892] transition-all cursor-pointer"
             >
-              <option value="all">All Roles</option>
-              {allRoles.map((r) => (
-                <option key={r.id} value={r.slug}>
-                  {r.name} ({r.slug})
-                </option>
-              ))}
+              <option value="all">All Internal Staff Roles</option>
+              {allRoles
+                .filter((r) => (r.slug || '').toLowerCase() !== 'client_partner')
+                .map((r) => (
+                  <option key={r.id} value={r.slug}>
+                    {r.name} ({r.slug})
+                  </option>
+                ))}
             </select>
           </div>
 

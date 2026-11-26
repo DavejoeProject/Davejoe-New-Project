@@ -1091,11 +1091,25 @@ export class WorkforceService {
       for (const dbRole of (dbRolesData as any[]) || []) {
         const canonicalSlug = normalizeRoleKey(dbRole.slug) || normalizeRoleKey(dbRole.name) || dbRole.slug;
         if (!canonicalSlug) continue;
+        // Client/Project Partners are external accounts managed in their own dedicated workspace, never Staff
+        if (canonicalSlug === 'client_partner' || (dbRole.slug || '').toLowerCase() === 'client_partner') continue;
         if (excludeLeadership && isLeadershipRole(canonicalSlug, dbRole.name)) continue;
         if (!dynamicRoleMap.has(canonicalSlug)) {
           dynamicRoleMap.set(canonicalSlug, { slug: canonicalSlug, name: dbRole.name || canonicalSlug });
         }
       }
+
+      const internalRoleSlugs = new Set([
+        'management',
+        'executive_director',
+        'admin',
+        'technical',
+        'supervisor',
+        'procurement',
+        'accounts',
+        'artisan',
+        'social_media_manager',
+      ]);
 
       const priorityOrder = [
         'management',
@@ -1126,6 +1140,15 @@ export class WorkforceService {
         }
         const uRoles = Array.from(dedupedRoleMap.values());
 
+        // Strictly exclude external-only Client / Project Partner accounts from Staff Management
+        const hasClientPartnerRole = uRoles.some(
+          (r) => r.slug === 'client_partner' || r.name.toLowerCase().includes('client / project partner')
+        );
+        const hasAnyInternalRole = uRoles.some((r) => internalRoleSlugs.has(r.slug));
+        if (hasClientPartnerRole && !hasAnyInternalRole) {
+          continue;
+        }
+
         const wf = workforceByProfileId[prof.id] || null;
         if (wf) processedWorkforceIds.add(wf.id);
 
@@ -1147,6 +1170,7 @@ export class WorkforceService {
           department = conf?.department || 'Operations';
 
           for (const r of uRoles) {
+            if (r.slug === 'client_partner') continue;
             if (excludeLeadership && isLeadershipRole(r.slug, r.name)) continue;
             if (!dynamicRoleMap.has(r.slug)) {
               dynamicRoleMap.set(r.slug, { slug: r.slug, name: r.name });

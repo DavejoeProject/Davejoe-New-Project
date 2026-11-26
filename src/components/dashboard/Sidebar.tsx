@@ -43,6 +43,7 @@ import {
   Handshake,
   Building2,
   Layers,
+  UserCheck,
 } from 'lucide-react';
 import { PWAInstallButton } from '../pwa/PWAInstallButton';
 import { BRAND_ASSETS } from '../../config/branding';
@@ -58,6 +59,7 @@ export type DashboardNavKey =
   // COMMERCIAL & SERVICE REQUESTS
   | 'service-requests'
   | 'client-portal'
+  | 'client-partners'
   // PROJECT PLANNING & PROJECTIONS
   | 'planning'
   // PROJECTS
@@ -127,6 +129,7 @@ export const SIDEBAR_SECTIONS: NavSectionConfig[] = [
   {
     title: 'COMMERCIAL & INTAKE',
     items: [
+      { key: 'client-partners', label: 'Client/Project Partners', icon: UserCheck },
       { key: 'client-portal', label: 'Client Portal & Protection', icon: Building2 },
       { key: 'service-requests', label: 'Service Requests', icon: FileQuestion },
     ],

@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import {
   Building2,
   LayoutDashboard,
@@ -84,12 +85,15 @@ type ClientSection =
 export const ClientPortalDashboard: React.FC = () => {
   const { user, profile, currentRoleKey, logout } = useAuth();
   const { getModuleUnreadCount } = useNotifications();
+  const location = useLocation();
+  const navigate = useNavigate();
   const isLeadershipPreview = currentRoleKey === 'management' || currentRoleKey === 'executive_director';
 
   const [loading, setLoading] = useState(true);
   const [bundleLoading, setBundleLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const [unauthorizedProjectBlocked, setUnauthorizedProjectBlocked] = useState(false);
 
   const [accessRecords, setAccessRecords] = useState<ClientProjectAccess[]>([]);
   const [selectedProjectId, setSelectedProjectId] = useState<string>('');
@@ -145,6 +149,17 @@ export const ClientPortalDashboard: React.FC = () => {
     [accessRecords, selectedProjectId]
   );
 
+  // Extract optional deep-linked projectId from /client/projects/:projectId or ?projectId=...
+  const requestedUrlProjectId = useMemo(() => {
+    const pathMatch = location.pathname.match(/^\/client\/projects\/([^/?#]+)/);
+    if (pathMatch && pathMatch[1]) {
+      return decodeURIComponent(pathMatch[1]).trim();
+    }
+    const params = new URLSearchParams(location.search);
+    const qId = params.get('projectId');
+    return qId ? qId.trim() : null;
+  }, [location.pathname, location.search]);
+
   // Load accessible projects for this client user (or leadership preview)
   useEffect(() => {
     let mounted = true;
@@ -152,6 +167,7 @@ export const ClientPortalDashboard: React.FC = () => {
       if (!user) return;
       setLoading(true);
       setError(null);
+      setUnauthorizedProjectBlocked(false);
       try {
         const ctx = await ClientPortalService.getMyClientPortalContext(user.id);
         let records = ctx.accessRecords;
@@ -182,12 +198,34 @@ export const ClientPortalDashboard: React.FC = () => {
 
         if (mounted) {
           setAccessRecords(records);
+
+          if (requestedUrlProjectId) {
+            const matched = records.find((r) => r.project_id === requestedUrlProjectId);
+            if (!matched) {
+              // Strictly block unauthorized URL project UUID spoofing without querying that project
+              setUnauthorizedProjectBlocked(true);
+              setSelectedProjectId('');
+              setBundle(null);
+              return;
+            }
+            setUnauthorizedProjectBlocked(false);
+            setSelectedProjectId(matched.project_id);
+            const model = matched.project?.project_delivery_model;
+            if (model === 'direct_corporate' || model === 'main_contractor_subcontract' || model === 'multi_party_commercial') {
+              setBriefViewMode('commercial');
+            }
+            return;
+          }
+
           if (records.length > 0) {
             setSelectedProjectId(records[0].project_id);
             const model = records[0].project?.project_delivery_model;
             if (model === 'direct_corporate' || model === 'main_contractor_subcontract' || model === 'multi_party_commercial') {
               setBriefViewMode('commercial');
             }
+          } else {
+            setSelectedProjectId('');
+            setBundle(null);
           }
         }
       } catch (err: any) {
@@ -200,7 +238,7 @@ export const ClientPortalDashboard: React.FC = () => {
     return () => {
       mounted = false;
     };
-  }, [user, isLeadershipPreview]);
+  }, [user, isLeadershipPreview, requestedUrlProjectId]);
 
   const refreshBundle = useCallback(async () => {
     if (!selectedProjectId) return;
@@ -839,7 +877,14 @@ export const ClientPortalDashboard: React.FC = () => {
             {accessRecords.length > 0 && (
               <select
                 value={selectedProjectId}
-                onChange={(e) => setSelectedProjectId(e.target.value)}
+                onChange={(e) => {
+                  const nextId = e.target.value;
+                  setUnauthorizedProjectBlocked(false);
+                  setSelectedProjectId(nextId);
+                  if (location.pathname !== '/client') {
+                    navigate(`/client/projects/${nextId}`, { replace: true });
+                  }
+                }}
                 aria-label="Switch project"
                 className="h-9 px-3 rounded-lg border border-slate-200 bg-white text-xs font-medium text-slate-800 focus:outline-none focus:border-[#18b892]"
               >
@@ -881,13 +926,45 @@ export const ClientPortalDashboard: React.FC = () => {
             </div>
           )}
 
-          {accessRecords.length === 0 ? (
-            <div className="bg-white rounded-xl border border-slate-200 p-10 text-center space-y-3">
-              <Building2 className="w-10 h-10 text-slate-300 mx-auto" />
-              <h2 className="text-base font-bold text-slate-900">No Active Project Access</h2>
-              <p className="text-sm text-slate-500 max-w-md mx-auto">
-                Your account currently has no active project permissions. If you received an invitation link from Davejoe
-                Interiors, open that link to activate your project access.
+          {unauthorizedProjectBlocked ? (
+            <div className="bg-white rounded-2xl border border-rose-200 p-10 text-center space-y-3 shadow-2xs">
+              <div className="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center mx-auto">
+                <Lock className="w-6 h-6" />
+              </div>
+              <h2 className="text-base font-bold text-slate-900">Project Access Restricted</h2>
+              <p className="text-xs sm:text-sm text-slate-600 max-w-md mx-auto leading-relaxed">
+                You are not authorized to view the requested project. Your Client Portal only displays projects
+                explicitly assigned to your account by Davejoe Interiors Management.
+              </p>
+              <div className="pt-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setUnauthorizedProjectBlocked(false);
+                    navigate('/client', { replace: true });
+                    if (accessRecords.length > 0) {
+                      setSelectedProjectId(accessRecords[0].project_id);
+                    }
+                  }}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#18b892] hover:bg-[#139c7b] text-white text-xs font-bold cursor-pointer"
+                >
+                  Return to My Authorized Projects
+                </button>
+              </div>
+            </div>
+          ) : accessRecords.length === 0 ? (
+            <div className="bg-white rounded-2xl border border-slate-200 p-10 text-center space-y-3 shadow-2xs">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-[#18b892] flex items-center justify-center mx-auto">
+                <Building2 className="w-6 h-6" />
+              </div>
+              <h2 className="text-base font-bold text-slate-900">No Projects Assigned Yet</h2>
+              <p className="text-xs sm:text-sm text-slate-600 max-w-md mx-auto leading-relaxed">
+                Welcome, <span className="font-semibold text-slate-800">{actorName}</span>. Your Client &amp; Project
+                Partner account is active, but no projects have been assigned to your portal yet. Once Davejoe
+                Interiors Management assigns your project(s), they will appear here automatically.
+              </p>
+              <p className="text-[11px] text-slate-400">
+                Signed in as <span className="font-mono text-slate-600">{user?.email}</span>
               </p>
             </div>
           ) : !bundle ? (

@@ -40,6 +40,7 @@ import {
   FileQuestion,
   Handshake,
   Layers,
+  UserCheck,
 } from 'lucide-react';
 import { DailyAttendanceWidget } from '../attendance/DailyAttendanceWidget';
 import { ProjectMaterialRemnantsModule } from '../remnants/ProjectMaterialRemnantsModule';
@@ -55,6 +56,7 @@ import { ServiceRequestsModule } from './ServiceRequestsModule';
 import { MaterialsDirectoryModule } from '../dashboard/MaterialsDirectoryModule';
 import { AddMaterialModal } from '../dashboard/AddMaterialModal';
 import { ClientPortalOperationsModule } from '../client-portal/ClientPortalOperationsModule';
+import { ClientPartnersManagementModule } from '../client-portal/ClientPartnersManagementModule';
 import { WorkPackagesWorkspaceModule } from '../client-portal/WorkPackagesWorkspaceModule';
 import { UnifiedInventoryModule } from '../inventory/UnifiedInventoryModule';
 import { WorkforceDirectoryModule } from '../workforce/WorkforceDirectoryModule';
@@ -76,6 +78,7 @@ type AdminTab =
   | 'work-packages'
   | 'attendance'
   | 'clients'
+  | 'client-partners'
   | 'roles'
   | 'audit-logs'
   | 'photos'
@@ -134,6 +137,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ initialTab }) =>
     if (path.includes('/admin/my-projects')) return 'my-projects';
     if (path.includes('/admin/work-packages')) return 'work-packages';
     if (path.includes('/admin/projects')) return 'projects';
+    if (path.includes('/admin/client-partners')) return 'client-partners';
     if (path.includes('/admin/clients')) return 'clients';
     if (path.includes('/admin/photos')) return 'photos';
     if (path.includes('/admin/remnants')) return 'remnants';
@@ -287,6 +291,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ initialTab }) =>
     {
       title: 'COMMERCIAL & INTAKE',
       items: [
+        { key: 'client-partners' as AdminTab, label: 'Client/Project Partners', icon: UserCheck },
         { key: 'service-requests' as AdminTab, label: 'Service Requests', icon: FileQuestion },
         { key: 'inventory' as AdminTab, label: 'Inventory & Sales', icon: Package },
       ],
@@ -1087,6 +1092,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ initialTab }) =>
           {/* TAB 8: CLIENTS & CLIENT PORTAL */}
           {activeTab === 'clients' && (
             <ClientPortalOperationsModule onBackToDashboard={() => handleSelectTab('dashboard')} />
+          )}
+
+          {/* TAB: CLIENT / PROJECT PARTNERS (SEPARATE FROM STAFF) */}
+          {activeTab === 'client-partners' && (
+            <ClientPartnersManagementModule onBackToDashboard={() => handleSelectTab('dashboard')} />
           )}
 
           {/* TAB 9: TASK INSTRUCTIONS & HANDOVER */}

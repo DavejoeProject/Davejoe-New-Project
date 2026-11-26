@@ -64,6 +64,7 @@ import {
 import { ProjectMaterialRemnantsModule } from '../remnants/ProjectMaterialRemnantsModule';
 import { ToolsEquipmentModule } from '../tools/ToolsEquipmentModule';
 import { ClientPortalOperationsModule } from '../client-portal/ClientPortalOperationsModule';
+import { ClientPartnersManagementModule } from '../client-portal/ClientPartnersManagementModule';
 import { WorkPackagesWorkspaceModule } from '../client-portal/WorkPackagesWorkspaceModule';
 import { TaskInstructionsPanel } from '../tasks/TaskInstructionsPanel';
 import { ProjectPlanningModule } from '../planning/ProjectPlanningModule';
@@ -91,6 +92,7 @@ export type ExecutiveModuleKey =
   | 'procurement'
   | 'finance'
   | 'clients'
+  | 'client-partners'
   | 'staff'
   | 'artisans'
   | 'users'
@@ -181,7 +183,9 @@ export const ExecutiveDashboard: React.FC = () => {
 
   // Sync active module if navigated via deep link
   useEffect(() => {
-    if (location.pathname.includes('/executive/work-packages')) {
+    if (location.pathname.includes('/executive/client-partners')) {
+      setActiveModule('client-partners');
+    } else if (location.pathname.includes('/executive/work-packages')) {
       setActiveModule('work-packages');
     } else if (location.pathname.includes('/executive/users')) {
       setActiveModule('users');
@@ -398,6 +402,7 @@ export const ExecutiveDashboard: React.FC = () => {
     {
       title: 'COMMERCIAL & LOGISTICS',
       items: [
+        { key: 'client-partners' as ExecutiveModuleKey, label: 'Client/Project Partners', icon: UserCheck },
         { key: 'finance' as ExecutiveModuleKey, label: 'Finance & Commercial', icon: DollarSign },
         { key: 'procurement' as ExecutiveModuleKey, label: 'Procurement & Logistics', icon: Truck, count: purchaseOrdersList.length },
         { key: 'leads' as ExecutiveModuleKey, label: 'Business Development & Leads', icon: Briefcase, isUnconfigured: true },
@@ -428,6 +433,7 @@ export const ExecutiveDashboard: React.FC = () => {
     if (modKey === 'overview') {
       if (location.pathname !== '/executive') navigate('/executive');
     } else if (
+      modKey === 'client-partners' ||
       modKey === 'work-packages' ||
       modKey === 'workforce-directory' ||
       modKey === 'vendors-partners' ||
@@ -2013,6 +2019,11 @@ export const ExecutiveDashboard: React.FC = () => {
           {/* VIEW 19: WORK PACKAGES PORTFOLIO WORKSPACE */}
           {activeModule === 'work-packages' && (
             <WorkPackagesWorkspaceModule onBackToDashboard={() => handleSelectModule('overview')} />
+          )}
+
+          {/* VIEW 20: CLIENT / PROJECT PARTNERS (SEPARATE FROM STAFF) */}
+          {activeModule === 'client-partners' && (
+            <ClientPartnersManagementModule onBackToDashboard={() => handleSelectModule('overview')} />
           )}
         </div>
       </main>

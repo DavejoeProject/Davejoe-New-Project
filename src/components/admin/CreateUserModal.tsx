@@ -337,19 +337,19 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
                 </div>
               </div>
 
-              {/* Nine Roles Multi-Select Checkboxes */}
+              {/* Nine Internal Staff Roles Multi-Select Checkboxes */}
               <div className="space-y-2.5 pt-2 border-t border-slate-100">
                 <div className="flex items-center justify-between">
                   <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
-                    Select Assigned Roles ({selectedRoleSlugs.length} selected)
+                    Select Assigned Internal Staff Roles ({selectedRoleSlugs.length} selected)
                   </label>
                   <span className="text-[10px] text-slate-400">
-                    Both leadership roles can grant all 9 roles
+                    Internal Davejoe staff roles only (9 roles)
                   </span>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-56 overflow-y-auto pr-1">
-                  {ROLE_DEFINITIONS.map((r) => {
+                  {ROLE_DEFINITIONS.filter((r) => r.slug !== 'client_partner').map((r) => {
                     const isChecked = selectedRoleSlugs.includes(r.slug);
                     const RoleIcon = r.icon;
                     return (
@@ -380,6 +380,11 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
                     );
                   })}
                 </div>
+
+                <p className="text-[11px] text-slate-500 bg-slate-50 border border-slate-200/80 rounded-xl px-3 py-2">
+                  Need to create an external client, contractor, or project partner account? Use the dedicated{' '}
+                  <span className="font-semibold text-slate-700">Client/Project Partners</span> menu in the main sidebar.
+                </p>
               </div>
 
               {/* Initial Account Status Selection */}

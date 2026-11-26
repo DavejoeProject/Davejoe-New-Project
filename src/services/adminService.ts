@@ -597,6 +597,25 @@ export class AdminService {
           };
         });
 
+        const internalRoleSlugs = new Set([
+          'management',
+          'executive_director',
+          'admin',
+          'technical',
+          'supervisor',
+          'procurement',
+          'accounts',
+          'artisan',
+          'social_media_manager',
+        ]);
+
+        // Strictly exclude external-only Client/Project Partner accounts from internal Staff/Users directory
+        allItems = allItems.filter((u) => {
+          const hasClientPartner = u.roles.some((r) => (r.slug || '').toLowerCase() === 'client_partner');
+          const hasInternal = u.roles.some((r) => internalRoleSlugs.has((r.slug || '').toLowerCase()));
+          return !(hasClientPartner && !hasInternal);
+        });
+
         if (params?.roleSlug && params.roleSlug !== 'all') {
           allItems = allItems.filter((u) => u.roles.some((r) => r.slug === params.roleSlug));
         }
@@ -706,21 +725,39 @@ export class AdminService {
         }
       }
 
-      // 4. Transform and filter by roleSlug if requested
-      let result: AdminUserListItem[] = profiles.map((p: any) => ({
-        id: p.id,
-        email: p.email || null,
-        first_name: p.first_name || null,
-        last_name: p.last_name || null,
-        display_name: p.display_name || null,
-        phone: p.phone || null,
-        job_title: p.job_title || null,
-        status: p.status || 'active',
-        created_at: p.created_at,
-        updated_at: p.updated_at,
-        roles: rolesByUser[p.id] || [],
-        workforce: workforceByUser[p.id] || null,
-      }));
+      const fallbackInternalSlugs = new Set([
+        'management',
+        'executive_director',
+        'admin',
+        'technical',
+        'supervisor',
+        'procurement',
+        'accounts',
+        'artisan',
+        'social_media_manager',
+      ]);
+
+      // 4. Transform and filter out external-only client partners + apply roleSlug filter
+      let result: AdminUserListItem[] = profiles
+        .map((p: any) => ({
+          id: p.id,
+          email: p.email || null,
+          first_name: p.first_name || null,
+          last_name: p.last_name || null,
+          display_name: p.display_name || null,
+          phone: p.phone || null,
+          job_title: p.job_title || null,
+          status: p.status || 'active',
+          created_at: p.created_at,
+          updated_at: p.updated_at,
+          roles: rolesByUser[p.id] || [],
+          workforce: workforceByUser[p.id] || null,
+        }))
+        .filter((u) => {
+          const hasClientPartner = u.roles.some((r) => (r.slug || '').toLowerCase() === 'client_partner');
+          const hasInternal = u.roles.some((r) => fallbackInternalSlugs.has((r.slug || '').toLowerCase()));
+          return !(hasClientPartner && !hasInternal);
+        });
 
       if (params?.roleSlug && params.roleSlug !== 'all') {
         result = result.filter((u) =>
@@ -730,7 +767,7 @@ export class AdminService {
 
       return {
         users: result,
-        totalCount: count || result.length,
+        totalCount: result.length < (profiles?.length || 0) ? result.length : count || result.length,
       };
     } catch (err) {
       console.error('[AdminService] Error loading users:', err);

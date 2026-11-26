@@ -284,6 +284,22 @@ export default function App() {
             }
           />
           <Route
+            path="/management/client-partners"
+            element={
+              <ManagementRouteGuard>
+                <CeoDashboard initialModule="client-partners" />
+              </ManagementRouteGuard>
+            }
+          />
+          <Route
+            path="/management/client-partners/*"
+            element={
+              <ManagementRouteGuard>
+                <CeoDashboard initialModule="client-partners" />
+              </ManagementRouteGuard>
+            }
+          />
+          <Route
             path="/management/client-portal"
             element={
               <ManagementRouteGuard>
